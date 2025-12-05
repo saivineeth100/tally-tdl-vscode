@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Ledauditperiod": {
+      "Name": "Ledauditperiod",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Ledauditperiod"
+      }
+    },
+    "Ledaudittype": {
+      "Name": "Ledaudittype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Ledauditperiod": "Ledauditperiod"
+  },
+  "Name": "Ledgerauditclass"
+}

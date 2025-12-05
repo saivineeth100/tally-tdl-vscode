@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Beneficiary Code": {
+      "Name": "Beneficiary Code",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Company Bank": {
+      "Name": "Company Bank",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Beneficiary Code Details"
+}

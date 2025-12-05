@@ -1,0 +1,387 @@
+{
+  "Properties": {
+    "Actual Qty": {
+      "Name": "Actual Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Additional Details": {
+      "Name": "Additional Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Additional Details"
+      }
+    },
+    "Addl Amount": {
+      "Name": "Addl Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addlexpenseamount": {
+      "Name": "Addlexpenseamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amount": {
+      "Name": "Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Batch Discount": {
+      "Name": "Batch Discount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Batch Id": {
+      "Name": "Batch Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Batch Name": {
+      "Name": "Batch Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Batch Phys Diff": {
+      "Name": "Batch Phys Diff",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Batch Rate": {
+      "Name": "Batch Rate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Batchdiffval": {
+      "Name": "Batchdiffval",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Billed Qty": {
+      "Name": "Billed Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Destination Godown Name": {
+      "Name": "Destination Godown Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Dynamiccstiscleared": {
+      "Name": "Dynamiccstiscleared",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Dynamiccstno": {
+      "Name": "Dynamiccstno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Dynamiccstparentitem": {
+      "Name": "Dynamiccstparentitem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Escalationrate": {
+      "Name": "Escalationrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Expiry Period": {
+      "Name": "Expiry Period",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Due Date"
+      }
+    },
+    "Godown Name": {
+      "Name": "Godown Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Inclvatrate": {
+      "Name": "Inclvatrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Indent Id": {
+      "Name": "Indent Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Indent No": {
+      "Name": "Indent No",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Indentduedate": {
+      "Name": "Indentduedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Due Date"
+      }
+    },
+    "Mfd On": {
+      "Name": "Mfd On",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Narration": {
+      "Name": "Narration",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Order Id": {
+      "Name": "Order Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Order Year End": {
+      "Name": "Order Year End",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Orderduedate": {
+      "Name": "Orderduedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Due Date"
+      }
+    },
+    "Orderno": {
+      "Name": "Orderno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Orderpreclosuredate": {
+      "Name": "Orderpreclosuredate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Orderpreclosureqty": {
+      "Name": "Orderpreclosureqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Orderpreclosurereason": {
+      "Name": "Orderpreclosurereason",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Ordertype": {
+      "Name": "Ordertype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Origactualqty": {
+      "Name": "Origactualqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Origbilledqty": {
+      "Name": "Origbilledqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Origrate": {
+      "Name": "Origrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Parentitem": {
+      "Name": "Parentitem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Revisedrate": {
+      "Name": "Revisedrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumbatchname": {
+      "Name": "Sumbatchname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumdynamiccstno": {
+      "Name": "Sumdynamiccstno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumindentno": {
+      "Name": "Sumindentno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumorderno": {
+      "Name": "Sumorderno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumtrackingnumber": {
+      "Name": "Sumtrackingnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Track Id": {
+      "Name": "Track Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Tracking Number": {
+      "Name": "Tracking Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Tracking Year End": {
+      "Name": "Tracking Year End",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Vouchercomponentlist": {
+      "Name": "Vouchercomponentlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Inventory Entry",
+        "Schema Missing": "Yes"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Additional Details": "Additional Details",
+    "Vouchercomponentlist": "Inventory Entry"
+  },
+  "Name": "Batch Allocations"
+}

@@ -1,0 +1,418 @@
+{
+  "Properties": {
+    "Account No": {
+      "Name": "Account No",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Alteredby": {
+      "Name": "Alteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Alteredobjects": {
+      "Name": "Alteredobjects",
+      "IsComplex": false,
+      "Meta": {}
+    },
+    "Alteredon": {
+      "Name": "Alteredon",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Alterid": {
+      "Name": "Alterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Audited On": {
+      "Name": "Audited On",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Bankid": {
+      "Name": "Bankid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bankifscode": {
+      "Name": "Bankifscode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bankingconfigbankid": {
+      "Name": "Bankingconfigbankid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bankledgername": {
+      "Name": "Bankledgername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Contriobjtype": {
+      "Name": "Contriobjtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Enteredby": {
+      "Name": "Enteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exceptioncontributorscount": {
+      "Name": "Exceptioncontributorscount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Exchange Action": {
+      "Name": "Exchange Action",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Exchange Activity Id": {
+      "Name": "Exchange Activity Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Exchange Definition Id": {
+      "Name": "Exchange Definition Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Exchange Definition Name": {
+      "Name": "Exchange Definition Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exchange Filename": {
+      "Name": "Exchange Filename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exchange Status": {
+      "Name": "Exchange Status",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Exchange Sub Action": {
+      "Name": "Exchange Sub Action",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Exchangecontriobjs": {
+      "Name": "Exchangecontriobjs",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Exchangecontriobj"
+      }
+    },
+    "Exchangecreatedtimestamp": {
+      "Name": "Exchangecreatedtimestamp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Exchangeerrordetails": {
+      "Name": "Exchangeerrordetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excherrinfo"
+      }
+    },
+    "Exchangeimportsourceobj": {
+      "Name": "Exchangeimportsourceobj",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Exchangeimportsourceobj"
+      }
+    },
+    "Exchangepurpose": {
+      "Name": "Exchangepurpose",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Exchangetimestamp": {
+      "Name": "Exchangetimestamp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Failedcontributorscount": {
+      "Name": "Failedcontributorscount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Fromdate": {
+      "Name": "Fromdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Gstin": {
+      "Name": "Gstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Ignoredcontributorscount": {
+      "Name": "Ignoredcontributorscount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Is Cancelled": {
+      "Name": "Is Cancelled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Consumed": {
+      "Name": "Is Consumed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Maskedmobileno": {
+      "Name": "Maskedmobileno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Mobileno": {
+      "Name": "Mobileno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Operationreferenceid": {
+      "Name": "Operationreferenceid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Passwordchangereason": {
+      "Name": "Passwordchangereason",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Passwordpolicy": {
+      "Name": "Passwordpolicy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payment Details": {
+      "Name": "Payment Details",
+      "IsComplex": false,
+      "Meta": {}
+    },
+    "Period": {
+      "Name": "Period",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Processedcontributorscount": {
+      "Name": "Processedcontributorscount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Receivedobjects": {
+      "Name": "Receivedobjects",
+      "IsComplex": false,
+      "Meta": {}
+    },
+    "Returntype": {
+      "Name": "Returntype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sandboxflag": {
+      "Name": "Sandboxflag",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Taxunitname": {
+      "Name": "Taxunitname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Telemetryexchangesubtype": {
+      "Name": "Telemetryexchangesubtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Telemetryidentifier": {
+      "Name": "Telemetryidentifier",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Telemetrypurpose": {
+      "Name": "Telemetrypurpose",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tncaccepted": {
+      "Name": "Tncaccepted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Todate": {
+      "Name": "Todate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "User Id": {
+      "Name": "User Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Username": {
+      "Name": "Username",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "SDF Id": "EX",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Exchangecontriobjs": "Exchangecontriobj",
+    "Exchangeerrordetails": "Excherrinfo",
+    "Exchangeimportsourceobj": "Exchangeimportsourceobj"
+  },
+  "Name": "Exchange Activity"
+}

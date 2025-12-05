@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Amount": {
+      "Name": "Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Tax Type": {
+      "Name": "Tax Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Taxrate": {
+      "Name": "Taxrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Taxrateperunit": {
+      "Name": "Taxrateperunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Tax Details"
+}

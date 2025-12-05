@@ -1,0 +1,50 @@
+{
+  "Properties": {
+    "Vch Acc Not Applicable": {
+      "Name": "Vch Acc Not Applicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vch Created As Inv": {
+      "Name": "Vch Created As Inv",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vch Entry Infos": {
+      "Name": "Vch Entry Infos",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Vch Info"
+      }
+    },
+    "Vch Inv Not Applicable": {
+      "Name": "Vch Inv Not Applicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vch Neg Is Pos": {
+      "Name": "Vch Neg Is Pos",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Vch Entry Infos": "Vch Info"
+  },
+  "Name": "Vch Entry"
+}

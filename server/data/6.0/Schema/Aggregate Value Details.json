@@ -1,0 +1,18 @@
+{
+  "Properties": {
+    "Aggr Value by Name": {
+      "Name": "Aggr Value by Name",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Aggrgeate Valye by Name"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Aggr Value by Name": "Aggrgeate Valye by Name"
+  },
+  "Name": "Aggregate Value Details"
+}

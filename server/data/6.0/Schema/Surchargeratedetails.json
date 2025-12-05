@@ -1,0 +1,66 @@
+{
+  "Properties": {
+    "Applicablefrom": {
+      "Name": "Applicablefrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Applicabletill": {
+      "Name": "Applicabletill",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Exemptionlimit": {
+      "Name": "Exemptionlimit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Rate Of Ec Tax": {
+      "Name": "Rate Of Ec Tax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Rate Of Shec Tax": {
+      "Name": "Rate Of Shec Tax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Rateoftax": {
+      "Name": "Rateoftax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Surcharge Exemption Details": {
+      "Name": "Surcharge Exemption Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Surcharge Exemption Details"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Surcharge Exemption Details": "Surcharge Exemption Details"
+  },
+  "Name": "Surchargeratedetails"
+}

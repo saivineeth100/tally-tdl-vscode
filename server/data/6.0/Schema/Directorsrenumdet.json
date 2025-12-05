@@ -1,0 +1,137 @@
+{
+  "Properties": {
+    "Allowances": {
+      "Name": "Allowances",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Basicpay": {
+      "Name": "Basicpay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Commission": {
+      "Name": "Commission",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Designation": {
+      "Name": "Designation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Dob": {
+      "Name": "Dob",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Idnumber": {
+      "Name": "Idnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Othercompensation": {
+      "Name": "Othercompensation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Perquisites": {
+      "Name": "Perquisites",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Postretirementbenefits": {
+      "Name": "Postretirementbenefits",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Qualification": {
+      "Name": "Qualification",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remuneration": {
+      "Name": "Remuneration",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sharesheld": {
+      "Name": "Sharesheld",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sittingfees": {
+      "Name": "Sittingfees",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Stockcompensation": {
+      "Name": "Stockcompensation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Totalsalary": {
+      "Name": "Totalsalary",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Directorsrenumdet"
+}

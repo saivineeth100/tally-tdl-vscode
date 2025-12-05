@@ -1,0 +1,114 @@
+{
+  "Properties": {
+    "Ismultistat": {
+      "Name": "Ismultistat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isoverridden": {
+      "Name": "Isoverridden",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Numversion": {
+      "Name": "Numversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Ondiskstat": {
+      "Name": "Ondiskstat",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Stat"
+      }
+    },
+    "Platformappldate": {
+      "Name": "Platformappldate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Platformdetailsversion": {
+      "Name": "Platformdetailsversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Platformversion": {
+      "Name": "Platformversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Purposeovrdndetails": {
+      "Name": "Purposeovrdndetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Overridden Return Wise Details"
+      }
+    },
+    "Purposestatname": {
+      "Name": "Purposestatname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Purposetype": {
+      "Name": "Purposetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Resetoverride": {
+      "Name": "Resetoverride",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Stat": {
+      "Name": "Stat",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Stat"
+      }
+    },
+    "Vchversionno": {
+      "Name": "Vchversionno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Ondiskstat": "Stat",
+    "Purposeovrdndetails": "Overridden Return Wise Details",
+    "Stat": "Stat"
+  },
+  "Name": "Purpose"
+}

@@ -1,0 +1,97 @@
+{
+  "Properties": {
+    "Amountfive": {
+      "Name": "Amountfive",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amountfour": {
+      "Name": "Amountfour",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amountone": {
+      "Name": "Amountone",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amountsix": {
+      "Name": "Amountsix",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amountthree": {
+      "Name": "Amountthree",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amounttwo": {
+      "Name": "Amounttwo",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Date": {
+      "Name": "Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Id": {
+      "Name": "Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Number": {
+      "Name": "Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Stringone": {
+      "Name": "Stringone",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Stringtwo": {
+      "Name": "Stringtwo",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Schviadditionaldetails"
+}

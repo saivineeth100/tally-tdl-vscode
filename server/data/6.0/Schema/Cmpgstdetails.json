@@ -1,0 +1,97 @@
+{
+  "Properties": {
+    "Applicablefrom": {
+      "Name": "Applicablefrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Basis Of Calc": {
+      "Name": "Basis Of Calc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstr1 Hsn Basis": {
+      "Name": "Gstr1 Hsn Basis",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstsourcepriority": {
+      "Name": "Gstsourcepriority",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Hsn Applicable Section": {
+      "Name": "Hsn Applicable Section",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Hsn Code Length": {
+      "Name": "Hsn Code Length",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Hsnsourcepriority": {
+      "Name": "Hsnsourcepriority",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Ignore Rounding Type": {
+      "Name": "Ignore Rounding Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Threshold Limit": {
+      "Name": "Threshold Limit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Usecommonvchnumseries": {
+      "Name": "Usecommonvchnumseries",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Usenameasdescription": {
+      "Name": "Usenameasdescription",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Cmpgstdetails"
+}

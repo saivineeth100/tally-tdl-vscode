@@ -1,0 +1,65 @@
+{
+  "Properties": {
+    "Sumvch Dynamiccstno": {
+      "Name": "Sumvch Dynamiccstno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Dynamiccstparentitem": {
+      "Name": "Sumvch Dynamiccstparentitem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Dynamiccstquantity": {
+      "Name": "Sumvch Dynamiccstquantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Dynamiccstrate": {
+      "Name": "Sumvch Dynamiccstrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Dynamiccstvalue": {
+      "Name": "Sumvch Dynamiccstvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Stockitemname": {
+      "Name": "Sumvch Stockitemname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Sumdynamiccstno": {
+      "Name": "Sumvch Sumdynamiccstno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Costtrackallocations"
+}

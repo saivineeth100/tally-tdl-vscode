@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Ratedetails": {
+      "Name": "Ratedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Gstratedetails"
+      }
+    },
+    "Taxability": {
+      "Name": "Taxability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Toitemrate": {
+      "Name": "Toitemrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Ratedetails": "Gstratedetails"
+  },
+  "Name": "Gstslabrates"
+}

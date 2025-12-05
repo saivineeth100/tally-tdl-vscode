@@ -1,0 +1,81 @@
+{
+  "Properties": {
+    "Gstadvanceamount": {
+      "Name": "Gstadvanceamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gstadvancedate": {
+      "Name": "Gstadvancedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Gstadvanceplaceofsupply": {
+      "Name": "Gstadvanceplaceofsupply",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gstadvancerate": {
+      "Name": "Gstadvancerate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Gstcessamount": {
+      "Name": "Gstcessamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gstcgstamount": {
+      "Name": "Gstcgstamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gstigstamount": {
+      "Name": "Gstigstamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gstsutgstamount": {
+      "Name": "Gstsutgstamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gsttaxableamount": {
+      "Name": "Gsttaxableamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Gstadvancedetails"
+}

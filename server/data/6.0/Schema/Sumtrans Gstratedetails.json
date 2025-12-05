@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Sumvch Gstrate": {
+      "Name": "Sumvch Gstrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Gstratedutyhead": {
+      "Name": "Sumvch Gstratedutyhead",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Gstrateperunit": {
+      "Name": "Sumvch Gstrateperunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Gstratevaluationtype": {
+      "Name": "Sumvch Gstratevaluationtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Gstratedetails"
+}

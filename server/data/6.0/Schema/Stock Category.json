@@ -1,0 +1,635 @@
+{
+  "Properties": {
+    "Active From": {
+      "Name": "Active From",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Active To": {
+      "Name": "Active To",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Addl Inward Value": {
+      "Name": "Addl Inward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addl Outward Value": {
+      "Name": "Addl Outward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addlexternalinward Value": {
+      "Name": "Addlexternalinward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addlexternaloutward Value": {
+      "Name": "Addlexternaloutward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addlinternalinward Value": {
+      "Name": "Addlinternalinward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addlinternaloutward Value": {
+      "Name": "Addlinternaloutward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Alteredby": {
+      "Name": "Alteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Alterid": {
+      "Name": "Alterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Asoriginal": {
+      "Name": "Asoriginal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Can Delete": {
+      "Name": "Can Delete",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Closing Balance": {
+      "Name": "Closing Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Closing Value": {
+      "Name": "Closing Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Depth": {
+      "Name": "Depth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Enteredby": {
+      "Name": "Enteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Errinfo": {
+      "Name": "Errinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Error Info"
+      }
+    },
+    "Errkey": {
+      "Name": "Errkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Externalclosingbalance": {
+      "Name": "Externalclosingbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Externalclosingrate": {
+      "Name": "Externalclosingrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Externalclosingvalue": {
+      "Name": "Externalclosingvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Externalinward Quantity": {
+      "Name": "Externalinward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Externalinward Value": {
+      "Name": "Externalinward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Externalopeningbalance": {
+      "Name": "Externalopeningbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Externalopeningrate": {
+      "Name": "Externalopeningrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Externalopeningvalue": {
+      "Name": "Externalopeningvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Externaloutward Quantity": {
+      "Name": "Externaloutward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Externaloutward Value": {
+      "Name": "Externaloutward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Guid": {
+      "Name": "Guid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Internalclosingbalance": {
+      "Name": "Internalclosingbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Internalclosingrate": {
+      "Name": "Internalclosingrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Internalclosingvalue": {
+      "Name": "Internalclosingvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Internalinward Quantity": {
+      "Name": "Internalinward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Internalinward Value": {
+      "Name": "Internalinward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Internalopeningbalance": {
+      "Name": "Internalopeningbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Internalopeningrate": {
+      "Name": "Internalopeningrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Internalopeningvalue": {
+      "Name": "Internalopeningvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Internaloutward Quantity": {
+      "Name": "Internaloutward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Internaloutward Value": {
+      "Name": "Internaloutward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Inward Quantity": {
+      "Name": "Inward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Inward Value": {
+      "Name": "Inward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Is Deemed Positive": {
+      "Name": "Is Deemed Positive",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Security On When Entered": {
+      "Name": "Is Security On When Entered",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isdeleted": {
+      "Name": "Isdeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ismstfromsync": {
+      "Name": "Ismstfromsync",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isupdatingtargetid": {
+      "Name": "Isupdatingtargetid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Job Outward Quantity": {
+      "Name": "Job Outward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Job Outward Value": {
+      "Name": "Job Outward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Journalinqty": {
+      "Name": "Journalinqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Journalinvalue": {
+      "Name": "Journalinvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Journaloutqty": {
+      "Name": "Journaloutqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Journaloutvalue": {
+      "Name": "Journaloutvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Language Name": {
+      "Name": "Language Name",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Language Name"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Narration": {
+      "Name": "Narration",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Objectupdateaction": {
+      "Name": "Objectupdateaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Opening Balance": {
+      "Name": "Opening Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Opening Value": {
+      "Name": "Opening Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Originaldepth": {
+      "Name": "Originaldepth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Originalname": {
+      "Name": "Originalname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Originalsortposition": {
+      "Name": "Originalsortposition",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Outward Quantity": {
+      "Name": "Outward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Outward Value": {
+      "Name": "Outward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Parent": {
+      "Name": "Parent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Parent Hierarchy": {
+      "Name": "Parent Hierarchy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Purcqty": {
+      "Name": "Purcqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Purcvalue": {
+      "Name": "Purcvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Remotealterid": {
+      "Name": "Remotealterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Remotealtguid": {
+      "Name": "Remotealtguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remoteguid": {
+      "Name": "Remoteguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Requestorrule": {
+      "Name": "Requestorrule",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Saleqty": {
+      "Name": "Saleqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Salevalue": {
+      "Name": "Salevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sort Position": {
+      "Name": "Sort Position",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Targetremoteid": {
+      "Name": "Targetremoteid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Typeofupdateactivity": {
+      "Name": "Typeofupdateactivity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Updateddatetime": {
+      "Name": "Updateddatetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    }
+  },
+  "Meta": {
+    "SDF Id": "SC",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Errinfo": "Error Info",
+    "Language Name": "Language Name"
+  },
+  "Name": "Stock Category"
+}

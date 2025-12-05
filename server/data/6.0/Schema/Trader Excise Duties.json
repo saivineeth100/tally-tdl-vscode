@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Tradermethodofcalc": {
+      "Name": "Tradermethodofcalc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Traderrateofexcise": {
+      "Name": "Traderrateofexcise",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Tradertypeofduties": {
+      "Name": "Tradertypeofduties",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Trader Excise Duties"
+}

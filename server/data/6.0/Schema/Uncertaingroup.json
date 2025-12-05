@@ -1,0 +1,17 @@
+{
+  "Properties": {
+    "Uncertaincode": {
+      "Name": "Uncertaincode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Uncertaingroup"
+}

@@ -1,0 +1,97 @@
+{
+  "Properties": {
+    "Classofgoods": {
+      "Name": "Classofgoods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Natureofgoods": {
+      "Name": "Natureofgoods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Pyqtyofstockgoods": {
+      "Name": "Pyqtyofstockgoods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Pyvalueofstockgoods": {
+      "Name": "Pyvalueofstockgoods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Qtyofgoodspurchased": {
+      "Name": "Qtyofgoodspurchased",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Qtyofgoodssold": {
+      "Name": "Qtyofgoodssold",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Qtyofstockgoods": {
+      "Name": "Qtyofstockgoods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Uom": {
+      "Name": "Uom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Valueofgoodspurchased": {
+      "Name": "Valueofgoodspurchased",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Valueofgoodssold": {
+      "Name": "Valueofgoodssold",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Valueofstockgoods": {
+      "Name": "Valueofstockgoods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Xbrldetailsofgoods"
+}

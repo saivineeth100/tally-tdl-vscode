@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Sumvch Basic Ship Delivery Note": {
+      "Name": "Sumvch Basic Ship Delivery Note",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Basic Shipping Date": {
+      "Name": "Sumvch Basic Shipping Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Invoice Del Notes"
+}

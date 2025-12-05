@@ -1,0 +1,66 @@
+{
+  "Properties": {
+    "Consignee Place": {
+      "Name": "Consignee Place",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consignor Place": {
+      "Name": "Consignor Place",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remarks": {
+      "Name": "Remarks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Totalqty": {
+      "Name": "Totalqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Transportmode": {
+      "Name": "Transportmode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Uqc": {
+      "Name": "Uqc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Vehicle Details": {
+      "Name": "Vehicle Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Vehicle Details"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Vehicle Details": "Vehicle Details"
+  },
+  "Name": "Multivehicle Details"
+}

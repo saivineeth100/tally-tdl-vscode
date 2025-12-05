@@ -1,0 +1,65 @@
+{
+  "Properties": {
+    "Sumvch Basic Order Date": {
+      "Name": "Sumvch Basic Order Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Basic Purchaseorderno": {
+      "Name": "Sumvch Basic Purchaseorderno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Certificatedate": {
+      "Name": "Sumvch Certificatedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Certificatenumber": {
+      "Name": "Sumvch Certificatenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Certificatetype": {
+      "Name": "Sumvch Certificatetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Ordertype": {
+      "Name": "Sumvch Ordertype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Parentitem": {
+      "Name": "Sumvch Parentitem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Invoice Orderlist"
+}

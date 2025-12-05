@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Taxunitname": {
+      "Name": "Taxunitname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Taxunitpendingqty": {
+      "Name": "Taxunitpendingqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Excisetaxunitdetails"
+}

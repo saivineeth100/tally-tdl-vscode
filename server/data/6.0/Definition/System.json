@@ -1,0 +1,82 @@
+{
+  "Aggregate Query Map": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Aggregate Query Map"
+    },
+    "Name": "Aggregate Query Map"
+  },
+  "Error Names": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Error Names"
+    },
+    "Name": "Error Names"
+  },
+  "Events": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Events"
+    },
+    "Name": "Events"
+  },
+  "Form Keys": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Keys"
+    },
+    "Name": "Form Keys"
+  },
+  "Formula": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Formula, Formulae, Formulas"
+    },
+    "Name": "Formula"
+  },
+  "Menu Keys": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Keys"
+    },
+    "Name": "Menu Keys"
+  },
+  "Platform": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Platform"
+    },
+    "Name": "Platform"
+  },
+  "TDL Names": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "TDL Names"
+    },
+    "Name": "TDL Names"
+  },
+  "UDF": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "UDF"
+    },
+    "Name": "UDF"
+  },
+  "Variable": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Variable, Variables"
+    },
+    "Name": "Variable"
+  }
+}

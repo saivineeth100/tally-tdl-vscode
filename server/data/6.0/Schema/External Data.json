@@ -1,0 +1,135 @@
+{
+  "Properties": {
+    "Bankledger": {
+      "Name": "Bankledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Banklinkrecid": {
+      "Name": "Banklinkrecid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Bankmanualstatus": {
+      "Name": "Bankmanualstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Bankreconstatus": {
+      "Name": "Bankreconstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Date": {
+      "Name": "Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Isauthenticated": {
+      "Name": "Isauthenticated",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Issplit": {
+      "Name": "Issplit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Linkedobjectsdetails": {
+      "Name": "Linkedobjectsdetails",
+      "IsComplex": false,
+      "Meta": {}
+    },
+    "Manualstatusremarks": {
+      "Name": "Manualstatusremarks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Objtype": {
+      "Name": "Objtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Parentobjidentifier": {
+      "Name": "Parentobjidentifier",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Purpose": {
+      "Name": "Purpose",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Schemaversionsindex": {
+      "Name": "Schemaversionsindex",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sectionschemaqualifier": {
+      "Name": "Sectionschemaqualifier",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Usedfor": {
+      "Name": "Usedfor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "SDF Id": "ET",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {},
+  "Name": "External Data"
+}

@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Sumvch Excherrorcode": {
+      "Name": "Sumvch Excherrorcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Excherrormsg": {
+      "Name": "Sumvch Excherrormsg",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Exchange Error List"
+}

@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Sv Column Name": {
+      "Name": "Sv Column Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sv Column Type": {
+      "Name": "Sv Column Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Company Columns"
+}

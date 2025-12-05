@@ -1,0 +1,267 @@
+{
+  "Properties": {
+    "Alteredby": {
+      "Name": "Alteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Diffdataobj": {
+      "Name": "Diffdataobj",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Diff Data Object",
+        "Schema Missing": "Yes"
+      }
+    },
+    "Enteredby": {
+      "Name": "Enteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Hasdifference": {
+      "Name": "Hasdifference",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Cancelled": {
+      "Name": "Is Cancelled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Optional": {
+      "Name": "Is Optional",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Security On When Entered": {
+      "Name": "Is Security On When Entered",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isdeleted": {
+      "Name": "Isdeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isempty": {
+      "Name": "Isempty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Objectid": {
+      "Name": "Objectid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Objectname": {
+      "Name": "Objectname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Objecttype": {
+      "Name": "Objecttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Objectupdateaction": {
+      "Name": "Objectupdateaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Objversion": {
+      "Name": "Objversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Previous Enteredby": {
+      "Name": "Previous Enteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Previous Is Security On When Entered": {
+      "Name": "Previous Is Security On When Entered",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Previous Isdeleted": {
+      "Name": "Previous Isdeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Previous Object Name": {
+      "Name": "Previous Object Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Previous Objectid": {
+      "Name": "Previous Objectid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Previous Objectupdateaction": {
+      "Name": "Previous Objectupdateaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Previous Objversion": {
+      "Name": "Previous Objversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Previous Typeofupdateactivity": {
+      "Name": "Previous Typeofupdateactivity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Previous Updateddatetime": {
+      "Name": "Previous Updateddatetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Previousalteredby": {
+      "Name": "Previousalteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Previousiscancelled": {
+      "Name": "Previousiscancelled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Previousisempty": {
+      "Name": "Previousisempty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Previousisoptional": {
+      "Name": "Previousisoptional",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Repeatedobject": {
+      "Name": "Repeatedobject",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Repeated Data Object"
+      }
+    },
+    "Simple Repeat Value": {
+      "Name": "Simple Repeat Value",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Simple Repeat Value"
+      }
+    },
+    "Simple Value": {
+      "Name": "Simple Value",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Simple Value"
+      }
+    },
+    "Typeofupdateactivity": {
+      "Name": "Typeofupdateactivity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Updateddatetime": {
+      "Name": "Updateddatetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Diffdataobj": "Diff Data Object",
+    "Repeatedobject": "Repeated Data Object",
+    "Simple Repeat Value": "Simple Repeat Value",
+    "Simple Value": "Simple Value"
+  },
+  "Name": "Diff Data Object"
+}

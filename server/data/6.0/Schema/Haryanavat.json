@@ -1,0 +1,17 @@
+{
+  "Properties": {
+    "Harvchsubclass": {
+      "Name": "Harvchsubclass",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Haryanavat"
+}

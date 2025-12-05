@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Transferchallannumberfrom": {
+      "Name": "Transferchallannumberfrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transferchallannumberto": {
+      "Name": "Transferchallannumberto",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Interunitprimarytransferchallans"
+}

@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Applicablefrom": {
+      "Name": "Applicablefrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Gstsourcepriority": {
+      "Name": "Gstsourcepriority",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Hsnsourcepriority": {
+      "Name": "Hsnsourcepriority",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Gst Source Details"
+}

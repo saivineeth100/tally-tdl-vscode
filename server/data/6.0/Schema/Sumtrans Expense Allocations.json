@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Sumvch Exciseassessable Amount": {
+      "Name": "Sumvch Exciseassessable Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Ledger Name": {
+      "Name": "Sumvch Ledger Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Vatassessable Amount": {
+      "Name": "Sumvch Vatassessable Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Expense Allocations"
+}

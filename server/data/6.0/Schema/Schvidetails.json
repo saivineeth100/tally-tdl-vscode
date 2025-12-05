@@ -1,0 +1,74 @@
+{
+  "Properties": {
+    "Balancingtype": {
+      "Name": "Balancingtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Defaultcreditparent": {
+      "Name": "Defaultcreditparent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Defaultdebitparent": {
+      "Name": "Defaultdebitparent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Period From": {
+      "Name": "Period From",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Schvicreditparent": {
+      "Name": "Schvicreditparent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Schvidebitparent": {
+      "Name": "Schvidebitparent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Schvientries": {
+      "Name": "Schvientries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schvientries"
+      }
+    },
+    "Schviparent": {
+      "Name": "Schviparent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Schvientries": "Schvientries"
+  },
+  "Name": "Schvidetails"
+}

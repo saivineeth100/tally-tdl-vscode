@@ -1,0 +1,66 @@
+{
+  "Properties": {
+    "Aggregatedshares": {
+      "Name": "Aggregatedshares",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Aggregatedshares"
+      }
+    },
+    "Duebydirectors": {
+      "Name": "Duebydirectors",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Duebyofficers": {
+      "Name": "Duebyofficers",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sharebyothercompany": {
+      "Name": "Sharebyothercompany",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sharebyothercompany"
+      }
+    },
+    "Sharecapitalnote": {
+      "Name": "Sharecapitalnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Shareholderfunds": {
+      "Name": "Shareholderfunds",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Shareholdersfunds"
+      }
+    },
+    "Shareholdershares": {
+      "Name": "Shareholdershares",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Shareholdershares"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Aggregatedshares": "Aggregatedshares",
+    "Sharebyothercompany": "Sharebyothercompany",
+    "Shareholderfunds": "Shareholdersfunds",
+    "Shareholdershares": "Shareholdershares"
+  },
+  "Name": "Schvisharecapitaldetail"
+}

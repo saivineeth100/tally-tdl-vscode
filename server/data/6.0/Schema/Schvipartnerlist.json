@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Partnername": {
+      "Name": "Partnername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Profitshare": {
+      "Name": "Profitshare",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Schvipartnerlist"
+}

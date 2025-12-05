@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Componentname": {
+      "Name": "Componentname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Componentyear": {
+      "Name": "Componentyear",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Itcomponentperiod": {
+      "Name": "Itcomponentperiod",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itcomponentperiod"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Itcomponentperiod": "Itcomponentperiod"
+  },
+  "Name": "Itopeningbaldetails"
+}

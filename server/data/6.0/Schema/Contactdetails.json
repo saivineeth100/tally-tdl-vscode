@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Countryisdcode": {
+      "Name": "Countryisdcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Isdefaultwhatsappnum": {
+      "Name": "Isdefaultwhatsappnum",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Phonenumber": {
+      "Name": "Phonenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Contactdetails"
+}

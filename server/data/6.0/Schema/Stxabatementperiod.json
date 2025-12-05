@@ -1,0 +1,57 @@
+{
+  "Properties": {
+    "Stxabatementrate": {
+      "Name": "Stxabatementrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Stxapplicablefrom": {
+      "Name": "Stxapplicablefrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Stxcessrate": {
+      "Name": "Stxcessrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Stxnotificationno": {
+      "Name": "Stxnotificationno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Stxseccessrate": {
+      "Name": "Stxseccessrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Stxservicetaxrate": {
+      "Name": "Stxservicetaxrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Stxabatementperiod"
+}

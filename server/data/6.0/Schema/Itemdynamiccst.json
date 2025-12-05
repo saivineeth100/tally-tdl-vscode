@@ -1,0 +1,147 @@
+{
+  "Properties": {
+    "Aggregatetransactions": {
+      "Name": "Aggregatetransactions",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Transactions"
+      }
+    },
+    "Date": {
+      "Name": "Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Documenttype": {
+      "Name": "Documenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Dynamiccstiscleared": {
+      "Name": "Dynamiccstiscleared",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isbatchmultiple": {
+      "Name": "Isbatchmultiple",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isgodownmultiple": {
+      "Name": "Isgodownmultiple",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ispartymultiple": {
+      "Name": "Ispartymultiple",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Itemcostallocations": {
+      "Name": "Itemcostallocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itemcostallocations"
+      }
+    },
+    "Itemdynamiccst Id": {
+      "Name": "Itemdynamiccst Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Ledger Entries": {
+      "Name": "Ledger Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Voucher",
+        "Schema Missing": "Yes"
+      }
+    },
+    "Ledgercostallocations": {
+      "Name": "Ledgercostallocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Ledgercostallocations"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Originalqty": {
+      "Name": "Originalqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Originalvalue": {
+      "Name": "Originalvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Parent": {
+      "Name": "Parent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Party Name": {
+      "Name": "Party Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transactions": {
+      "Name": "Transactions",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Transactions"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Aggregatetransactions": "Transactions",
+    "Itemcostallocations": "Itemcostallocations",
+    "Ledger Entries": "Voucher",
+    "Ledgercostallocations": "Ledgercostallocations",
+    "Transactions": "Transactions"
+  },
+  "Name": "Itemdynamiccst"
+}

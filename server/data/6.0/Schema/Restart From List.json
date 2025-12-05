@@ -1,0 +1,43 @@
+{
+  "Properties": {
+    "Date": {
+      "Name": "Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Last Number List": {
+      "Name": "Last Number List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Last Number List",
+        "Schema Missing": "Yes"
+      }
+    },
+    "Period Beginnig Num": {
+      "Name": "Period Beginnig Num",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Restart From": {
+      "Name": "Restart From",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Last Number List": "Last Number List"
+  },
+  "Name": "Restart From List"
+}

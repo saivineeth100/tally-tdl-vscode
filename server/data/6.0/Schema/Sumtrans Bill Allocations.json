@@ -1,0 +1,106 @@
+{
+  "Properties": {
+    "Sumvch Amount": {
+      "Name": "Sumvch Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Bill Credit Period": {
+      "Name": "Sumvch Bill Credit Period",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Due Date"
+      }
+    },
+    "Sumvch Interest Collection": {
+      "Name": "Sumvch Interest Collection",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Interest Collection"
+      }
+    },
+    "Sumvch Name": {
+      "Name": "Sumvch Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Service Tax Ledger": {
+      "Name": "Sumvch Service Tax Ledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Stbillcategories": {
+      "Name": "Sumvch Stbillcategories",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Stbillcategory"
+      }
+    },
+    "Sumvch Sumname": {
+      "Name": "Sumvch Sumname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Tds Deductee Is Special Rate": {
+      "Name": "Sumvch Tds Deductee Is Special Rate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Tds Deductee Section Number": {
+      "Name": "Sumvch Tds Deductee Section Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Tds Deductee Special Rate": {
+      "Name": "Sumvch Tds Deductee Special Rate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Tds Ledger Nc": {
+      "Name": "Sumvch Tds Ledger Nc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Year End": {
+      "Name": "Sumvch Year End",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Interest Collection": "Sumtrans Interest Collection",
+    "Sumvch Stbillcategories": "Sumtrans Stbillcategory"
+  },
+  "Name": "Sumtrans Bill Allocations"
+}

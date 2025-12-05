@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Supplementryvchamt": {
+      "Name": "Supplementryvchamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Supplementryvchid": {
+      "Name": "Supplementryvchid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Supplementryvchqty": {
+      "Name": "Supplementryvchqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Supplementryvchrate": {
+      "Name": "Supplementryvchrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Refvoucherdetails"
+}

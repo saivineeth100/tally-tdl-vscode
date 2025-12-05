@@ -1,0 +1,170 @@
+{
+  "Properties": {
+    "Amount": {
+      "Name": "Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Assessable Amount": {
+      "Name": "Assessable Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cetshno": {
+      "Name": "Cetshno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Clearancetype": {
+      "Name": "Clearancetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Clearedqty": {
+      "Name": "Clearedqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Closingqty": {
+      "Name": "Closingqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Consumptionqty": {
+      "Name": "Consumptionqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Finishedgoodsdetails": {
+      "Name": "Finishedgoodsdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Finishedgoodsdetails"
+      }
+    },
+    "Finishedgoodsname": {
+      "Name": "Finishedgoodsname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Finishedgoodstariffcode": {
+      "Name": "Finishedgoodstariffcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Finishedgoodsuom": {
+      "Name": "Finishedgoodsuom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Inwardqty": {
+      "Name": "Inwardqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Manufacturedqty": {
+      "Name": "Manufacturedqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Nontariffdetails": {
+      "Name": "Nontariffdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Nontariffdetails"
+      }
+    },
+    "Openingqty": {
+      "Name": "Openingqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Outwardqty": {
+      "Name": "Outwardqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Reportinguom": {
+      "Name": "Reportinguom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Stock Item Name": {
+      "Name": "Stock Item Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Tariffdetails": {
+      "Name": "Tariffdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Tariffdetails"
+      }
+    },
+    "Tariffname": {
+      "Name": "Tariffname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Finishedgoodsdetails": "Finishedgoodsdetails",
+    "Nontariffdetails": "Nontariffdetails",
+    "Tariffdetails": "Tariffdetails"
+  },
+  "Name": "Inventorydetails"
+}

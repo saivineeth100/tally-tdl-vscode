@@ -1,0 +1,146 @@
+{
+  "AddDuration": {
+    "Description": "Add Duration to another Duration",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Duration",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Duration",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Duration",
+      "Execution Mode": "Client",
+      "Return Type": "Duration"
+    },
+    "Name": "AddDuration"
+  },
+  "Duration": {
+    "Description": "The function $$duration is used to convert a duration specified in string format into the \u0027Duration\u0027 data type.This is mainly required when a string contains a duration on which manipulations are to be performed treating it as a duration format eg: getting the end date after a certain duration.TDL allows Addition or substraction of a number to a duration type field and in turn it will return a duration type field.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Duration",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Duration",
+      "Execution Mode": "Client",
+      "Return Type": "Duration"
+    },
+    "Name": "Duration"
+  },
+  "GetDuration": {
+    "Description": "Gives the duration between two datetime",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "DateTime",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Datatype": "DateTime",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Duration",
+      "Execution Mode": "Client",
+      "Return Type": "Duration"
+    },
+    "Name": "GetDuration"
+  },
+  "GetEndDateTime": {
+    "Description": "Gets the end date from a particular datetime and a duration",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "DateTime",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Duration",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Duration",
+      "Execution Mode": "Client",
+      "Return Type": "DateTime"
+    },
+    "Name": "GetEndDateTime"
+  },
+  "GetStartDateTime": {
+    "Description": "Gets the start date from a particular datetime and a duration",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "DateTime",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Duration",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Duration",
+      "Execution Mode": "Client",
+      "Return Type": "DateTime"
+    },
+    "Name": "GetStartDateTime"
+  },
+  "SubDuration": {
+    "Description": "Subtracts Duration from another Duration",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Duration",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Duration",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Duration",
+      "Execution Mode": "Client",
+      "Return Type": "Duration"
+    },
+    "Name": "SubDuration"
+  }
+}

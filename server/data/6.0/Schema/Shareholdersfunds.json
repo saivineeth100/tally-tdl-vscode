@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Shareholderfundsdetail": {
+      "Name": "Shareholderfundsdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Shareholderfundsdetail"
+      }
+    },
+    "Sharename": {
+      "Name": "Sharename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Shareholderfundsdetail": "Shareholderfundsdetail"
+  },
+  "Name": "Shareholdersfunds"
+}

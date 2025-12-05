@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Exemptnotificationnum": {
+      "Name": "Exemptnotificationnum",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exemptnotificationslnum": {
+      "Name": "Exemptnotificationslnum",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Exemptionnotification"
+}

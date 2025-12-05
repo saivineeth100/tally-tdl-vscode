@@ -1,0 +1,153 @@
+{
+  "Properties": {
+    "Sumvch Incrorigvchdate": {
+      "Name": "Sumvch Incrorigvchdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Invoicenumber": {
+      "Name": "Sumvch Invoicenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Name": {
+      "Name": "Sumvch Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Origassessablevalue": {
+      "Name": "Sumvch Origassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Party Name": {
+      "Name": "Sumvch Party Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Proddate": {
+      "Name": "Sumvch Proddate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Rateofsubtax": {
+      "Name": "Sumvch Rateofsubtax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Rateofvat": {
+      "Name": "Sumvch Rateofvat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Schedule": {
+      "Name": "Sumvch Schedule",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Scheduleserialnumber": {
+      "Name": "Sumvch Scheduleserialnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Subtaxclaimableamt": {
+      "Name": "Sumvch Subtaxclaimableamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Subtaxclaimedamt": {
+      "Name": "Sumvch Subtaxclaimedamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Supplierinvoicedate": {
+      "Name": "Sumvch Supplierinvoicedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Supplierinvoicenumber": {
+      "Name": "Sumvch Supplierinvoicenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Taxclaimableamt": {
+      "Name": "Sumvch Taxclaimableamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Taxclaimedamt": {
+      "Name": "Sumvch Taxclaimedamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vatcommoditycode": {
+      "Name": "Sumvch Vatcommoditycode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Vatcommodityname": {
+      "Name": "Sumvch Vatcommodityname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Inputcrallocs"
+}

@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Sttaxliabtype": {
+      "Name": "Sttaxliabtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sttaxliabtypeaplfrom": {
+      "Name": "Sttaxliabtypeaplfrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sttaxliabcomputedtls"
+}

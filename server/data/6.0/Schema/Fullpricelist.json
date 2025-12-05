@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Date": {
+      "Name": "Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Price Level": {
+      "Name": "Price Level",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Pricelevellist": {
+      "Name": "Pricelevellist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Pricelevellist"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Pricelevellist": "Pricelevellist"
+  },
+  "Name": "Fullpricelist"
+}

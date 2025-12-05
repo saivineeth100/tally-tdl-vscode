@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Doc Number": {
+      "Name": "Doc Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gst Doc Entry Details": {
+      "Name": "Gst Doc Entry Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Gst Doc Entry Details"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Gst Doc Entry Details": "Gst Doc Entry Details"
+  },
+  "Name": "Gst Doc Entry"
+}

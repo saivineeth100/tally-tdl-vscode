@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Syncexpobjerrmsg": {
+      "Name": "Syncexpobjerrmsg",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Syncexpobjname": {
+      "Name": "Syncexpobjname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Syncexpobjtype": {
+      "Name": "Syncexpobjtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Syncexceptiondetails"
+}

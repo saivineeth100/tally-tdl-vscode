@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Id": {
+      "Name": "Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mcaimpairrecognised": {
+      "Name": "Mcaimpairrecognised",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaimpairrecognised"
+      }
+    },
+    "Note": {
+      "Name": "Note",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Mcaimpairrecognised": "Mcaimpairrecognised"
+  },
+  "Name": "Mcaimpairmentdetails"
+}

@@ -1,0 +1,202 @@
+{
+  "Properties": {
+    "Activity Seq Id": {
+      "Name": "Activity Seq Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Activity Seq Id Old": {
+      "Name": "Activity Seq Id Old",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Activity Type": {
+      "Name": "Activity Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Issecurityonwhenactlogged": {
+      "Name": "Issecurityonwhenactlogged",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Performed by": {
+      "Name": "Performed by",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Performed Datetime": {
+      "Name": "Performed Datetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Source Product Name": {
+      "Name": "Source Product Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Src Base Maj Ver": {
+      "Name": "Src Base Maj Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Src Daa Ver": {
+      "Name": "Src Daa Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Src Et Enabled": {
+      "Name": "Src Et Enabled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Src Log Ver": {
+      "Name": "Src Log Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Src Maj Ver": {
+      "Name": "Src Maj Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Src Min Ver": {
+      "Name": "Src Min Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Src Minor Log Ver": {
+      "Name": "Src Minor Log Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Src Product Id": {
+      "Name": "Src Product Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Target Product Name": {
+      "Name": "Target Product Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tgt Base Maj Ver": {
+      "Name": "Tgt Base Maj Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Tgt Daa Ver": {
+      "Name": "Tgt Daa Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Tgt Et Enabled": {
+      "Name": "Tgt Et Enabled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Tgt Log Ver": {
+      "Name": "Tgt Log Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Tgt Maj Ver": {
+      "Name": "Tgt Maj Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Tgt Min Ver": {
+      "Name": "Tgt Min Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Tgt Minor Log Ver": {
+      "Name": "Tgt Minor Log Ver",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Tgt Product Id": {
+      "Name": "Tgt Product Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "SDF Id": "CA",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {},
+  "Name": "Company Activity"
+}

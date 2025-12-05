@@ -1,0 +1,106 @@
+{
+  "Properties": {
+    "Sumvch Erroractivitytype": {
+      "Name": "Sumvch Erroractivitytype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Errorconflictingmaster": {
+      "Name": "Sumvch Errorconflictingmaster",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Errorconflictingwith": {
+      "Name": "Sumvch Errorconflictingwith",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Errorlangname": {
+      "Name": "Sumvch Errorlangname",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Languagename"
+      }
+    },
+    "Sumvch Errormissingfieldname": {
+      "Name": "Sumvch Errormissingfieldname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Errormissingfieldsubtype": {
+      "Name": "Sumvch Errormissingfieldsubtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Errormissingfieldtype": {
+      "Name": "Sumvch Errormissingfieldtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Errormissingmstid": {
+      "Name": "Sumvch Errormissingmstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Errorpartno": {
+      "Name": "Sumvch Errorpartno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Errorsubtype": {
+      "Name": "Sumvch Errorsubtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Errortype": {
+      "Name": "Sumvch Errortype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Errorunder": {
+      "Name": "Sumvch Errorunder",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Errorlangname": "Sumtrans Languagename"
+  },
+  "Name": "Sumtrans Error Info"
+}

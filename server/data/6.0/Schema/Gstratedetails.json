@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Gstrate": {
+      "Name": "Gstrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Gstratedutyhead": {
+      "Name": "Gstratedutyhead",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstrateperunit": {
+      "Name": "Gstrateperunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Gstratevaluationtype": {
+      "Name": "Gstratevaluationtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Gstratedetails"
+}

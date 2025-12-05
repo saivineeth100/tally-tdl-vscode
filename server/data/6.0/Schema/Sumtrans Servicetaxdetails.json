@@ -1,0 +1,217 @@
+{
+  "Properties": {
+    "Sumvch Abatementrate": {
+      "Name": "Sumvch Abatementrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Abtmtnotifno": {
+      "Name": "Sumvch Abtmtnotifno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Abtmtnotifslno": {
+      "Name": "Sumvch Abtmtnotifslno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Applicablefrom": {
+      "Name": "Sumvch Applicablefrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Category Code": {
+      "Name": "Sumvch Category Code",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Categoryname": {
+      "Name": "Sumvch Categoryname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Cessrate": {
+      "Name": "Sumvch Cessrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Exemptnotifno": {
+      "Name": "Sumvch Exemptnotifno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Exemptnotifslno": {
+      "Name": "Sumvch Exemptnotifslno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Expenseamount": {
+      "Name": "Sumvch Expenseamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Isnegativelistservice": {
+      "Name": "Sumvch Isnegativelistservice",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Isrecipientliab": {
+      "Name": "Sumvch Isrecipientliab",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Isreverseapplicable": {
+      "Name": "Sumvch Isreverseapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Krishikalyancess": {
+      "Name": "Sumvch Krishikalyancess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Natureofservice": {
+      "Name": "Sumvch Natureofservice",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Reversechargenotifno": {
+      "Name": "Sumvch Reversechargenotifno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Reversechargenotifslno": {
+      "Name": "Sumvch Reversechargenotifslno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Reversechargerate": {
+      "Name": "Sumvch Reversechargerate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Secondarycessrate": {
+      "Name": "Sumvch Secondarycessrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Service Tax Rate": {
+      "Name": "Sumvch Service Tax Rate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Serviceamount": {
+      "Name": "Sumvch Serviceamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Servicecategory": {
+      "Name": "Sumvch Servicecategory",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Servicepartyname": {
+      "Name": "Sumvch Servicepartyname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Stsubclauseno": {
+      "Name": "Sumvch Stsubclauseno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Swachbharatcess": {
+      "Name": "Sumvch Swachbharatcess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Useforisd": {
+      "Name": "Sumvch Useforisd",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Servicetaxdetails"
+}

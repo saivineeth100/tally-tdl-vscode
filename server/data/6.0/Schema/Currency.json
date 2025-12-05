@@ -1,0 +1,372 @@
+{
+  "Properties": {
+    "Active From": {
+      "Name": "Active From",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Active To": {
+      "Name": "Active To",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Alteredby": {
+      "Name": "Alteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Alterid": {
+      "Name": "Alterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Asoriginal": {
+      "Name": "Asoriginal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Can Delete": {
+      "Name": "Can Delete",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Daily Buying Rates": {
+      "Name": "Daily Buying Rates",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Exchange Rates"
+      }
+    },
+    "Daily Selling Rates": {
+      "Name": "Daily Selling Rates",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Exchange Rates"
+      }
+    },
+    "Daily Std Rates": {
+      "Name": "Daily Std Rates",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Exchange Rates"
+      }
+    },
+    "Decimal Places": {
+      "Name": "Decimal Places",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Decimal Places For Printing": {
+      "Name": "Decimal Places For Printing",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Decimal Symbol": {
+      "Name": "Decimal Symbol",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Depth": {
+      "Name": "Depth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Enteredby": {
+      "Name": "Enteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Errinfo": {
+      "Name": "Errinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Error Info"
+      }
+    },
+    "Errkey": {
+      "Name": "Errkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Expanded Symbol": {
+      "Name": "Expanded Symbol",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Formal Name": {
+      "Name": "Formal Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Guid": {
+      "Name": "Guid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Has Space": {
+      "Name": "Has Space",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "In Millions": {
+      "Name": "In Millions",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Deemed Positive": {
+      "Name": "Is Deemed Positive",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Reserved": {
+      "Name": "Is Reserved",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Security On When Entered": {
+      "Name": "Is Security On When Entered",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Suffix": {
+      "Name": "Is Suffix",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isdeleted": {
+      "Name": "Isdeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ismstfromsync": {
+      "Name": "Ismstfromsync",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isocurrencycode": {
+      "Name": "Isocurrencycode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Isupdatingtargetid": {
+      "Name": "Isupdatingtargetid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Narration": {
+      "Name": "Narration",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Objectupdateaction": {
+      "Name": "Objectupdateaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Original Symbol": {
+      "Name": "Original Symbol",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Originaldepth": {
+      "Name": "Originaldepth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Originalsortposition": {
+      "Name": "Originalsortposition",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Remotealterid": {
+      "Name": "Remotealterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Remotealtguid": {
+      "Name": "Remotealtguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remoteguid": {
+      "Name": "Remoteguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Requestorrule": {
+      "Name": "Requestorrule",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sort Position": {
+      "Name": "Sort Position",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Symbol": {
+      "Name": "Symbol",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Targetremoteid": {
+      "Name": "Targetremoteid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Typeofupdateactivity": {
+      "Name": "Typeofupdateactivity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Updateddatetime": {
+      "Name": "Updateddatetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Used by Amount": {
+      "Name": "Used by Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Aliases": "Currencies",
+    "SDF Id": "CU",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Daily Buying Rates": "Exchange Rates",
+    "Daily Selling Rates": "Exchange Rates",
+    "Daily Std Rates": "Exchange Rates",
+    "Errinfo": "Error Info"
+  },
+  "Name": "Currency"
+}

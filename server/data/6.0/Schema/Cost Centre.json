@@ -1,0 +1,900 @@
+{
+  "Properties": {
+    "Aadharnumber": {
+      "Name": "Aadharnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Active From": {
+      "Name": "Active From",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Active To": {
+      "Name": "Active To",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Additional Name": {
+      "Name": "Additional Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Address": {
+      "Name": "Address",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Affects Stock": {
+      "Name": "Affects Stock",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Alteredby": {
+      "Name": "Alteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Alterid": {
+      "Name": "Alterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Asoriginal": {
+      "Name": "Asoriginal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Bank Account Number": {
+      "Name": "Bank Account Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bank Branch": {
+      "Name": "Bank Branch",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bank Details": {
+      "Name": "Bank Details",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bankdetailsbankid": {
+      "Name": "Bankdetailsbankid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Blood Group": {
+      "Name": "Blood Group",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Can Delete": {
+      "Name": "Can Delete",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Category": {
+      "Name": "Category",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Category Hierarchy": {
+      "Name": "Category Hierarchy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Closing Balance": {
+      "Name": "Closing Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Contact Numbers": {
+      "Name": "Contact Numbers",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Contract Expiry Date": {
+      "Name": "Contract Expiry Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Contract Start Date": {
+      "Name": "Contract Start Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Country Of Issue": {
+      "Name": "Country Of Issue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Countryisdcode": {
+      "Name": "Countryisdcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Credit Totals": {
+      "Name": "Credit Totals",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Date Of Birth": {
+      "Name": "Date Of Birth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Date Of Join": {
+      "Name": "Date Of Join",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Deactivation Date": {
+      "Name": "Deactivation Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Debit Totals": {
+      "Name": "Debit Totals",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Default Language": {
+      "Name": "Default Language",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Depth": {
+      "Name": "Depth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Designation": {
+      "Name": "Designation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Direct Closing Balance": {
+      "Name": "Direct Closing Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Direct Credit Totals": {
+      "Name": "Direct Credit Totals",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Direct Debit Totals": {
+      "Name": "Direct Debit Totals",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Direct Opening Balance": {
+      "Name": "Direct Opening Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Direct Qty Closing Balance": {
+      "Name": "Direct Qty Closing Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Direct Qty Credit Totals": {
+      "Name": "Direct Qty Credit Totals",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Direct Qty Debit Totals": {
+      "Name": "Direct Qty Debit Totals",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Direct Qty Opening Balance": {
+      "Name": "Direct Qty Opening Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Email Id": {
+      "Name": "Email Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Empdisplayname": {
+      "Name": "Empdisplayname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Employee Period": {
+      "Name": "Employee Period",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Employee Period"
+      }
+    },
+    "Enteredby": {
+      "Name": "Enteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Errinfo": {
+      "Name": "Errinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Error Info"
+      }
+    },
+    "Errkey": {
+      "Name": "Errkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Esi Number": {
+      "Name": "Esi Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Esidispensaryname": {
+      "Name": "Esidispensaryname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Father Name": {
+      "Name": "Father Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "For Job Costing": {
+      "Name": "For Job Costing",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "For Payroll": {
+      "Name": "For Payroll",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Fpfaccountnumber": {
+      "Name": "Fpfaccountnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Function": {
+      "Name": "Function",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gender": {
+      "Name": "Gender",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Guid": {
+      "Name": "Guid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Identity Number": {
+      "Name": "Identity Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Identityexpirydate": {
+      "Name": "Identityexpirydate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Ifs Code": {
+      "Name": "Ifs Code",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Is Deemed Positive": {
+      "Name": "Is Deemed Positive",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Employee Group": {
+      "Name": "Is Employee Group",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Security On When Entered": {
+      "Name": "Is Security On When Entered",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isdeleted": {
+      "Name": "Isdeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ismstfromsync": {
+      "Name": "Ismstfromsync",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isupdatingtargetid": {
+      "Name": "Isupdatingtargetid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Itdeclarationdetails": {
+      "Name": "Itdeclarationdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itdeclarationdetails"
+      }
+    },
+    "Itdeductiondetails": {
+      "Name": "Itdeductiondetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itdeductiondetails"
+      }
+    },
+    "Itopeningbaldetails": {
+      "Name": "Itopeningbaldetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itopeningbaldetails"
+      }
+    },
+    "Itoverridedetails": {
+      "Name": "Itoverridedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itoverridedetails"
+      }
+    },
+    "Itprevemplyrdetails": {
+      "Name": "Itprevemplyrdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itprevemplyrdetails"
+      }
+    },
+    "Language Name": {
+      "Name": "Language Name",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Language Name"
+      }
+    },
+    "Location": {
+      "Name": "Location",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Micrcode": {
+      "Name": "Micrcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mobilenumber": {
+      "Name": "Mobilenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Narration": {
+      "Name": "Narration",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Objectupdateaction": {
+      "Name": "Objectupdateaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Opening Balance": {
+      "Name": "Opening Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Originaldepth": {
+      "Name": "Originaldepth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Originalname": {
+      "Name": "Originalname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Originalsortposition": {
+      "Name": "Originalsortposition",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Pan Number": {
+      "Name": "Pan Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Parent": {
+      "Name": "Parent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Parent Hierarchy": {
+      "Name": "Parent Hierarchy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Passport Details": {
+      "Name": "Passport Details",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Passport Expiry Date": {
+      "Name": "Passport Expiry Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Payment Details": {
+      "Name": "Payment Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Payment Details"
+      }
+    },
+    "Pf Account Number": {
+      "Name": "Pf Account Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Pfjoiningdate": {
+      "Name": "Pfjoiningdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Pfrelievingdate": {
+      "Name": "Pfrelievingdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Praccountnumber": {
+      "Name": "Praccountnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Qty Closing Balance": {
+      "Name": "Qty Closing Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Qty Credit Totals": {
+      "Name": "Qty Credit Totals",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Qty Debit Totals": {
+      "Name": "Qty Debit Totals",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Qty Opening Balance": {
+      "Name": "Qty Opening Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Reasonsforleaving": {
+      "Name": "Reasonsforleaving",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remotealterid": {
+      "Name": "Remotealterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Remotealtguid": {
+      "Name": "Remotealtguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remoteguid": {
+      "Name": "Remoteguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Requestorrule": {
+      "Name": "Requestorrule",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Revenue Led For Op Bal": {
+      "Name": "Revenue Led For Op Bal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sort Position": {
+      "Name": "Sort Position",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Spousename": {
+      "Name": "Spousename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Targetremoteid": {
+      "Name": "Targetremoteid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Tax Regime Details": {
+      "Name": "Tax Regime Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Tax Regime Details"
+      }
+    },
+    "Typeofupdateactivity": {
+      "Name": "Typeofupdateactivity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Uannumber": {
+      "Name": "Uannumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Updateddatetime": {
+      "Name": "Updateddatetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Virtualpaymentaddress": {
+      "Name": "Virtualpaymentaddress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Visa Expiry Date": {
+      "Name": "Visa Expiry Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Visa Number": {
+      "Name": "Visa Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Work Permit Number": {
+      "Name": "Work Permit Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Aliases": "Cost Centres,Cost Center,Cost Centers",
+    "SDF Id": "CC",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Employee Period": "Employee Period",
+    "Errinfo": "Error Info",
+    "Itdeclarationdetails": "Itdeclarationdetails",
+    "Itdeductiondetails": "Itdeductiondetails",
+    "Itopeningbaldetails": "Itopeningbaldetails",
+    "Itoverridedetails": "Itoverridedetails",
+    "Itprevemplyrdetails": "Itprevemplyrdetails",
+    "Language Name": "Language Name",
+    "Payment Details": "Payment Details",
+    "Tax Regime Details": "Tax Regime Details"
+  },
+  "Name": "Cost Centre"
+}

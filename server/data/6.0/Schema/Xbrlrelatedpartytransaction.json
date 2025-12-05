@@ -1,0 +1,114 @@
+{
+  "Properties": {
+    "Cin": {
+      "Name": "Cin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Country": {
+      "Name": "Country",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Expbaddoubtfuldebt": {
+      "Name": "Expbaddoubtfuldebt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Guarangivenreceosbal": {
+      "Name": "Guarangivenreceosbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Idnumber": {
+      "Name": "Idnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Naturedescription": {
+      "Name": "Naturedescription",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Natureofissuingauth": {
+      "Name": "Natureofissuingauth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Osbaltrexpl": {
+      "Name": "Osbaltrexpl",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Outstandingbal": {
+      "Name": "Outstandingbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Pan": {
+      "Name": "Pan",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Provdoubtfuldebtosbal": {
+      "Name": "Provdoubtfuldebtosbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Transactiondetails": {
+      "Name": "Transactiondetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Transactiondetails"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Transactiondetails": "Transactiondetails"
+  },
+  "Name": "Xbrlrelatedpartytransaction"
+}

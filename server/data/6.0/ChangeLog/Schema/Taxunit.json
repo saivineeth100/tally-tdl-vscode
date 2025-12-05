@@ -1,0 +1,24 @@
+{
+  "HasChanges": true,
+  "NameChanged": false,
+  "OldName": null,
+  "NewName": null,
+  "AddedProperties": {
+    "Migsrcidforgstreg": {
+      "Name": "Migsrcidforgstreg",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "DeletedProperties": {},
+  "ModifiedProperties": {},
+  "AddedMeta": {},
+  "DeletedMeta": {},
+  "ModifiedMeta": {},
+  "AddedComplexProperties": {},
+  "DeletedComplexProperties": {},
+  "ModifiedComplexProperties": {}
+}

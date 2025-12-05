@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Sumvch Stbillcatamount": {
+      "Name": "Sumvch Stbillcatamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Stbillcatname": {
+      "Name": "Sumvch Stbillcatname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Stbillcategory"
+}

@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Shareclass": {
+      "Name": "Shareclass",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Shareholdername": {
+      "Name": "Shareholdername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sharenumber": {
+      "Name": "Sharenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Shareholdershares"
+}

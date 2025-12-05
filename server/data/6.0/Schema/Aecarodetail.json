@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Checklistdetail": {
+      "Name": "Checklistdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Checklistdetail"
+      }
+    },
+    "Clauseid": {
+      "Name": "Clauseid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Note": {
+      "Name": "Note",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Checklistdetail": "Checklistdetail"
+  },
+  "Name": "Aecarodetail"
+}

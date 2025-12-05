@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Exemptionlimit": {
+      "Name": "Exemptionlimit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Rateoftax": {
+      "Name": "Rateoftax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Surcharge Exemption Details"
+}

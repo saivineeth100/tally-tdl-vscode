@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Vch Cctree Infos": {
+      "Name": "Vch Cctree Infos",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Category Allocations"
+      }
+    },
+    "Vch Inv Infos": {
+      "Name": "Vch Inv Infos",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Inventory Entry"
+      }
+    },
+    "Vch Led Infos": {
+      "Name": "Vch Led Infos",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Ledger Entry"
+      }
+    },
+    "Vchcosttrackallocations": {
+      "Name": "Vchcosttrackallocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Costtrackallocations"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Vch Cctree Infos": "Category Allocations",
+    "Vch Inv Infos": "Inventory Entry",
+    "Vch Led Infos": "Ledger Entry",
+    "Vchcosttrackallocations": "Costtrackallocations"
+  },
+  "Name": "Vch Info"
+}

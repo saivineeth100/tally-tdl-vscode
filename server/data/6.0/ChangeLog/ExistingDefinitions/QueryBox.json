@@ -1,0 +1,10 @@
+{
+  "added": [
+    "RemoveReconBankPGStatus",
+    "RemoveReconBankStatus",
+    "RemoveReconPGStatus",
+    "Vch GSTDetailsModified Authorised",
+    "Vch GSTDetailsModified Unauthorised"
+  ],
+  "deleted": []
+}

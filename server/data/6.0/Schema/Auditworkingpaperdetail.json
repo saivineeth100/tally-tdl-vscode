@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Auditworkingpaperentries": {
+      "Name": "Auditworkingpaperentries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Auditworkingpaperentries"
+      }
+    },
+    "Entityid": {
+      "Name": "Entityid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Entitytype": {
+      "Name": "Entitytype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Auditworkingpaperentries": "Auditworkingpaperentries"
+  },
+  "Name": "Auditworkingpaperdetail"
+}

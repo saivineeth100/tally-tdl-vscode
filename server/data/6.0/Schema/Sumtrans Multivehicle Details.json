@@ -1,0 +1,66 @@
+{
+  "Properties": {
+    "Sumvch Consignee Place": {
+      "Name": "Sumvch Consignee Place",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignor Place": {
+      "Name": "Sumvch Consignor Place",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Remarks": {
+      "Name": "Sumvch Remarks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Totalqty": {
+      "Name": "Sumvch Totalqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Transportmode": {
+      "Name": "Sumvch Transportmode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Uqc": {
+      "Name": "Sumvch Uqc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Vehicledetails": {
+      "Name": "Sumvch Vehicledetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Vehicle Details"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Vehicledetails": "Sumtrans Vehicle Details"
+  },
+  "Name": "Sumtrans Multivehicle Details"
+}

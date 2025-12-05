@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Actual Qty": {
+      "Name": "Actual Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Stock Item Name": {
+      "Name": "Stock Item Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Excisebom"
+}

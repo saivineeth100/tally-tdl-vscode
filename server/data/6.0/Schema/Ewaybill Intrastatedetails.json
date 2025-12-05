@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Ewaybill Intrastatename": {
+      "Name": "Ewaybill Intrastatename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Ewaybill Intrastatethreshold": {
+      "Name": "Ewaybill Intrastatethreshold",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Ewaybill Intrastatedetails"
+}

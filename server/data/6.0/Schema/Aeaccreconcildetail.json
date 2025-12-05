@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Ledger Name": {
+      "Name": "Ledger Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Reconcilvchdetail": {
+      "Name": "Reconcilvchdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Reconcilvchdetail"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Reconcilvchdetail": "Reconcilvchdetail"
+  },
+  "Name": "Aeaccreconcildetail"
+}

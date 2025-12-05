@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Sumvch Istdsdeducted": {
+      "Name": "Sumvch Istdsdeducted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Natureofpayment": {
+      "Name": "Sumvch Natureofpayment",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Overridebasedonrealization": {
+      "Name": "Sumvch Overridebasedonrealization",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Tdsassessablevalue": {
+      "Name": "Sumvch Tdsassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Tdsexpenseallocations"
+}

@@ -1,0 +1,33 @@
+{
+  "HasChanges": true,
+  "NameChanged": false,
+  "OldName": null,
+  "NewName": null,
+  "AddedProperties": {
+    "User Id": {
+      "Name": "User Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "DeletedProperties": {
+    "Userid": {
+      "Name": "Userid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "ModifiedProperties": {},
+  "AddedMeta": {},
+  "DeletedMeta": {},
+  "ModifiedMeta": {},
+  "AddedComplexProperties": {},
+  "DeletedComplexProperties": {},
+  "ModifiedComplexProperties": {}
+}

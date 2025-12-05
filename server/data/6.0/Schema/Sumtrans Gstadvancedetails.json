@@ -1,0 +1,81 @@
+{
+  "Properties": {
+    "Sumvch Gstadvanceamount": {
+      "Name": "Sumvch Gstadvanceamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Gstadvancedate": {
+      "Name": "Sumvch Gstadvancedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Gstadvanceplaceofsupply": {
+      "Name": "Sumvch Gstadvanceplaceofsupply",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Gstadvancerate": {
+      "Name": "Sumvch Gstadvancerate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Gstcessamount": {
+      "Name": "Sumvch Gstcessamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Gstcgstamount": {
+      "Name": "Sumvch Gstcgstamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Gstigstamount": {
+      "Name": "Sumvch Gstigstamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Gstsutgstamount": {
+      "Name": "Sumvch Gstsutgstamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Gsttaxableamount": {
+      "Name": "Sumvch Gsttaxableamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Gstadvancedetails"
+}

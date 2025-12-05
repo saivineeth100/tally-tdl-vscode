@@ -1,0 +1,51 @@
+{
+  "Properties": {
+    "Mapcategory": {
+      "Name": "Mapcategory",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mapdetails": {
+      "Name": "Mapdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mapdetails"
+      }
+    },
+    "Mapkey": {
+      "Name": "Mapkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mapname": {
+      "Name": "Mapname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mappurpose": {
+      "Name": "Mappurpose",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "SDF Id": "MM",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Mapdetails": "Mapdetails"
+  },
+  "Name": "Mastermap"
+}

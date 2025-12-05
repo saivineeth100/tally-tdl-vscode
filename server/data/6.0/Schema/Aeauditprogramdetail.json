@@ -1,0 +1,138 @@
+{
+  "Properties": {
+    "Apauditdetails": {
+      "Name": "Apauditdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Apauditdetails"
+      }
+    },
+    "Auditteam": {
+      "Name": "Auditteam",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Branchcount": {
+      "Name": "Branchcount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Branchdetail": {
+      "Name": "Branchdetail",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Clientaddress": {
+      "Name": "Clientaddress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Clientemail": {
+      "Name": "Clientemail",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Clientmobile": {
+      "Name": "Clientmobile",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Clientname": {
+      "Name": "Clientname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Clientphone": {
+      "Name": "Clientphone",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Companystatus": {
+      "Name": "Companystatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Firmaddress": {
+      "Name": "Firmaddress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Firmname": {
+      "Name": "Firmname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Frn": {
+      "Name": "Frn",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Industrytype": {
+      "Name": "Industrytype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mrn": {
+      "Name": "Mrn",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Partnersname": {
+      "Name": "Partnersname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Apauditdetails": "Apauditdetails"
+  },
+  "Name": "Aeauditprogramdetail"
+}

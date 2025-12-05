@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Stxabatementperiod": {
+      "Name": "Stxabatementperiod",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Stxabatementperiod"
+      }
+    },
+    "Stxcategoryname": {
+      "Name": "Stxcategoryname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Stxabatementperiod": "Stxabatementperiod"
+  },
+  "Name": "Stxabatementdetails"
+}

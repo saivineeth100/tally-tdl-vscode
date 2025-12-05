@@ -1,0 +1,50 @@
+{
+  "Properties": {
+    "Detailsstntsec212": {
+      "Name": "Detailsstntsec212",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Subsidiarycmp": {
+      "Name": "Subsidiarycmp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Subsidiarydetails": {
+      "Name": "Subsidiarydetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Subsidiarydetails"
+      }
+    },
+    "Subsidiaryinfo": {
+      "Name": "Subsidiaryinfo",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Subsidiaryinfohtml": {
+      "Name": "Subsidiaryinfohtml",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Subsidiarydetails": "Subsidiarydetails"
+  },
+  "Name": "Xbrlsubsidiaryinfo"
+}

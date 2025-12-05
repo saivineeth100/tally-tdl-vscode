@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Applicable For": {
+      "Name": "Applicable For",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transaction Type": {
+      "Name": "Transaction Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transaction Type Details": {
+      "Name": "Transaction Type Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Transaction Type Details"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Transaction Type Details": "Transaction Type Details"
+  },
+  "Name": "Available Transaction Types"
+}

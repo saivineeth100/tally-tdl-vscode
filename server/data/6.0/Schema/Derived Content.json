@@ -1,0 +1,138 @@
+{
+  "Properties": {
+    "Addlqualifiers": {
+      "Name": "Addlqualifiers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content Qualifier"
+      }
+    },
+    "Is Amend As Zero": {
+      "Name": "Is Amend As Zero",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Period": {
+      "Name": "Period",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Platformappldate": {
+      "Name": "Platformappldate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Platformdetailsversion": {
+      "Name": "Platformdetailsversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Platformversion": {
+      "Name": "Platformversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sectionreturnversion": {
+      "Name": "Sectionreturnversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sectionschemaqualifier": {
+      "Name": "Sectionschemaqualifier",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Subpurposeid": {
+      "Name": "Subpurposeid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Tally Content Addlqualifiers": {
+      "Name": "Tally Content Addlqualifiers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content Qualifier"
+      }
+    },
+    "Tally Content Period": {
+      "Name": "Tally Content Period",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Tally Content Version": {
+      "Name": "Tally Content Version",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Thirdpartycrc": {
+      "Name": "Thirdpartycrc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Thirdpartyname": {
+      "Name": "Thirdpartyname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Thirdpartyprevcrc": {
+      "Name": "Thirdpartyprevcrc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Thirdpartyvalue": {
+      "Name": "Thirdpartyvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Addlqualifiers": "Content Qualifier",
+    "Tally Content Addlqualifiers": "Content Qualifier"
+  },
+  "Name": "Derived Content"
+}

@@ -1,0 +1,24 @@
+{
+  "HasChanges": true,
+  "NameChanged": false,
+  "OldName": null,
+  "NewName": null,
+  "AddedProperties": {
+    "Sectionname": {
+      "Name": "Sectionname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "DeletedProperties": {},
+  "ModifiedProperties": {},
+  "AddedMeta": {},
+  "DeletedMeta": {},
+  "ModifiedMeta": {},
+  "AddedComplexProperties": {},
+  "DeletedComplexProperties": {},
+  "ModifiedComplexProperties": {}
+}

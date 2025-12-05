@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Ledger Name": {
+      "Name": "Ledger Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Linkrecorddetails": {
+      "Name": "Linkrecorddetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Linkrecorddetails"
+      }
+    },
+    "Linkuseraction": {
+      "Name": "Linkuseraction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Purposetype": {
+      "Name": "Purposetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Linkrecorddetails": "Linkrecorddetails"
+  },
+  "Name": "Updatelinkrecordinfo"
+}

@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Contriobjname": {
+      "Name": "Contriobjname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Contriobjrecid": {
+      "Name": "Contriobjrecid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Contriobjtype": {
+      "Name": "Contriobjtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Linkrecordcontridetails"
+}

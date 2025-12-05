@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Stxapplicablefrom": {
+      "Name": "Stxapplicablefrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Stxcess": {
+      "Name": "Stxcess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Stxseccess": {
+      "Name": "Stxseccess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Stxservicetax": {
+      "Name": "Stxservicetax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Stxtaxperiod"
+}

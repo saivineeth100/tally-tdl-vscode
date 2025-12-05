@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Sumvch Amount": {
+      "Name": "Sumvch Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Name": {
+      "Name": "Sumvch Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Sumname": {
+      "Name": "Sumvch Sumname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Year End": {
+      "Name": "Sumvch Year End",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Vch Interest Collection"
+}

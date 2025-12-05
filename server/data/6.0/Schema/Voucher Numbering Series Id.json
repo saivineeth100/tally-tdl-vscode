@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Isdefault": {
+      "Name": "Isdefault",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vtypnumseriesid": {
+      "Name": "Vtypnumseriesid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Voucher Numbering Series Id"
+}

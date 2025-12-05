@@ -1,0 +1,50 @@
+{
+  "Properties": {
+    "Alterid": {
+      "Name": "Alterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Migelonwhenupdated": {
+      "Name": "Migelonwhenupdated",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Migvchelbaseversion": {
+      "Name": "Migvchelbaseversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Migvchnumhistdata": {
+      "Name": "Migvchnumhistdata",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Vch Num Hist Data"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Migvchnumhistdata": "Vch Num Hist Data"
+  },
+  "Name": "Vch Num Hist Mig"
+}

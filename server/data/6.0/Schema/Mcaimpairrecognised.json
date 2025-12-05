@@ -1,0 +1,81 @@
+{
+  "Properties": {
+    "Iacashgenunit Note": {
+      "Name": "Iacashgenunit Note",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Iacashgenunit Value": {
+      "Name": "Iacashgenunit Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Iaindividual Note": {
+      "Name": "Iaindividual Note",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Iaindividual Value": {
+      "Name": "Iaindividual Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Impid": {
+      "Name": "Impid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tacashgenunit Note": {
+      "Name": "Tacashgenunit Note",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tacashgenunit Value": {
+      "Name": "Tacashgenunit Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Taindividual Note": {
+      "Name": "Taindividual Note",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Taindividual Value": {
+      "Name": "Taindividual Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Mcaimpairrecognised"
+}

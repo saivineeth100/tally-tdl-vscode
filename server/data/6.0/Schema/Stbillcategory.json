@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Stbillcatamount": {
+      "Name": "Stbillcatamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Stbillcatname": {
+      "Name": "Stbillcatname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Stbillcategory"
+}

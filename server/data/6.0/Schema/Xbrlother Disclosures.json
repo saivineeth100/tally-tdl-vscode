@@ -1,0 +1,98 @@
+{
+  "Properties": {
+    "Acquisitiondisposaldetail": {
+      "Name": "Acquisitiondisposaldetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Acquisitiondisposaldetail"
+      }
+    },
+    "Detailsofinv": {
+      "Name": "Detailsofinv",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Incomefrominvnote": {
+      "Name": "Incomefrominvnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Invmktvalue": {
+      "Name": "Invmktvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Mortgagesofloannote": {
+      "Name": "Mortgagesofloannote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mortgagesofslnote": {
+      "Name": "Mortgagesofslnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mortgagesofunslnote": {
+      "Name": "Mortgagesofunslnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Otherdisclosures": {
+      "Name": "Otherdisclosures",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Otherdisclosureshtml": {
+      "Name": "Otherdisclosureshtml",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Realisabilityofinvnote": {
+      "Name": "Realisabilityofinvnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Rightofownershipnote": {
+      "Name": "Rightofownershipnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Acquisitiondisposaldetail": "Acquisitiondisposaldetail"
+  },
+  "Name": "Xbrlother Disclosures"
+}

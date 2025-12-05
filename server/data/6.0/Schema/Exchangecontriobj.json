@@ -1,0 +1,155 @@
+{
+  "Properties": {
+    "Addlqualifiers": {
+      "Name": "Addlqualifiers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content Qualifier"
+      }
+    },
+    "Contrimatchingkey": {
+      "Name": "Contrimatchingkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exchange Status": {
+      "Name": "Exchange Status",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Exchangecontriobjkey": {
+      "Name": "Exchangecontriobjkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exchangecontriobjs": {
+      "Name": "Exchangecontriobjs",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Exchangecontriobj",
+        "Schema Missing": "Yes"
+      }
+    },
+    "Exchangeerrorcode": {
+      "Name": "Exchangeerrorcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exchangeerrordetails": {
+      "Name": "Exchangeerrordetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excherrinfo"
+      }
+    },
+    "Exchangeerrormessage": {
+      "Name": "Exchangeerrormessage",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Is Consumed": {
+      "Name": "Is Consumed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Marked Defunct": {
+      "Name": "Is Marked Defunct",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Objidentifier": {
+      "Name": "Objidentifier",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Period": {
+      "Name": "Period",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Reconstatus": {
+      "Name": "Reconstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Section": {
+      "Name": "Section",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Statid": {
+      "Name": "Statid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Updatepending": {
+      "Name": "Updatepending",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Version Number": {
+      "Name": "Version Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Addlqualifiers": "Content Qualifier",
+    "Exchangecontriobjs": "Exchangecontriobj",
+    "Exchangeerrordetails": "Excherrinfo"
+  },
+  "Name": "Exchangecontriobj"
+}

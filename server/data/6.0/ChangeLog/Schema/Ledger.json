@@ -1,0 +1,201 @@
+{
+  "HasChanges": true,
+  "NameChanged": false,
+  "OldName": null,
+  "NewName": null,
+  "AddedProperties": {
+    "Bankisreconcileperfectmatches": {
+      "Name": "Bankisreconcileperfectmatches",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Banklastfetchbalacctnum": {
+      "Name": "Banklastfetchbalacctnum",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Banklastfetchbalance": {
+      "Name": "Banklastfetchbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Banklastfetchbalancedatetime": {
+      "Name": "Banklastfetchbalancedatetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Banklastfetchstmtformat": {
+      "Name": "Banklastfetchstmtformat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Banklastfetchtransdate": {
+      "Name": "Banklastfetchtransdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Banklastimportstmtdate": {
+      "Name": "Banklastimportstmtdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Bankledgerbalancedetails": {
+      "Name": "Bankledgerbalancedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Bankledgerbalancedetails"
+      }
+    },
+    "Bankperfectmatchconfig": {
+      "Name": "Bankperfectmatchconfig",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Defaultcontravchtype": {
+      "Name": "Defaultcontravchtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Defaultdepositvchtype": {
+      "Name": "Defaultdepositvchtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Defaultnumseriesdeposit": {
+      "Name": "Defaultnumseriesdeposit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Defaultnumseriesinternaltransfer": {
+      "Name": "Defaultnumseriesinternaltransfer",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Defaultnumserieswithdrawl": {
+      "Name": "Defaultnumserieswithdrawl",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Defaulttransfermode": {
+      "Name": "Defaulttransfermode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Defaultwithdrawvchtype": {
+      "Name": "Defaultwithdrawvchtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Isincludepymtadvbillwise": {
+      "Name": "Isincludepymtadvbillwise",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ispymtadvccenabled": {
+      "Name": "Ispymtadvccenabled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ispymtadvonline": {
+      "Name": "Ispymtadvonline",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Lastpostdatedvchdate": {
+      "Name": "Lastpostdatedvchdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Pymtadvccemailids": {
+      "Name": "Pymtadvccemailids",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Transfermodelimitdetails": {
+      "Name": "Transfermodelimitdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Transfermodelimitdetails"
+      }
+    },
+    "Virtualpaymentaddress": {
+      "Name": "Virtualpaymentaddress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "DeletedProperties": {},
+  "ModifiedProperties": {},
+  "AddedMeta": {},
+  "DeletedMeta": {},
+  "ModifiedMeta": {},
+  "AddedComplexProperties": {
+    "Bankledgerbalancedetails": "Bankledgerbalancedetails",
+    "Transfermodelimitdetails": "Transfermodelimitdetails"
+  },
+  "DeletedComplexProperties": {},
+  "ModifiedComplexProperties": {}
+}

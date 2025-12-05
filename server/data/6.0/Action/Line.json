@@ -1,0 +1,110 @@
+{
+  "Explode": {
+    "Description": "This action is used to explode a line further to display all the explode details specified in the Line Attribute Explode.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Explode",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Explode"
+  },
+  "Field Down": {
+    "Description": "This action is used to position the cursor vertically to the next field.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Field Down",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Field Down"
+  },
+  "Field Next": {
+    "Description": "This action is used to position the cursor horizontally to the next field.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Field Next",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Field Next"
+  },
+  "Field Next Field SFD": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Field Next Field SFD",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Field Next Field SFD"
+  },
+  "Field Prev": {
+    "Description": "This action is used to position the cursor horizontally to he previous field.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Field Prev",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Field Prev"
+  },
+  "Field Up": {
+    "Description": "This action is used to the position the cursor vertically to the previous field.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Field Up",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Field Up"
+  },
+  "Line Display End": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Line Display End",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Line Display End"
+  },
+  "Line Disply Home": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Line Disply Home",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Line Disply Home"
+  },
+  "Toggle Selection": {
+    "Description": "This action is used to select or deselect a line.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Toggle Selection",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Toggle Selection"
+  }
+}

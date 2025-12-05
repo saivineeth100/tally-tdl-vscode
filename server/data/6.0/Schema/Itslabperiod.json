@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Agelimit": {
+      "Name": "Agelimit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Applicable For": {
+      "Name": "Applicable For",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Itslabrate": {
+      "Name": "Itslabrate",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itslabrate"
+      }
+    },
+    "Period From": {
+      "Name": "Period From",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Itslabrate": "Itslabrate"
+  },
+  "Name": "Itslabperiod"
+}

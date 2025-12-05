@@ -1,0 +1,137 @@
+{
+    "name": "tally-tdl",
+    "displayName": "Tally TDL",
+    "description": "TDL support for VS Code",
+    "author": "Sai Vineeth",
+    "license": "MIT",
+    "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/saivineeth/tally-tdl"
+    },
+    "publisher": "saivineeth",
+    "categories": [
+        "Programming Languages",
+        "Snippets"
+    ],
+    "keywords": [
+        "multi-root ready"
+    ],
+    "engines": {
+        "vscode": "^1.96.0"
+    },
+    "activationEvents": [
+        "workspaceContains:**/*.{tcp,tpj}"
+    ],
+    "main": "./client/out/extension",
+    "contributes": {
+        "walkthroughs": [
+            {
+                "id": "TallyTDLWalkthrough",
+                "title": "Tally TDL Development Getting Started",
+                "description": "Get started with Tally TDL Development",
+                "steps": [
+                    {
+                        "id": "Configure TDLEnvironment",
+                        "title": "Setup TDL Environment",
+                        "description": "Setup TDL Environment",
+                        "media": {
+                            "image": "media/image.png",
+                            "altText": "Empty image"
+                        }
+                    }
+                ]
+            }
+        ],
+        "commands": [
+            {
+                "command": "tally-tdl.helloWorld",
+                "title": "Hello World"
+            }
+        ],
+        "languages": [
+            {
+                "id": "tdl",
+                "aliases": [
+                    "Tally TDL",
+                    "tdl"
+                ],
+                "extensions": [
+                    ".tdl",
+                    ".TDL"
+                ],
+                "configuration": "./tdl.language-configuration.json"
+            },
+            {
+                "id": "tdlxml",
+                "aliases": [
+                    "Tally TDL XML",
+                    "tdl xml"
+                ],
+                "extensions": [
+                    ".tdlxml",
+                    ".TDLXML"
+                ],
+                "configuration": "./tdlxml.language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "tdl",
+                "scopeName": "source.tdl",
+                "path": "./syntaxes/tdl.tmLanguage.json"
+            },
+            {
+                "language": "tdlxml",
+                "scopeName": "source.tdlxml",
+                "path": "./syntaxes/tdlxml.tmLanguage.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "tdl",
+                "path": "./snippets/tdl.snippets.json"
+            },
+            {
+                "language": "tdlxml",
+                "path": "./snippets/tdlxml.snippets.json"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Tally TDL",
+            "properties": {
+                "tallyTDL.trace.server": {
+                    "scope": "window",
+                    "type": "string",
+                    "enum": [
+                        "off",
+                        "messages",
+                        "verbose"
+                    ],
+                    "default": "off",
+                    "description": "Traces the communication between VSCode and the language server."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -b",
+        "watch": "tsc -b -w",
+        "lint": "eslint .",
+        "test": "sh ./scripts/e2e.sh"
+    },
+    "devDependencies": {
+        "@types/mocha": "^10.0.6",
+        "@types/node": "^20.11.0",
+        "@typescript-eslint/eslint-plugin": "^8.17.0",
+        "@typescript-eslint/parser": "^8.17.0",
+        "eslint": "^9.16.0",
+        "typescript": "^5.7.2"
+    },
+    "workspaces": [
+        "client",
+        "server"
+    ]
+}

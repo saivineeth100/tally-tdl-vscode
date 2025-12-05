@@ -1,0 +1,58 @@
+{
+  "Properties": {
+    "Sumvch Excisedutyheaddetails": {
+      "Name": "Sumvch Excisedutyheaddetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Excise Duty Head Details"
+      }
+    },
+    "Sumvch Paymentamount": {
+      "Name": "Sumvch Paymentamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Paymentsubtype": {
+      "Name": "Sumvch Paymentsubtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Paymenttype": {
+      "Name": "Sumvch Paymenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Sourcedocdate": {
+      "Name": "Sumvch Sourcedocdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Sourcedocno": {
+      "Name": "Sumvch Sourcedocno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Excisedutyheaddetails": "Sumtrans Excise Duty Head Details"
+  },
+  "Name": "Sumtrans Excisepaymentallocations"
+}

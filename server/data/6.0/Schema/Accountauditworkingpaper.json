@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Auditperiodfrom": {
+      "Name": "Auditperiodfrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Audittypename": {
+      "Name": "Audittypename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Auditworkingpaperdetail": {
+      "Name": "Auditworkingpaperdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Auditworkingpaperdetail"
+      }
+    },
+    "Useraccid": {
+      "Name": "Useraccid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Auditworkingpaperdetail": "Auditworkingpaperdetail"
+  },
+  "Name": "Accountauditworkingpaper"
+}

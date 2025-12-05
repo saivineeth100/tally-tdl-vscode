@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Lowerdeductiondetails": {
+      "Name": "Lowerdeductiondetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Lowerdeductiondetails"
+      }
+    },
+    "Natureofpayment": {
+      "Name": "Natureofpayment",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Lowerdeductiondetails": "Lowerdeductiondetails"
+  },
+  "Name": "Lowerdeduction"
+}

@@ -1,0 +1,174 @@
+{
+  "CliSrvBoth": {
+    "Description": "This function returns application behavoiour (client,Server or Both).",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "CliSrvBoth"
+  },
+  "CliSrvPort": {
+    "Description": "This function returns application behaviour port.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "CliSrvPort"
+  },
+  "CurrentLicStatus": {
+    "Description": "This function returns Number denoting current license status.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "CurrentLicStatus"
+  },
+  "IsGlobalTallyAuditOn": {
+    "Description": "This function returns True if the Tally audit on feature is set in any of the loaded companies.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsGlobalTallyAuditOn"
+  },
+  "IsPromoCode": {
+    "Description": "This function is used to check whether the entered information at the time of activation is promocode or serail number.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsPromoCode"
+  },
+  "IsTallyAuditOn": {
+    "Description": "This function returns True if the Tally audit on feature is set in the selected company.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsTallyAuditOn"
+  },
+  "IsTallyClient": {
+    "Description": "This function returns TRUE if it is configured as a Tally Client either direct IP to IP or through Link tally server else returns FALSE.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsTallyClient"
+  },
+  "IsTallyServer": {
+    "Description": "This function returns TRUE if it is configured as a Tally Server either direct IP to IP or through Link tally server else returns FALSE.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsTallyServer"
+  },
+  "IsValidAddOnHelpFileExists": {
+    "Description": "This function checks whether user specified AddOn help file is valid and exists. It returns 0 in case of Success, 1 in case Old version of Help file exists and 2 in case of File not exists.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "IsValidAddOnHelpFileExists"
+  },
+  "IsValidEMail": {
+    "Description": "This function is used to check whether the entered EMail is valid or not.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsValidEMail"
+  },
+  "IsValidGateway": {
+    "Description": "The function is used to know whether given port number and gateway name(or IP)  is valid gateway or not",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "License",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsValidGateway"
+  }
+}

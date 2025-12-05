@@ -1,0 +1,1932 @@
+{
+  "Properties": {
+    "Accountaudit Entries": {
+      "Name": "Accountaudit Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Accountaudit Entries"
+      }
+    },
+    "Active From": {
+      "Name": "Active From",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Active To": {
+      "Name": "Active To",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Actual Purc Qty": {
+      "Name": "Actual Purc Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Actual Sale Qty": {
+      "Name": "Actual Sale Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Additional Ledgers": {
+      "Name": "Additional Ledgers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Additional Ledgers"
+      }
+    },
+    "Additional Units": {
+      "Name": "Additional Units",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Addl Inward Value": {
+      "Name": "Addl Inward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addl Outward Value": {
+      "Name": "Addl Outward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addlexternalinward Value": {
+      "Name": "Addlexternalinward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addlexternaloutward Value": {
+      "Name": "Addlexternaloutward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addlinternalinward Value": {
+      "Name": "Addlinternalinward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Addlinternaloutward Value": {
+      "Name": "Addlinternaloutward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Adjdiffinfirstpurcledger": {
+      "Name": "Adjdiffinfirstpurcledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Adjdiffinfirstsaleledger": {
+      "Name": "Adjdiffinfirstsaleledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Allow Use Of Expired Items": {
+      "Name": "Allow Use Of Expired Items",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Alteredby": {
+      "Name": "Alteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Alterid": {
+      "Name": "Alterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Asoriginal": {
+      "Name": "Asoriginal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Avgpurccost": {
+      "Name": "Avgpurccost",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Avgpurcprice": {
+      "Name": "Avgpurcprice",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Avgsaleprice": {
+      "Name": "Avgsaleprice",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Base Units": {
+      "Name": "Base Units",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Basic Qty": {
+      "Name": "Basic Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Basic Rate Of Excise": {
+      "Name": "Basic Rate Of Excise",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Basic Tariff Type": {
+      "Name": "Basic Tariff Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Basic Value": {
+      "Name": "Basic Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Batch Allocations": {
+      "Name": "Batch Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Item Batch Allocations"
+      }
+    },
+    "Billed Purc Qty": {
+      "Name": "Billed Purc Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Billed Sale Qty": {
+      "Name": "Billed Sale Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Calconmrp": {
+      "Name": "Calconmrp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Can Delete": {
+      "Name": "Can Delete",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Category": {
+      "Name": "Category",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Category Hierarchy": {
+      "Name": "Category Hierarchy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Closing Balance": {
+      "Name": "Closing Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Closing Rate": {
+      "Name": "Closing Rate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Closing Value": {
+      "Name": "Closing Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Component List": {
+      "Name": "Component List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Component List"
+      }
+    },
+    "Conversion": {
+      "Name": "Conversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Costing Method": {
+      "Name": "Costing Method",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Denominator": {
+      "Name": "Denominator",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Depth": {
+      "Name": "Depth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Description": {
+      "Name": "Description",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Enteredby": {
+      "Name": "Enteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Entrytaxapplicable": {
+      "Name": "Entrytaxapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Entrytaxcommodity": {
+      "Name": "Entrytaxcommodity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Errinfo": {
+      "Name": "Errinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Error Info"
+      }
+    },
+    "Errkey": {
+      "Name": "Errkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Estimate": {
+      "Name": "Estimate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Excise Item Classification": {
+      "Name": "Excise Item Classification",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Excise Tariff Details": {
+      "Name": "Excise Tariff Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excise Tariff Details"
+      }
+    },
+    "Exciseapplicability": {
+      "Name": "Exciseapplicability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Exciseitemgodown": {
+      "Name": "Exciseitemgodown",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Exciseitemgodown"
+      }
+    },
+    "Excisetaxtype": {
+      "Name": "Excisetaxtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Exclude Jrnl For Valuation": {
+      "Name": "Exclude Jrnl For Valuation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Excludedtaxations": {
+      "Name": "Excludedtaxations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excludedtaxations"
+      }
+    },
+    "Externalclosingbalance": {
+      "Name": "Externalclosingbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Externalclosingrate": {
+      "Name": "Externalclosingrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Externalclosingvalue": {
+      "Name": "Externalclosingvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Externalinward Quantity": {
+      "Name": "Externalinward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Externalinward Value": {
+      "Name": "Externalinward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Externalopeningbalance": {
+      "Name": "Externalopeningbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Externalopeningrate": {
+      "Name": "Externalopeningrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Externalopeningvalue": {
+      "Name": "Externalopeningvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Externaloutward Quantity": {
+      "Name": "Externaloutward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Externaloutward Value": {
+      "Name": "Externaloutward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "First Voucher Date": {
+      "Name": "First Voucher Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Fullpricelist": {
+      "Name": "Fullpricelist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Fullpricelist"
+      }
+    },
+    "Gstapplicable": {
+      "Name": "Gstapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstcalcslabonmrp": {
+      "Name": "Gstcalcslabonmrp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Gstconvunit": {
+      "Name": "Gstconvunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Gstdetails": {
+      "Name": "Gstdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Gstdetails"
+      }
+    },
+    "Gstitemunits": {
+      "Name": "Gstitemunits",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Gstrepunits": {
+      "Name": "Gstrepunits",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Gstrepuom": {
+      "Name": "Gstrepuom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gsttypeofsupply": {
+      "Name": "Gsttypeofsupply",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Guid": {
+      "Name": "Guid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gvatisexciseappl": {
+      "Name": "Gvatisexciseappl",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Has Mfg Date": {
+      "Name": "Has Mfg Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Hsn Details": {
+      "Name": "Hsn Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Hsn Details"
+      }
+    },
+    "Ignore Batches": {
+      "Name": "Ignore Batches",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignore Godowns": {
+      "Name": "Ignore Godowns",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignore Negative Stock": {
+      "Name": "Ignore Negative Stock",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignore Physical Difference": {
+      "Name": "Ignore Physical Difference",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Inclusivetax": {
+      "Name": "Inclusivetax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Internalclosingbalance": {
+      "Name": "Internalclosingbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Internalclosingrate": {
+      "Name": "Internalclosingrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Internalclosingvalue": {
+      "Name": "Internalclosingvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Internalinward Quantity": {
+      "Name": "Internalinward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Internalinward Value": {
+      "Name": "Internalinward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Internalopeningbalance": {
+      "Name": "Internalopeningbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Internalopeningrate": {
+      "Name": "Internalopeningrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Internalopeningvalue": {
+      "Name": "Internalopeningvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Internaloutward Quantity": {
+      "Name": "Internaloutward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Internaloutward Value": {
+      "Name": "Internaloutward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Inward Quantity": {
+      "Name": "Inward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Inward Value": {
+      "Name": "Inward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Io Total": {
+      "Name": "Io Total",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Is Deemed Positive": {
+      "Name": "Is Deemed Positive",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Mrp Incl Of Tax": {
+      "Name": "Is Mrp Incl Of Tax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Security On When Entered": {
+      "Name": "Is Security On When Entered",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isadditionaltax": {
+      "Name": "Isadditionaltax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isaddltaxexempt": {
+      "Name": "Isaddltaxexempt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isbatchwiseon": {
+      "Name": "Isbatchwiseon",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Iscessexempted": {
+      "Name": "Iscessexempted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Iscostcentreson": {
+      "Name": "Iscostcentreson",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Iscosttrackingon": {
+      "Name": "Iscosttrackingon",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isdeleted": {
+      "Name": "Isdeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Iseditlogpresent": {
+      "Name": "Iseditlogpresent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isexcisecalculateonmrp": {
+      "Name": "Isexcisecalculateonmrp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ismstfromsync": {
+      "Name": "Ismstfromsync",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isperishableon": {
+      "Name": "Isperishableon",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Israteinclusivevat": {
+      "Name": "Israteinclusivevat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Issupplementrydutyon": {
+      "Name": "Issupplementrydutyon",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isupdatingtargetid": {
+      "Name": "Isupdatingtargetid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Job Outward Quantity": {
+      "Name": "Job Outward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Job Outward Value": {
+      "Name": "Job Outward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Journalinqty": {
+      "Name": "Journalinqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Journalinvalue": {
+      "Name": "Journalinvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Journaloutqty": {
+      "Name": "Journaloutqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Journaloutvalue": {
+      "Name": "Journaloutvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Language Name": {
+      "Name": "Language Name",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Language Name"
+      }
+    },
+    "Last Purc Cost": {
+      "Name": "Last Purc Cost",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Last Purc Date": {
+      "Name": "Last Purc Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Last Purc Party": {
+      "Name": "Last Purc Party",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Last Purc Price": {
+      "Name": "Last Purc Price",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Last Purc Qty": {
+      "Name": "Last Purc Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Last Sale Date": {
+      "Name": "Last Sale Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Last Sale Party": {
+      "Name": "Last Sale Party",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Last Sale Price": {
+      "Name": "Last Sale Price",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Last Sale Qty": {
+      "Name": "Last Sale Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Last Voucher Date": {
+      "Name": "Last Voucher Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Lbtdetails": {
+      "Name": "Lbtdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Lbtdetails"
+      }
+    },
+    "Ledger Name": {
+      "Name": "Ledger Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Manufacturing Credit Amount": {
+      "Name": "Manufacturing Credit Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Manufacturing Debit Amount": {
+      "Name": "Manufacturing Debit Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Manufacturing In Quantity": {
+      "Name": "Manufacturing In Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Manufacturing Out Quantity": {
+      "Name": "Manufacturing Out Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Mastertype": {
+      "Name": "Mastertype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Minimumorder": {
+      "Name": "Minimumorder",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Minimumorderbase": {
+      "Name": "Minimumorderbase",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Minorderashigher": {
+      "Name": "Minorderashigher",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Minorderperiod": {
+      "Name": "Minorderperiod",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Minorderperiodlength": {
+      "Name": "Minorderperiodlength",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Minorderroundlimit": {
+      "Name": "Minorderroundlimit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Minorderroundtype": {
+      "Name": "Minorderroundtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Modifymrprate": {
+      "Name": "Modifymrprate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Mrpdetails": {
+      "Name": "Mrpdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mrpdetails"
+      }
+    },
+    "Multicomponentlist": {
+      "Name": "Multicomponentlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Multicomponentlist"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Narration": {
+      "Name": "Narration",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Natureofitem": {
+      "Name": "Natureofitem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Objectupdateaction": {
+      "Name": "Objectupdateaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Old Basic Tariff Type": {
+      "Name": "Old Basic Tariff Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Oldauditentries": {
+      "Name": "Oldauditentries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Audit Entries"
+      }
+    },
+    "Oldauditentryids": {
+      "Name": "Oldauditentryids",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Oldmrpdetails": {
+      "Name": "Oldmrpdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Oldmrpdetails"
+      }
+    },
+    "Opening Balance": {
+      "Name": "Opening Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Opening Rate": {
+      "Name": "Opening Rate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Opening Value": {
+      "Name": "Opening Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Originaldepth": {
+      "Name": "Originaldepth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Originalname": {
+      "Name": "Originalname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Originalsortposition": {
+      "Name": "Originalsortposition",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Outward Quantity": {
+      "Name": "Outward Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Outward Value": {
+      "Name": "Outward Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Parent": {
+      "Name": "Parent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Parent Hierarchy": {
+      "Name": "Parent Hierarchy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Part No": {
+      "Name": "Part No",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Po Due": {
+      "Name": "Po Due",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Po Duevalue": {
+      "Name": "Po Duevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Po Total": {
+      "Name": "Po Total",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Po Totalvalue": {
+      "Name": "Po Totalvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Price Level": {
+      "Name": "Price Level",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Price Level Date": {
+      "Name": "Price Level Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Pricelevellist": {
+      "Name": "Pricelevellist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Pricelevellist"
+      }
+    },
+    "Purchaselist": {
+      "Name": "Purchaselist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Voucher Class Ledger List"
+      }
+    },
+    "Purcqty": {
+      "Name": "Purcqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Purcvalue": {
+      "Name": "Purcvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Rate Of Mrp": {
+      "Name": "Rate Of Mrp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Rate Of Sat": {
+      "Name": "Rate Of Sat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Rate Of Vat": {
+      "Name": "Rate Of Vat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Rateofentrytax": {
+      "Name": "Rateofentrytax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Remotealterid": {
+      "Name": "Remotealterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Remotealtguid": {
+      "Name": "Remotealtguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remoteguid": {
+      "Name": "Remoteguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Reorderashigher": {
+      "Name": "Reorderashigher",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Reorderbase": {
+      "Name": "Reorderbase",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Reorderlevel": {
+      "Name": "Reorderlevel",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Reorderperiod": {
+      "Name": "Reorderperiod",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Reorderperiodlength": {
+      "Name": "Reorderperiodlength",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Reorderroundlimit": {
+      "Name": "Reorderroundlimit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Reorderroundtype": {
+      "Name": "Reorderroundtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Reporting Uom Details": {
+      "Name": "Reporting Uom Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Reporting Uom Details"
+      }
+    },
+    "Requestorrule": {
+      "Name": "Requestorrule",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Saleqty": {
+      "Name": "Saleqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Saleslist": {
+      "Name": "Saleslist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Voucher Class Ledger List"
+      }
+    },
+    "Salestaxcessapplicable": {
+      "Name": "Salestaxcessapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Salestaxcessdetails": {
+      "Name": "Salestaxcessdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Salestaxcessdetails"
+      }
+    },
+    "Salevalue": {
+      "Name": "Salevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Schvidetails": {
+      "Name": "Schvidetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schvidetails"
+      }
+    },
+    "Servicetaxapplicable": {
+      "Name": "Servicetaxapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Servicetaxdetails": {
+      "Name": "Servicetaxdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Servicetaxdetails"
+      }
+    },
+    "So Due": {
+      "Name": "So Due",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "So Duevalue": {
+      "Name": "So Duevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "So Total": {
+      "Name": "So Total",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "So Totalvalue": {
+      "Name": "So Totalvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sort Position": {
+      "Name": "Sort Position",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Standard Cost": {
+      "Name": "Standard Cost",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Standard Cost List": {
+      "Name": "Standard Cost List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Costpricelist"
+      }
+    },
+    "Standard Price": {
+      "Name": "Standard Price",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Standard Price List": {
+      "Name": "Standard Price List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Costpricelist"
+      }
+    },
+    "Targetremoteid": {
+      "Name": "Targetremoteid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Tax Classification Name": {
+      "Name": "Tax Classification Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Tcsapplicable": {
+      "Name": "Tcsapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Tcscategory": {
+      "Name": "Tcscategory",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tcscategorydetails": {
+      "Name": "Tcscategorydetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Tdscategorydetails"
+      }
+    },
+    "Tdsapplicable": {
+      "Name": "Tdsapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Tdscategorydetails": {
+      "Name": "Tdscategorydetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Tdscategorydetails"
+      }
+    },
+    "Trader Excise Duties": {
+      "Name": "Trader Excise Duties",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Trader Excise Duties"
+      }
+    },
+    "Transfer Credit Amount": {
+      "Name": "Transfer Credit Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Transfer Debit Amount": {
+      "Name": "Transfer Debit Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Transfer In Quantity": {
+      "Name": "Transfer In Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Transfer Out Quantity": {
+      "Name": "Transfer Out Quantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Treat Purchases As Consumed": {
+      "Name": "Treat Purchases As Consumed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Treat Rejects As Scrap": {
+      "Name": "Treat Rejects As Scrap",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Treat Sales As Manufactured": {
+      "Name": "Treat Sales As Manufactured",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Typeofupdateactivity": {
+      "Name": "Typeofupdateactivity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Updateddatetime": {
+      "Name": "Updateddatetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Valuation Method": {
+      "Name": "Valuation Method",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Vatactualratio": {
+      "Name": "Vatactualratio",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Vatapplicable": {
+      "Name": "Vatapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Vatbaseno": {
+      "Name": "Vatbaseno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Vatbaseunit": {
+      "Name": "Vatbaseunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Vatclassificationdetails": {
+      "Name": "Vatclassificationdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Vatclassificationdet"
+      }
+    },
+    "Vatcommodity": {
+      "Name": "Vatcommodity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Vatdetails": {
+      "Name": "Vatdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Vatdetails"
+      }
+    },
+    "Vatschdlentrtyno": {
+      "Name": "Vatschdlentrtyno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Vattrailno": {
+      "Name": "Vattrailno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Vattrailunit": {
+      "Name": "Vattrailunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Aliases": "Stock Items",
+    "SDF Id": "SI",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Accountaudit Entries": "Accountaudit Entries",
+    "Additional Ledgers": "Additional Ledgers",
+    "Batch Allocations": "Item Batch Allocations",
+    "Component List": "Component List",
+    "Errinfo": "Error Info",
+    "Excise Tariff Details": "Excise Tariff Details",
+    "Exciseitemgodown": "Exciseitemgodown",
+    "Excludedtaxations": "Excludedtaxations",
+    "Fullpricelist": "Fullpricelist",
+    "Gstdetails": "Gstdetails",
+    "Hsn Details": "Hsn Details",
+    "Language Name": "Language Name",
+    "Lbtdetails": "Lbtdetails",
+    "Mrpdetails": "Mrpdetails",
+    "Multicomponentlist": "Multicomponentlist",
+    "Oldauditentries": "Audit Entries",
+    "Oldmrpdetails": "Oldmrpdetails",
+    "Pricelevellist": "Pricelevellist",
+    "Purchaselist": "Voucher Class Ledger List",
+    "Reporting Uom Details": "Reporting Uom Details",
+    "Saleslist": "Voucher Class Ledger List",
+    "Salestaxcessdetails": "Salestaxcessdetails",
+    "Schvidetails": "Schvidetails",
+    "Servicetaxdetails": "Servicetaxdetails",
+    "Standard Cost List": "Costpricelist",
+    "Standard Price List": "Costpricelist",
+    "Tcscategorydetails": "Tdscategorydetails",
+    "Tdscategorydetails": "Tdscategorydetails",
+    "Trader Excise Duties": "Trader Excise Duties",
+    "Vatclassificationdetails": "Vatclassificationdet",
+    "Vatdetails": "Vatdetails"
+  },
+  "Name": "Stock Item"
+}

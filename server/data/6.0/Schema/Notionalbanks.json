@@ -1,0 +1,17 @@
+{
+  "Properties": {
+    "Bank Name": {
+      "Name": "Bank Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Notionalbanks"
+}

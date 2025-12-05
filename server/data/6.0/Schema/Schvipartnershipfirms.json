@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Firmname": {
+      "Name": "Firmname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Schvipartnerlist": {
+      "Name": "Schvipartnerlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schvipartnerlist"
+      }
+    },
+    "Totalcapital": {
+      "Name": "Totalcapital",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Schvipartnerlist": "Schvipartnerlist"
+  },
+  "Name": "Schvipartnershipfirms"
+}

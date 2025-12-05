@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Fixedassetsdetails": {
+      "Name": "Fixedassetsdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Fixedassetsdetails"
+      }
+    },
+    "Fixedassetsschedule": {
+      "Name": "Fixedassetsschedule",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Fixedassetsschedule"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Fixedassetsdetails": "Fixedassetsdetails",
+    "Fixedassetsschedule": "Fixedassetsschedule"
+  },
+  "Name": "Schvifixedassets"
+}

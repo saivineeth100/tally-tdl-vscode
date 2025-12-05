@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Originvoicebookname": {
+      "Name": "Originvoicebookname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Originvoicedate": {
+      "Name": "Originvoicedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Originvoicenumber": {
+      "Name": "Originvoicenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Originvoicedetails"
+}

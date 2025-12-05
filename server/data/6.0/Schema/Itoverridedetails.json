@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Componentname": {
+      "Name": "Componentname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Componentyear": {
+      "Name": "Componentyear",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Itoverrideperiod": {
+      "Name": "Itoverrideperiod",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itoverrideperiod"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Itoverrideperiod": "Itoverrideperiod"
+  },
+  "Name": "Itoverridedetails"
+}

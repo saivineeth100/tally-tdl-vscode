@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Taxrateperiod": {
+      "Name": "Taxrateperiod",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Taxrateperiod"
+      }
+    },
+    "Zone": {
+      "Name": "Zone",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Zonename": {
+      "Name": "Zonename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Taxrateperiod": "Taxrateperiod"
+  },
+  "Name": "Taxclassificationzone"
+}

@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Excisedutyrates": {
+      "Name": "Excisedutyrates",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excisedutyrates"
+      }
+    },
+    "Methodofcalc": {
+      "Name": "Methodofcalc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Rateofexciseduty": {
+      "Name": "Rateofexciseduty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Typeofduties": {
+      "Name": "Typeofduties",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Excisedutyrates": "Excisedutyrates"
+  },
+  "Name": "Exciseduties"
+}

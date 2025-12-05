@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Sumvch Referencename": {
+      "Name": "Sumvch Referencename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Referencevalue": {
+      "Name": "Sumvch Referencevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Bank Otherrefs"
+}

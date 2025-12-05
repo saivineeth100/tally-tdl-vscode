@@ -1,0 +1,66 @@
+{
+  "Properties": {
+    "Chequebookname": {
+      "Name": "Chequebookname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Chequedetails": {
+      "Name": "Chequedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Chequedetails"
+      }
+    },
+    "Chequefrom": {
+      "Name": "Chequefrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Chequeleafavailable": {
+      "Name": "Chequeleafavailable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Chequeto": {
+      "Name": "Chequeto",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Openingchequedetails": {
+      "Name": "Openingchequedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Openingchequedetails"
+      }
+    },
+    "Vchchequedetails": {
+      "Name": "Vchchequedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Vchchequedetails"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Chequedetails": "Chequedetails",
+    "Openingchequedetails": "Openingchequedetails",
+    "Vchchequedetails": "Vchchequedetails"
+  },
+  "Name": "Chequerange"
+}

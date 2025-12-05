@@ -1,0 +1,54 @@
+{
+    "Create Resource": {
+        "prefix": "Resource",
+        "body": [
+            "[Resource: ${1:resourcename}]",
+            "   Source          : \"${2:source}\"",
+            "   Resource Type   :${3:resourcetype}\n"
+        ],
+        "description": "Creates Resource"
+    },
+    "Create Menu": {
+        "prefix": "Menu",
+        "body": [
+            "[Menu : ${1:menuname}]",
+            "   Add : Key Item :"
+        ],
+        "description": "Creates Menu"
+    },
+    "Create Button": {
+        "prefix": "Button",
+        "body": [
+            "[Menu : ${1:btnName}]",
+            "   Key     : ${2:key}",
+            "   Action  : "
+        ],
+        "description": "Creates Menu"
+    },
+    "Create Report": {
+        "prefix": "Report",
+        "body": [
+            "[Report: ${1:reportname}]",
+            "   Form    : ${1:reportname}\n"
+        ],
+        "description": "Creates Report"
+    },
+    "Create Full Report": {
+        "prefix": "Report",
+        "body": [
+            "[Report: ${1:reportname}]\n",
+            "   Form    : ${1:reportname}\n",
+            "[Form: ${1:reportname}]\n",
+            "   Parts   : ${1:reportname}\n",
+            "[Part: ${1:reportname}]\n",
+            "   Lines   : ${1:reportname}\n",
+            "[Line: ${1:reportname}]\n",
+            "   Fields   : ${2:fieldname},${3:fieldname2}\n",
+            "[Field: ${2:fieldname}]\n",
+            "   Set as   : ${4:someval}\n",
+            "[Field: ${3:fieldname2}]\n",
+            "   Set as   : ${5:someval}\n"
+        ],
+        "description": "Creates Report with form,part,line and fields"
+    }
+}

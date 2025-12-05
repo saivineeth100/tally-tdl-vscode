@@ -1,0 +1,11 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Tally TDL XML",
+	
+	"scopeName": "source.tdlxml",
+	"patterns": [
+		{
+			"include": "text.xml"
+		}
+	]
+}

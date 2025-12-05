@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Employee Rate": {
+      "Name": "Employee Rate",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Employee Rate"
+      }
+    },
+    "Period From": {
+      "Name": "Period From",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Period To": {
+      "Name": "Period To",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Employee Rate": "Employee Rate"
+  },
+  "Name": "Employee Period"
+}

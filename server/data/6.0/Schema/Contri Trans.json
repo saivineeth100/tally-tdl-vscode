@@ -1,0 +1,82 @@
+{
+  "Properties": {
+    "Addlqualifiers": {
+      "Name": "Addlqualifiers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content Qualifier"
+      }
+    },
+    "Contritranscontentversionid": {
+      "Name": "Contritranscontentversionid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Contritransdefunc": {
+      "Name": "Contritransdefunc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Contritransremotevchid": {
+      "Name": "Contritransremotevchid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Contritransstatid": {
+      "Name": "Contritransstatid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Contritransvchid": {
+      "Name": "Contritransvchid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Period": {
+      "Name": "Period",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Returnname": {
+      "Name": "Returnname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sectionname": {
+      "Name": "Sectionname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Addlqualifiers": "Content Qualifier"
+  },
+  "Name": "Contri Trans"
+}

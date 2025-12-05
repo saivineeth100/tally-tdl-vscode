@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Deviceno": {
+      "Name": "Deviceno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Devicetype": {
+      "Name": "Devicetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Devicedetails"
+}

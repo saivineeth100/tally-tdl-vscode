@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Ispayments": {
+      "Name": "Ispayments",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Isreceipts": {
+      "Name": "Isreceipts",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transaction Type": {
+      "Name": "Transaction Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Default Transaction Type"
+}

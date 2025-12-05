@@ -1,0 +1,185 @@
+{
+  "Properties": {
+    "Sumvch Stockitemname": {
+      "Name": "Sumvch Stockitemname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Vatadjustmentperiod": {
+      "Name": "Sumvch Vatadjustmentperiod",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Vatcommodityamount": {
+      "Name": "Sumvch Vatcommodityamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vatcommoditycode": {
+      "Name": "Sumvch Vatcommoditycode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Vatcommodityname": {
+      "Name": "Sumvch Vatcommodityname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Vatcommoditytax": {
+      "Name": "Sumvch Vatcommoditytax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vatorderdate": {
+      "Name": "Sumvch Vatorderdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Vatorderno": {
+      "Name": "Sumvch Vatorderno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Vatqty": {
+      "Name": "Sumvch Vatqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Vatqtyunit": {
+      "Name": "Sumvch Vatqtyunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Vatsellertin": {
+      "Name": "Sumvch Vatsellertin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Vatsubclassamount": {
+      "Name": "Sumvch Vatsubclassamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vatsubclassname": {
+      "Name": "Sumvch Vatsubclassname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Vatsubclassquantity": {
+      "Name": "Sumvch Vatsubclassquantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Vatsubclasstax": {
+      "Name": "Sumvch Vatsubclasstax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vatsubclasstaxrate": {
+      "Name": "Sumvch Vatsubclasstaxrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Vatsupplierinvoiceamount": {
+      "Name": "Sumvch Vatsupplierinvoiceamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vatsupplierinvoicedate": {
+      "Name": "Sumvch Vatsupplierinvoicedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Vatsupplierinvoiceno": {
+      "Name": "Sumvch Vatsupplierinvoiceno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Vatsuppliername": {
+      "Name": "Sumvch Vatsuppliername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Vatwcdeductamt": {
+      "Name": "Sumvch Vatwcdeductamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Wctotaldeductionamt": {
+      "Name": "Sumvch Wctotaldeductionamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Vatstatutorydetails"
+}

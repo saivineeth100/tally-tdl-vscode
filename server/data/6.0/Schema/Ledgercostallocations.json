@@ -1,0 +1,50 @@
+{
+  "Properties": {
+    "Itemcostallocations": {
+      "Name": "Itemcostallocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itemcostallocations"
+      }
+    },
+    "Ledger Name": {
+      "Name": "Ledger Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Ledgerinvalue": {
+      "Name": "Ledgerinvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ledgernettvalue": {
+      "Name": "Ledgernettvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ledgeroutvalue": {
+      "Name": "Ledgeroutvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Itemcostallocations": "Itemcostallocations"
+  },
+  "Name": "Ledgercostallocations"
+}

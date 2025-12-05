@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Fromdate": {
+      "Name": "Fromdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Mrpratedetails": {
+      "Name": "Mrpratedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mrpratedetails"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Mrpratedetails": "Mrpratedetails"
+  },
+  "Name": "Mrpdetails"
+}

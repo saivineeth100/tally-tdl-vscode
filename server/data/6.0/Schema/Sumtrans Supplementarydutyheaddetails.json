@@ -1,0 +1,49 @@
+{
+  "Properties": {
+    "Sumvch Dutyhead": {
+      "Name": "Sumvch Dutyhead",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Originalrate": {
+      "Name": "Sumvch Originalrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Originalrateperunit": {
+      "Name": "Sumvch Originalrateperunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Revisedrate": {
+      "Name": "Sumvch Revisedrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Revisedrateperunit": {
+      "Name": "Sumvch Revisedrateperunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Supplementarydutyheaddetails"
+}

@@ -1,0 +1,354 @@
+{
+  "Properties": {
+    "Sumvch Bill Date": {
+      "Name": "Sumvch Bill Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Bill Number": {
+      "Name": "Sumvch Bill Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Bill Status": {
+      "Name": "Sumvch Bill Status",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Cancel Code": {
+      "Name": "Sumvch Cancel Code",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Cancel Reason": {
+      "Name": "Sumvch Cancel Reason",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Canceldate": {
+      "Name": "Sumvch Canceldate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Sumvch Consignee Address": {
+      "Name": "Sumvch Consignee Address",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignee Address Type": {
+      "Name": "Sumvch Consignee Address Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignee Name": {
+      "Name": "Sumvch Consignee Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignee Place": {
+      "Name": "Sumvch Consignee Place",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consigneegstin": {
+      "Name": "Sumvch Consigneegstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consigneepincode": {
+      "Name": "Sumvch Consigneepincode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consigneestatename": {
+      "Name": "Sumvch Consigneestatename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignor Address": {
+      "Name": "Sumvch Consignor Address",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignor Address Type": {
+      "Name": "Sumvch Consignor Address Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignor Gstin": {
+      "Name": "Sumvch Consignor Gstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignor Name": {
+      "Name": "Sumvch Consignor Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignor Pincode": {
+      "Name": "Sumvch Consignor Pincode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignor Place": {
+      "Name": "Sumvch Consignor Place",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consignor Statename": {
+      "Name": "Sumvch Consignor Statename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Consolidated Bill Date": {
+      "Name": "Sumvch Consolidated Bill Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Consolidated Bill Number": {
+      "Name": "Sumvch Consolidated Bill Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Document Type": {
+      "Name": "Sumvch Document Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Extension Details": {
+      "Name": "Sumvch Extension Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Eway Extension Details"
+      }
+    },
+    "Sumvch Generatedon": {
+      "Name": "Sumvch Generatedon",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Ignore Generation Validation": {
+      "Name": "Sumvch Ignore Generation Validation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Ignoregstinvalidation": {
+      "Name": "Sumvch Ignoregstinvalidation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Intrastate Applicability": {
+      "Name": "Sumvch Intrastate Applicability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Irpsource": {
+      "Name": "Sumvch Irpsource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Is Cancelled": {
+      "Name": "Sumvch Is Cancelled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Is Exported For Generation": {
+      "Name": "Sumvch Is Exported For Generation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Iscancelpending": {
+      "Name": "Sumvch Iscancelpending",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Multivehicledetails": {
+      "Name": "Sumvch Multivehicledetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Multivehicle Details"
+      }
+    },
+    "Sumvch Shippedfromstate": {
+      "Name": "Sumvch Shippedfromstate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Shippedtostate": {
+      "Name": "Sumvch Shippedtostate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch State Wise Threshold": {
+      "Name": "Sumvch State Wise Threshold",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans State Wise Threshold"
+      }
+    },
+    "Sumvch Subtype": {
+      "Name": "Sumvch Subtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Threshold Limit": {
+      "Name": "Sumvch Threshold Limit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Threshold Limit Includes": {
+      "Name": "Sumvch Threshold Limit Includes",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Transport Details": {
+      "Name": "Sumvch Transport Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Transporter Details"
+      }
+    },
+    "Sumvch Updateddate": {
+      "Name": "Sumvch Updateddate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Sumvch Validity": {
+      "Name": "Sumvch Validity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Validupto": {
+      "Name": "Sumvch Validupto",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Extension Details": "Sumtrans Eway Extension Details",
+    "Sumvch Multivehicledetails": "Sumtrans Multivehicle Details",
+    "Sumvch State Wise Threshold": "Sumtrans State Wise Threshold",
+    "Sumvch Transport Details": "Sumtrans Transporter Details"
+  },
+  "Name": "Sumtrans Ewaybill Details"
+}

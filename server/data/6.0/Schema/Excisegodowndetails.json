@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Excisegodownname": {
+      "Name": "Excisegodownname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Godownpendingqty": {
+      "Name": "Godownpendingqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Excisegodowndetails"
+}

@@ -1,0 +1,50 @@
+{
+  "Properties": {
+    "Sumvch Vch Acc Not Applicable": {
+      "Name": "Sumvch Vch Acc Not Applicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Vch Created As Inv": {
+      "Name": "Sumvch Vch Created As Inv",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Vch Entry Infos": {
+      "Name": "Sumvch Vch Entry Infos",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Vch Info"
+      }
+    },
+    "Sumvch Vch Inv Not Applicable": {
+      "Name": "Sumvch Vch Inv Not Applicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Vch Neg Is Pos": {
+      "Name": "Sumvch Vch Neg Is Pos",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Vch Entry Infos": "Sumtrans Vch Info"
+  },
+  "Name": "Sumtrans Vch Entry"
+}

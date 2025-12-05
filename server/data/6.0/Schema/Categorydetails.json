@@ -1,0 +1,130 @@
+{
+  "Properties": {
+    "Abatementnotification": {
+      "Name": "Abatementnotification",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Abatementnotification"
+      }
+    },
+    "Categoryname": {
+      "Name": "Categoryname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exemptionnotification": {
+      "Name": "Exemptionnotification",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Exemptionnotification"
+      }
+    },
+    "Inclassificationdetails": {
+      "Name": "Inclassificationdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Classificationdetails"
+      }
+    },
+    "Outclassificationdetails": {
+      "Name": "Outclassificationdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Classificationdetails"
+      }
+    },
+    "Providerreversechargeper": {
+      "Name": "Providerreversechargeper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Provisionalassessmentno": {
+      "Name": "Provisionalassessmentno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Pservicetaxratedetails": {
+      "Name": "Pservicetaxratedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Service Tax Rate Details"
+      }
+    },
+    "Receiverreversechargeper": {
+      "Name": "Receiverreversechargeper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Rservicetaxratedetails": {
+      "Name": "Rservicetaxratedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Service Tax Rate Details"
+      }
+    },
+    "Service Tax Period Details": {
+      "Name": "Service Tax Period Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Service Tax Period Details"
+      }
+    },
+    "Stcategoryname": {
+      "Name": "Stcategoryname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Stcatservcode": {
+      "Name": "Stcatservcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Stsubclause": {
+      "Name": "Stsubclause",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tdstaxabletype": {
+      "Name": "Tdstaxabletype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Abatementnotification": "Abatementnotification",
+    "Exemptionnotification": "Exemptionnotification",
+    "Inclassificationdetails": "Classificationdetails",
+    "Outclassificationdetails": "Classificationdetails",
+    "Pservicetaxratedetails": "Service Tax Rate Details",
+    "Rservicetaxratedetails": "Service Tax Rate Details",
+    "Service Tax Period Details": "Service Tax Period Details"
+  },
+  "Name": "Categorydetails"
+}

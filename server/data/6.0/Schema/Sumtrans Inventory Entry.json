@@ -1,0 +1,1027 @@
+{
+  "Properties": {
+    "Sumvch Addlcostperc": {
+      "Name": "Sumvch Addlcostperc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Basic Num Packages": {
+      "Name": "Sumvch Basic Num Packages",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Basic Package Marks": {
+      "Name": "Sumvch Basic Package Marks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Basic User Description": {
+      "Name": "Sumvch Basic User Description",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Batch Allocations": {
+      "Name": "Sumvch Batch Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Batch Allocations"
+      }
+    },
+    "Sumvch Bomname": {
+      "Name": "Sumvch Bomname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Cessassvalonclass": {
+      "Name": "Sumvch Cessassvalonclass",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Componentlisttype": {
+      "Name": "Sumvch Componentlisttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Content Neg Is Pos": {
+      "Name": "Sumvch Content Neg Is Pos",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Description": {
+      "Name": "Sumvch Description",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Discount": {
+      "Name": "Sumvch Discount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Displaynatureofcomponent": {
+      "Name": "Sumvch Displaynatureofcomponent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Dutyheaddetails": {
+      "Name": "Sumvch Dutyheaddetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Dutyheaddetails"
+      }
+    },
+    "Sumvch Eidiscountamt": {
+      "Name": "Sumvch Eidiscountamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Escalationrate": {
+      "Name": "Sumvch Escalationrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Excise Allocations": {
+      "Name": "Sumvch Excise Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Excise Allocations"
+      }
+    },
+    "Sumvch Excise Exemption": {
+      "Name": "Sumvch Excise Exemption",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Excise Tariff": {
+      "Name": "Sumvch Excise Tariff",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Exciseassessablevalue": {
+      "Name": "Sumvch Exciseassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Exciseclassificationname": {
+      "Name": "Sumvch Exciseclassificationname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Excisecreditcategory": {
+      "Name": "Sumvch Excisecreditcategory",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Excisecreditparty": {
+      "Name": "Sumvch Excisecreditparty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Excisecreditpendingqty": {
+      "Name": "Sumvch Excisecreditpendingqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Excisecreditstkitem": {
+      "Name": "Sumvch Excisecreditstkitem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Excisemrpabatement": {
+      "Name": "Sumvch Excisemrpabatement",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Excisemrprate": {
+      "Name": "Sumvch Excisemrprate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Excisereturndutyrate": {
+      "Name": "Sumvch Excisereturndutyrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Excisereturninvoiceno": {
+      "Name": "Sumvch Excisereturninvoiceno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Excisereturninvoiceqty": {
+      "Name": "Sumvch Excisereturninvoiceqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Excisesalesinvoiceno": {
+      "Name": "Sumvch Excisesalesinvoiceno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Expense Allocations": {
+      "Name": "Sumvch Expense Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Expense Allocations"
+      }
+    },
+    "Sumvch Gst Source Type": {
+      "Name": "Sumvch Gst Source Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Gstassblvalue": {
+      "Name": "Sumvch Gstassblvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Gstdepgstclassification": {
+      "Name": "Sumvch Gstdepgstclassification",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Gstdephsnclassification": {
+      "Name": "Sumvch Gstdephsnclassification",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Gstgroupsource": {
+      "Name": "Sumvch Gstgroupsource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Gsthsndescription": {
+      "Name": "Sumvch Gsthsndescription",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Gsthsninferapplicability": {
+      "Name": "Sumvch Gsthsninferapplicability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Gsthsnname": {
+      "Name": "Sumvch Gsthsnname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Gstitemsource": {
+      "Name": "Sumvch Gstitemsource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Gstitemuqc": {
+      "Name": "Sumvch Gstitemuqc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Gstitemuqcuom": {
+      "Name": "Sumvch Gstitemuqcuom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Gstledgersource": {
+      "Name": "Sumvch Gstledgersource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Gstovrdnassessablevalue": {
+      "Name": "Sumvch Gstovrdnassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Gstovrdnclassification": {
+      "Name": "Sumvch Gstovrdnclassification",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Gstovrdnineligibleitc": {
+      "Name": "Sumvch Gstovrdnineligibleitc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Gstovrdnisrevchargeappl": {
+      "Name": "Sumvch Gstovrdnisrevchargeappl",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Gstovrdnnature": {
+      "Name": "Sumvch Gstovrdnnature",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Gstovrdnnatureofgoods": {
+      "Name": "Sumvch Gstovrdnnatureofgoods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Gstovrdnstorednature": {
+      "Name": "Sumvch Gstovrdnstorednature",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Gstovrdntaxability": {
+      "Name": "Sumvch Gstovrdntaxability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Gstovrdntypeofsupply": {
+      "Name": "Sumvch Gstovrdntypeofsupply",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Gstrateinferapplicability": {
+      "Name": "Sumvch Gstrateinferapplicability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Gststockgroupsource": {
+      "Name": "Sumvch Gststockgroupsource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Gvatexciseamt": {
+      "Name": "Sumvch Gvatexciseamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Gvatexciserate": {
+      "Name": "Sumvch Gvatexciserate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Hsn Source Type": {
+      "Name": "Sumvch Hsn Source Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Hsngroupsource": {
+      "Name": "Sumvch Hsngroupsource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Hsnitemsource": {
+      "Name": "Sumvch Hsnitemsource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Hsnledgersource": {
+      "Name": "Sumvch Hsnledgersource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Hsnovrdnclassification": {
+      "Name": "Sumvch Hsnovrdnclassification",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Hsnstockgroupsource": {
+      "Name": "Sumvch Hsnstockgroupsource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Inclvatrate": {
+      "Name": "Sumvch Inclvatrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Isautonegate": {
+      "Name": "Sumvch Isautonegate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Iscustomsclearance": {
+      "Name": "Sumvch Iscustomsclearance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Isgstassessablevalueoverridden": {
+      "Name": "Sumvch Isgstassessablevalueoverridden",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Isprimaryitem": {
+      "Name": "Sumvch Isprimaryitem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Isscrap": {
+      "Name": "Sumvch Isscrap",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Istrackcomponent": {
+      "Name": "Sumvch Istrackcomponent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Istrackproduction": {
+      "Name": "Sumvch Istrackproduction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Iszrbasicservice": {
+      "Name": "Sumvch Iszrbasicservice",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Mrp Rate": {
+      "Name": "Sumvch Mrp Rate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Natureofcomponent": {
+      "Name": "Sumvch Natureofcomponent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Origactualqty": {
+      "Name": "Sumvch Origactualqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Origbilledqty": {
+      "Name": "Sumvch Origbilledqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Originvgoodsqty": {
+      "Name": "Sumvch Originvgoodsqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Originvgoodstaxvalue": {
+      "Name": "Sumvch Originvgoodstaxvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Originvgoodsvalue": {
+      "Name": "Sumvch Originvgoodsvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Originvoicebookname": {
+      "Name": "Sumvch Originvoicebookname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Originvoicedate": {
+      "Name": "Sumvch Originvoicedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Originvoicenumber": {
+      "Name": "Sumvch Originvoicenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Origmrpabatement": {
+      "Name": "Sumvch Origmrpabatement",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Origmrprate": {
+      "Name": "Sumvch Origmrprate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Origrate": {
+      "Name": "Sumvch Origrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Origrateofduty": {
+      "Name": "Sumvch Origrateofduty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Origrateofqty": {
+      "Name": "Sumvch Origrateofqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Origsalesinvdate": {
+      "Name": "Sumvch Origsalesinvdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Origsalesinvno": {
+      "Name": "Sumvch Origsalesinvno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Rate": {
+      "Name": "Sumvch Rate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Ratedetails": {
+      "Name": "Sumvch Ratedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Gstratedetails"
+      }
+    },
+    "Sumvch Reasonofrejection": {
+      "Name": "Sumvch Reasonofrejection",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Refvoucherdetails": {
+      "Name": "Sumvch Refvoucherdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Refvoucherdetails"
+      }
+    },
+    "Sumvch Revisedrate": {
+      "Name": "Sumvch Revisedrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Revisedrateofduty": {
+      "Name": "Sumvch Revisedrateofduty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Revisedrateofqty": {
+      "Name": "Sumvch Revisedrateofqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Sdtaxclassificationname": {
+      "Name": "Sumvch Sdtaxclassificationname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Statnaturename": {
+      "Name": "Sumvch Statnaturename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Stockitemname": {
+      "Name": "Sumvch Stockitemname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Strd Computedassessablevalue": {
+      "Name": "Sumvch Strd Computedassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Strd Computedcess": {
+      "Name": "Sumvch Strd Computedcess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Strd Computedcessonqty": {
+      "Name": "Sumvch Strd Computedcessonqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Strd Computedcgst": {
+      "Name": "Sumvch Strd Computedcgst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Strd Computedigst": {
+      "Name": "Sumvch Strd Computedigst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Strd Computedsgst": {
+      "Name": "Sumvch Strd Computedsgst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Strd Isgst Applicable": {
+      "Name": "Sumvch Strd Isgst Applicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Strdappropriateddiscount": {
+      "Name": "Sumvch Strdappropriateddiscount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Strdapprstatecessgst": {
+      "Name": "Sumvch Strdapprstatecessgst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Strdexcisetax": {
+      "Name": "Sumvch Strdexcisetax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Strdgstderivedlocationtype": {
+      "Name": "Sumvch Strdgstderivedlocationtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Strdgstderivednaturetype": {
+      "Name": "Sumvch Strdgstderivednaturetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Strdgstderivedsupplytype": {
+      "Name": "Sumvch Strdgstderivedsupplytype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Strdgstderivedtaxability": {
+      "Name": "Sumvch Strdgstderivedtaxability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Strdgstfinalnatureofentry": {
+      "Name": "Sumvch Strdgstfinalnatureofentry",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Supplementarydutyheaddetails": {
+      "Name": "Sumvch Supplementarydutyheaddetails",
+      "IsComplex": true,
+      "Meta": {
+        "Back by small amount": "Back by large amount",
+        "Object Name": "Sumtrans Supplementarydutyheaddetails"
+      }
+    },
+    "Sumvch Tax Object Allocations": {
+      "Name": "Sumvch Tax Object Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Tax Object Allocations"
+      }
+    },
+    "Sumvch Tradercnsalesnumber": {
+      "Name": "Sumvch Tradercnsalesnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Tradersupplierinvoiceno": {
+      "Name": "Sumvch Tradersupplierinvoiceno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Usableqty": {
+      "Name": "Sumvch Usableqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Vat Assessable Value": {
+      "Name": "Sumvch Vat Assessable Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vatacceptedaddltaxamt": {
+      "Name": "Sumvch Vatacceptedaddltaxamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vatacceptedtaxamt": {
+      "Name": "Sumvch Vatacceptedtaxamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vatassblvalue": {
+      "Name": "Sumvch Vatassblvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vateligiblecredit": {
+      "Name": "Sumvch Vateligiblecredit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vatinputtaxcredit": {
+      "Name": "Sumvch Vatinputtaxcredit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Vattaxrate": {
+      "Name": "Sumvch Vattaxrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Vatwcdeductamt": {
+      "Name": "Sumvch Vatwcdeductamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Wctotaldeductionamt": {
+      "Name": "Sumvch Wctotaldeductionamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Batch Allocations": "Sumtrans Batch Allocations",
+    "Sumvch Dutyheaddetails": "Sumtrans Dutyheaddetails",
+    "Sumvch Excise Allocations": "Sumtrans Excise Allocations",
+    "Sumvch Expense Allocations": "Sumtrans Expense Allocations",
+    "Sumvch Ratedetails": "Sumtrans Gstratedetails",
+    "Sumvch Refvoucherdetails": "Sumtrans Refvoucherdetails",
+    "Sumvch Supplementarydutyheaddetails": "Sumtrans Supplementarydutyheaddetails",
+    "Sumvch Tax Object Allocations": "Sumtrans Tax Object Allocations"
+  },
+  "Name": "Sumtrans Inventory Entry"
+}

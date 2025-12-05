@@ -1,0 +1,50 @@
+{
+  "Properties": {
+    "Sumvch Amount": {
+      "Name": "Sumvch Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Gst Assessable Value": {
+      "Name": "Sumvch Gst Assessable Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Gsttaxrate": {
+      "Name": "Sumvch Gsttaxrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Tax Additional Details": {
+      "Name": "Sumvch Tax Additional Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Tax  Additional Details"
+      }
+    },
+    "Sumvch Taxtype": {
+      "Name": "Sumvch Taxtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Tax Additional Details": "Sumtrans Tax  Additional Details"
+  },
+  "Name": "Sumtrans Tax Type Allocations"
+}

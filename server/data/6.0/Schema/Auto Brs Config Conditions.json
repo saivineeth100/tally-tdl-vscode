@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Abc Condition Description": {
+      "Name": "Abc Condition Description",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Condition Id": {
+      "Name": "Abc Condition Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Auto Brs Config Conditions"
+}

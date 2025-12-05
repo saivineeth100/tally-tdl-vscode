@@ -1,0 +1,323 @@
+{
+  "Properties": {
+    "Abatementfortax": {
+      "Name": "Abatementfortax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Accountaudit Entries": {
+      "Name": "Accountaudit Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Accountaudit Entries"
+      }
+    },
+    "Assessablevalue": {
+      "Name": "Assessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cashpartyname": {
+      "Name": "Cashpartyname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Category": {
+      "Name": "Category",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Deductee Type": {
+      "Name": "Deductee Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Exempted": {
+      "Name": "Exempted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Expenses": {
+      "Name": "Expenses",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Expensesamount": {
+      "Name": "Expensesamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Hasinputcredit": {
+      "Name": "Hasinputcredit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Advance": {
+      "Name": "Is Advance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Optional": {
+      "Name": "Is Optional",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Special Rate": {
+      "Name": "Is Special Rate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isbasedonrealization": {
+      "Name": "Isbasedonrealization",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isdeductnow": {
+      "Name": "Isdeductnow",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ispannotavailable": {
+      "Name": "Ispannotavailable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ispanvalid": {
+      "Name": "Ispanvalid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ispureagent": {
+      "Name": "Ispureagent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Issupplementary": {
+      "Name": "Issupplementary",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Istdsdeducted": {
+      "Name": "Istdsdeducted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ledger Entries": {
+      "Name": "Ledger Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Voucher",
+        "Schema Missing": "Yes"
+      }
+    },
+    "Natureofservice": {
+      "Name": "Natureofservice",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Notificationno": {
+      "Name": "Notificationno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Oldauditentries": {
+      "Name": "Oldauditentries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Audit Entries"
+      }
+    },
+    "Oldauditentryids": {
+      "Name": "Oldauditentryids",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Pan Number": {
+      "Name": "Pan Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Party Ledger": {
+      "Name": "Party Ledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Realized Assessable Value": {
+      "Name": "Realized Assessable Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Reversechargerate": {
+      "Name": "Reversechargerate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Runningbalance": {
+      "Name": "Runningbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Servicetaxliabilitytype": {
+      "Name": "Servicetaxliabilitytype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sub Category List": {
+      "Name": "Sub Category List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sub Category List"
+      }
+    },
+    "Tax Date": {
+      "Name": "Tax Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Tax Name": {
+      "Name": "Tax Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tax Type": {
+      "Name": "Tax Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Tdschallandate": {
+      "Name": "Tdschallandate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Tdschallannumber": {
+      "Name": "Tdschallannumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transactionid": {
+      "Name": "Transactionid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Zero Rated": {
+      "Name": "Zero Rated",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Accountaudit Entries": "Accountaudit Entries",
+    "Ledger Entries": "Voucher",
+    "Oldauditentries": "Audit Entries",
+    "Sub Category List": "Sub Category List"
+  },
+  "Name": "Taxobjects"
+}

@@ -1,0 +1,170 @@
+{
+  "Invert Selection": {
+    "Description": "This action inverts the Selection. That is all unselected lines will be selected and selected lines will be unselected.  Applicable only in Display mode.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Invert Selection",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Invert Selection"
+  },
+  "Part End": {
+    "Description": "This action positions the cursor to the end of the current Part.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Part End",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Part End"
+  },
+  "Part Home": {
+    "Description": "This action positions the cursor to the beginning of the current Part.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Part Home",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Part Home"
+  },
+  "Part Left": {
+    "Description": "This action positions the cursor to the previous horizontal Part.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Part Left",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Part Left"
+  },
+  "Part Next Line": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Part Next Line",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Part Next Line"
+  },
+  "Part Next Line SFD": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Part Next Line SFD",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Edit"
+    },
+    "Name": "Part Next Line SFD"
+  },
+  "Part PgDn": {
+    "Description": "It is used to quickly scroll the page to view the next page.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Part PgDn",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Part PgDn"
+  },
+  "Part PgUp": {
+    "Description": "It is used to quickly scroll the page to view the previous page.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Part PgUp",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Part PgUp"
+  },
+  "Part Prev Line": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Part Prev Line",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Part Prev Line"
+  },
+  "Part Right": {
+    "Description": "This action positions the cursor to the next horizontal Part.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Part Right",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Part Right"
+  },
+  "Select All": {
+    "Description": "This action selects all the lines within a part. Applicable only in Display mode.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Select All",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Select All"
+  },
+  "Selection Down": {
+    "Description": "This action is used to select the below line while keeping the current line selected.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Selection Down",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Selection Down"
+  },
+  "Selection Up": {
+    "Description": "This action is used to select the above line while keeping the current line selected.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Selection Up",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Selection Up"
+  },
+  "Unselect All": {
+    "Description": "This action un-selects all the lines within a part.  Applicable only in Display mode.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Unselect All",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Unselect All"
+  }
+}

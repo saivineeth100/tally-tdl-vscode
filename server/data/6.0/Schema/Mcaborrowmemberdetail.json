@@ -1,0 +1,73 @@
+{
+  "Properties": {
+    "Borrdetailaddlnote": {
+      "Name": "Borrdetailaddlnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Borrdetaildate": {
+      "Name": "Borrdetaildate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Borrdetailid": {
+      "Name": "Borrdetailid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Borrdetailnote": {
+      "Name": "Borrdetailnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Borrltsecured Value": {
+      "Name": "Borrltsecured Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Borrltunsecured Value": {
+      "Name": "Borrltunsecured Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Borrstsecured Value": {
+      "Name": "Borrstsecured Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Borrstunsecured Value": {
+      "Name": "Borrstunsecured Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Mcaborrowmemberdetail"
+}

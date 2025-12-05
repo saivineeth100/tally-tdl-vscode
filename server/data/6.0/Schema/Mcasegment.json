@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Id": {
+      "Name": "Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mcasegmentdetails": {
+      "Name": "Mcasegmentdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcasegmentdetails"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Type": {
+      "Name": "Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Mcasegmentdetails": "Mcasegmentdetails"
+  },
+  "Name": "Mcasegment"
+}

@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Amount": {
+      "Name": "Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Employee Name": {
+      "Name": "Employee Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Employee Sort Order": {
+      "Name": "Employee Sort Order",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Payhead Allocations": {
+      "Name": "Payhead Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Payhead Allocations"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Payhead Allocations": "Payhead Allocations"
+  },
+  "Name": "Employee Entry"
+}

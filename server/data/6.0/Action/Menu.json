@@ -1,0 +1,146 @@
+{
+  "Menu Bottom": {
+    "Description": "This action is used to position the cursor to the last menu item.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Bottom",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Bottom"
+  },
+  "Menu Down": {
+    "Description": "This action is used to position the cursor to the next menu item.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Down",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Down"
+  },
+  "Menu Execute": {
+    "Description": "This action is used to execute the action which is specified in the current menu item.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Execute",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Execute"
+  },
+  "Menu First": {
+    "Description": "This action is used to move to the first available popup menu that is defined in the top toolbar.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu First",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu First"
+  },
+  "Menu Last": {
+    "Description": "This action is used to move to the last available popup menu that is defined in the top toolbar.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Last",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Last"
+  },
+  "Menu Left": {
+    "Description": "This action is used to move to the previous popup menu that is defined in the top toolbar.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Left",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Left"
+  },
+  "Menu Reject": {
+    "Description": "This action is used to exit from the current menu.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Reject",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Reject"
+  },
+  "Menu Right": {
+    "Description": "This action is used to move to the next popup menu that is defined in the top toolbar.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Right",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Right"
+  },
+  "Menu Section Down": {
+    "Description": "This action is used to move to the first menu item of the next section.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Section Down",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Section Down"
+  },
+  "Menu Section Up": {
+    "Description": "This action is used to move to the first menu item of the previous section.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Section Up",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Section Up"
+  },
+  "Menu Top": {
+    "Description": "This action is used to position the cursor to the first menu item ie the top most meu item.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Top",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Top"
+  },
+  "Menu Up": {
+    "Description": "This action is used to position the cursor to the previous menu item.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Up",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Menu Up"
+  }
+}

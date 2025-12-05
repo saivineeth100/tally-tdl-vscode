@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Schviamount": {
+      "Name": "Schviamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Schviparent": {
+      "Name": "Schviparent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Schvientries"
+}

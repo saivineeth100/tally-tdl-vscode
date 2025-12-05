@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Ledauditfrom": {
+      "Name": "Ledauditfrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Ledauditto": {
+      "Name": "Ledauditto",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Ledauditperiod"
+}

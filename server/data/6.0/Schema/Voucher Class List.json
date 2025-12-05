@@ -1,0 +1,274 @@
+{
+  "Properties": {
+    "Adjdiffinfirstledger": {
+      "Name": "Adjdiffinfirstledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Adjdiffinfirstledgeritem": {
+      "Name": "Adjdiffinfirstledgeritem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Bankallocfor": {
+      "Name": "Bankallocfor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Class For Vat": {
+      "Name": "Class For Vat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Classfordealerexciseshortage": {
+      "Name": "Classfordealerexciseshortage",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Classforexcise": {
+      "Name": "Classforexcise",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Classname": {
+      "Name": "Classname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Defaultaccallocforitem": {
+      "Name": "Defaultaccallocforitem",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Defaultaccallocforitem"
+      }
+    },
+    "Exclude List": {
+      "Name": "Exclude List",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "For Job Costing": {
+      "Name": "For Job Costing",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Include List": {
+      "Name": "Include List",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Isdefaultclass": {
+      "Name": "Isdefaultclass",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ledgerentrieslist": {
+      "Name": "Ledgerentrieslist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Voucher Class Ledger List"
+      }
+    },
+    "Ledgerforinventorylist": {
+      "Name": "Ledgerforinventorylist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Voucher Class Ledger List"
+      }
+    },
+    "Pos Card Ledger": {
+      "Name": "Pos Card Ledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Pos Cash Ledger": {
+      "Name": "Pos Cash Ledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Pos Cheque Ledger": {
+      "Name": "Pos Cheque Ledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Pos Gift Ledger": {
+      "Name": "Pos Gift Ledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Posenablecardledger": {
+      "Name": "Posenablecardledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Posenablecashledger": {
+      "Name": "Posenablecashledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Posenablechequeledger": {
+      "Name": "Posenablechequeledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Posenablegiftledger": {
+      "Name": "Posenablegiftledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Posenableonaccountledger": {
+      "Name": "Posenableonaccountledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Posonaccountledger": {
+      "Name": "Posonaccountledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Productcodedetails": {
+      "Name": "Productcodedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Productcodedetails"
+      }
+    },
+    "Use For Fbt": {
+      "Name": "Use For Fbt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Usebankallocforcc": {
+      "Name": "Usebankallocforcc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Useforcompound": {
+      "Name": "Useforcompound",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Useforexcisecommercialinvoice": {
+      "Name": "Useforexcisecommercialinvoice",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Useforgainloss": {
+      "Name": "Useforgainloss",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Useforgodowntransfer": {
+      "Name": "Useforgodowntransfer",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Useforinterest": {
+      "Name": "Useforinterest",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Useforservicetax": {
+      "Name": "Useforservicetax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Defaultaccallocforitem": "Defaultaccallocforitem",
+    "Ledgerentrieslist": "Voucher Class Ledger List",
+    "Ledgerforinventorylist": "Voucher Class Ledger List",
+    "Productcodedetails": "Productcodedetails"
+  },
+  "Name": "Voucher Class List"
+}

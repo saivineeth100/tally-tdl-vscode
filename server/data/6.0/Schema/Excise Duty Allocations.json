@@ -1,0 +1,65 @@
+{
+  "Properties": {
+    "Oldtraderdutytypes": {
+      "Name": "Oldtraderdutytypes",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Rateofduty": {
+      "Name": "Rateofduty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Rateperunit": {
+      "Name": "Rateperunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Traderdutyamount": {
+      "Name": "Traderdutyamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Traderdutytypes": {
+      "Name": "Traderdutytypes",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Tradermfgrdutyamount": {
+      "Name": "Tradermfgrdutyamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Traderrateofduty": {
+      "Name": "Traderrateofduty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Excise Duty Allocations"
+}

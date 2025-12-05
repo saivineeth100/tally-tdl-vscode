@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Brs Imported Amount": {
+      "Name": "Brs Imported Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Brs Imported Info": {
+      "Name": "Brs Imported Info",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Brs Imported Info"
+}

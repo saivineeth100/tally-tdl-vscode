@@ -1,0 +1,81 @@
+{
+  "Properties": {
+    "Auditperiodfrom": {
+      "Name": "Auditperiodfrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Samplingamtonefactor": {
+      "Name": "Samplingamtonefactor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Samplingamttwofactor": {
+      "Name": "Samplingamttwofactor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Samplingdateonefactor": {
+      "Name": "Samplingdateonefactor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Samplingdatetwofactor": {
+      "Name": "Samplingdatetwofactor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Samplingmethod": {
+      "Name": "Samplingmethod",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Samplingnumonefactor": {
+      "Name": "Samplingnumonefactor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Samplingnumtwofactor": {
+      "Name": "Samplingnumtwofactor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Samplingstronefactor": {
+      "Name": "Samplingstronefactor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Vchtypeauditdetails"
+}

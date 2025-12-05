@@ -1,0 +1,38 @@
+{
+  "HasTCPs": {
+    "Description": "This function verifies whether the file with extension is .tcp is activated in Tally.ini file or not. This function does not accept any parameter and returns a logical value. If .TCP file is available it will return a logical value Yes otherwise returns a logical value No.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Module",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "HasTCPs"
+  },
+  "MODMaterialReqt": {
+    "Description": "This function tell whether material requirement module is enabled or not. In the current system this is always disabled.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Module",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "MODMaterialReqt"
+  },
+  "MODOrderProcessing": {
+    "Description": "This function returns TRUE/FALSE depedning on whether the OrderProcessing module is enabled or not. In the current system this is always TRUE.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Module",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "MODOrderProcessing"
+  }
+}

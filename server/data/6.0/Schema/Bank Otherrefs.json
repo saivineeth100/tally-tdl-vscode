@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Referencename": {
+      "Name": "Referencename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Referencevalue": {
+      "Name": "Referencevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Bank Otherrefs"
+}

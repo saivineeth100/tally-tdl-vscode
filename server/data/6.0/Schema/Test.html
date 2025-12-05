@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Model Documentation - Customer</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 2rem;
+      background-color: #f9fafb;
+      color: #111827;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    h1 {
+      color: #2563eb;
+      margin-bottom: 0.5rem;
+    }
+    h2 {
+      margin-top: 2rem;
+      color: #1f2937;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    th {
+      background-color: #f3f4f6;
+    }
+    .type {
+      color: #4f46e5;
+      font-family: monospace;
+    }
+    .name {
+      font-family: monospace;
+    }
+    .summary {
+      color: #374151;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Customer</h1>
+    <p class="summary">Represents a customer in the CRM system.</p>
+
+    <h2>Properties</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Summary</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="name">Id</td>
+          <td class="type">int</td>
+          <td>Unique ID of the customer.</td>
+        </tr>
+        <tr>
+          <td class="name">Name</td>
+          <td class="type">string</td>
+          <td>Full name of the customer.</td>
+        </tr>
+        <tr>
+          <td class="name">Email</td>
+          <td class="type">string</td>
+          <td>Email address of the customer.</td>
+        </tr>
+        <tr>
+          <td class="name">RegisteredOn</td>
+          <td class="type">DateTime</td>
+          <td>Customer's registration date.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

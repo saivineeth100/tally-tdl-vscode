@@ -1,0 +1,851 @@
+{
+  "Properties": {
+    "Active From": {
+      "Name": "Active From",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Active To": {
+      "Name": "Active To",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Allowrecvlist": {
+      "Name": "Allowrecvlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncallowdisallow"
+      }
+    },
+    "Allowsendlist": {
+      "Name": "Allowsendlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncallowdisallow"
+      }
+    },
+    "Allvchtypelastsentid": {
+      "Name": "Allvchtypelastsentid",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Allvchtypelastsentid"
+      }
+    },
+    "Allvchtypesendrecv": {
+      "Name": "Allvchtypesendrecv",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Allvchtypesendrecv"
+      }
+    },
+    "Allvchtypesourceid": {
+      "Name": "Allvchtypesourceid",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Allvchtypesourceid"
+      }
+    },
+    "Alteredby": {
+      "Name": "Alteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Alterid": {
+      "Name": "Alterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Batchlastaltmstid": {
+      "Name": "Batchlastaltmstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Batchlastaltsumid": {
+      "Name": "Batchlastaltsumid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Batchlastaltvchid": {
+      "Name": "Batchlastaltvchid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Batchlastmstid": {
+      "Name": "Batchlastmstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Batchlastsumid": {
+      "Name": "Batchlastsumid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Batchlastvchid": {
+      "Name": "Batchlastvchid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Can Delete": {
+      "Name": "Can Delete",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Clientaccountid": {
+      "Name": "Clientaccountid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Clientlinkid": {
+      "Name": "Clientlinkid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Clientsynccmpname": {
+      "Name": "Clientsynccmpname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Clienturl": {
+      "Name": "Clienturl",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Combineopeningbrs": {
+      "Name": "Combineopeningbrs",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Deactivated": {
+      "Name": "Deactivated",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Deactivatewhenclrchanges": {
+      "Name": "Deactivatewhenclrchanges",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Depth": {
+      "Name": "Depth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Disabledeletedtransaction": {
+      "Name": "Disabledeletedtransaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Disablesummarytransaction": {
+      "Name": "Disablesummarytransaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Disallowrecvlist": {
+      "Name": "Disallowrecvlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncallowdisallow"
+      }
+    },
+    "Disallowsendlist": {
+      "Name": "Disallowsendlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncallowdisallow"
+      }
+    },
+    "Enteredby": {
+      "Name": "Enteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Errinfo": {
+      "Name": "Errinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Error Info"
+      }
+    },
+    "Errkey": {
+      "Name": "Errkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Excludemasters": {
+      "Name": "Excludemasters",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Expbasecurrency": {
+      "Name": "Expbasecurrency",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignoremodvchtypemasters": {
+      "Name": "Ignoremodvchtypemasters",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignoremstifpresent": {
+      "Name": "Ignoremstifpresent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignorevchnumbering": {
+      "Name": "Ignorevchnumbering",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Impforexinstdrate": {
+      "Name": "Impforexinstdrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Deemed Positive": {
+      "Name": "Is Deemed Positive",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Security On When Entered": {
+      "Name": "Is Security On When Entered",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isactive": {
+      "Name": "Isactive",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isbasecurrsame": {
+      "Name": "Isbasecurrsame",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isbatchinprogress": {
+      "Name": "Isbatchinprogress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isdeleted": {
+      "Name": "Isdeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ismastersync": {
+      "Name": "Ismastersync",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isofflinesync": {
+      "Name": "Isofflinesync",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Language Name": {
+      "Name": "Language Name",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Language Name"
+      }
+    },
+    "Lastackaltid": {
+      "Name": "Lastackaltid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastackmstid": {
+      "Name": "Lastackmstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastrefremmstaltid": {
+      "Name": "Lastrefremmstaltid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastrefremmstid": {
+      "Name": "Lastrefremmstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastrefsrcmstaltid": {
+      "Name": "Lastrefsrcmstaltid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastrefsrcmstid": {
+      "Name": "Lastrefsrcmstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastsentaltid": {
+      "Name": "Lastsentaltid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastsentaltmstid": {
+      "Name": "Lastsentaltmstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastsentaltsumid": {
+      "Name": "Lastsentaltsumid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastsentmstid": {
+      "Name": "Lastsentmstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastsentsumid": {
+      "Name": "Lastsentsumid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastsenttid": {
+      "Name": "Lastsenttid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastsyncdate": {
+      "Name": "Lastsyncdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Lastsynctime": {
+      "Name": "Lastsynctime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Loopcollection": {
+      "Name": "Loopcollection",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Loopcollectionmst": {
+      "Name": "Loopcollectionmst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Loopcollectionsum": {
+      "Name": "Loopcollectionsum",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Narration": {
+      "Name": "Narration",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Objectupdateaction": {
+      "Name": "Objectupdateaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Prevsettings": {
+      "Name": "Prevsettings",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Prevsettings"
+      }
+    },
+    "Recvdata": {
+      "Name": "Recvdata",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remignorevchnumbering": {
+      "Name": "Remignorevchnumbering",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remotecmpbasecurrency": {
+      "Name": "Remotecmpbasecurrency",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remotecompanyname": {
+      "Name": "Remotecompanyname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remoteenabledonewaysync": {
+      "Name": "Remoteenabledonewaysync",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remoteenabledvchtypesync": {
+      "Name": "Remoteenabledvchtypesync",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remoteignoremodvtmasters": {
+      "Name": "Remoteignoremodvtmasters",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remotelastsyncdate": {
+      "Name": "Remotelastsyncdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Remotelastsynctime": {
+      "Name": "Remotelastsynctime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remoterulename": {
+      "Name": "Remoterulename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remotesyncaftersave": {
+      "Name": "Remotesyncaftersave",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remotesyncfrom": {
+      "Name": "Remotesyncfrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Remotesyncto": {
+      "Name": "Remotesyncto",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Remoteupdmoditemopbal": {
+      "Name": "Remoteupdmoditemopbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remoteupdmodledopbal": {
+      "Name": "Remoteupdmodledopbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ruleguid": {
+      "Name": "Ruleguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Senddata": {
+      "Name": "Senddata",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Serusestallynet": {
+      "Name": "Serusestallynet",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Serverisremotealter": {
+      "Name": "Serverisremotealter",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sort Position": {
+      "Name": "Sort Position",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sourcealtid": {
+      "Name": "Sourcealtid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sourcealtmid": {
+      "Name": "Sourcealtmid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sourcealtmstid": {
+      "Name": "Sourcealtmstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sourcealtsumid": {
+      "Name": "Sourcealtsumid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sourcemid": {
+      "Name": "Sourcemid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sourcemstid": {
+      "Name": "Sourcemstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sourcesumid": {
+      "Name": "Sourcesumid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sourcetid": {
+      "Name": "Sourcetid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Syncalterid": {
+      "Name": "Syncalterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Syncdeletionlist": {
+      "Name": "Syncdeletionlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncdeletiondetails"
+      }
+    },
+    "Syncexceptionlist": {
+      "Name": "Syncexceptionlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncexceptiondetails"
+      }
+    },
+    "Syncfromserenabled": {
+      "Name": "Syncfromserenabled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Syncremoteexceptionlist": {
+      "Name": "Syncremoteexceptionlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncexceptiondetails"
+      }
+    },
+    "Typeofupdateactivity": {
+      "Name": "Typeofupdateactivity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Updateddatetime": {
+      "Name": "Updateddatetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Updatemoditemopbal": {
+      "Name": "Updatemoditemopbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Updatemodledopbal": {
+      "Name": "Updatemodledopbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "SDF Id": "SR",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Allowrecvlist": "Syncallowdisallow",
+    "Allowsendlist": "Syncallowdisallow",
+    "Allvchtypelastsentid": "Allvchtypelastsentid",
+    "Allvchtypesendrecv": "Allvchtypesendrecv",
+    "Allvchtypesourceid": "Allvchtypesourceid",
+    "Disallowrecvlist": "Syncallowdisallow",
+    "Disallowsendlist": "Syncallowdisallow",
+    "Errinfo": "Error Info",
+    "Language Name": "Language Name",
+    "Prevsettings": "Prevsettings",
+    "Syncdeletionlist": "Syncdeletiondetails",
+    "Syncexceptionlist": "Syncexceptiondetails",
+    "Syncremoteexceptionlist": "Syncexceptiondetails"
+  },
+  "Name": "Serverrule"
+}

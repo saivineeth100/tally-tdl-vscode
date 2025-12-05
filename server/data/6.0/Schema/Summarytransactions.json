@@ -1,0 +1,517 @@
+{
+  "Properties": {
+    "Adjustment Details": {
+      "Name": "Adjustment Details",
+      "IsComplex": false,
+      "Meta": {}
+    },
+    "Alteredby": {
+      "Name": "Alteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Alteredmasters": {
+      "Name": "Alteredmasters",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Alteredmasterslist"
+      }
+    },
+    "Alteredon": {
+      "Name": "Alteredon",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Alterid": {
+      "Name": "Alterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Annexerrorcount": {
+      "Name": "Annexerrorcount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Annexvchcount": {
+      "Name": "Annexvchcount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Audited On": {
+      "Name": "Audited On",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Can Delete": {
+      "Name": "Can Delete",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Cancelled Vouchers": {
+      "Name": "Cancelled Vouchers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Modifiedvch"
+      }
+    },
+    "Categorydetails": {
+      "Name": "Categorydetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Categorydetails"
+      }
+    },
+    "Cenvatcreditavaileddetails": {
+      "Name": "Cenvatcreditavaileddetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Cenvatcreditdetails"
+      }
+    },
+    "Cenvatcreditutilizeddetails": {
+      "Name": "Cenvatcreditutilizeddetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Cenvatcreditdetails"
+      }
+    },
+    "Challandetails": {
+      "Name": "Challandetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Challandetails"
+      }
+    },
+    "Dateoffiling": {
+      "Name": "Dateoffiling",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Deleted Vouchers": {
+      "Name": "Deleted Vouchers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Modifiedvch"
+      }
+    },
+    "Enteredby": {
+      "Name": "Enteredby",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Formtype": {
+      "Name": "Formtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Fromdate": {
+      "Name": "Fromdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Godown Name": {
+      "Name": "Godown Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Guid": {
+      "Name": "Guid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Interunitprimarytransferchallans": {
+      "Name": "Interunitprimarytransferchallans",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Interunitprimarytransferchallans"
+      }
+    },
+    "Interunitsecondarytransferchallans": {
+      "Name": "Interunitsecondarytransferchallans",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Interunitprimarytransferchallans"
+      }
+    },
+    "Interunittransferin": {
+      "Name": "Interunittransferin",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Interunittransfer"
+      }
+    },
+    "Interunittransferout": {
+      "Name": "Interunittransferout",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Interunittransfer"
+      }
+    },
+    "Inventorydetails": {
+      "Name": "Inventorydetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Inventorydetails"
+      }
+    },
+    "Iscompoundsummary": {
+      "Name": "Iscompoundsummary",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isrevisedsumtrans": {
+      "Name": "Isrevisedsumtrans",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Issuedinvoices": {
+      "Name": "Issuedinvoices",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Issuedinvoices"
+      }
+    },
+    "Issummarydirty": {
+      "Name": "Issummarydirty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Issummaryfrozen": {
+      "Name": "Issummaryfrozen",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Itcclosingbalance": {
+      "Name": "Itcclosingbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Modified Vouchers": {
+      "Name": "Modified Vouchers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Modifiedvch"
+      }
+    },
+    "Newvoucherslist": {
+      "Name": "Newvoucherslist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Newvoucherlist"
+      }
+    },
+    "Nextsumtransid": {
+      "Name": "Nextsumtransid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Openingtaxcredit": {
+      "Name": "Openingtaxcredit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Payment Details": {
+      "Name": "Payment Details",
+      "IsComplex": false,
+      "Meta": {}
+    },
+    "Paymenttype": {
+      "Name": "Paymenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Person": {
+      "Name": "Person",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Place": {
+      "Name": "Place",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Prevsumtransid": {
+      "Name": "Prevsumtransid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Remotealterid": {
+      "Name": "Remotealterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Remotealtguid": {
+      "Name": "Remotealtguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remoteguid": {
+      "Name": "Remoteguid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Remotesumkey": {
+      "Name": "Remotesumkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Requestorrule": {
+      "Name": "Requestorrule",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Service Tax Payment Details": {
+      "Name": "Service Tax Payment Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Service Tax Payment Details"
+      }
+    },
+    "State Name": {
+      "Name": "State Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumisfromsync": {
+      "Name": "Sumisfromsync",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Summaryallocs": {
+      "Name": "Summaryallocs",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Summaryallocs"
+      }
+    },
+    "Summarydate": {
+      "Name": "Summarydate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Summarytranskey": {
+      "Name": "Summarytranskey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tax Type": {
+      "Name": "Tax Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Taxunit": {
+      "Name": "Taxunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Todate": {
+      "Name": "Todate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Typeofsummary": {
+      "Name": "Typeofsummary",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Uncertainvch": {
+      "Name": "Uncertainvch",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Vchexclcount": {
+      "Name": "Vchexclcount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Vchinclcount": {
+      "Name": "Vchinclcount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Vchpymtexclcount": {
+      "Name": "Vchpymtexclcount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Vchpymtinclcount": {
+      "Name": "Vchpymtinclcount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Vchreversecount": {
+      "Name": "Vchreversecount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Vchtotalcount": {
+      "Name": "Vchtotalcount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "SDF Id": "SU",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Alteredmasters": "Alteredmasterslist",
+    "Cancelled Vouchers": "Modifiedvch",
+    "Categorydetails": "Categorydetails",
+    "Cenvatcreditavaileddetails": "Cenvatcreditdetails",
+    "Cenvatcreditutilizeddetails": "Cenvatcreditdetails",
+    "Challandetails": "Challandetails",
+    "Deleted Vouchers": "Modifiedvch",
+    "Interunitprimarytransferchallans": "Interunitprimarytransferchallans",
+    "Interunitsecondarytransferchallans": "Interunitprimarytransferchallans",
+    "Interunittransferin": "Interunittransfer",
+    "Interunittransferout": "Interunittransfer",
+    "Inventorydetails": "Inventorydetails",
+    "Issuedinvoices": "Issuedinvoices",
+    "Modified Vouchers": "Modifiedvch",
+    "Newvoucherslist": "Newvoucherlist",
+    "Service Tax Payment Details": "Service Tax Payment Details",
+    "Summaryallocs": "Summaryallocs"
+  },
+  "Name": "Summarytransactions"
+}

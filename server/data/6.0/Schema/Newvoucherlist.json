@@ -1,0 +1,17 @@
+{
+  "Properties": {
+    "Vchmasterid": {
+      "Name": "Vchmasterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Newvoucherlist"
+}

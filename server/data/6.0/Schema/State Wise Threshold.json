@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "State Name": {
+      "Name": "State Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Threshold Limit": {
+      "Name": "Threshold Limit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "State Wise Threshold"
+}

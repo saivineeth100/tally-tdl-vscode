@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Notification Number": {
+      "Name": "Notification Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Notificationserialno": {
+      "Name": "Notificationserialno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Nontariffdetails"
+}

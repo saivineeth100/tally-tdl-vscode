@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Hsnsummaryapplfrom": {
+      "Name": "Hsnsummaryapplfrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Ishsnapplicabilityof": {
+      "Name": "Ishsnapplicabilityof",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ishsnapplicabilityon": {
+      "Name": "Ishsnapplicabilityon",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Hsnsummarydetails"
+}

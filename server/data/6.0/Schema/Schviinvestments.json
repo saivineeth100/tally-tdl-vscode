@@ -1,0 +1,50 @@
+{
+  "Properties": {
+    "Quotedamount": {
+      "Name": "Quotedamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Quotedmarketvalue": {
+      "Name": "Quotedmarketvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Schviinvestmentinfo": {
+      "Name": "Schviinvestmentinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schviinvestmentinfo"
+      }
+    },
+    "Schvipartnershipfirms": {
+      "Name": "Schvipartnershipfirms",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schvipartnershipfirms"
+      }
+    },
+    "Unquotedamount": {
+      "Name": "Unquotedamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Schviinvestmentinfo": "Schviinvestmentinfo",
+    "Schvipartnershipfirms": "Schvipartnershipfirms"
+  },
+  "Name": "Schviinvestments"
+}

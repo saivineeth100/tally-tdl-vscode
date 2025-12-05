@@ -1,0 +1,395 @@
+{
+  "Add/Replace/Delete": {
+    "Description": "These modifiers are used in a definition to Add/Delete/Replace an attribute in the definition.",
+    "Parameters": [
+      {
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Add",
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add/Replace/Delete"
+  },
+  "Copy Object": {
+    "Description": "This attribute is used to copy values of objects from the source object context into the target object context.",
+    "Parameters": [
+      {
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Object Copy Type",
+        "Keywords": "Direct Methods Only, Dir Methods Only, Full, Primary Methods Only",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Copy Object",
+      "Type": "Single"
+    },
+    "Name": "Copy Object"
+  },
+  "Delete Collection Object": {
+    "Description": "This attribute helps to delete the objects of the collection based on the index and condition given.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Delete Collection Object",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Delete Collection Object"
+  },
+  "Insert Collection Object": {
+    "Description": "This attribute is used to insert the new object inside the sub-collection",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Insert Collection Object",
+      "Type": "Single"
+    },
+    "Name": "Insert Collection Object"
+  },
+  "Local Formula": {
+    "Description": "This attribute is used to specify a local formula within the Object Map.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local Formula",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Local Formula"
+  },
+  "Object Map": {
+    "Description": "This attribute is used to call another object map definition.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object Map ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Object Map",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Object Map"
+  },
+  "Repeat": {
+    "Description": "This attribute is used to walk over the collection and to perform mappings, the Object Map Name specified here is repeated over the specified collection.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object Map ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Repeat",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Repeat"
+  },
+  "Reset Values": {
+    "Description": "This attribute is used to reset the value of storage based on the condition given.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Reset Values",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Reset Values"
+  },
+  "Set": {
+    "Description": "This attribute is used to initialize and set value for the storages of the target object.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set, Set as",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Set"
+  },
+  "Set Direct Values": {
+    "Description": "This attribute is used when we have to set the storage value from the source object to the target object.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Direct Values",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Set Direct Values"
+  },
+  "Set Multi Values": {
+    "Description": "This attribute is used to initialize and set values for the multiple methods of the target object which have the same name.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Multi Values",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Set Multi Values"
+  },
+  "Set Var": {
+    "Description": "This attribute is used to set the values to a variable conditionally.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Var",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Set Var"
+  },
+  "Source Object": {
+    "Description": "This attribute is used to for setting the primary or sub-object as the source object using method formula syntax.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Source Object",
+      "Type": "Single"
+    },
+    "Name": "Source Object"
+  },
+  "Target Object": {
+    "Description": "This attribute is used to for setting the primary or sub-object as the target object using method formula syntax.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Target Object",
+      "Type": "Single"
+    },
+    "Name": "Target Object"
+  },
+  "Target Object Ex": {
+    "Description": "This attribute is used for setting the sub-object as target object from a sub-collection, based on a condition. If object is not found, it will insert an object in the collection and set it as the target.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Target Object Ex",
+      "Type": "Triple"
+    },
+    "Name": "Target Object Ex"
+  },
+  "Use": {
+    "Description": "This keyword is used as a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Object Map ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "Variable": {
+    "Description": "This attribute is used to declare the variables at the Object Map level.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Variable, Variables",
+      "Type": "Variable List"
+    },
+    "Name": "Variable"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "Properties": {
+    "Erroractivitytype": {
+      "Name": "Erroractivitytype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Errorconflictingmaster": {
+      "Name": "Errorconflictingmaster",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Errorconflictingwith": {
+      "Name": "Errorconflictingwith",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Errorlangname": {
+      "Name": "Errorlangname",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Language Name"
+      }
+    },
+    "Errormissingfieldname": {
+      "Name": "Errormissingfieldname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Errormissingfieldsubtype": {
+      "Name": "Errormissingfieldsubtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Errormissingfieldtype": {
+      "Name": "Errormissingfieldtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Errormissingmstid": {
+      "Name": "Errormissingmstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Errorpartno": {
+      "Name": "Errorpartno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Errorsubtype": {
+      "Name": "Errorsubtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Errortype": {
+      "Name": "Errortype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Errorunder": {
+      "Name": "Errorunder",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Errorlangname": "Language Name"
+  },
+  "Name": "Error Info"
+}

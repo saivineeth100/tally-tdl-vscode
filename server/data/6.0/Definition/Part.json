@@ -1,0 +1,1356 @@
+{
+  "Access Name": {
+    "Description": "To identify a part by using a unique access name.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Access Name",
+      "Type": "Single"
+    },
+    "Name": "Access Name"
+  },
+  "Add/Replace/Delete": {
+    "Description": "The ADD/Delete/Replace modifiers are used in a definition to Add/Delete/Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Add",
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add/Replace/Delete"
+  },
+  "Background": {
+    "Description": "This attribute sets the background color for the part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Background",
+      "Type": "Single"
+    },
+    "Name": "Background"
+  },
+  "Balance": {
+    "Description": "This attribute help to decide balance method of value, it will take parameter like daily ($Date), Weekly etc., based on that it will inserted total line and opening line, but a form can contain multiple parts.. so at the part level balancing decides, whether the balancing attributes given at the form level will get applied for this part or not",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Balance, Balancing, Closing Bal, Closing Balance",
+      "Type": "Single"
+    },
+    "Name": "Balance"
+  },
+  "Border": {
+    "Description": "Describes the type of Border to be used for the specific Part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Border ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Border",
+      "Type": "Dual"
+    },
+    "Name": "Border"
+  },
+  "Bottom Line": {
+    "Description": "It is used to place the lines at the bottom of the Part with respect to the Height specified within the Part Definition.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Line ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Bottom Line, Bottom Lines",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Bottom Line"
+  },
+  "Bottom Part": {
+    "Description": "It occupies the Bottom Section of the Part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Part ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Bottom Part, Bottom Parts, Right Part, Right Parts",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Bottom Part"
+  },
+  "Break": {
+    "Description": "This attribute is usually associated with the attribute Repeat in the alter mode of the form.  The repetition of the line belonging to the collection is stopped when the condition specified in the attribute Break After is satisfied.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Break, Break After",
+      "Type": "Single"
+    },
+    "Name": "Break"
+  },
+  "Break On": {
+    "Description": "This attribute is usually associated with the attribute Repeat in the alter mode of the form.  The repetition of the line belonging to the collection is stopped when the condition specified in the attribute Break On is satisfied.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Break On",
+      "Type": "Single"
+    },
+    "Name": "Break On"
+  },
+  "Button": {
+    "Description": "This attribute specifies the buttons inside the part definition.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Button, Buttons, Top Button, Top Buttons",
+      "Type": "Single List",
+      "Is Discrete": "No"
+    },
+    "Name": "Button"
+  },
+  "Cell Write": {
+    "Description": "Specifies whether the data should be written to the excel sheet cell by cell or as a whole.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Cell Write",
+      "Type": "Single"
+    },
+    "Name": "Cell Write"
+  },
+  "Combine": {
+    "Description": "The values of this attribute can only be the field names defined in the part.  The total or subtotal of field / fields can be accessed anywhere in the part using the functions $$Total and $$SubTotal respectively.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Field ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Combine, Total, Totals",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Combine"
+  },
+  "Common Border": {
+    "Description": "Allocates common border for the Part ei, decides if the borders specified for one line should be extended for entire part as such. To stop the extension of the border towards up, subtitle : Yes can be given the required fields.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Common Border, Common Borders",
+      "Type": "Single"
+    },
+    "Name": "Common Border"
+  },
+  "Default Line": {
+    "Description": "It is used to highlight the appropriate line which satisfies the given condition. All the methods of the object associated with the line, can be used while specifying the condition.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Default Line",
+      "Type": "Single"
+    },
+    "Name": "Default Line"
+  },
+  "Digital Sign": {
+    "Description": "This attribute specifies whether the digital signature is displayed in the part or not.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Digital Sign, Digital Signature",
+      "Type": "Single"
+    },
+    "Name": "Digital Sign"
+  },
+  "Display X Axis Legend": {
+    "Description": "This attribute is used to display the x-axis legend. Its default value is set to FALSE.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Display X Axis Legend",
+      "Type": "Single"
+    },
+    "Name": "Display X Axis Legend"
+  },
+  "DMPMode": {
+    "Description": "This is available in Form, Part, Line, Field and it is used only in dot matrix mode of printing to set the style.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "DMPMode",
+      "Type": "Single"
+    },
+    "Name": "DMPMode"
+  },
+  "Enable Graph Cursor": {
+    "Description": "This attribute is used to specify whether cursor movements should be enabled for the graph or not.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Enable Graph Cursor",
+      "Type": "Single"
+    },
+    "Name": "Enable Graph Cursor"
+  },
+  "Excel AutoFit": {
+    "Description": "This is useful during Excel Export. If this is set to \u0027Yes\u0027,   the field values will automatically fit in the cell during Excel Export.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Excel AutoFit",
+      "Type": "Single"
+    },
+    "Name": "Excel AutoFit"
+  },
+  "Excel Sheet Name": {
+    "Description": "Specify the name of Sheet in Excel on which data needs to be exported.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Excel Sheet Name",
+      "Type": "Dual"
+    },
+    "Name": "Excel Sheet Name"
+  },
+  "Fixed": {
+    "Description": "This attribute helps to skip the part in alteration mode.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Fixed",
+      "Type": "Single"
+    },
+    "Name": "Fixed"
+  },
+  "Float": {
+    "Description": "This is a logical attribute. If the value is set to Yes, then the bottom lines will appear immediately after completing the scrolled lines. If this is specified as No, then the bottom lines will always appear at the bottom of the part",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Float, Floating Bottom",
+      "Type": "Single"
+    },
+    "Name": "Float"
+  },
+  "Graph Display Cursor Label": {
+    "Description": "This attribute is used to display a label with the value associated with the data point the cursor is focused on in the graph. This attribute is evaluated only if \u0027Enable graph cursor\u0027 is also set to TRUE.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Graph Display Cursor Label",
+      "Type": "Single"
+    },
+    "Name": "Graph Display Cursor Label"
+  },
+  "Graph Display Num Rows": {
+    "Description": "This attribute is used to specify the maximum number of rows displayed in a graph. When this threshold is exceeded, horizontal scrolling is enabled. This attribute is evaluated only if \u0027Enable graph cursor\u0027 is set to TRUE.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Graph Display Num Rows",
+      "Type": "Single"
+    },
+    "Name": "Graph Display Num Rows"
+  },
+  "Graph Style": {
+    "Description": "This attribute is used to configure the graph\u0027s style, such as choosing between a Bar graph or a Line graph.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Graph Style",
+      "Type": "Single"
+    },
+    "Name": "Graph Style"
+  },
+  "Graph Type": {
+    "Description": "This attribute is used to draw the graph. If this attribute is made Yes then Bar graph is displayed. To get \u0027X\u0027 and \u0027Y\u0027 axis, the part should contain 2 fields each specifying Graph Label : Yes/No.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Graph Type",
+      "Type": "Single"
+    },
+    "Name": "Graph Type"
+  },
+  "Height": {
+    "Description": "Helps to set the height to a Part. If height is not specified for a part, it will take depending upon the number of line within it.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Height",
+      "Type": "Single"
+    },
+    "Name": "Height"
+  },
+  "Help": {
+    "Description": "This helps to get the help of the area depending upon the context we are in. Specifies the index / id of the help file.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Help",
+      "Type": "Dual List",
+      "Is Discrete": "No"
+    },
+    "Name": "Help"
+  },
+  "Horizontal Align": {
+    "Description": "This attribute specifies the horizontal alignment of the part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Align Type",
+        "Keywords": "Bottom, Center, Centre, Justified, Left, Prompt, Right, Top",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Horizontal Align, Horizontal Alignment",
+      "Type": "Single"
+    },
+    "Name": "Horizontal Align"
+  },
+  "Image": {
+    "Description": "This attribute is used to draw the image from the specified resource.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Resource ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Image",
+      "Type": "Single"
+    },
+    "Name": "Image"
+  },
+  "Invisible": {
+    "Description": "This attribute decides the visibility of the part. If the Part is made Invisible, then the Part will occupy no space.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Invisible",
+      "Type": "Single"
+    },
+    "Name": "Invisible"
+  },
+  "JSONTag": {
+    "Description": "To specify the tag name for the part in the exported JSON/XML file. If not specified, the tag name for the part doesn\u0027t appear in the output.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "JSONTag, XMLTag",
+      "Type": "Single"
+    },
+    "Name": "JSONTag"
+  },
+  "Left Part": {
+    "Description": "It occupies the Top Section of the Part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Part ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Left Part, Left Parts, Part, Parts, Top Part, Top Parts",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Left Part"
+  },
+  "Line": {
+    "Description": "It is used to place lines at the top.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Line ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Line, Lines, Top Line, Top Lines",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Line"
+  },
+  "Local": {
+    "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+    "Parameters": [
+      {
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local",
+      "Type": "Local List",
+      "Is Discrete": "No"
+    },
+    "Name": "Local"
+  },
+  "Local Formula": {
+    "Description": "This is used to specify a local formula within the Part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local Formula",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Local Formula"
+  },
+  "Number Of Display Lines In Scroll": {
+    "Description": "This attribute is utilized only when vertical scrolling is enabled within the part and when both the containing form and part have no specified height, and the containing form is not set to Full Height. Under these specific conditions, the attribute will determine the number of lines to be displayed in the part, with any remaining lines available for scrolling. The part\u0027s height will be dynamically calculated based on the value of this attribute.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Number Of Display Lines In Scroll, Num Of Display Lines In Scroll",
+      "Type": "Single"
+    },
+    "Name": "Number Of Display Lines In Scroll"
+  },
+  "Object": {
+    "Description": "This attribute is used to associate an Object at the part level.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Seek Type",
+        "Keywords": "Beginning, End, First, Last",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Object, Objects",
+      "Type": "Triple"
+    },
+    "Name": "Object"
+  },
+  "ObjectEx": {
+    "Description": "It provides the ease of using enhanced method formula syntax while specifying the object association.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ObjectEx",
+      "Type": "Single"
+    },
+    "Name": "ObjectEx"
+  },
+  "On": {
+    "Description": "ON keyword is used to specify a list of Actions to be executed on the occurance of an Event.",
+    "Parameters": [
+      {
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "On",
+      "Type": "Event List",
+      "Is Discrete": "No"
+    },
+    "Name": "On"
+  },
+  "Option": {
+    "Description": "Option is an attribute which can be used by various definitions, to provide a conditional result in a program.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Part ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Option, Options",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Option"
+  },
+  "Page Break": {
+    "Description": "This attribute specifies the Closing Page Line and the Opening Page Line. This attribute is used in case the number of lines to be printed exceeds the number of lines that can be fitted in the Part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Line ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Line ",
+        "Separator Char": "\u0027,\u0027",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Page Break",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Page Break"
+  },
+  "Pre Printed": {
+    "Description": "This attribute works in conjunction with the preprinted / plain button in the print configuration screen. When the attribute is set to Yes, it will not print the contents of the Part on the paper assuming the stationary is pre-printed stationary.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Pre Printed",
+      "Type": "Single"
+    },
+    "Name": "Pre Printed"
+  },
+  "Pre Printed Border": {
+    "Description": "This attribute works in conjunction with the preprinted / plain button in the print configuration screen.  When the attribute is set to Yes will not print the border of the Part on the paper assuming the stationary is pre-printed stationary.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Pre Printed Border",
+      "Type": "Single"
+    },
+    "Name": "Pre Printed Border"
+  },
+  "Preaccept Object Map": {
+    "Description": "This attribute is used to call the object map before the part accept.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object Map ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Preaccept Object Map",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Preaccept Object Map"
+  },
+  "Print BG": {
+    "Description": "This attribute allows the background color to be defined for the Part. The color thus applied for the Part will not be displayed on the screen but will be printed in color on the color printer and in shades of grey on the black \u0026 white printer.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print BG",
+      "Type": "Single"
+    },
+    "Name": "Print BG"
+  },
+  "QR Code": {
+    "Description": "This attribute is used to generate QR Code from the text specified",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "QR Code",
+      "Type": "Dual"
+    },
+    "Name": "QR Code"
+  },
+  "Repeat": {
+    "Description": "The line is repeated with respect to the collection name specified. In the repeated lines we can retreive any data we require form the collection and the same can be printed or displayed. It is also possible to repeat a line without a collection in context of variable usage.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Line ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Repeat",
+      "Type": "Triple"
+    },
+    "Name": "Repeat"
+  },
+  "Retain Focus": {
+    "Description": "It indicates that part should retain information about the line which is currently in focus even if the focus is moved to other part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Retain Focus",
+      "Type": "Single"
+    },
+    "Name": "Retain Focus"
+  },
+  "Scroll": {
+    "Description": "This attribute has to be specified if a line or field that is repeated with respect to a collection. If this attribute is set to No (default value), all the lines that are displayed will be shrunk into the part and may be illegible to view.",
+    "Parameters": [
+      {
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Scroll Type",
+        "Keywords": "Both, Flow, Horizontal, Vertical",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Scroll, Scrolled",
+      "Type": "Single"
+    },
+    "Name": "Scroll"
+  },
+  "Scroll Indicator Style": {
+    "Description": "This attribute is used to set the style of the scroll indicator in the part. It will be applicable only when vertical scrolling is enabled within the part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Style ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Scroll Indicator Style",
+      "Type": "Single"
+    },
+    "Name": "Scroll Indicator Style"
+  },
+  "Select": {
+    "Description": "It indicates that the lines owned by this Part are selectable or not and the default value for the same is Yes.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Select, Selectable",
+      "Type": "Single"
+    },
+    "Name": "Select"
+  },
+  "Set": {
+    "Description": "This attribute sets number of lines to be displayed in the part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set, Set as",
+      "Type": "Single"
+    },
+    "Name": "Set"
+  },
+  "Set Always": {
+    "Description": "This attribute sets the values defined in the fields of the Part dynamically.  whenever any changes take place in the values of the fields which are dependent on the fields in the part, they are always modified.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Always",
+      "Type": "Single"
+    },
+    "Name": "Set Always"
+  },
+  "Shorten Y Axis Label": {
+    "Description": "This attribute is used to shorten the y-axis labels and provide a legend in case the values are above thresholds, such as showing in thousands, if the value is above 999. Its default value is set to FALSE.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Shorten Y Axis Label",
+      "Type": "Single"
+    },
+    "Name": "Shorten Y Axis Label"
+  },
+  "Skip Forward": {
+    "Description": "This attribute skips the part when navigating forward using the right or bottom arrow key. The focus returns to the part when navigating backwards using the left or up arrow key from the next part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Skip Forward",
+      "Type": "Single"
+    },
+    "Name": "Skip Forward"
+  },
+  "Space Bottom": {
+    "Description": "This attribute helps to specify the bottom space that a part should have.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Bottom",
+      "Type": "Single"
+    },
+    "Name": "Space Bottom"
+  },
+  "Space Left": {
+    "Description": "This attribute helps to specify the left space that a part should have.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Left",
+      "Type": "Single"
+    },
+    "Name": "Space Left"
+  },
+  "Space Right": {
+    "Description": "This attribute helps to specify the right space that a part should have.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Right",
+      "Type": "Single"
+    },
+    "Name": "Space Right"
+  },
+  "Space Top": {
+    "Description": "This attribute helps to specify the top space that a part should have.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Top",
+      "Type": "Single"
+    },
+    "Name": "Space Top"
+  },
+  "Stripe": {
+    "Description": "This attribute enables (Yes) /disables (No) Stripes for the Part to improve readability. By default it\u0027ll be set as Yes and specific format of data will have Stripes enabled. The behavior can be overridden by usage of same attribute in the children (Part, Line).",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Stripe, Stripes",
+      "Type": "Single"
+    },
+    "Name": "Stripe"
+  },
+  "Switch": {
+    "Description": "\u0027Switch\u0027 attribute is similar to the Option attribute but reduces code complexity and improves the performance. The Switch are grouped using a label Once a condition is satisfied from one group, switch won\u0027t  check further conditions from the same group.  It will evaluate the conditions from the other groups specified, if any.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Part ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Switch",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Switch"
+  },
+  "Sync": {
+    "Description": "This attribute determines synchronization of horizontal or vertical Parts of the Part. Default value of this attribute is NO.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Sync, Synchronize",
+      "Type": "Single"
+    },
+    "Name": "Sync"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Part ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "Vertical": {
+    "Description": "This attribute determines whether the Parts defined under the Part needs to be aligned Vertical or Horizontal. If the attribute value is set to yes then the parts are vertically aligned else they are horizontally aligned.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Vertical",
+      "Type": "Single"
+    },
+    "Name": "Vertical"
+  },
+  "Vertical Align": {
+    "Description": "This attribute specifies the vertical alignment of the part.",
+    "Parameters": [
+      {
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Align Type",
+        "Keywords": "Bottom, Center, Centre, Justified, Left, Prompt, Right, Top",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Vertical Align, Vertical Alignment",
+      "Type": "Single"
+    },
+    "Name": "Vertical Align"
+  },
+  "Width": {
+    "Description": "The attribute specifies total width of the Part. This can be specified in percentages of the page or in mms.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Width",
+      "Type": "Single"
+    },
+    "Name": "Width"
+  },
+  "X Axis Label Word Wrap": {
+    "Description": "This attribute is used to specify whether the x-axis label text in the graph should undergo word/text wrapping.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "X Axis Label Word Wrap",
+      "Type": "Single"
+    },
+    "Name": "X Axis Label Word Wrap"
+  },
+  "XMLAttr": {
+    "Description": "Specifies the Attribute and attribute value for the xml tag.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "XMLAttr",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "XMLAttr"
+  }
+}

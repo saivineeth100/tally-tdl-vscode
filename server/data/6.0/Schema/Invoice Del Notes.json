@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Basic Ship Delivery Note": {
+      "Name": "Basic Ship Delivery Note",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Basic Shipping Date": {
+      "Name": "Basic Shipping Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Invoice Del Notes"
+}

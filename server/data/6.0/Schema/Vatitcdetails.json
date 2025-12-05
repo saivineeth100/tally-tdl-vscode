@@ -1,0 +1,49 @@
+{
+  "Properties": {
+    "Taxamount": {
+      "Name": "Taxamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Taxnature": {
+      "Name": "Taxnature",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Taxpaidoncommoninput": {
+      "Name": "Taxpaidoncommoninput",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Taxpaidonspecificinput": {
+      "Name": "Taxpaidonspecificinput",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Taxrate": {
+      "Name": "Taxrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Vatitcdetails"
+}

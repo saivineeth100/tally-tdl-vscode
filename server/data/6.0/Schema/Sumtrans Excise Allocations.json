@@ -1,0 +1,266 @@
+{
+  "Properties": {
+    "Sumvch Excise Duty Allocations": {
+      "Name": "Sumvch Excise Duty Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Excise Duty Allocations"
+      }
+    },
+    "Sumvch Excisegodownname": {
+      "Name": "Sumvch Excisegodownname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Is Excise Opening": {
+      "Name": "Sumvch Is Excise Opening",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Issplaedofcvdnotpasson": {
+      "Name": "Sumvch Issplaedofcvdnotpasson",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Mfgrimporteraddress": {
+      "Name": "Sumvch Mfgrimporteraddress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Mfgrimporteraddresstype": {
+      "Name": "Sumvch Mfgrimporteraddresstype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Mfgrimportercommissionerate": {
+      "Name": "Sumvch Mfgrimportercommissionerate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Mfgrimporterdivision": {
+      "Name": "Sumvch Mfgrimporterdivision",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Mfgrimporterexciseregnno": {
+      "Name": "Sumvch Mfgrimporterexciseregnno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Mfgrimporterexportercode": {
+      "Name": "Sumvch Mfgrimporterexportercode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Mfgrimportername": {
+      "Name": "Sumvch Mfgrimportername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Mfgrimporterrange": {
+      "Name": "Sumvch Mfgrimporterrange",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Sumtraderreferenceno": {
+      "Name": "Sumvch Sumtraderreferenceno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Taxunitname": {
+      "Name": "Sumvch Taxunitname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Traderassessablevalue": {
+      "Name": "Sumvch Traderassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Traderexcisedutyamount": {
+      "Name": "Sumvch Traderexcisedutyamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Traderexcisependingqty": {
+      "Name": "Sumvch Traderexcisependingqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Traderexciseqty": {
+      "Name": "Sumvch Traderexciseqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Tradermfgrassessablevalue": {
+      "Name": "Sumvch Tradermfgrassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Tradermfgrexciseqty": {
+      "Name": "Sumvch Tradermfgrexciseqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Tradermfgrimportername": {
+      "Name": "Sumvch Tradermfgrimportername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Tradermfgrinvoicedate": {
+      "Name": "Sumvch Tradermfgrinvoicedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Tradermfgrinvoicenumber": {
+      "Name": "Sumvch Tradermfgrinvoicenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Tradermfgrplargslno": {
+      "Name": "Sumvch Tradermfgrplargslno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Traderorigrefno": {
+      "Name": "Sumvch Traderorigrefno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Traderplargslno": {
+      "Name": "Sumvch Traderplargslno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Traderreferenceno": {
+      "Name": "Sumvch Traderreferenceno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Traderrgslnumber": {
+      "Name": "Sumvch Traderrgslnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Tradersupplierinvoicedate": {
+      "Name": "Sumvch Tradersupplierinvoicedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Tradersuppliername": {
+      "Name": "Sumvch Tradersuppliername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Tradersupplierrgno": {
+      "Name": "Sumvch Tradersupplierrgno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Tradertypeofpurchase": {
+      "Name": "Sumvch Tradertypeofpurchase",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Excise Duty Allocations": "Sumtrans Excise Duty Allocations"
+  },
+  "Name": "Sumtrans Excise Allocations"
+}

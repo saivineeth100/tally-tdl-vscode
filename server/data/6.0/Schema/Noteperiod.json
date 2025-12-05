@@ -1,0 +1,410 @@
+{
+  "Properties": {
+    "Aeaccauditstddetail": {
+      "Name": "Aeaccauditstddetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Aeaccauditstddetail"
+      }
+    },
+    "Aeaccreconcildetail": {
+      "Name": "Aeaccreconcildetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Aeaccreconcildetail"
+      }
+    },
+    "Aeauditprogramdetail": {
+      "Name": "Aeauditprogramdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Aeauditprogramdetail"
+      }
+    },
+    "Aecarodetail": {
+      "Name": "Aecarodetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Aecarodetail"
+      }
+    },
+    "Auditorsreportdetail": {
+      "Name": "Auditorsreportdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Auditorsreportdetail"
+      }
+    },
+    "Fromdate": {
+      "Name": "Fromdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Mcaacquisitions": {
+      "Name": "Mcaacquisitions",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaacquisitions"
+      }
+    },
+    "Mcaauditorinfo": {
+      "Name": "Mcaauditorinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaauditorinfo"
+      }
+    },
+    "Mcaborrowings": {
+      "Name": "Mcaborrowings",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaborrowings"
+      }
+    },
+    "Mcacomponents": {
+      "Name": "Mcacomponents",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcacomponents"
+      }
+    },
+    "Mcadetails": {
+      "Name": "Mcadetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcadetails"
+      }
+    },
+    "Mcaempbenefits": {
+      "Name": "Mcaempbenefits",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaempbenefits"
+      }
+    },
+    "Mcaimpairmentdetails": {
+      "Name": "Mcaimpairmentdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaimpairmentdetails"
+      }
+    },
+    "Mcaimpairments": {
+      "Name": "Mcaimpairments",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaimpairments"
+      }
+    },
+    "Mcainventories": {
+      "Name": "Mcainventories",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcainventories"
+      }
+    },
+    "Mcaloansandadvances": {
+      "Name": "Mcaloansandadvances",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaloansandadvances"
+      }
+    },
+    "Mcaotherprovisions": {
+      "Name": "Mcaotherprovisions",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaotherprovisions"
+      }
+    },
+    "Mcaprodproperties": {
+      "Name": "Mcaprodproperties",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaprodproperties"
+      }
+    },
+    "Mcaprodservices": {
+      "Name": "Mcaprodservices",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaprodservices"
+      }
+    },
+    "Mcarawmaterials": {
+      "Name": "Mcarawmaterials",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcarawmaterials"
+      }
+    },
+    "Mcasegment": {
+      "Name": "Mcasegment",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcasegment"
+      }
+    },
+    "Mcashareholders": {
+      "Name": "Mcashareholders",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcashareholders"
+      }
+    },
+    "Schviadditionaldetails": {
+      "Name": "Schviadditionaldetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schviadditionaldetails"
+      }
+    },
+    "Schviborrowings": {
+      "Name": "Schviborrowings",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schviborrowings"
+      }
+    },
+    "Schvidisplaydetail": {
+      "Name": "Schvidisplaydetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schvidisplaydetail"
+      }
+    },
+    "Schvifixedassets": {
+      "Name": "Schvifixedassets",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schvifixedassets"
+      }
+    },
+    "Schviinvestments": {
+      "Name": "Schviinvestments",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schviinvestments"
+      }
+    },
+    "Schvisharecapitaldetail": {
+      "Name": "Schvisharecapitaldetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Schvisharecapitaldetail"
+      }
+    },
+    "Signatoriesofbs": {
+      "Name": "Signatoriesofbs",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Signatoriesofbs"
+      }
+    },
+    "Todate": {
+      "Name": "Todate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Xbrl Amalgamation": {
+      "Name": "Xbrl Amalgamation",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrl Amalgamation"
+      }
+    },
+    "Xbrl Details": {
+      "Name": "Xbrl Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrl Details"
+      }
+    },
+    "Xbrlauditordetail": {
+      "Name": "Xbrlauditordetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlauditordetail"
+      }
+    },
+    "Xbrldebenturedetails": {
+      "Name": "Xbrldebenturedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrldebenturedetails"
+      }
+    },
+    "Xbrldetailsofgoods": {
+      "Name": "Xbrldetailsofgoods",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrldetailsofgoods"
+      }
+    },
+    "Xbrldirectorsremuneration": {
+      "Name": "Xbrldirectorsremuneration",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrldirectorsremuneration"
+      }
+    },
+    "Xbrlforeignbankbaldet": {
+      "Name": "Xbrlforeignbankbaldet",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlforeignbankbaldet"
+      }
+    },
+    "Xbrlinvestmentassociates": {
+      "Name": "Xbrlinvestmentassociates",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlinvestmentassociates"
+      }
+    },
+    "Xbrlinvestmentjv": {
+      "Name": "Xbrlinvestmentjv",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlinvestmentjv"
+      }
+    },
+    "Xbrlmsme": {
+      "Name": "Xbrlmsme",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlmsme"
+      }
+    },
+    "Xbrlother Disclosures": {
+      "Name": "Xbrlother Disclosures",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlother Disclosures"
+      }
+    },
+    "Xbrlprimarysegmentdetail": {
+      "Name": "Xbrlprimarysegmentdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlprimarysegmentdetail"
+      }
+    },
+    "Xbrlrawmaterialcons": {
+      "Name": "Xbrlrawmaterialcons",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlrawmaterialcons"
+      }
+    },
+    "Xbrlrelatedpartytransaction": {
+      "Name": "Xbrlrelatedpartytransaction",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlrelatedpartytransaction"
+      }
+    },
+    "Xbrlsecsegdetail": {
+      "Name": "Xbrlsecsegdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlsecsegdetail"
+      }
+    },
+    "Xbrlsharecapital": {
+      "Name": "Xbrlsharecapital",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlsharecapital"
+      }
+    },
+    "Xbrlsharecapitalclassdetails": {
+      "Name": "Xbrlsharecapitalclassdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlsharecapitalclassdetails"
+      }
+    },
+    "Xbrlsigndetail": {
+      "Name": "Xbrlsigndetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Directordetail"
+      }
+    },
+    "Xbrlsubsidiaryinfo": {
+      "Name": "Xbrlsubsidiaryinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrlsubsidiaryinfo"
+      }
+    },
+    "Xbrluiaccdata": {
+      "Name": "Xbrluiaccdata",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Xbrluiaccdata"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Aeaccauditstddetail": "Aeaccauditstddetail",
+    "Aeaccreconcildetail": "Aeaccreconcildetail",
+    "Aeauditprogramdetail": "Aeauditprogramdetail",
+    "Aecarodetail": "Aecarodetail",
+    "Auditorsreportdetail": "Auditorsreportdetail",
+    "Mcaacquisitions": "Mcaacquisitions",
+    "Mcaauditorinfo": "Mcaauditorinfo",
+    "Mcaborrowings": "Mcaborrowings",
+    "Mcacomponents": "Mcacomponents",
+    "Mcadetails": "Mcadetails",
+    "Mcaempbenefits": "Mcaempbenefits",
+    "Mcaimpairmentdetails": "Mcaimpairmentdetails",
+    "Mcaimpairments": "Mcaimpairments",
+    "Mcainventories": "Mcainventories",
+    "Mcaloansandadvances": "Mcaloansandadvances",
+    "Mcaotherprovisions": "Mcaotherprovisions",
+    "Mcaprodproperties": "Mcaprodproperties",
+    "Mcaprodservices": "Mcaprodservices",
+    "Mcarawmaterials": "Mcarawmaterials",
+    "Mcasegment": "Mcasegment",
+    "Mcashareholders": "Mcashareholders",
+    "Schviadditionaldetails": "Schviadditionaldetails",
+    "Schviborrowings": "Schviborrowings",
+    "Schvidisplaydetail": "Schvidisplaydetail",
+    "Schvifixedassets": "Schvifixedassets",
+    "Schviinvestments": "Schviinvestments",
+    "Schvisharecapitaldetail": "Schvisharecapitaldetail",
+    "Signatoriesofbs": "Signatoriesofbs",
+    "Xbrl Amalgamation": "Xbrl Amalgamation",
+    "Xbrl Details": "Xbrl Details",
+    "Xbrlauditordetail": "Xbrlauditordetail",
+    "Xbrldebenturedetails": "Xbrldebenturedetails",
+    "Xbrldetailsofgoods": "Xbrldetailsofgoods",
+    "Xbrldirectorsremuneration": "Xbrldirectorsremuneration",
+    "Xbrlforeignbankbaldet": "Xbrlforeignbankbaldet",
+    "Xbrlinvestmentassociates": "Xbrlinvestmentassociates",
+    "Xbrlinvestmentjv": "Xbrlinvestmentjv",
+    "Xbrlmsme": "Xbrlmsme",
+    "Xbrlother Disclosures": "Xbrlother Disclosures",
+    "Xbrlprimarysegmentdetail": "Xbrlprimarysegmentdetail",
+    "Xbrlrawmaterialcons": "Xbrlrawmaterialcons",
+    "Xbrlrelatedpartytransaction": "Xbrlrelatedpartytransaction",
+    "Xbrlsecsegdetail": "Xbrlsecsegdetail",
+    "Xbrlsharecapital": "Xbrlsharecapital",
+    "Xbrlsharecapitalclassdetails": "Xbrlsharecapitalclassdetails",
+    "Xbrlsigndetail": "Directordetail",
+    "Xbrlsubsidiaryinfo": "Xbrlsubsidiaryinfo",
+    "Xbrluiaccdata": "Xbrluiaccdata"
+  },
+  "Name": "Noteperiod"
+}

@@ -1,0 +1,227 @@
+{
+  "Properties": {
+    "Closing Balance": {
+      "Name": "Closing Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Excise Assessablevalue": {
+      "Name": "Excise Assessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Excise Date": {
+      "Name": "Excise Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Excise Duty Amount": {
+      "Name": "Excise Duty Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Excise Id": {
+      "Name": "Excise Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Excise Ledger Address": {
+      "Name": "Excise Ledger Address",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Excise Ledger Name": {
+      "Name": "Excise Ledger Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Excise Type Of Purchase": {
+      "Name": "Excise Type Of Purchase",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Exciseactualqty": {
+      "Name": "Exciseactualqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Excisegodowndetails": {
+      "Name": "Excisegodowndetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excisegodowndetails"
+      }
+    },
+    "Excisependingqty": {
+      "Name": "Excisependingqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Excisepurchase Number": {
+      "Name": "Excisepurchase Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Excisetaxunitdetails": {
+      "Name": "Excisetaxunitdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excisetaxunitdetails"
+      }
+    },
+    "Issplaedofcvdnotpasson": {
+      "Name": "Issplaedofcvdnotpasson",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ledger Entries": {
+      "Name": "Ledger Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Voucher",
+        "Schema Missing": "Yes"
+      }
+    },
+    "Opening Balance": {
+      "Name": "Opening Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Parent": {
+      "Name": "Parent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Tradermfgrassessablevalue": {
+      "Name": "Tradermfgrassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Tradermfgrexciseqty": {
+      "Name": "Tradermfgrexciseqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Tradermfgrimportername": {
+      "Name": "Tradermfgrimportername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tradermfgrinvoicedate": {
+      "Name": "Tradermfgrinvoicedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Tradermfgrinvoicenumber": {
+      "Name": "Tradermfgrinvoicenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tradermfgrplargslno": {
+      "Name": "Tradermfgrplargslno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Traderorigrefno": {
+      "Name": "Traderorigrefno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Traderplargslno": {
+      "Name": "Traderplargslno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Traderrgslnumber": {
+      "Name": "Traderrgslnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tradersupplierrgno": {
+      "Name": "Tradersupplierrgno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Excisegodowndetails": "Excisegodowndetails",
+    "Excisetaxunitdetails": "Excisetaxunitdetails",
+    "Ledger Entries": "Voucher"
+  },
+  "Name": "Excise"
+}

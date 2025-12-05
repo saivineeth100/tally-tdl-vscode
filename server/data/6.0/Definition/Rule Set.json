@@ -1,0 +1,236 @@
+{
+  "Add/Replace/Delete": {
+    "Description": "The ADD/Delete/Replace modifiers are used in a definition to Add/Delete/Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Add",
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add/Replace/Delete"
+  },
+  "Aggr Rule": {
+    "Description": "This attribute specifies the user defined aggregations that will be precomputed from the Rule Set in which it is specified.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Aggregate Rule",
+        "Keywords": "All True, AND, Any True, OR",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Aggr Rule",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Aggr Rule"
+  },
+  "Break On": {
+    "Description": "Break On attribute allows you to control the execution flow after executing the current rule. It provides vertical flow control for evaluating the rules. If this attribute is not specified, it is assumed that execution should never break.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Break On",
+      "Type": "Single"
+    },
+    "Name": "Break On"
+  },
+  "Local Formula": {
+    "Description": "This is used to specify a local formula within the Rule Set.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local Formula",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Local Formula"
+  },
+  "Name Map": {
+    "Description": "Specifies mapping of a rule to a specific rule description.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Name Set ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Name Map",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Name Map"
+  },
+  "NameSet": {
+    "Description": "This attribute specifies Name Set for mapping the rules to their respective descriptions. All strings from the specified Name Set are referred to as rule descriptions.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Name Set ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "NameSet",
+      "Type": "Single"
+    },
+    "Name": "NameSet"
+  },
+  "Rule": {
+    "Description": "This attribute specifies a rule for the current Rule Set. It can be repeated for specifying more rules.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Rule Break On",
+        "Keywords": "False, Never, No, True, Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Rule",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Rule"
+  },
+  "Rule Set": {
+    "Description": "Specifies a single next dimensional Rule Set. This can be repeated to specify more than one Rule Set as next dimension.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Rule Set ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Rule Set",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Rule Set"
+  },
+  "Use": {
+    "Description": " The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Rule Set ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "Walk On": {
+    "Description": "Walk On condition controls the hierarchical execution flow after a rule is executed. If not specified, it is assumed that next dimension evaluation should always be done.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Walk On",
+      "Type": "Single"
+    },
+    "Name": "Walk On"
+  }
+}

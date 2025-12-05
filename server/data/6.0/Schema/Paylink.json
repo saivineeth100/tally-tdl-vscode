@@ -1,0 +1,857 @@
+{
+  "Properties": {
+    "Account Number": {
+      "Name": "Account Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Account Type": {
+      "Name": "Account Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Approvalcode": {
+      "Name": "Approvalcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bank Employee Name": {
+      "Name": "Bank Employee Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Bank Location": {
+      "Name": "Bank Location",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bank Name": {
+      "Name": "Bank Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bank Party Name": {
+      "Name": "Bank Party Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Bankamount": {
+      "Name": "Bankamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Bankbatchamount": {
+      "Name": "Bankbatchamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Bankcode": {
+      "Name": "Bankcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bankersstatus": {
+      "Name": "Bankersstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bankid": {
+      "Name": "Bankid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Banklinkrecordid": {
+      "Name": "Banklinkrecordid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Bankmanualstatus": {
+      "Name": "Bankmanualstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Bankotherreferences": {
+      "Name": "Bankotherreferences",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Bank Otherrefs"
+      }
+    },
+    "Bankparent": {
+      "Name": "Bankparent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Bankreconstatus": {
+      "Name": "Bankreconstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Bankreference": {
+      "Name": "Bankreference",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bankrefnumber": {
+      "Name": "Bankrefnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bankstatus": {
+      "Name": "Bankstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bankstatusinfo": {
+      "Name": "Bankstatusinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Bankstatusinfo"
+      }
+    },
+    "Batchnumber": {
+      "Name": "Batchnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Beneficiary Code": {
+      "Name": "Beneficiary Code",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Beneficiarybankcharges": {
+      "Name": "Beneficiarybankcharges",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Branchname": {
+      "Name": "Branchname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Brsgroupid": {
+      "Name": "Brsgroupid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Cardamount": {
+      "Name": "Cardamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cardbatchamount": {
+      "Name": "Cardbatchamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cardnumber": {
+      "Name": "Cardnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Cardparent": {
+      "Name": "Cardparent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Cardpendingamount": {
+      "Name": "Cardpendingamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cashdenomination": {
+      "Name": "Cashdenomination",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Chargesamount": {
+      "Name": "Chargesamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Chargesbatchamount": {
+      "Name": "Chargesbatchamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cheque Cross Comment": {
+      "Name": "Cheque Cross Comment",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Cheque Printed": {
+      "Name": "Cheque Printed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Chequerange": {
+      "Name": "Chequerange",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "City": {
+      "Name": "City",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Clearingbankcode": {
+      "Name": "Clearingbankcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Contractdetails": {
+      "Name": "Contractdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Contractdetails"
+      }
+    },
+    "Delivery Mode": {
+      "Name": "Delivery Mode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Delivery To": {
+      "Name": "Delivery To",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Draweebankcode": {
+      "Name": "Draweebankcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Duplicatetransrefnumber": {
+      "Name": "Duplicatetransrefnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Email": {
+      "Name": "Email",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Errorcode": {
+      "Name": "Errorcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Filerefnumber": {
+      "Name": "Filerefnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Ifs Code": {
+      "Name": "Ifs Code",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Imbcode": {
+      "Name": "Imbcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Instrument Date": {
+      "Name": "Instrument Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Instrument Number": {
+      "Name": "Instrument Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Invoicenumber": {
+      "Name": "Invoicenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Isacceptedwithwarning": {
+      "Name": "Isacceptedwithwarning",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Iscardopening": {
+      "Name": "Iscardopening",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isconnectedpayment": {
+      "Name": "Isconnectedpayment",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Iscontractused": {
+      "Name": "Iscontractused",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isopeningbrs": {
+      "Name": "Isopeningbrs",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Istransforced": {
+      "Name": "Istransforced",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ledger Contributor List": {
+      "Name": "Ledger Contributor List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Ledger Contributor List"
+      }
+    },
+    "Ledger Entries": {
+      "Name": "Ledger Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Voucher",
+        "Schema Missing": "Yes"
+      }
+    },
+    "Link Master Entries": {
+      "Name": "Link Master Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Paylink",
+        "Schema Missing": "Yes"
+      }
+    },
+    "Linkedobjectsdetails": {
+      "Name": "Linkedobjectsdetails",
+      "IsComplex": false,
+      "Meta": {}
+    },
+    "Localbankcharges": {
+      "Name": "Localbankcharges",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Manualstatusremarks": {
+      "Name": "Manualstatusremarks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Merchant Id": {
+      "Name": "Merchant Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Micrcode": {
+      "Name": "Micrcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Operationrefnumber": {
+      "Name": "Operationrefnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Parentobjidentifier": {
+      "Name": "Parentobjidentifier",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Pay Allocation Data": {
+      "Name": "Pay Allocation Data",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Pay Allocation Data"
+      }
+    },
+    "Payable Location": {
+      "Name": "Payable Location",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payablelocationcode": {
+      "Name": "Payablelocationcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Paybatch": {
+      "Name": "Paybatch",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Paylinkid": {
+      "Name": "Paylinkid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Payment Favouring": {
+      "Name": "Payment Favouring",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Paymentgateway": {
+      "Name": "Paymentgateway",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Paymentstatus": {
+      "Name": "Paymentstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Primary Status": {
+      "Name": "Primary Status",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Print Location": {
+      "Name": "Print Location",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Printlocationcode": {
+      "Name": "Printlocationcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Pymtadvicestatus": {
+      "Name": "Pymtadvicestatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Recostartdate": {
+      "Name": "Recostartdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Reservationstatus": {
+      "Name": "Reservationstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Secondarystatus": {
+      "Name": "Secondarystatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Setid": {
+      "Name": "Setid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Settleamount": {
+      "Name": "Settleamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Startdate": {
+      "Name": "Startdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Terminalid": {
+      "Name": "Terminalid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tipamount": {
+      "Name": "Tipamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Tipremarks": {
+      "Name": "Tipremarks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transaction Name": {
+      "Name": "Transaction Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transaction Type": {
+      "Name": "Transaction Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Transactiondigest": {
+      "Name": "Transactiondigest",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transactionid": {
+      "Name": "Transactionid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transactionindex": {
+      "Name": "Transactionindex",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transactionrefnumber": {
+      "Name": "Transactionrefnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transfer Mode": {
+      "Name": "Transfer Mode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Typeoftransaction": {
+      "Name": "Typeoftransaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Unique Reference Number": {
+      "Name": "Unique Reference Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Vchnarration": {
+      "Name": "Vchnarration",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Vchtype Name": {
+      "Name": "Vchtype Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Vchtypeispayroll": {
+      "Name": "Vchtypeispayroll",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Virtualpaymentaddress": {
+      "Name": "Virtualpaymentaddress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Voidamount": {
+      "Name": "Voidamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Vouchermstid": {
+      "Name": "Vouchermstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Vouchernumber": {
+      "Name": "Vouchernumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Bankotherreferences": "Bank Otherrefs",
+    "Bankstatusinfo": "Bankstatusinfo",
+    "Contractdetails": "Contractdetails",
+    "Ledger Contributor List": "Ledger Contributor List",
+    "Ledger Entries": "Voucher",
+    "Link Master Entries": "Paylink",
+    "Pay Allocation Data": "Pay Allocation Data"
+  },
+  "Name": "Paylink"
+}

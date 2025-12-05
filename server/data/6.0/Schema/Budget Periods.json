@@ -1,0 +1,58 @@
+{
+  "Properties": {
+    "Accounting Allocations": {
+      "Name": "Accounting Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Budget Ledger Allocations"
+      }
+    },
+    "Cost Centre Allocations": {
+      "Name": "Cost Centre Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Budget Cost Center Allocations"
+      }
+    },
+    "Ending at": {
+      "Name": "Ending at",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Group Allocations": {
+      "Name": "Group Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Budget Group Allocations"
+      }
+    },
+    "Inventory Allocations": {
+      "Name": "Inventory Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Budget Inventory Allocations"
+      }
+    },
+    "Starting From": {
+      "Name": "Starting From",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Accounting Allocations": "Budget Ledger Allocations",
+    "Cost Centre Allocations": "Budget Cost Center Allocations",
+    "Group Allocations": "Budget Group Allocations",
+    "Inventory Allocations": "Budget Inventory Allocations"
+  },
+  "Name": "Budget Periods"
+}

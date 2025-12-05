@@ -1,0 +1,24 @@
+{
+  "HasChanges": true,
+  "NameChanged": false,
+  "OldName": null,
+  "NewName": null,
+  "AddedProperties": {
+    "Irpsource": {
+      "Name": "Irpsource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "DeletedProperties": {},
+  "ModifiedProperties": {},
+  "AddedMeta": {},
+  "DeletedMeta": {},
+  "ModifiedMeta": {},
+  "AddedComplexProperties": {},
+  "DeletedComplexProperties": {},
+  "ModifiedComplexProperties": {}
+}

@@ -1,0 +1,58 @@
+{
+  "Properties": {
+    "Cenvatbillname": {
+      "Name": "Cenvatbillname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Cenvatduty Itemallocations": {
+      "Name": "Cenvatduty Itemallocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Cenvatduty Itemallocations"
+      }
+    },
+    "Party Ledger": {
+      "Name": "Party Ledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Partyledgermstid": {
+      "Name": "Partyledgermstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Taxamount": {
+      "Name": "Taxamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Taxunitname": {
+      "Name": "Taxunitname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Cenvatduty Itemallocations": "Cenvatduty Itemallocations"
+  },
+  "Name": "Cenvatduty Allocations"
+}

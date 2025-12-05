@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Category": {
+      "Name": "Category",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Employee Entry": {
+      "Name": "Employee Entry",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Employee Entry"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Employee Entry": "Employee Entry"
+  },
+  "Name": "Category Entry"
+}

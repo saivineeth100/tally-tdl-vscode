@@ -1,0 +1,225 @@
+{
+  "Properties": {
+    "Aggramtduringper": {
+      "Name": "Aggramtduringper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtamericandepdurper": {
+      "Name": "Amtamericandepdurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtglobaldepdurper": {
+      "Name": "Amtglobaldepdurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtofbonusissdurper": {
+      "Name": "Amtofbonusissdurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtofissueamgsch": {
+      "Name": "Amtofissueamgsch",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtofrightissdurper": {
+      "Name": "Amtofrightissdurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtothsharesdurper": {
+      "Name": "Amtothsharesdurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtprefallotdurper": {
+      "Name": "Amtprefallotdurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtprvplacedurper": {
+      "Name": "Amtprvplacedurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtpubissduringperiod": {
+      "Name": "Amtpubissduringperiod",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtsharesconvsecdurper": {
+      "Name": "Amtsharesconvsecdurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amtwopymtdurper": {
+      "Name": "Amtwopymtdurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Nature": {
+      "Name": "Nature",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Nomvalissueddurper": {
+      "Name": "Nomvalissueddurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofamericandepshares": {
+      "Name": "Noofamericandepshares",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofbonussharesiss": {
+      "Name": "Noofbonussharesiss",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofglobaldeposhares": {
+      "Name": "Noofglobaldeposhares",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofothershares": {
+      "Name": "Noofothershares",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofrightsharesissued": {
+      "Name": "Noofrightsharesissued",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofsharesconvsec": {
+      "Name": "Noofsharesconvsec",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofsharesissamgsch": {
+      "Name": "Noofsharesissamgsch",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofsharesissdurper": {
+      "Name": "Noofsharesissdurper",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofsharesisspuboff": {
+      "Name": "Noofsharesisspuboff",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofsharesisspvtpmnt": {
+      "Name": "Noofsharesisspvtpmnt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofsharesprefallot": {
+      "Name": "Noofsharesprefallot",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofshareswopymt": {
+      "Name": "Noofshareswopymt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Type": {
+      "Name": "Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Xbrlsharecapitalclassdetails"
+}

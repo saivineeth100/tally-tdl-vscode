@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Prefix": {
+      "Name": "Prefix",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Suffix": {
+      "Name": "Suffix",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Prefix Suffix Only"
+}

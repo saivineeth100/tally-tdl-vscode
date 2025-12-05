@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Sumvch Originvoicebookname": {
+      "Name": "Sumvch Originvoicebookname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Originvoicedate": {
+      "Name": "Sumvch Originvoicedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Originvoicenumber": {
+      "Name": "Sumvch Originvoicenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Originvoicedetails"
+}

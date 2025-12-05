@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Borrid": {
+      "Name": "Borrid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Borrnote": {
+      "Name": "Borrnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mcaborrowmemberdetail": {
+      "Name": "Mcaborrowmemberdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaborrowmemberdetail"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Mcaborrowmemberdetail": "Mcaborrowmemberdetail"
+  },
+  "Name": "Mcaborrowingsmember"
+}

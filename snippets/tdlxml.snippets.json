@@ -1,0 +1,53 @@
+{
+    "Create Full Report": {
+        "prefix": "Report",
+        "body": [
+            "<REPORT ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
+            "   <FORM>${1:reportname}</FORM>",
+            "</REPORT>",
+            "<FORM ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
+            "   <PARTS>${1:reportname}<PARTS>",
+            "</FORM>",
+            "<PART ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
+            "   <LINES>${1:reportname}</LINES>",
+            "</PART>",
+            "<LINE ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
+            "   <FIELDS>${2:fieldname},${3:fieldname2}</FIELDS>",
+            "</LINE>",
+            "<FIELD ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${2:fieldname}\">",
+            "   <SETAS>$${4:someval}</SETAS>",
+            "</FIELD>",
+            "<FIELD ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${3:fieldname2}\">",
+            "   <SETAS>$${5:someval2}</SETAS>",
+            "</FIELD>"
+        ],
+        "description": "Creates Report with form,part,line and fields"
+    },
+    "Create Full Report with Collection": {
+        "prefix": "Report",
+        "body": [
+            "<REPORT ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
+            "   <FORM>${1:reportname}</FORM>",
+            "</REPORT>",
+            "<FORM ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
+            "   <PARTS>${1:reportname}<PARTS>",
+            "</FORM>",
+            "<PART ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
+            "   <LINES>${1:reportname}:${2:collectionName}</LINES>",
+            "</PART>",
+            "<LINE ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
+            "   <FIELDS>${3:fieldname},${4:fieldname2}</FIELDS>",
+            "</LINE>",
+            "<FIELD ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${3:fieldname}\">",
+            "   <SETAS>$${5:someval}</SETAS>",
+            "</FIELD>",
+            "<FIELD ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${4:fieldname2}\">",
+            "   <SETAS>$${6:someval2}</SETAS>",
+            "</FIELD>",
+            "<COLLECTION ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${2:collectionName}\">",
+            "   <TYPE>${7:objectType}</TYPE>",
+            "</COLLECTION>"
+        ],
+        "description": "Creates Report with form,part,line,fields and collection"
+    }
+}

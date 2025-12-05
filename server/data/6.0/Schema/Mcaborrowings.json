@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Id": {
+      "Name": "Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mcaborrowingsmember": {
+      "Name": "Mcaborrowingsmember",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaborrowingsmember"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Mcaborrowingsmember": "Mcaborrowingsmember"
+  },
+  "Name": "Mcaborrowings"
+}

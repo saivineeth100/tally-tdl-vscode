@@ -1,0 +1,50 @@
+{
+  "Properties": {
+    "Amount": {
+      "Name": "Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gst Assessable Value": {
+      "Name": "Gst Assessable Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gsttaxrate": {
+      "Name": "Gsttaxrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Tax  Additional Details": {
+      "Name": "Tax  Additional Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Tax  Additional Details"
+      }
+    },
+    "Tax Type": {
+      "Name": "Tax Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Tax  Additional Details": "Tax  Additional Details"
+  },
+  "Name": "Tax Type Allocations"
+}

@@ -1,0 +1,290 @@
+{
+  "Properties": {
+    "Sumvch Abatementfortax": {
+      "Name": "Sumvch Abatementfortax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Accountauditentries": {
+      "Name": "Sumvch Accountauditentries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Accountaudit Entries"
+      }
+    },
+    "Sumvch Assessablevalue": {
+      "Name": "Sumvch Assessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Cashpartyname": {
+      "Name": "Sumvch Cashpartyname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Deducteetype": {
+      "Name": "Sumvch Deducteetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Exempted": {
+      "Name": "Sumvch Exempted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Expenses": {
+      "Name": "Sumvch Expenses",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Expensesamount": {
+      "Name": "Sumvch Expensesamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Hasinputcredit": {
+      "Name": "Sumvch Hasinputcredit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Is Optional": {
+      "Name": "Sumvch Is Optional",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Is Special Rate": {
+      "Name": "Sumvch Is Special Rate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Isbasedonrealization": {
+      "Name": "Sumvch Isbasedonrealization",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Isdeductnow": {
+      "Name": "Sumvch Isdeductnow",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Ispannotavailable": {
+      "Name": "Sumvch Ispannotavailable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Ispanvalid": {
+      "Name": "Sumvch Ispanvalid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Ispureagent": {
+      "Name": "Sumvch Ispureagent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Issupplemetry": {
+      "Name": "Sumvch Issupplemetry",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Istdsdeducted": {
+      "Name": "Sumvch Istdsdeducted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Natureofservice": {
+      "Name": "Sumvch Natureofservice",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Notificationno": {
+      "Name": "Sumvch Notificationno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Oldauditentries": {
+      "Name": "Sumvch Oldauditentries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Audit Entries"
+      }
+    },
+    "Sumvch Oldauditentryids": {
+      "Name": "Sumvch Oldauditentryids",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Pannumber": {
+      "Name": "Sumvch Pannumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Partyledger": {
+      "Name": "Sumvch Partyledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Realized Assessable Value": {
+      "Name": "Sumvch Realized Assessable Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Reversechargerate": {
+      "Name": "Sumvch Reversechargerate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Servicetaxliabilitytype": {
+      "Name": "Sumvch Servicetaxliabilitytype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Sub Category Allocation": {
+      "Name": "Sumvch Sub Category Allocation",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Sub Category Allocations"
+      }
+    },
+    "Sumvch Sumtaxname": {
+      "Name": "Sumvch Sumtaxname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Tax Name": {
+      "Name": "Sumvch Tax Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Taxtype": {
+      "Name": "Sumvch Taxtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Tdschallandate": {
+      "Name": "Sumvch Tdschallandate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Tdschallannumber": {
+      "Name": "Sumvch Tdschallannumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Transactionid": {
+      "Name": "Sumvch Transactionid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Zero Rated": {
+      "Name": "Sumvch Zero Rated",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Accountauditentries": "Sumtrans Accountaudit Entries",
+    "Sumvch Oldauditentries": "Sumtrans Audit Entries",
+    "Sumvch Sub Category Allocation": "Sumtrans Sub Category Allocations"
+  },
+  "Name": "Sumtrans Tax Object Allocations"
+}

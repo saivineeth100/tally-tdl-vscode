@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Stattype": {
+      "Name": "Stattype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Uploadentries": {
+      "Name": "Uploadentries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Uploadentries"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Uploadentries": "Uploadentries"
+  },
+  "Name": "Statuploaddetail"
+}

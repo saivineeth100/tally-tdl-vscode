@@ -1,0 +1,222 @@
+{
+  "Add/Replace/Delete": {
+    "Description": "The ADD/Delete/Replace modifiers are used in a definition to Add/Delete/Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Add",
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add/Replace/Delete"
+  },
+  "Default": {
+    "Description": "Gives the default value of the variable.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Default",
+      "Type": "Single"
+    },
+    "Name": "Default"
+  },
+  "List Var": {
+    "Description": "Specify a list of either a Simple or Compound Variable.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "List Var, List Variable",
+      "Type": "Variable List"
+    },
+    "Name": "List Var"
+  },
+  "Local": {
+    "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+    "Parameters": [
+      {
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local",
+      "Type": "Local List",
+      "Is Discrete": "No"
+    },
+    "Name": "Local"
+  },
+  "Persist": {
+    "Description": "Specifies whether the value of the variable can be persisted/retained across multiple tally instances or not.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Persist, Persistent",
+      "Type": "Single"
+    },
+    "Name": "Persist"
+  },
+  "Repeat": {
+    "Description": "Specifies the name of the Collection based on which the variable assumes multiple vales in context of a multi-columnar report.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Repeat",
+      "Type": "Dual"
+    },
+    "Name": "Repeat"
+  },
+  "Set Always": {
+    "Description": "It modifies the value of the variable immediately.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Always",
+      "Type": "Single"
+    },
+    "Name": "Set Always"
+  },
+  "System Name": {
+    "Description": "Specifies whether sysnames can be stored in the variable.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "System Name",
+      "Type": "Single"
+    },
+    "Name": "System Name"
+  },
+  "Table": {
+    "Description": "This attribute overrides the default collection used in the variable.  This attribute is used locally in a report to override the default table for the variable.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Table, Tables",
+      "Type": "Single"
+    },
+    "Name": "Table"
+  },
+  "Type": {
+    "Description": "Specifies the type of the data held by the variable.",
+    "Parameters": [
+      {
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Method",
+        "Keywords": "Aggregate, Amount, Date, DateTime, Due Date, Duration, FlagSet, Logical, Long, Number, NumSet, Quantity, Rate, Rate of Exchange, String, Sys Id, Time",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Type",
+      "Type": "Single"
+    },
+    "Name": "Type"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Variable ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "Variable": {
+    "Description": "To specify a Simple or Compound Variable within a Variable Definition.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Variable, Variables",
+      "Type": "Variable List"
+    },
+    "Name": "Variable"
+  },
+  "Volatile": {
+    "Description": "Specifies whether the value of the variable can retained across multiple scopes.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Volatile",
+      "Type": "Single"
+    },
+    "Name": "Volatile"
+  }
+}

@@ -1,0 +1,330 @@
+{
+  "Properties": {
+    "Abc Account Number": {
+      "Name": "Abc Account Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Amount": {
+      "Name": "Abc Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Bank Reference Id": {
+      "Name": "Abc Bank Reference Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Bankers Date": {
+      "Name": "Abc Bankers Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Closing Balance": {
+      "Name": "Abc Closing Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Closing Balance Drcr": {
+      "Name": "Abc Closing Balance Drcr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Cr Amount": {
+      "Name": "Abc Cr Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Customer Reference Id": {
+      "Name": "Abc Customer Reference Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Date": {
+      "Name": "Abc Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Delimiter": {
+      "Name": "Abc Delimiter",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Dr Amount": {
+      "Name": "Abc Dr Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Exploded Lines": {
+      "Name": "Abc Exploded Lines",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc File Format": {
+      "Name": "Abc File Format",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Id": {
+      "Name": "Abc Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Abc Instrument Date": {
+      "Name": "Abc Instrument Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Instrument Number": {
+      "Name": "Abc Instrument Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Is Cr": {
+      "Name": "Abc Is Cr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Is Dr": {
+      "Name": "Abc Is Dr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Is Drcr In Amount Field": {
+      "Name": "Abc Is Drcr In Amount Field",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Is Drcr In Separate Field": {
+      "Name": "Abc Is Drcr In Separate Field",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Is Valid Format": {
+      "Name": "Abc Is Valid Format",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Name": {
+      "Name": "Abc Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Narration": {
+      "Name": "Abc Narration",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Opening Balance": {
+      "Name": "Abc Opening Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Opening Balance Drcr": {
+      "Name": "Abc Opening Balance Drcr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Running Balance": {
+      "Name": "Abc Running Balance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Serial Number": {
+      "Name": "Abc Serial Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Start Reading Details": {
+      "Name": "Abc Start Reading Details",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Statement Date": {
+      "Name": "Abc Statement Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Statement Number": {
+      "Name": "Abc Statement Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Stop Reading Details": {
+      "Name": "Abc Stop Reading Details",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Stop Reading Exploded Lines": {
+      "Name": "Abc Stop Reading Exploded Lines",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Unique Id Creation": {
+      "Name": "Abc Unique Id Creation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abc Version": {
+      "Name": "Abc Version",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abcisignorequotes": {
+      "Name": "Abcisignorequotes",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Auto Brs Config Conditions": {
+      "Name": "Auto Brs Config Conditions",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Auto Brs Config Conditions"
+      }
+    },
+    "Ledconfigusedfor": {
+      "Name": "Ledconfigusedfor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Ledimfbankstatus": {
+      "Name": "Ledimfbankstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Ledimfconfigusedfor": {
+      "Name": "Ledimfconfigusedfor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Ledimfrejectionreason": {
+      "Name": "Ledimfrejectionreason",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Auto Brs Config Conditions": "Auto Brs Config Conditions"
+  },
+  "Name": "Auto Brs Configs"
+}

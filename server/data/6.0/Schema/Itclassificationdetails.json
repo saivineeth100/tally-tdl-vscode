@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Applicable For": {
+      "Name": "Applicable For",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Itclassificationperiod": {
+      "Name": "Itclassificationperiod",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Itclassifperiod"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Itclassificationperiod": "Itclassifperiod"
+  },
+  "Name": "Itclassificationdetails"
+}

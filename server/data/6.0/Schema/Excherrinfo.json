@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Errorid": {
+      "Name": "Errorid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exchangeerrorcode": {
+      "Name": "Exchangeerrorcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exchangeerrormessage": {
+      "Name": "Exchangeerrormessage",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Excherrinfo"
+}

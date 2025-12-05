@@ -1,0 +1,1027 @@
+{
+  "BalanceLines": {
+    "Description": "This function is used to check balance number of lines (repeated lines), including the exploded part-lines present, in a given part.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "BalanceLines"
+  },
+  "BalanceSiblings": {
+    "Description": "This function is used to check balance number of lines (repeated line) only in the exploded part.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "BalanceSiblings"
+  },
+  "BlankSiblings": {
+    "Description": "This function checks if there is any blank sibling or not.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "BlankSiblings"
+  },
+  "CurrentTableItemExplodeOwner": {
+    "Description": "This function evaluates the method in the context of the explode owner of the selected item.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client"
+    },
+    "Name": "CurrentTableItemExplodeOwner"
+  },
+  "DashboardTotalTiles": {
+    "Description": "This function returns the current count of tiles in the Dashboard.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Number"
+    },
+    "Name": "DashboardTotalTiles"
+  },
+  "DoExplosionsFit": {
+    "Description": "In case of printing, if a line is exploded then this function can be used to check whether the exploded part fits in the given page. It returns logical expression Yes if it is true.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "DoExplosionsFit"
+  },
+  "ExplodeLevel": {
+    "Description": "This function checks the level of Explosion.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "ExplodeLevel"
+  },
+  "ExplodeOwner": {
+    "Description": "Can be used to extract the method of the Explode owner using the field name from where it is Exploded.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client"
+    },
+    "Name": "ExplodeOwner"
+  },
+  "FirstLineNumber": {
+    "Description": "This function returns 1 if no repeated lines exist. Otherwise the number of first repeated line for that part is returned. If you have 4 lines in a part, of which 4th one is repeated line, then $$FirstLineNumber returns 4.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "FirstLineNumber"
+  },
+  "FocusedTileTitle": {
+    "Description": "This function returns the name of the currently active tile within the Dashboard.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Hybrid",
+      "Return Type": "String"
+    },
+    "Name": "FocusedTileTitle"
+  },
+  "GetLongestLineLength": {
+    "Description": "This function gives the length of the longest line in the given text. In text separated by \u0027\\n\u0027, it\u0027ll give length of longest text block without a newline.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "GetLongestLineLength"
+  },
+  "HasLinesDeleted": {
+    "Description": "This function is used for verifying whether any lines are deleted from the report.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "HasLinesDeleted"
+  },
+  "HelpModuleId": {
+    "Description": "This function returns Module Id of the help if defined in the current context of report or menu",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "HelpModuleId"
+  },
+  "InAcceptMode": {
+    "Description": "This function verifies if the current Print Action was a result of an Acceptance of the previous report (for Print After Save Scenarios).",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InAcceptMode"
+  },
+  "InAlterMode": {
+    "Description": "This function returns \u0027Yes\u0027 only if the Report is accessed through a Menu/Button/Key with the action as \u0027Alter\u0027.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InAlterMode"
+  },
+  "InAppendMode": {
+    "Description": "If you are creating a new voucher in append mode (Alt \u002B A) from Day book or any voucher Register, then it checks whether the current Voucher Creation is in Append mode or not. The new voucher number will be an incremental number of the voucher from where it is appended.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InAppendMode"
+  },
+  "InBrowserExport": {
+    "Description": "It checks if the report is being displayed in the browser. It returns \u0027yes\u0027 if the report is being displayed.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InBrowserExport"
+  },
+  "InBrowserPeriodChange": {
+    "Description": "It checks if the report is being displayed in the browser after a period change. It returns \u0027yes\u0027 if the report is being displayed.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InBrowserPeriodChange"
+  },
+  "InChangeView": {
+    "Description": "This function returns whether the current report is opened from Change View Action.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InChangeView"
+  },
+  "InCreateMode": {
+    "Description": "This function returns \u0027Yes\u0027 only if the report is Created through a Menu/Button/Key with the action as \u0027Create\u0027.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InCreateMode"
+  },
+  "InDisplayMode": {
+    "Description": "This function returns \u0027Yes\u0027 only if a particular report is accessed through a Menu/Button/Key with the action as \u0027Display\u0027.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InDisplayMode"
+  },
+  "InDuplicateMode": {
+    "Description": "This function returns \u0027Yes\u0027 only if the voucher is created through a Button/Key with the action as \u0027Duplicate\u0027. In Day book or any voucher Register, if we create a duplicate voucher (Alt \u002B 2), then this function returns \u0027Yes\u0027. It checks whether the current Voucher is in Duplication Mode.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InDuplicateMode"
+  },
+  "InDynamicAlterMode": {
+    "Description": "To check if the Parent of the current report is in Alter mode. It checks whether the previous or Parent Report, like any Main Report of any configuration report or any Subform is in Alter Mode or not.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InDynamicAlterMode"
+  },
+  "InEditMode": {
+    "Description": "This function is used to check if the selected mode is in Edit Mode. It checks if the current report is running in create mode or alter mode, it is like a combine function of $$InCreateMode and $$InAlter mode.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InEditMode"
+  },
+  "InExecuteMode": {
+    "Description": "To check if the selected mode is in Execute Mode. It checks if current report is executed by Execute action of a Button or Key.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InExecuteMode"
+  },
+  "InExportAction": {
+    "Description": "This function verifies if the selected mode is Export Action.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InExportAction"
+  },
+  "InExportMode": {
+    "Description": "This function verifies if the selected mode is in the Export Mode.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InExportMode"
+  },
+  "InfoParam": {
+    "Description": "This function extracts the value of the string from the actions message report and query report which is to be set in Query or Message box.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "InfoParam"
+  },
+  "InfoString": {
+    "Description": "This function extracts the string from the actions message report and query report which is to be set in Query or Message box.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "InfoString"
+  },
+  "InInsertMode": {
+    "Description": "In Day book or any Voucher Register, if we are creating a new voucher in Insert mode (Alt \u002B I), It checks whether the current Voucher Creation is in Insert mode or not. The new voucher number will be a decremented number of the voucher from where it is inserted.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InInsertMode"
+  },
+  "InMailAction": {
+    "Description": "This function returns \u0027Yes\u0027 only if the Report is accessed through a Button/Key with the action as \u0027Mail Report\u0027.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InMailAction"
+  },
+  "InMailMode": {
+    "Description": "This function returns TRUE only if a particular report is accessed through a Menu/Button/Key with Mail action else returns FALSE.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InMailMode"
+  },
+  "InMobileBrowserExport": {
+    "Description": "It checks if the report is being displayed in a mobile browser. It returns \u0027yes\u0027 if the report is being displayed.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InMobileBrowserExport"
+  },
+  "InPrintAction": {
+    "Description": "This function verifies if the selected mode is Print Action.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InPrintAction"
+  },
+  "InTrueColorMode": {
+    "Description": "If the current color quality for the Monitor is set to \u0027True Color\u0027 (e.g. 24bit, 32 bit etc) then the function returns \u0027Yes\u0027 else if the color quality is set to \u002716 bit\u0027, \u0027256 colors\u0027 etc., then it returns \u0027No\u0027.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InTrueColorMode"
+  },
+  "InUploadAction": {
+    "Description": "This function returns \u0027Yes\u0027 only if the Report is accessed through a Button/Key with the action as \u0027Upload Report\u0027.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InUploadAction"
+  },
+  "InWhatsAppAction": {
+    "Description": "This function checks whether the selected mode is WhatsApp action or not.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InWhatsAppAction"
+  },
+  "InWhatsAppMode": {
+    "Description": "This function checks whether the selected mode is WhatsApp or not.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "InWhatsAppMode"
+  },
+  "IsCaseToggled": {
+    "Description": "This function is used to check if the field case has been toggled or not.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "No",
+        "Refers To": "Field ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsCaseToggled"
+  },
+  "IsCheckAlwaysInDashboardTiles": {
+    "Description": "This function is used to check whether any tile within the Dashboard contains the \u201CCheck Always\u201D attribute. It is intended for use at the preload check level of a Dashboard report.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Hybrid",
+      "Return Type": "Logical"
+    },
+    "Name": "IsCheckAlwaysInDashboardTiles"
+  },
+  "IsEdited": {
+    "Description": "The value of the field changed manualy it returns \u0027Yes\u0027 else returns \u0027No\u0027.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsEdited"
+  },
+  "IsExploded": {
+    "Description": "This function checks whether the passed part name is exploded or not. If the part is exploded then it returns \u0027Yes\u0027 else \u0027No\u0027. It also checks whether the current part is exploded or not if no parameter is passed.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsExploded"
+  },
+  "IsExportable": {
+    "Description": "This function checks if the Export attribute has been enabled or not for the current object.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsExportable"
+  },
+  "IsFieldEdited": {
+    "Description": "This function states if the field has been edited or not.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "No",
+        "Refers To": "Field ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsFieldEdited"
+  },
+  "IsFirstChildOnNextPage": {
+    "Description": "This function returns a logical expression \u0027Yes\u0027 if a line is exploded and if first child or sub object apparently prints on the next page.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsFirstChildOnNextPage"
+  },
+  "IsFirstInPart": {
+    "Description": "This function checks if the line in the part is first. This returns \u0027Yes\u0027 in case it is true.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsFirstInPart"
+  },
+  "IsFromTriggerReport": {
+    "Description": "This function returns whether a \u0027trigger\u0027 report was opened for context selection before opening the current report.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsFromTriggerReport"
+  },
+  "IsLastLine": {
+    "Description": "This function is used to check is this the last scroll line in printing.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsLastLine"
+  },
+  "IsLastPage": {
+    "Description": "This function is used to check is this the last page in printing.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsLastPage"
+  },
+  "IsLastVertPart": {
+    "Description": "This function is used to check is this the last part in printing.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsLastVertPart"
+  },
+  "IsNextActiveSibling": {
+    "Description": "To check if the subsequent object is the object of the current collection used in the current explosion.(Ignores removed lines (Alt\u002BR))",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsNextActiveSibling"
+  },
+  "IsNextSibling": {
+    "Description": "To check if the subsequent object is the object of the current collection used in the current explosion.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsNextSibling"
+  },
+  "IsOpeningBal": {
+    "Description": "To check whether this line is opening line added due to OpeningBal attribute defined in Form for balancing. ",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsOpeningBal"
+  },
+  "IsRepeatColumnContext": {
+    "Description": "This function specifies whether the auto-report was opened when cursor present in column of parent report.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsRepeatColumnContext"
+  },
+  "IsReportInEditMode": {
+    "Description": "To check if the report is in edit mode.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsReportInEditMode"
+  },
+  "IsRightToLeftLangScript": {
+    "Description": "This function checks language script is Right-To-Left or not",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "IsRightToLeftLangScript"
+  },
+  "IsSiblingExploded": {
+    "Description": "This function checks if the sibling has an exploded part or not.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsSiblingExploded"
+  },
+  "IsTriggerReport": {
+    "Description": "This function returns whether the report is opened from \u0027Trigger\u0027 attribute of collection while doing actions like Display Collection, Alter Collection etc.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsTriggerReport"
+  },
+  "LastLineNumber": {
+    "Description": "This function retrieves Last Line Number of the part in the page. It retrieves the Last Line Number of a Part in each Page of printing. Supposing the Part is repeated with a collection having 59 items, in first page part is able to fit only 47 items, it retrieves 47 in the first page and 59 in the second page.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "LastLineNumber"
+  },
+  "LineNumber": {
+    "Description": "Gives the Line Number of the specified line in a page.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "LineNumber"
+  },
+  "LoadKeyboardLayout": {
+    "Description": "This function load specified languge keyboard layout",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "LoadKeyboardLayout"
+  },
+  "Loword": {
+    "Description": "This function returns language ID from locale ID",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "Loword"
+  },
+  "NextActiveSibling": {
+    "Description": "To refer to Next Line\u0027s Field Name or Method Name.(Ignores removed lines (Alt\u002BR))",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client"
+    },
+    "Name": "NextActiveSibling"
+  },
+  "NextSibling": {
+    "Description": "To refer to Next Line\u0027s Field Name or Method Name.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client"
+    },
+    "Name": "NextSibling"
+  },
+  "NumExplosions": {
+    "Description": "Gives the Number of Explosions taken place for a line.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "NumExplosions"
+  },
+  "NumFlowLinesCanFit": {
+    "Description": "This function is used to get number of balance flow lines available to print.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "NumFlowLinesCanFit"
+  },
+  "NumLanguages": {
+    "Description": "This function returns number of Keyboard / Input Languages supported.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "NumLanguages"
+  },
+  "NumUILanguages": {
+    "Description": "This function returns number of UI / Display Languages supported.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "NumUILanguages"
+  },
+  "ParentIsMenu": {
+    "Description": "This function checks whether the current report is called by a Menu Object or not.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "ParentIsMenu"
+  },
+  "PrevLine": {
+    "Description": "To refer to previous Line\u0027s Field Name or Method Name.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client"
+    },
+    "Name": "PrevLine"
+  },
+  "PrevLineField": {
+    "Description": "To refer to the value from the same field of the previous line.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client"
+    },
+    "Name": "PrevLineField"
+  },
+  "PrevLineVisible": {
+    "Description": "To check if the previous line stated is displayed.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "PrevLineVisible"
+  },
+  "TableExplodeLevel": {
+    "Description": "This function returns the level of Explosion for the current Table Item.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "TableExplodeLevel"
+  },
+  "TableExplodeOwner": {
+    "Description": "This function facilitates to extract method value from the parent collection of the exploded table/collection. The function evaluates the value while the Table is constructed.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client"
+    },
+    "Name": "TableExplodeOwner"
+  },
+  "TopLine": {
+    "Description": "To refer to Top Line\u0027s Field Name or Method Name.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client"
+    },
+    "Name": "TopLine"
+  },
+  "ValidateandGetKeyboard": {
+    "Description": "This function validates and loads specified languge keyboard layout",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "ValidateandGetKeyboard"
+  },
+  "WindowHeight": {
+    "Description": "This function returns the current window height.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "WindowHeight"
+  },
+  "WindowWidth": {
+    "Description": "This function returns the current window width.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "GUI",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "WindowWidth"
+  }
+}

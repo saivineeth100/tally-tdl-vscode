@@ -1,0 +1,106 @@
+{
+  "Properties": {
+    "Iscompanynotif": {
+      "Name": "Iscompanynotif",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isinmemnotif": {
+      "Name": "Isinmemnotif",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isnotifdismissible": {
+      "Name": "Isnotifdismissible",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isnotifread": {
+      "Name": "Isnotifread",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isschedulernotif": {
+      "Name": "Isschedulernotif",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Notifactivitydescription": {
+      "Name": "Notifactivitydescription",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Notifcreationdatetime": {
+      "Name": "Notifcreationdatetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Notifinstanceid": {
+      "Name": "Notifinstanceid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Notiforiginator": {
+      "Name": "Notiforiginator",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Notifrunid": {
+      "Name": "Notifrunid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Notiftextstr": {
+      "Name": "Notiftextstr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Referencecount": {
+      "Name": "Referencecount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "SDF Id": "NO",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {},
+  "Name": "Notification"
+}

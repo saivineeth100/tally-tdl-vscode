@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Applicablefrom": {
+      "Name": "Applicablefrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Reconprefixsuffixdetailsbyparty": {
+      "Name": "Reconprefixsuffixdetailsbyparty",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Reconprefixsuffixbyparty"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Reconprefixsuffixdetailsbyparty": "Reconprefixsuffixbyparty"
+  },
+  "Name": "Reconprefixsuffixdetails"
+}

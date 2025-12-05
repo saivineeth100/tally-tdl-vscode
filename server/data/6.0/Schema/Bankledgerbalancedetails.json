@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Balanceamount": {
+      "Name": "Balanceamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Balancetype": {
+      "Name": "Balancetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Bankledgerbalancedetails"
+}

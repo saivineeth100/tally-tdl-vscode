@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Payinsconditiondescr": {
+      "Name": "Payinsconditiondescr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsconditionid": {
+      "Name": "Payinsconditionid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Payinsconditions"
+}

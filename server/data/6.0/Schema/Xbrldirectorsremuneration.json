@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Directorsrenumdet": {
+      "Name": "Directorsrenumdet",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Directorsrenumdet"
+      }
+    },
+    "Disclosure": {
+      "Name": "Disclosure",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Disclosurehtml": {
+      "Name": "Disclosurehtml",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Directorsrenumdet": "Directorsrenumdet"
+  },
+  "Name": "Xbrldirectorsremuneration"
+}

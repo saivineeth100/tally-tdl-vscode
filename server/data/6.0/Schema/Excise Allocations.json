@@ -1,0 +1,274 @@
+{
+  "Properties": {
+    "Excise Duty Allocations": {
+      "Name": "Excise Duty Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excise Duty Allocations"
+      }
+    },
+    "Excise Id": {
+      "Name": "Excise Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Excisegodownname": {
+      "Name": "Excisegodownname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Is Excise Opening": {
+      "Name": "Is Excise Opening",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Issplaedofcvdnotpasson": {
+      "Name": "Issplaedofcvdnotpasson",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Mfgrimporteraddress": {
+      "Name": "Mfgrimporteraddress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Mfgrimporteraddresstype": {
+      "Name": "Mfgrimporteraddresstype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mfgrimportercommissionerate": {
+      "Name": "Mfgrimportercommissionerate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mfgrimporterdivision": {
+      "Name": "Mfgrimporterdivision",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mfgrimporterexciseregnno": {
+      "Name": "Mfgrimporterexciseregnno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mfgrimporterexportercode": {
+      "Name": "Mfgrimporterexportercode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mfgrimportername": {
+      "Name": "Mfgrimportername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mfgrimporterrange": {
+      "Name": "Mfgrimporterrange",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumtraderreferenceno": {
+      "Name": "Sumtraderreferenceno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Taxunitname": {
+      "Name": "Taxunitname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Traderassessablevalue": {
+      "Name": "Traderassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Traderexcisedutyamount": {
+      "Name": "Traderexcisedutyamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Traderexcisependingqty": {
+      "Name": "Traderexcisependingqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Traderexciseqty": {
+      "Name": "Traderexciseqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Tradermfgrassessablevalue": {
+      "Name": "Tradermfgrassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Tradermfgrexciseqty": {
+      "Name": "Tradermfgrexciseqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Tradermfgrimportername": {
+      "Name": "Tradermfgrimportername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tradermfgrinvoicedate": {
+      "Name": "Tradermfgrinvoicedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Tradermfgrinvoicenumber": {
+      "Name": "Tradermfgrinvoicenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tradermfgrplargslno": {
+      "Name": "Tradermfgrplargslno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Traderorigrefno": {
+      "Name": "Traderorigrefno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Traderplargslno": {
+      "Name": "Traderplargslno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Traderreferenceno": {
+      "Name": "Traderreferenceno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Traderrgslnumber": {
+      "Name": "Traderrgslnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tradersupplierinvoicedate": {
+      "Name": "Tradersupplierinvoicedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Tradersuppliername": {
+      "Name": "Tradersuppliername",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Tradersupplierrgno": {
+      "Name": "Tradersupplierrgno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tradertypeofpurchase": {
+      "Name": "Tradertypeofpurchase",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Excise Duty Allocations": "Excise Duty Allocations"
+  },
+  "Name": "Excise Allocations"
+}

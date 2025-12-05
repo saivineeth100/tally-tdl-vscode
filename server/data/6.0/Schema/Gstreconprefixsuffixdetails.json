@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Applicablefrom": {
+      "Name": "Applicablefrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Prefix Suffix List": {
+      "Name": "Prefix Suffix List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Prefix Suffix Only"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Prefix Suffix List": "Prefix Suffix Only"
+  },
+  "Name": "Gstreconprefixsuffixdetails"
+}

@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Sumvch Supplementryvchamt": {
+      "Name": "Sumvch Supplementryvchamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Supplementryvchid": {
+      "Name": "Sumvch Supplementryvchid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Supplementryvchqty": {
+      "Name": "Sumvch Supplementryvchqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Supplementryvchrate": {
+      "Name": "Sumvch Supplementryvchrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Refvoucherdetails"
+}

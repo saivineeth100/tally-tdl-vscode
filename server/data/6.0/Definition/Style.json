@@ -1,0 +1,108 @@
+{
+  "Add/Replace/Delete": {
+    "Description": "The ADD/Delete/Replace modifiers are used in a definition to Add/Delete/Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Add",
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add/Replace/Delete"
+  },
+  "Bold": {
+    "Description": "This is used to make the font bold.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Bold",
+      "Type": "Single"
+    },
+    "Name": "Bold"
+  },
+  "Font": {
+    "Description": "It specifies the supported font name.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Font, Font Name",
+      "Type": "Single"
+    },
+    "Name": "Font"
+  },
+  "Height": {
+    "Description": "It specifies the height of the letter.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Height",
+      "Type": "Single"
+    },
+    "Name": "Height"
+  },
+  "Italic": {
+    "Description": "This is used to make the font italic.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Italic, Italics",
+      "Type": "Single"
+    },
+    "Name": "Italic"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Style ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  }
+}

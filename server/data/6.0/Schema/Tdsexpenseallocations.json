@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Istdsdeducted": {
+      "Name": "Istdsdeducted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Natureofpayment": {
+      "Name": "Natureofpayment",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Overridebasedonrealization": {
+      "Name": "Overridebasedonrealization",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Tdsassessablevalue": {
+      "Name": "Tdsassessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Tdsexpenseallocations"
+}

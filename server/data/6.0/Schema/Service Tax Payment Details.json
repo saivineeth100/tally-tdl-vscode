@@ -1,0 +1,1193 @@
+{
+  "Properties": {
+    "Advance Ed Cess": {
+      "Name": "Advance Ed Cess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Advance Sec Ed Cess": {
+      "Name": "Advance Sec Ed Cess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Advance Tax": {
+      "Name": "Advance Tax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Advancekkcpaid": {
+      "Name": "Advancekkcpaid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Advancesbcpaid": {
+      "Name": "Advancesbcpaid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Amount Paid 73a": {
+      "Name": "Amount Paid 73a",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Arrears Cash": {
+      "Name": "Arrears Cash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Arrears Cenvat": {
+      "Name": "Arrears Cenvat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cenvat Ed Cess Op Bal": {
+      "Name": "Cenvat Ed Cess Op Bal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cenvat Kkc Op Bal": {
+      "Name": "Cenvat Kkc Op Bal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cenvat Opbal": {
+      "Name": "Cenvat Opbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cenvat Paid": {
+      "Name": "Cenvat Paid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cenvat Paid Cash": {
+      "Name": "Cenvat Paid Cash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cenvat Sed Cess Opbal": {
+      "Name": "Cenvat Sed Cess Opbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cr Utilized  Ed Cess": {
+      "Name": "Cr Utilized  Ed Cess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cr Utilized  St": {
+      "Name": "Cr Utilized  St",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cr Utilized Excise": {
+      "Name": "Cr Utilized Excise",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cr Utilized Input Goods": {
+      "Name": "Cr Utilized Input Goods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cr Utilized Ltu": {
+      "Name": "Cr Utilized Ltu",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cr Utilized Others": {
+      "Name": "Cr Utilized Others",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cr Utilized Rule 63": {
+      "Name": "Cr Utilized Rule 63",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Cr Utilized Sed Cess": {
+      "Name": "Cr Utilized Sed Cess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Credit Capital Goods": {
+      "Name": "Credit Capital Goods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Credit Inputs": {
+      "Name": "Credit Inputs",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Credit Isd": {
+      "Name": "Credit Isd",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Credit Ltu": {
+      "Name": "Credit Ltu",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Credit Services": {
+      "Name": "Credit Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Creditinputsfromexcisepurc": {
+      "Name": "Creditinputsfromexcisepurc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Arrears Cenvat": {
+      "Name": "Ed Cess Arrears Cenvat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Cr Capital Goods": {
+      "Name": "Ed Cess Cr Capital Goods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Cr Inputs": {
+      "Name": "Ed Cess Cr Inputs",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Cr Isd": {
+      "Name": "Ed Cess Cr Isd",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Cr Ltu": {
+      "Name": "Ed Cess Cr Ltu",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Cr Services": {
+      "Name": "Ed Cess Cr Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Cr Ut Goods and Services": {
+      "Name": "Ed Cess Cr Ut Goods and Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Cr Ut Input Goods": {
+      "Name": "Ed Cess Cr Ut Input Goods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Cr Ut Ltu": {
+      "Name": "Ed Cess Cr Ut Ltu",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Cr Ut Others": {
+      "Name": "Ed Cess Cr Ut Others",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Ed Cess Op Bal": {
+      "Name": "Ed Cess Op Bal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Edcess Arrears Cash": {
+      "Name": "Edcess Arrears Cash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Edcesscenvatutilizedforedcesspay": {
+      "Name": "Edcesscenvatutilizedforedcesspay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Edcesscenvatutilizedforotherpay": {
+      "Name": "Edcesscenvatutilizedforotherpay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Edcesscrinputsfromexcisepurc": {
+      "Name": "Edcesscrinputsfromexcisepurc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Exempted Goods": {
+      "Name": "Exempted Goods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Exempted Services": {
+      "Name": "Exempted Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Fromdate": {
+      "Name": "Fromdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Interest": {
+      "Name": "Interest",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Cr Distributed": {
+      "Name": "Isd Cr Distributed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Cr Input Services": {
+      "Name": "Isd Cr Input Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Cr Not Eligible": {
+      "Name": "Isd Cr Not Eligible",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Ed Cess Cr Distributed": {
+      "Name": "Isd Ed Cess Cr Distributed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Ed Cess Cr Input Services": {
+      "Name": "Isd Ed Cess Cr Input Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Ed Cess Cr Not Eligible": {
+      "Name": "Isd Ed Cess Cr Not Eligible",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Kkc Cr Distributed": {
+      "Name": "Isd Kkc Cr Distributed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Kkc Cr Input Services": {
+      "Name": "Isd Kkc Cr Input Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Kkc Cr Not Eligible": {
+      "Name": "Isd Kkc Cr Not Eligible",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Opbal Cenvat Cr": {
+      "Name": "Isd Opbal Cenvat Cr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Opbal Cenvat Ed Cess Cr": {
+      "Name": "Isd Opbal Cenvat Ed Cess Cr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Opbal Cenvat Kkc Cr": {
+      "Name": "Isd Opbal Cenvat Kkc Cr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Opbal Cenvat Sec Ed Cess Cr": {
+      "Name": "Isd Opbal Cenvat Sec Ed Cess Cr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Sed Cess Cr Distributed": {
+      "Name": "Isd Sed Cess Cr Distributed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Sed Cess Cr Input Services": {
+      "Name": "Isd Sed Cess Cr Input Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isd Sed Cess Cr Not Eligible": {
+      "Name": "Isd Sed Cess Cr Not Eligible",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isdcrreceived": {
+      "Name": "Isdcrreceived",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isdedcesscrreceived": {
+      "Name": "Isdedcesscrreceived",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isdkkccrreceived": {
+      "Name": "Isdkkccrreceived",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isdsedcesscrreceived": {
+      "Name": "Isdsedcesscrreceived",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkc Arrears Cenvat": {
+      "Name": "Kkc Arrears Cenvat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkc Cr Capital Goods": {
+      "Name": "Kkc Cr Capital Goods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkc Cr Inputs": {
+      "Name": "Kkc Cr Inputs",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkc Cr Ltu": {
+      "Name": "Kkc Cr Ltu",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkc Cr Services": {
+      "Name": "Kkc Cr Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkc Cr Ut Input Goods": {
+      "Name": "Kkc Cr Ut Input Goods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkc Op Bal": {
+      "Name": "Kkc Op Bal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkccenvatutilizedforkkcpay": {
+      "Name": "Kkccenvatutilizedforkkcpay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkccenvatutilizedforotherpay": {
+      "Name": "Kkccenvatutilizedforotherpay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkccr Utilized Excise": {
+      "Name": "Kkccr Utilized Excise",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Kkccrinputsfromexcisepurc": {
+      "Name": "Kkccrinputsfromexcisepurc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Late Fee": {
+      "Name": "Late Fee",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Other Amount Paid": {
+      "Name": "Other Amount Paid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Other Credit": {
+      "Name": "Other Credit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Other Ed Cess Cr": {
+      "Name": "Other Ed Cess Cr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Other Sed Cess Cr": {
+      "Name": "Other Sed Cess Cr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paid Service Tax Cash": {
+      "Name": "Paid Service Tax Cash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paided Bookadjustments": {
+      "Name": "Paided Bookadjustments",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paided Cash": {
+      "Name": "Paided Cash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paided Cenvat": {
+      "Name": "Paided Cenvat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paided Rule61": {
+      "Name": "Paided Rule61",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paided Rule63": {
+      "Name": "Paided Rule63",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paided Rule64a": {
+      "Name": "Paided Rule64a",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paided Rule64c": {
+      "Name": "Paided Rule64c",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidkkc Cenvat": {
+      "Name": "Paidkkc Cenvat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidkkc Rule61": {
+      "Name": "Paidkkc Rule61",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidkkc Rule63": {
+      "Name": "Paidkkc Rule63",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidkkc Rule64a": {
+      "Name": "Paidkkc Rule64a",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidkkc Rule64c": {
+      "Name": "Paidkkc Rule64c",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidkkcarrearscash": {
+      "Name": "Paidkkcarrearscash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidkkcbookadjustments": {
+      "Name": "Paidkkcbookadjustments",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidkkccash": {
+      "Name": "Paidkkccash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidkkcinterestcash": {
+      "Name": "Paidkkcinterestcash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidkkcpenaltycash": {
+      "Name": "Paidkkcpenaltycash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsbcarrearscash": {
+      "Name": "Paidsbcarrearscash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsbcbookadjustments": {
+      "Name": "Paidsbcbookadjustments",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsbccash": {
+      "Name": "Paidsbccash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsbcinterestcash": {
+      "Name": "Paidsbcinterestcash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsbcpenaltycash": {
+      "Name": "Paidsbcpenaltycash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsbcrule61": {
+      "Name": "Paidsbcrule61",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsbcrule63": {
+      "Name": "Paidsbcrule63",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsbcrule64a": {
+      "Name": "Paidsbcrule64a",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsbcrule64c": {
+      "Name": "Paidsbcrule64c",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsed Bookadjustments": {
+      "Name": "Paidsed Bookadjustments",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsed Cash": {
+      "Name": "Paidsed Cash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsed Cenvat": {
+      "Name": "Paidsed Cenvat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsed Rule61": {
+      "Name": "Paidsed Rule61",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsed Rule63": {
+      "Name": "Paidsed Rule63",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsed Rule64a": {
+      "Name": "Paidsed Rule64a",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidsed Rule64c": {
+      "Name": "Paidsed Rule64c",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidstbookadjustments": {
+      "Name": "Paidstbookadjustments",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidstcenvat": {
+      "Name": "Paidstcenvat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidstrule61": {
+      "Name": "Paidstrule61",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidstrule63": {
+      "Name": "Paidstrule63",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidstrule64a": {
+      "Name": "Paidstrule64a",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paidstrule64c": {
+      "Name": "Paidstrule64c",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Penalty": {
+      "Name": "Penalty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Arrears Cash": {
+      "Name": "Sed Cess Arrears Cash",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Arrears Cenvat": {
+      "Name": "Sed Cess Arrears Cenvat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Cr Capital Goods": {
+      "Name": "Sed Cess Cr Capital Goods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Cr Inputs": {
+      "Name": "Sed Cess Cr Inputs",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Cr Isd": {
+      "Name": "Sed Cess Cr Isd",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Cr Ltu": {
+      "Name": "Sed Cess Cr Ltu",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Cr Services": {
+      "Name": "Sed Cess Cr Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Cr Ut Goods and Services": {
+      "Name": "Sed Cess Cr Ut Goods and Services",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Cr Ut Input Goods": {
+      "Name": "Sed Cess Cr Ut Input Goods",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Cr Ut Ltu": {
+      "Name": "Sed Cess Cr Ut Ltu",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Cr Ut Others": {
+      "Name": "Sed Cess Cr Ut Others",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sed Cess Op Bal": {
+      "Name": "Sed Cess Op Bal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sedcesscenvatutilizedforotherpay": {
+      "Name": "Sedcesscenvatutilizedforotherpay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sedcesscenvatutilizedforsedcesspay": {
+      "Name": "Sedcesscenvatutilizedforsedcesspay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sedcesscrinputsfromexcisepurc": {
+      "Name": "Sedcesscrinputsfromexcisepurc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "St Op Bal": {
+      "Name": "St Op Bal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Stcenvatutilizedforedcesspay": {
+      "Name": "Stcenvatutilizedforedcesspay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Stcenvatutilizedforkkcpay": {
+      "Name": "Stcenvatutilizedforkkcpay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Stcenvatutilizedforotherpay": {
+      "Name": "Stcenvatutilizedforotherpay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Stcenvatutilizedforrule63pay": {
+      "Name": "Stcenvatutilizedforrule63pay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Stcenvatutilizedforsedcesspay": {
+      "Name": "Stcenvatutilizedforsedcesspay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Stcenvatutilizedforservtaxpay": {
+      "Name": "Stcenvatutilizedforservtaxpay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Stkkccenvatutilizedforrule63pay": {
+      "Name": "Stkkccenvatutilizedforrule63pay",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Todate": {
+      "Name": "Todate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Service Tax Payment Details"
+}

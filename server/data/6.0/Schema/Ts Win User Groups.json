@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Ts Name": {
+      "Name": "Ts Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Ts User Groups": {
+      "Name": "Ts User Groups",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Ts Win User Group"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Ts User Groups": "Ts Win User Group"
+  },
+  "Name": "Ts Win User Groups"
+}

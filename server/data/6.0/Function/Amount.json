@@ -1,0 +1,365 @@
+{
+  "AmountAdd": {
+    "Description": "This function adds the two amount values passed as parameters.",
+    "Parameters": [
+      {
+        "Description": "This function adds the two amount values passed as parameters.",
+        "Parameter Type": "Value",
+        "Datatype": "Amount",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This function adds the two amount values passed as parameters.",
+        "Parameter Type": "Value",
+        "Datatype": "Amount",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "Amount"
+    },
+    "Name": "AmountAdd"
+  },
+  "AmountSubtract": {
+    "Description": "This function subtracts the second amount value from the first amount value which are passed as parameters.",
+    "Parameters": [
+      {
+        "Description": "This function subtracts the second amount value from the first amount value which are passed as parameters.",
+        "Parameter Type": "Value",
+        "Datatype": "Amount",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This function subtracts the second amount value from the first amount value which are passed as parameters.",
+        "Parameter Type": "Value",
+        "Datatype": "Amount",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "Amount"
+    },
+    "Name": "AmountSubtract"
+  },
+  "AsAmount": {
+    "Description": "Thist function is used to convert data types of the value from one form to amount type. This function states the calculated value as an Amount.",
+    "Parameters": [
+      {
+        "Description": "Thist function is used to convert data types of the value from one form to amount type. This function states the calculated value as an Amount.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "Amount"
+    },
+    "Name": "AsAmount"
+  },
+  "AsCrAmt": {
+    "Description": "This function is used to set the amount passed as credit amount.",
+    "Parameters": [
+      {
+        "Description": "This function is used to set the amount passed as credit amount.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client"
+    },
+    "Name": "AsCrAmt"
+  },
+  "AsDrAmt": {
+    "Description": "This function is used to set the amount passed as debit amount.",
+    "Parameters": [
+      {
+        "Description": "This function is used to set the amount passed as debit amount.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client"
+    },
+    "Name": "AsDrAmt"
+  },
+  "BaseValue": {
+    "Description": "This function provides the Value in the specified Base Currency. This function accepts a parameter of type Amount and returns the value in specified Base Currency.",
+    "Parameters": [
+      {
+        "Description": "This function provides the Value in the specified Base Currency. This function accepts a parameter of type Amount and returns the value in specified Base Currency.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client"
+    },
+    "Name": "BaseValue"
+  },
+  "Currency": {
+    "Description": "This function displays the Currency of a Particular Ledger by accepting a Parameter of type Amount.",
+    "Parameters": [
+      {
+        "Description": "This function displays the Currency of a Particular Ledger by accepting a Parameter of type Amount.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client"
+    },
+    "Name": "Currency"
+  },
+  "ForexValue": {
+    "Description": "This function converts the Currency value from one form to another. The function $$ForexValue is used to convert the currency value which is supplied as parameter to Forex value. It accepts a single parameter and returns value of type Amount.",
+    "Parameters": [
+      {
+        "Description": "This function converts the Currency value from one form to another. The function $$ForexValue is used to convert the currency value which is supplied as parameter to Forex value. It accepts a single parameter and returns value of type Amount.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client"
+    },
+    "Name": "ForexValue"
+  },
+  "InDigits": {
+    "Description": "This function converts the supplied Amount to digit in words.",
+    "Parameters": [
+      {
+        "Description": "This function converts the supplied Amount to digit in words.",
+        "Parameter Type": "Value",
+        "Datatype": "Amount",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This function converts the supplied Amount to digit in words.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "InDigits"
+  },
+  "IsBaseCurrency": {
+    "Description": "This function is used to check if the currency stated is the Currency of the current object.",
+    "Parameters": [
+      {
+        "Description": "This function is used to check if the currency stated is the Currency of the current object.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsBaseCurrency"
+  },
+  "IsDebit": {
+    "Description": "This function is used to check if the amount is a Debit amount.",
+    "Parameters": [
+      {
+        "Description": "This function is used to check if the amount is a Debit amount.",
+        "Parameter Type": "Value",
+        "Datatype": "Amount",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsDebit"
+  },
+  "IsDr": {
+    "Description": "This function is used to check if the amount is a Debit amount.",
+    "Parameters": [
+      {
+        "Description": "This function is used to check if the amount is a Debit amount.",
+        "Parameter Type": "Value",
+        "Datatype": "Amount",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsDr"
+  },
+  "IsForexDr": {
+    "Description": "This function is used to check if the Forex amount is a Debit amount.",
+    "Parameters": [
+      {
+        "Description": "This function is used to check if the Forex amount is a Debit amount.",
+        "Parameter Type": "Value",
+        "Datatype": "Amount",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsForexDr"
+  },
+  "NettAmount": {
+    "Description": "This function is used to give the Nett Amount of two parameters.",
+    "Parameters": [
+      {
+        "Description": "This function is used to give the Nett Amount of two parameters.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This function is used to give the Nett Amount of two parameters.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "Amount"
+    },
+    "Name": "NettAmount"
+  },
+  "RateXValue": {
+    "Description": "This function accepts Amount and converts it to RateX value.",
+    "Parameters": [
+      {
+        "Description": "This function accepts Amount and converts it to RateX value.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "Rate of Exchange"
+    },
+    "Name": "RateXValue"
+  },
+  "SignedAmount": {
+    "Description": "This function is used to give a minus sign before a value if it is a negative value.If the value is positive then it will leave that place otherwise put a minus sign.",
+    "Parameters": [
+      {
+        "Description": "This function is used to give a minus sign before a value if it is a negative value.If the value is positive then it will leave that place otherwise put a minus sign.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This function is used to give a minus sign before a value if it is a negative value.If the value is positive then it will leave that place otherwise put a minus sign.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Amount",
+      "Execution Mode": "Client"
+    },
+    "Name": "SignedAmount"
+  },
+  "WithForexRate": {
+    "Description": "If the amount has the same forex as the RateX then amount will be set as per the new RateX specified. Here Parameter type \u201CRateX\u201D accepts Amount and it will be converted into RateX using function \u0027$$RateXValue\u0027.",
+    "Parameters": [
+      {
+        "Description": "If the amount has the same forex as the RateX then amount will be set as per the new RateX specified. Here Parameter type \u201CRateX\u201D accepts Amount and it will be converted into RateX using function \u0027$$RateXValue\u0027.",
+        "Parameter Type": "Value",
+        "Datatype": "Amount",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "If the amount has the same forex as the RateX then amount will be set as per the new RateX specified. Here Parameter type \u201CRateX\u201D accepts Amount and it will be converted into RateX using function \u0027$$RateXValue\u0027.",
+        "Parameter Type": "Value",
+        "Datatype": "Rate of Exchange",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Amount",
+      "Execution Mode": "Client",
+      "Return Type": "Amount"
+    },
+    "Name": "WithForexRate"
+  }
+}

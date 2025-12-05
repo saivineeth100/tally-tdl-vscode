@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Componentbasicqty": {
+      "Name": "Componentbasicqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Componentlistname": {
+      "Name": "Componentlistname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Multicomponentitemlist": {
+      "Name": "Multicomponentitemlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Multicomponentitemlist"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Multicomponentitemlist": "Multicomponentitemlist"
+  },
+  "Name": "Multicomponentlist"
+}

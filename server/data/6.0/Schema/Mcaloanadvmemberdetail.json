@@ -1,0 +1,73 @@
+{
+  "Properties": {
+    "Loanadvdetailid": {
+      "Name": "Loanadvdetailid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Loanadvdetailnote": {
+      "Name": "Loanadvdetailnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Loanadvltdoubtful Value": {
+      "Name": "Loanadvltdoubtful Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Loanadvltsecured Value": {
+      "Name": "Loanadvltsecured Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Loanadvltunsecured Value": {
+      "Name": "Loanadvltunsecured Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Loanadvstdoubtful Value": {
+      "Name": "Loanadvstdoubtful Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Loanadvstsecured Value": {
+      "Name": "Loanadvstsecured Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Loanadvstunsecured Value": {
+      "Name": "Loanadvstunsecured Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Mcaloanadvmemberdetail"
+}

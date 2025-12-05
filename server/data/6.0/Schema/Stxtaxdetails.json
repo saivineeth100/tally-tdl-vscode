@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Stxcategoryname": {
+      "Name": "Stxcategoryname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Stxtaxperiod": {
+      "Name": "Stxtaxperiod",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Stxtaxperiod"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Stxtaxperiod": "Stxtaxperiod"
+  },
+  "Name": "Stxtaxdetails"
+}

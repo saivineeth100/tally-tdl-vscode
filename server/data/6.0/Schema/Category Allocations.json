@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Category": {
+      "Name": "Category",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Cost Centre Allocations": {
+      "Name": "Cost Centre Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Cost Center Allocations"
+      }
+    },
+    "Is Deemed Positive": {
+      "Name": "Is Deemed Positive",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Cost Centre Allocations": "Cost Center Allocations"
+  },
+  "Name": "Category Allocations"
+}

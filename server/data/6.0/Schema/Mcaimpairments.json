@@ -1,0 +1,65 @@
+{
+  "Properties": {
+    "Classname": {
+      "Name": "Classname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Impairmentloss Value": {
+      "Name": "Impairmentloss Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Impairmentlossreval Value": {
+      "Name": "Impairmentlossreval Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Lineitem Note": {
+      "Name": "Lineitem Note",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Revimpairmentloss Value": {
+      "Name": "Revimpairmentloss Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Revimpairmentlossreval Value": {
+      "Name": "Revimpairmentlossreval Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Revlineitem Note": {
+      "Name": "Revlineitem Note",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Mcaimpairments"
+}

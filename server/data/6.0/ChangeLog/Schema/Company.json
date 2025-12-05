@@ -1,0 +1,89 @@
+{
+  "HasChanges": true,
+  "NameChanged": false,
+  "OldName": null,
+  "NewName": null,
+  "AddedProperties": {
+    "Documentkey": {
+      "Name": "Documentkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Hsnsummarydetails": {
+      "Name": "Hsnsummarydetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Hsnsummarydetails"
+      }
+    },
+    "Prevbasemajorversion": {
+      "Name": "Prevbasemajorversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Prevdatalogicalversion": {
+      "Name": "Prevdatalogicalversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Prevdataminorlogicalversion": {
+      "Name": "Prevdataminorlogicalversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Prevdataversion": {
+      "Name": "Prevdataversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Prevmajorversion": {
+      "Name": "Prevmajorversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Prevminorversion": {
+      "Name": "Prevminorversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Prevusedbyprodid": {
+      "Name": "Prevusedbyprodid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "DeletedProperties": {},
+  "ModifiedProperties": {},
+  "AddedMeta": {},
+  "DeletedMeta": {},
+  "ModifiedMeta": {},
+  "AddedComplexProperties": {
+    "Hsnsummarydetails": "Hsnsummarydetails"
+  },
+  "DeletedComplexProperties": {},
+  "ModifiedComplexProperties": {}
+}

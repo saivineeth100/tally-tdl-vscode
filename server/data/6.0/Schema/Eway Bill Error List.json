@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Exch Err Code": {
+      "Name": "Exch Err Code",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Exch Err Msg": {
+      "Name": "Exch Err Msg",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Eway Bill Error List"
+}

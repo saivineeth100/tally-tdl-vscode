@@ -1,0 +1,49 @@
+{
+  "Properties": {
+    "Sumvch Taxamount": {
+      "Name": "Sumvch Taxamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Taxnature": {
+      "Name": "Sumvch Taxnature",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Taxpaidoncommoninput": {
+      "Name": "Sumvch Taxpaidoncommoninput",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Taxpaidonspecificinput": {
+      "Name": "Sumvch Taxpaidonspecificinput",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Taxrate": {
+      "Name": "Sumvch Taxrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Vatitcdetails"
+}

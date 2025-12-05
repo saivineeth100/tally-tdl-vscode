@@ -1,0 +1,41 @@
+{
+  "Properties": {
+    "Sumvch Grossweight": {
+      "Name": "Sumvch Grossweight",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Marks": {
+      "Name": "Sumvch Marks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Netweight": {
+      "Name": "Sumvch Netweight",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Packages": {
+      "Name": "Sumvch Packages",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Invoiceexportlist"
+}

@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Payinsfielddescription": {
+      "Name": "Payinsfielddescription",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Payinsfielddescription"
+      }
+    },
+    "Payinslinefieldcount": {
+      "Name": "Payinslinefieldcount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Payinslinename": {
+      "Name": "Payinslinename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Payinsfielddescription": "Payinsfielddescription"
+  },
+  "Name": "Payinslinedescription"
+}

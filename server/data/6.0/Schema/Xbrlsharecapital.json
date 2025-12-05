@@ -1,0 +1,121 @@
+{
+  "Properties": {
+    "Naturecurryear": {
+      "Name": "Naturecurryear",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Nomvalauthsharecy": {
+      "Name": "Nomvalauthsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Nomvalissuedsharecy": {
+      "Name": "Nomvalissuedsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Nomvalpaidupsharecy": {
+      "Name": "Nomvalpaidupsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Nomvalsubssharecy": {
+      "Name": "Nomvalsubssharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofauthsharecy": {
+      "Name": "Noofauthsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Noofissuedsharecy": {
+      "Name": "Noofissuedsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Numberofsubsharecy": {
+      "Name": "Numberofsubsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Numofpaidupsharecy": {
+      "Name": "Numofpaidupsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Typecurryear": {
+      "Name": "Typecurryear",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Valofpaidupsharecy": {
+      "Name": "Valofpaidupsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Valueofauthsharecy": {
+      "Name": "Valueofauthsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Valueofissuedsharecy": {
+      "Name": "Valueofissuedsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Valueofsubsharecy": {
+      "Name": "Valueofsubsharecy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Xbrlsharecapital"
+}

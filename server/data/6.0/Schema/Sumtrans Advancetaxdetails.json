@@ -1,0 +1,122 @@
+{
+  "Properties": {
+    "Sumvch Advanceamount": {
+      "Name": "Sumvch Advanceamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Amount": {
+      "Name": "Sumvch Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Assessablevalue": {
+      "Name": "Sumvch Assessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Hsncode": {
+      "Name": "Sumvch Hsncode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Isreversechargeapplicable": {
+      "Name": "Sumvch Isreversechargeapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Itemquantity": {
+      "Name": "Sumvch Itemquantity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Itemrate": {
+      "Name": "Sumvch Itemrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Ledger Name": {
+      "Name": "Sumvch Ledger Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Stockitemname": {
+      "Name": "Sumvch Stockitemname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Strd Isgst Applicable": {
+      "Name": "Sumvch Strd Isgst Applicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Strdgstderivedtaxability": {
+      "Name": "Sumvch Strdgstderivedtaxability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Tax Details": {
+      "Name": "Sumvch Tax Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Tax Details"
+      }
+    },
+    "Sumvch Taxrate": {
+      "Name": "Sumvch Taxrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Taxvalue": {
+      "Name": "Sumvch Taxvalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Tax Details": "Sumtrans Tax Details"
+  },
+  "Name": "Sumtrans Advancetaxdetails"
+}

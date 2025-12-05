@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Amalgamationdetail": {
+      "Name": "Amalgamationdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Amalgamationdetail"
+      }
+    },
+    "Disclosure": {
+      "Name": "Disclosure",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Disclosurehtml": {
+      "Name": "Disclosurehtml",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Amalgamationdetail": "Amalgamationdetail"
+  },
+  "Name": "Xbrl Amalgamation"
+}

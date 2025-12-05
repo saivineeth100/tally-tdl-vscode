@@ -1,0 +1,23 @@
+{
+  "added": [
+    "All Banking Option SubMenu",
+    "All GST Options SubMenu",
+    "All Sync Option SubMenu",
+    "Disable Banking Statemet Config",
+    "ePymt GetBalance SubMenu",
+    "ePymt Ledger Send Payments",
+    "GetBalance Disable AllBankingOps SubMenu",
+    "GST ListofExchangeReturns SubMenu",
+    "GSTR1 Returns AllGSTOps SubMenu",
+    "GSTR3B Returns AllGSTOps SubMenu",
+    "GSTRCMP08 Returns AllGSTOps SubMenu",
+    "GSTR Filing AllGSTOps SubMenu",
+    "Inactive EInvoice GST SubMenu",
+    "Inactive Ewaybill GST SubMenu",
+    "Inactive SendPayments AllBanking Submenu",
+    "TallyConnectBankingMenuCurrentLedger"
+  ],
+  "deleted": [
+    "TallyConnectBankingMenu"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "Properties": {
+    "Bsrcode": {
+      "Name": "Bsrcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Category": {
+      "Name": "Category",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Challandate": {
+      "Name": "Challandate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Challanno": {
+      "Name": "Challanno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Deducteedetails": {
+      "Name": "Deducteedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Deducteedetails"
+      }
+    },
+    "Interest": {
+      "Name": "Interest",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Otheramt": {
+      "Name": "Otheramt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Section": {
+      "Name": "Section",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Taxpaymenttype": {
+      "Name": "Taxpaymenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Deducteedetails": "Deducteedetails"
+  },
+  "Name": "Challandetails"
+}

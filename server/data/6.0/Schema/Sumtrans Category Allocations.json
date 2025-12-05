@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Sumvch Category": {
+      "Name": "Sumvch Category",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Cost Centre Allocations": {
+      "Name": "Sumvch Cost Centre Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Cost Center Allocations"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Cost Centre Allocations": "Sumtrans Cost Center Allocations"
+  },
+  "Name": "Sumtrans Category Allocations"
+}

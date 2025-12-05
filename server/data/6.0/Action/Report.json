@@ -1,0 +1,299 @@
+{
+  "Autoform Report": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Autoform Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Edit"
+    },
+    "Name": "Autoform Report"
+  },
+  "End Report": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "End Report"
+  },
+  "Export Report": {
+    "Description": "This Action initiates the export for the current Report.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Export Report",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Export Report"
+  },
+  "HTTP Post": {
+    "Description": "HTTP Post Action can be used to submit data to a server over HTTP and gather the response. This will enable a TDL Report to perform a HTTP Post to a remote location.",
+    "Parameters": [
+      {
+        "Parameter Type": "ExpressionEx",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Keyword",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Encoding",
+        "Keywords": "ASCII, Unicode, Unicode8, UTF16, UTF8",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "HTTP Post",
+      "Total Parameters": "5",
+      "Total Mandatory Parameters": "3",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "HTTP Post"
+  },
+  "Mail Report": {
+    "Description": "This Action initiates the mailing for the current Report.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Mail Report",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Mail Report"
+  },
+  "Next Report": {
+    "Description": "This action is used to display the next report (Used with Cyclic Actions such as Display Collection/Alter Collection to display Previous Object).",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Next Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Next Report"
+  },
+  "Next Tile Report In Focus": {
+    "Description": "This action displays the next tile report within the Dashboard, while in the Expand or Focus view of a tile report.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Next Tile Report In Focus",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Next Tile Report In Focus"
+  },
+  "Prev Report": {
+    "Description": "This action is used to display the previous report (Used with Cyclic Actions such as Display Collection/Alter Collection to display Previous Object).",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Prev Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Prev Report"
+  },
+  "Prev Tile Report In Focus": {
+    "Description": "This action displays the previous tile report within the Dashboard, while in the Expand or Focus view of a tile report.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Prev Tile Report In Focus",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Prev Tile Report In Focus"
+  },
+  "Print Report": {
+    "Description": "This Action initiates the print for the current Report.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print Report",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Print Report"
+  },
+  "Replace Report": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Replace Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Edit"
+    },
+    "Name": "Replace Report"
+  },
+  "Upload Report": {
+    "Description": "This Action initiates the upload for the current Report.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Upload Report",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Upload Report"
+  },
+  "WhatsApp Report": {
+    "Description": "This action initiates the sharing of the current Report via WhatsApp.",
+    "Parameters": [
+      {
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "WhatsApp Report",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "WhatsApp Report"
+  },
+  "Zoom Report": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Zoom Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Zoom Report"
+  }
+}

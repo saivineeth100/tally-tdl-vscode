@@ -1,0 +1,178 @@
+{
+  "Properties": {
+    "Ispayinsshownegbillsep": {
+      "Name": "Ispayinsshownegbillsep",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ispayinsshowtotformulbill": {
+      "Name": "Ispayinsshowtotformulbill",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Payinsbaserepeated": {
+      "Name": "Payinsbaserepeated",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsbillseparator": {
+      "Name": "Payinsbillseparator",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsconditions": {
+      "Name": "Payinsconditions",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Payinsconditions"
+      }
+    },
+    "Payinsconfigsrno": {
+      "Name": "Payinsconfigsrno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Payinsconfigusedfor": {
+      "Name": "Payinsconfigusedfor",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsconfigversion": {
+      "Name": "Payinsconfigversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Payinscontent": {
+      "Name": "Payinscontent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsdelimeter": {
+      "Name": "Payinsdelimeter",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsexplodecontent": {
+      "Name": "Payinsexplodecontent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsexploderepeat": {
+      "Name": "Payinsexploderepeat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsexploderepeatcontract": {
+      "Name": "Payinsexploderepeatcontract",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsfileextension": {
+      "Name": "Payinsfileextension",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsfileformat": {
+      "Name": "Payinsfileformat",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsfilename": {
+      "Name": "Payinsfilename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinslinedescription": {
+      "Name": "Payinslinedescription",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Payinslinedescription"
+      }
+    },
+    "Payinspresuf": {
+      "Name": "Payinspresuf",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinspresufstr": {
+      "Name": "Payinspresufstr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Payinsremspace": {
+      "Name": "Payinsremspace",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Payinssplcharslist": {
+      "Name": "Payinssplcharslist",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Payinsconditions": "Payinsconditions",
+    "Payinslinedescription": "Payinslinedescription"
+  },
+  "Name": "Led Payinsconfigs"
+}

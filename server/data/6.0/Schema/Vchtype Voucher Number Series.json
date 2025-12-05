@@ -1,0 +1,122 @@
+{
+  "Properties": {
+    "Beginning Number": {
+      "Name": "Beginning Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Duplicatecontrol": {
+      "Name": "Duplicatecontrol",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Number Change Impact": {
+      "Name": "Number Change Impact",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Numbering Method": {
+      "Name": "Numbering Method",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Numbering Submethod": {
+      "Name": "Numbering Submethod",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Prefill Zero": {
+      "Name": "Prefill Zero",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Prefix List": {
+      "Name": "Prefix List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Prefix Suffix List"
+      }
+    },
+    "Prevent Duplicates": {
+      "Name": "Prevent Duplicates",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Prevmasterid": {
+      "Name": "Prevmasterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Restart From List": {
+      "Name": "Restart From List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Restart From List"
+      }
+    },
+    "Suffix List": {
+      "Name": "Suffix List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Prefix Suffix List"
+      }
+    },
+    "Use Deleted Vchnum": {
+      "Name": "Use Deleted Vchnum",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Width Of Number": {
+      "Name": "Width Of Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Prefix List": "Prefix Suffix List",
+    "Restart From List": "Restart From List",
+    "Suffix List": "Prefix Suffix List"
+  },
+  "Name": "Vchtype Voucher Number Series"
+}

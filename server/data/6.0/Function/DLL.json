@@ -1,0 +1,32 @@
+{
+  "CallDllFunction": {
+    "Description": "This function is used to call the external DLL containing multiple functions. It searches for a particular function in DLL and returns its pointer.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Parameter Type": "ExpressionEx",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "2",
+      "Category": "DLL",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "CallDllFunction"
+  }
+}

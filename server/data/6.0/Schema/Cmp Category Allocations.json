@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Category": {
+      "Name": "Category",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Cost Centre Allocations": {
+      "Name": "Cost Centre Allocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Cmp Cost Centre Allocations"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Cost Centre Allocations": "Cmp Cost Centre Allocations"
+  },
+  "Name": "Cmp Category Allocations"
+}

@@ -1,0 +1,65 @@
+{
+  "Properties": {
+    "Sumvch Oldtraderdutytypes": {
+      "Name": "Sumvch Oldtraderdutytypes",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Rateofduty": {
+      "Name": "Sumvch Rateofduty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Rateperunit": {
+      "Name": "Sumvch Rateperunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Traderdutyamount": {
+      "Name": "Sumvch Traderdutyamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Traderdutytypes": {
+      "Name": "Sumvch Traderdutytypes",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Tradermfgrdutyamount": {
+      "Name": "Sumvch Tradermfgrdutyamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Traderrateofduty": {
+      "Name": "Sumvch Traderrateofduty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Excise Duty Allocations"
+}

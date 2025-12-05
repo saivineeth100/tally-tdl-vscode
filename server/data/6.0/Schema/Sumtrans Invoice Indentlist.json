@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Sumvch Indent No": {
+      "Name": "Sumvch Indent No",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Indentduedate": {
+      "Name": "Sumvch Indentduedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Invoice Indentlist"
+}

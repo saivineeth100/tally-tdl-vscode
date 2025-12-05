@@ -1,0 +1,35 @@
+{
+  "Properties": {
+    "Aggrstring": {
+      "Name": "Aggrstring",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Aggrvalueinfo": {
+      "Name": "Aggrvalueinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Disk Aggregate Value",
+        "Schema Missing": "Yes"
+      }
+    },
+    "Valuebybasis": {
+      "Name": "Valuebybasis",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Aggregate Value Details"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Aggrvalueinfo": "Disk Aggregate Value",
+    "Valuebybasis": "Aggregate Value Details"
+  },
+  "Name": "Aggregate Value"
+}

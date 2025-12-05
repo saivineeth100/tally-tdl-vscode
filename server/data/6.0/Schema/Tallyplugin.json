@@ -1,0 +1,106 @@
+{
+  "Properties": {
+    "Tallyplugin Authorname": {
+      "Name": "Tallyplugin Authorname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tallyplugin Description": {
+      "Name": "Tallyplugin Description",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tallyplugin Display Date": {
+      "Name": "Tallyplugin Display Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tallyplugin Error": {
+      "Name": "Tallyplugin Error",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tallyplugin Guid": {
+      "Name": "Tallyplugin Guid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tallyplugin Has Errors": {
+      "Name": "Tallyplugin Has Errors",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tallyplugin Isloaded": {
+      "Name": "Tallyplugin Isloaded",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Tallyplugin Key": {
+      "Name": "Tallyplugin Key",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Tallyplugin Name": {
+      "Name": "Tallyplugin Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tallyplugin Url": {
+      "Name": "Tallyplugin Url",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tallyplugin Version": {
+      "Name": "Tallyplugin Version",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Tallypluginerrorinsupportingfile": {
+      "Name": "Tallypluginerrorinsupportingfile",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Aliases": "TallyPlugins",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {},
+  "Name": "Tallyplugin"
+}

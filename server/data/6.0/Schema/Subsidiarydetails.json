@@ -1,0 +1,346 @@
+{
+  "Properties": {
+    "Aggramtacccy": {
+      "Name": "Aggramtacccy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Aggramtaccpy": {
+      "Name": "Aggramtaccpy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Aggramtnotacccy": {
+      "Name": "Aggramtnotacccy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Aggramtnotaccpy": {
+      "Name": "Aggramtnotaccpy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Aggramtofplpy": {
+      "Name": "Aggramtofplpy",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Assetsliabdetails": {
+      "Name": "Assetsliabdetails",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Becsubdate": {
+      "Name": "Becsubdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Ceasingdate": {
+      "Name": "Ceasingdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Cin": {
+      "Name": "Cin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Country": {
+      "Name": "Country",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Detaggramtdealtparcmp": {
+      "Name": "Detaggramtdealtparcmp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Detaggramtnotparcmp": {
+      "Name": "Detaggramtnotparcmp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Enddate": {
+      "Name": "Enddate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Exchangerate": {
+      "Name": "Exchangerate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Facevalueofshares": {
+      "Name": "Facevalueofshares",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Finyrcoifinyrholdingcmp": {
+      "Name": "Finyrcoifinyrholdingcmp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Interestsdetails": {
+      "Name": "Interestsdetails",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Investment": {
+      "Name": "Investment",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Isfiledbs": {
+      "Name": "Isfiledbs",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Jointlycontroassets": {
+      "Name": "Jointlycontroassets",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Natureofrelation": {
+      "Name": "Natureofrelation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Noofsharesheld": {
+      "Name": "Noofsharesheld",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Paidupvalueshares": {
+      "Name": "Paidupvalueshares",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Percentageshares": {
+      "Name": "Percentageshares",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Profitaftertax": {
+      "Name": "Profitaftertax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Profitbeforetax": {
+      "Name": "Profitbeforetax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Proposeddividend": {
+      "Name": "Proposeddividend",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Provisionfortax": {
+      "Name": "Provisionfortax",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Reasonfornofiling": {
+      "Name": "Reasonfornofiling",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Reservesandsurplus": {
+      "Name": "Reservesandsurplus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Section": {
+      "Name": "Section",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sharecapital": {
+      "Name": "Sharecapital",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Srn": {
+      "Name": "Srn",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Startdate": {
+      "Name": "Startdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Subsidiarycurrency": {
+      "Name": "Subsidiarycurrency",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Totalassets": {
+      "Name": "Totalassets",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Totalincome": {
+      "Name": "Totalincome",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Totalliabilities": {
+      "Name": "Totalliabilities",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Votingproportion": {
+      "Name": "Votingproportion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Xbrlguarenteebycmpdet": {
+      "Name": "Xbrlguarenteebycmpdet",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Firmdetails"
+      }
+    },
+    "Xbrlguarenteebysubdet": {
+      "Name": "Xbrlguarenteebysubdet",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Firmdetails"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Xbrlguarenteebycmpdet": "Firmdetails",
+    "Xbrlguarenteebysubdet": "Firmdetails"
+  },
+  "Name": "Subsidiarydetails"
+}

@@ -1,0 +1,354 @@
+{
+  "Properties": {
+    "Bill Date": {
+      "Name": "Bill Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Bill Number": {
+      "Name": "Bill Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Bill Status": {
+      "Name": "Bill Status",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Cancel Code": {
+      "Name": "Cancel Code",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Cancel Reason": {
+      "Name": "Cancel Reason",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Canceldate": {
+      "Name": "Canceldate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Consignee Address": {
+      "Name": "Consignee Address",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Consignee Address Type": {
+      "Name": "Consignee Address Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consignee Name": {
+      "Name": "Consignee Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consignee Place": {
+      "Name": "Consignee Place",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consigneegstin": {
+      "Name": "Consigneegstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consigneepincode": {
+      "Name": "Consigneepincode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consigneestatename": {
+      "Name": "Consigneestatename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consignor Address": {
+      "Name": "Consignor Address",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Consignor Address Type": {
+      "Name": "Consignor Address Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consignor Gstin": {
+      "Name": "Consignor Gstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consignor Name": {
+      "Name": "Consignor Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consignor Pincode": {
+      "Name": "Consignor Pincode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consignor Place": {
+      "Name": "Consignor Place",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consignor Statename": {
+      "Name": "Consignor Statename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consolidated Bill Date": {
+      "Name": "Consolidated Bill Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Consolidated Bill Number": {
+      "Name": "Consolidated Bill Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Documenttype": {
+      "Name": "Documenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Extension Details": {
+      "Name": "Extension Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Eway Extension Details"
+      }
+    },
+    "Generatedon": {
+      "Name": "Generatedon",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Ignore Generation Validation": {
+      "Name": "Ignore Generation Validation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignoregstinvalidation": {
+      "Name": "Ignoregstinvalidation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Intrastate Applicability": {
+      "Name": "Intrastate Applicability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Irpsource": {
+      "Name": "Irpsource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Is Cancelled": {
+      "Name": "Is Cancelled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Exported For Generation": {
+      "Name": "Is Exported For Generation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Iscancelpending": {
+      "Name": "Iscancelpending",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Multivehicle Details": {
+      "Name": "Multivehicle Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Multivehicle Details"
+      }
+    },
+    "Shippedfromstate": {
+      "Name": "Shippedfromstate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Shippedtostate": {
+      "Name": "Shippedtostate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "State Wise Threshold": {
+      "Name": "State Wise Threshold",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "State Wise Threshold"
+      }
+    },
+    "Subtype": {
+      "Name": "Subtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Threshold Limit": {
+      "Name": "Threshold Limit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Threshold Limit Includes": {
+      "Name": "Threshold Limit Includes",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Transport Details": {
+      "Name": "Transport Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Transporter Details"
+      }
+    },
+    "Updateddate": {
+      "Name": "Updateddate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Validity": {
+      "Name": "Validity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Validupto": {
+      "Name": "Validupto",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Extension Details": "Eway Extension Details",
+    "Multivehicle Details": "Multivehicle Details",
+    "State Wise Threshold": "State Wise Threshold",
+    "Transport Details": "Transporter Details"
+  },
+  "Name": "Ewaybill Details"
+}

@@ -1,0 +1,67 @@
+{
+  "Properties": {
+    "Can Delete": {
+      "Name": "Can Delete",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Errinfo": {
+      "Name": "Errinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Error Info"
+      }
+    },
+    "Errkey": {
+      "Name": "Errkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Language Name": {
+      "Name": "Language Name",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Language Name"
+      }
+    },
+    "Masterid": {
+      "Name": "Masterid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Name": {
+      "Name": "Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Noteperiod": {
+      "Name": "Noteperiod",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Noteperiod"
+      }
+    }
+  },
+  "Meta": {
+    "SDF Id": "CN",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Errinfo": "Error Info",
+    "Language Name": "Language Name",
+    "Noteperiod": "Noteperiod"
+  },
+  "Name": "Cmpnote"
+}

@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Directordetail": {
+      "Name": "Directordetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Directordetail"
+      }
+    },
+    "Pan": {
+      "Name": "Pan",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Secretaryname": {
+      "Name": "Secretaryname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Signdate": {
+      "Name": "Signdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Directordetail": "Directordetail"
+  },
+  "Name": "Signatoriesofbs"
+}

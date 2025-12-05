@@ -1,0 +1,249 @@
+{
+  "Properties": {
+    "Vchgststatusisapplicable": {
+      "Name": "Vchgststatusisapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisbranchtransferout": {
+      "Name": "Vchgststatusisbranchtransferout",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisexcluded": {
+      "Name": "Vchgststatusisexcluded",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisgstr2bindiffperiod": {
+      "Name": "Vchgststatusisgstr2bindiffperiod",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisgstr2bmismatch": {
+      "Name": "Vchgststatusisgstr2bmismatch",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisgstr2bonlyinbooks": {
+      "Name": "Vchgststatusisgstr2bonlyinbooks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisgstr2bonlyinportal": {
+      "Name": "Vchgststatusisgstr2bonlyinportal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisgstr2breconciled": {
+      "Name": "Vchgststatusisgstr2breconciled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisincluded": {
+      "Name": "Vchgststatusisincluded",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisoptionaluncertain": {
+      "Name": "Vchgststatusisoptionaluncertain",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisoverrdn": {
+      "Name": "Vchgststatusisoverrdn",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisreteffdateoverrdn": {
+      "Name": "Vchgststatusisreteffdateoverrdn",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisretindiffdate": {
+      "Name": "Vchgststatusisretindiffdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisstatindiffdate": {
+      "Name": "Vchgststatusisstatindiffdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusissystemsummary": {
+      "Name": "Vchgststatusissystemsummary",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusisuncertain": {
+      "Name": "Vchgststatusisuncertain",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchgststatusmainsectionexcluded": {
+      "Name": "Vchgststatusmainsectionexcluded",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchstatusdate": {
+      "Name": "Vchstatusdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Vchstatusdummylong": {
+      "Name": "Vchstatusdummylong",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Vchstatusiscancelled": {
+      "Name": "Vchstatusiscancelled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchstatusisdeleted": {
+      "Name": "Vchstatusisdeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchstatusisfetchedonly": {
+      "Name": "Vchstatusisfetchedonly",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchstatusisopeningbalance": {
+      "Name": "Vchstatusisopeningbalance",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchstatusisoptional": {
+      "Name": "Vchstatusisoptional",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchstatusisreacceptforhsndone": {
+      "Name": "Vchstatusisreacceptforhsndone",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchstatusisunregisteredrcm": {
+      "Name": "Vchstatusisunregisteredrcm",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchstatusisvchnumused": {
+      "Name": "Vchstatusisvchnumused",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Vchstatustaxadjustment": {
+      "Name": "Vchstatustaxadjustment",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Vchstatustaxunit": {
+      "Name": "Vchstatustaxunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Vchstatusvouchertype": {
+      "Name": "Vchstatusvouchertype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {},
+  "Name": "Vchstatus"
+}

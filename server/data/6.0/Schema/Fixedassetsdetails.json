@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Elementname": {
+      "Name": "Elementname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Revaluation Details": {
+      "Name": "Revaluation Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Revaluation Details"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Revaluation Details": "Revaluation Details"
+  },
+  "Name": "Fixedassetsdetails"
+}

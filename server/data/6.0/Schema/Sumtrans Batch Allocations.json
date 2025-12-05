@@ -1,0 +1,323 @@
+{
+  "Properties": {
+    "Sumvch Actual Qty": {
+      "Name": "Sumvch Actual Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Additionaldetails": {
+      "Name": "Sumvch Additionaldetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Additional Details"
+      }
+    },
+    "Sumvch Addl Amount": {
+      "Name": "Sumvch Addl Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Addl Expense Amount": {
+      "Name": "Sumvch Addl Expense Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Amount": {
+      "Name": "Sumvch Amount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Batch Name": {
+      "Name": "Sumvch Batch Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Batch Phys Diff": {
+      "Name": "Sumvch Batch Phys Diff",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Batchdiffval": {
+      "Name": "Sumvch Batchdiffval",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Billed Qty": {
+      "Name": "Sumvch Billed Qty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Destination Godown Name": {
+      "Name": "Sumvch Destination Godown Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Dynamiccstno": {
+      "Name": "Sumvch Dynamiccstno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Dynamiccstparentitem": {
+      "Name": "Sumvch Dynamiccstparentitem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Escalationrate": {
+      "Name": "Sumvch Escalationrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Godownname": {
+      "Name": "Sumvch Godownname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Inclvatrate": {
+      "Name": "Sumvch Inclvatrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Indent No": {
+      "Name": "Sumvch Indent No",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Indentduedate": {
+      "Name": "Sumvch Indentduedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Due Date"
+      }
+    },
+    "Sumvch Mfd On": {
+      "Name": "Sumvch Mfd On",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Narration": {
+      "Name": "Sumvch Narration",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Order Year End": {
+      "Name": "Sumvch Order Year End",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Orderduedate": {
+      "Name": "Sumvch Orderduedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Due Date"
+      }
+    },
+    "Sumvch Orderno": {
+      "Name": "Sumvch Orderno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Orderpreclosuredate": {
+      "Name": "Sumvch Orderpreclosuredate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Orderpreclosureqty": {
+      "Name": "Sumvch Orderpreclosureqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Orderpreclosurereason": {
+      "Name": "Sumvch Orderpreclosurereason",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Ordertype": {
+      "Name": "Sumvch Ordertype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Origactualqty": {
+      "Name": "Sumvch Origactualqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Origbilledqty": {
+      "Name": "Sumvch Origbilledqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Sumvch Origrate": {
+      "Name": "Sumvch Origrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Parentitem": {
+      "Name": "Sumvch Parentitem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Sumvch Revisedrate": {
+      "Name": "Sumvch Revisedrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Sumvch Sumbatchname": {
+      "Name": "Sumvch Sumbatchname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Sumdynamiccstno": {
+      "Name": "Sumvch Sumdynamiccstno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Sumindentno": {
+      "Name": "Sumvch Sumindentno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Sumorderno": {
+      "Name": "Sumvch Sumorderno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Sumtrackingnumber": {
+      "Name": "Sumvch Sumtrackingnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Tracking Number": {
+      "Name": "Sumvch Tracking Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Link Master Reference)"
+      }
+    },
+    "Sumvch Tracking Year End": {
+      "Name": "Sumvch Tracking Year End",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Vouchercomponentlist": {
+      "Name": "Sumvch Vouchercomponentlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Inventory Entry",
+        "Schema Missing": "Yes"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Additionaldetails": "Sumtrans Additional Details",
+    "Sumvch Vouchercomponentlist": "Sumtrans Inventory Entry"
+  },
+  "Name": "Sumtrans Batch Allocations"
+}

@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Defaultaccallocdtlsforitem": {
+      "Name": "Defaultaccallocdtlsforitem",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Voucher Class Ledger List"
+      }
+    },
+    "Ledgerfromitem": {
+      "Name": "Ledgerfromitem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Stock Item Name": {
+      "Name": "Stock Item Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Tariffclassificationname": {
+      "Name": "Tariffclassificationname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Defaultaccallocdtlsforitem": "Voucher Class Ledger List"
+  },
+  "Name": "Defaultaccallocforitem"
+}

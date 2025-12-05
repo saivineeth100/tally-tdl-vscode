@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Statdocumentnumber": {
+      "Name": "Statdocumentnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Staterrordesc": {
+      "Name": "Staterrordesc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Staterrorid": {
+      "Name": "Staterrorid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Staterrorinfo"
+}

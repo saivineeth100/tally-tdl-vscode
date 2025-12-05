@@ -1,0 +1,82 @@
+{
+  "Properties": {
+    "Sumvch Addl Qualifiers": {
+      "Name": "Sumvch Addl Qualifiers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Content Qualifier"
+      }
+    },
+    "Sumvch Contritranscontentversionid": {
+      "Name": "Sumvch Contritranscontentversionid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Contritransdefunc": {
+      "Name": "Sumvch Contritransdefunc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Sumvch Contritransremotevchid": {
+      "Name": "Sumvch Contritransremotevchid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Contritransstatid": {
+      "Name": "Sumvch Contritransstatid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Contritransvchid": {
+      "Name": "Sumvch Contritransvchid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Period": {
+      "Name": "Sumvch Period",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Return Name": {
+      "Name": "Sumvch Return Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Section Name": {
+      "Name": "Sumvch Section Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Addl Qualifiers": "Sumtrans Content Qualifier"
+  },
+  "Name": "Sumtrans Contri Trans"
+}

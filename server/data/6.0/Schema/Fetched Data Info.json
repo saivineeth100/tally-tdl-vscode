@@ -1,0 +1,22 @@
+{
+  "Properties": {
+    "Fetch Date Info": {
+      "Name": "Fetch Date Info",
+      "IsComplex": false,
+      "Meta": {}
+    },
+    "Purposetype": {
+      "Name": "Purposetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Fetched Data Info"
+}

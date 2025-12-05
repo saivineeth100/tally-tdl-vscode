@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Disclosure": {
+      "Name": "Disclosure",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Disclosurehtml": {
+      "Name": "Disclosurehtml",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Investmentdetail": {
+      "Name": "Investmentdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Investmentdetail"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Investmentdetail": "Investmentdetail"
+  },
+  "Name": "Xbrlinvestmentjv"
+}

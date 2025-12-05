@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Export Format Name": {
+      "Name": "Export Format Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Transaction Type": {
+      "Name": "Transaction Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Bank Export Formats"
+}

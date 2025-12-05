@@ -1,0 +1,58 @@
+{
+  "Properties": {
+    "Excise Duty Head Details": {
+      "Name": "Excise Duty Head Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excise Duty Head Details"
+      }
+    },
+    "Paymentamount": {
+      "Name": "Paymentamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Paymentsubtype": {
+      "Name": "Paymentsubtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Paymenttype": {
+      "Name": "Paymenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sourcedocdate": {
+      "Name": "Sourcedocdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sourcedocno": {
+      "Name": "Sourcedocno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Excise Duty Head Details": "Excise Duty Head Details"
+  },
+  "Name": "Excisepaymentallocations"
+}

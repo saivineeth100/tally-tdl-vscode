@@ -1,0 +1,90 @@
+{
+  "Properties": {
+    "Staterrorinfo": {
+      "Name": "Staterrorinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Staterrorinfo"
+      }
+    },
+    "Statuploaderrordesc": {
+      "Name": "Statuploaderrordesc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statuploadfilename": {
+      "Name": "Statuploadfilename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statuploadfiletype": {
+      "Name": "Statuploadfiletype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statuploadid": {
+      "Name": "Statuploadid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Statuploadreportname": {
+      "Name": "Statuploadreportname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statuploadstatus": {
+      "Name": "Statuploadstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statuploadtype": {
+      "Name": "Statuploadtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statuploadurl": {
+      "Name": "Statuploadurl",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statuploderrorfilename": {
+      "Name": "Statuploderrorfilename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Staterrorinfo": "Staterrorinfo"
+  },
+  "Name": "Stat Upload Result"
+}

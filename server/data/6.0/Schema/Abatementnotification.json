@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Abatementnotificationnum": {
+      "Name": "Abatementnotificationnum",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Abatementnotificationslnum": {
+      "Name": "Abatementnotificationslnum",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Abatementnotification"
+}

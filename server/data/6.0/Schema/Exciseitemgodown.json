@@ -1,0 +1,130 @@
+{
+  "Properties": {
+    "Exciseabatementpercentage": {
+      "Name": "Exciseabatementpercentage",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Exciseallocationtype": {
+      "Name": "Exciseallocationtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Excisealtrepunits": {
+      "Name": "Excisealtrepunits",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Excisebaseqty": {
+      "Name": "Excisebaseqty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Quantity"
+      }
+    },
+    "Excisebom": {
+      "Name": "Excisebom",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excisebom"
+      }
+    },
+    "Exciseconvunit": {
+      "Name": "Exciseconvunit",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Exciseduties": {
+      "Name": "Exciseduties",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Exciseduties"
+      }
+    },
+    "Excisegodownname": {
+      "Name": "Excisegodownname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Exciseitemmrp": {
+      "Name": "Exciseitemmrp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Rate"
+      }
+    },
+    "Excisemrprates": {
+      "Name": "Excisemrprates",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excisemrprates"
+      }
+    },
+    "Exciserepdenominator": {
+      "Name": "Exciserepdenominator",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Exciserepunits": {
+      "Name": "Exciserepunits",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Exciserepunitsstr": {
+      "Name": "Exciserepunitsstr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Stockitemtype": {
+      "Name": "Stockitemtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Taxunitname": {
+      "Name": "Taxunitname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Excisebom": "Excisebom",
+    "Exciseduties": "Exciseduties",
+    "Excisemrprates": "Excisemrprates"
+  },
+  "Name": "Exciseitemgodown"
+}

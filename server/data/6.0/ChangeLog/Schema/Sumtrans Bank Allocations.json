@@ -1,0 +1,121 @@
+{
+  "HasChanges": true,
+  "NameChanged": false,
+  "OldName": null,
+  "NewName": null,
+  "AddedProperties": {
+    "Sumvch Bankersstatus": {
+      "Name": "Sumvch Bankersstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Bankkeyvaluescrc": {
+      "Name": "Sumvch Bankkeyvaluescrc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Banklinkexternaltransids": {
+      "Name": "Sumvch Banklinkexternaltransids",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Bankmanualstatus": {
+      "Name": "Sumvch Bankmanualstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Bankotherreferences": {
+      "Name": "Sumvch Bankotherreferences",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Bank Otherrefs"
+      }
+    },
+    "Sumvch Bankrefnumber": {
+      "Name": "Sumvch Bankrefnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Bankstatus": {
+      "Name": "Sumvch Bankstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Duplicatetransrefnumber": {
+      "Name": "Sumvch Duplicatetransrefnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Filerefnumber": {
+      "Name": "Sumvch Filerefnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Manualstatusremarks": {
+      "Name": "Sumvch Manualstatusremarks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Operationrefnumber": {
+      "Name": "Sumvch Operationrefnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Transactionrefnumber": {
+      "Name": "Sumvch Transactionrefnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Virtualpaymentaddress": {
+      "Name": "Sumvch Virtualpaymentaddress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "DeletedProperties": {},
+  "ModifiedProperties": {},
+  "AddedMeta": {},
+  "DeletedMeta": {},
+  "ModifiedMeta": {},
+  "AddedComplexProperties": {
+    "Sumvch Bankotherreferences": "Sumtrans Bank Otherrefs"
+  },
+  "DeletedComplexProperties": {},
+  "ModifiedComplexProperties": {}
+}

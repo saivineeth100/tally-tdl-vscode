@@ -1,0 +1,49 @@
+{
+  "Properties": {
+    "Syncdelobjaltid": {
+      "Name": "Syncdelobjaltid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Syncdelobjid": {
+      "Name": "Syncdelobjid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Syncdelobjname": {
+      "Name": "Syncdelobjname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Syncdelobjremoteid": {
+      "Name": "Syncdelobjremoteid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Syncdelobjtype": {
+      "Name": "Syncdelobjtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Syncdeletiondetails"
+}

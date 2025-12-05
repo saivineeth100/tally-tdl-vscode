@@ -1,0 +1,21 @@
+{
+  "AsRate": {
+    "Description": "This function is used to convert the numerical expression to Rate. It is used to compare a Rate data type with numerical expression.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Rate",
+      "Execution Mode": "Client",
+      "Return Type": "Rate"
+    },
+    "Name": "AsRate"
+  }
+}

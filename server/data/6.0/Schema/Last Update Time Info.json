@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Lastsynctime": {
+      "Name": "Lastsynctime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "DateTime"
+      }
+    },
+    "Purposetype": {
+      "Name": "Purposetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Last Update Time Info"
+}

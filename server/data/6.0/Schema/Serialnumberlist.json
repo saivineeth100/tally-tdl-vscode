@@ -1,0 +1,17 @@
+{
+  "Properties": {
+    "Excisebookname": {
+      "Name": "Excisebookname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Serialnumberlist"
+}

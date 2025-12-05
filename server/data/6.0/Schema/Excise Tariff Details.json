@@ -1,0 +1,98 @@
+{
+  "Properties": {
+    "Abatementpercentage": {
+      "Name": "Abatementpercentage",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Applicablefrom": {
+      "Name": "Applicablefrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Excise Duty Head Details": {
+      "Name": "Excise Duty Head Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excise Duty Head Details"
+      }
+    },
+    "Exciseclassificationname": {
+      "Name": "Exciseclassificationname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Hsncode": {
+      "Name": "Hsncode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Isexcisecalculateonmrp": {
+      "Name": "Isexcisecalculateonmrp",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isnondutiable": {
+      "Name": "Isnondutiable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Reportinguom": {
+      "Name": "Reportinguom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Tariffname": {
+      "Name": "Tariffname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Typeoftariff": {
+      "Name": "Typeoftariff",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Valuationtype": {
+      "Name": "Valuationtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Excise Duty Head Details": "Excise Duty Head Details"
+  },
+  "Name": "Excise Tariff Details"
+}

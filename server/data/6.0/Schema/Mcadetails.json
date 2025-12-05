@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Mcaid": {
+      "Name": "Mcaid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mcanote": {
+      "Name": "Mcanote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mcaotherdetails": {
+      "Name": "Mcaotherdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaotherdetails"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Mcaotherdetails": "Mcaotherdetails"
+  },
+  "Name": "Mcadetails"
+}

@@ -1,0 +1,98 @@
+{
+  "Properties": {
+    "Linked Fetched Content": {
+      "Name": "Linked Fetched Content",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Derived Content"
+      }
+    },
+    "Linked User Content": {
+      "Name": "Linked User Content",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Derived Content"
+      }
+    },
+    "Reconlinkedaddlqual": {
+      "Name": "Reconlinkedaddlqual",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content Qualifier"
+      }
+    },
+    "Reconlinkedfpdate": {
+      "Name": "Reconlinkedfpdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Reconlinkedperiod": {
+      "Name": "Reconlinkedperiod",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Reconlinkedretid": {
+      "Name": "Reconlinkedretid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Reconlinkedsecid": {
+      "Name": "Reconlinkedsecid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Reconlinkedstatid": {
+      "Name": "Reconlinkedstatid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Reconlinkrelaxationlevel": {
+      "Name": "Reconlinkrelaxationlevel",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Reconlinktype": {
+      "Name": "Reconlinktype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Unlinkedbyuser": {
+      "Name": "Unlinkedbyuser",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Linked Fetched Content": "Derived Content",
+    "Linked User Content": "Derived Content",
+    "Reconlinkedaddlqual": "Content Qualifier"
+  },
+  "Name": "Reconlinkdet"
+}

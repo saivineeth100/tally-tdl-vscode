@@ -1,0 +1,57 @@
+{
+  "Properties": {
+    "Sumvch Contentquadate": {
+      "Name": "Sumvch Contentquadate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Sumvch Contentqualong": {
+      "Name": "Sumvch Contentqualong",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Contentquanum": {
+      "Name": "Sumvch Contentquanum",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sumvch Contentquastring": {
+      "Name": "Sumvch Contentquastring",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Contentquasysid": {
+      "Name": "Sumvch Contentquasysid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sumvch Contentquatype": {
+      "Name": "Sumvch Contentquatype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Content Qualifier"
+}

@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Loanadvid": {
+      "Name": "Loanadvid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Loanadvnote": {
+      "Name": "Loanadvnote",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mcaloanadvmemberdetail": {
+      "Name": "Mcaloanadvmemberdetail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaloanadvmemberdetail"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Mcaloanadvmemberdetail": "Mcaloanadvmemberdetail"
+  },
+  "Name": "Mcaloanadvancesmember"
+}

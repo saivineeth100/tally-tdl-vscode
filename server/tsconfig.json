@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "ES2024",
+        "lib": [
+            "ES2024",
+            "ESNext.Disposable"
+        ],
+        "outDir": "out",
+        "rootDir": "src",
+        "sourceMap": true,
+        "strict": true,
+        "skipLibCheck": true
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

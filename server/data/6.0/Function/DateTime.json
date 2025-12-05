@@ -1,0 +1,21 @@
+{
+  "DateTime": {
+    "Description": "The function $$datetime is used to convert a datetime specified in string format into the \u0027Date Time\u0027 data type.This is mainly required when a string contains a datetime on which manipulations are to be performed treating it as a date time format eg: filtering the data based on the date time comparison.TDL allows Addition or substraction of a number to a date time type field and in turn it will return a date time type field.",
+    "Parameters": [
+      {
+        "Parameter Type": "Value",
+        "Datatype": "DateTime",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "DateTime",
+      "Execution Mode": "Client",
+      "Return Type": "DateTime"
+    },
+    "Name": "DateTime"
+  }
+}

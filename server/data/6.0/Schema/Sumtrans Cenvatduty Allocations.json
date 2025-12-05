@@ -1,0 +1,58 @@
+{
+  "Properties": {
+    "Sumvch Cenvatbillname": {
+      "Name": "Sumvch Cenvatbillname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Cenvatduty Itemallocations": {
+      "Name": "Sumvch Cenvatduty Itemallocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Cenvatduty Itemallocations"
+      }
+    },
+    "Sumvch Partyledger": {
+      "Name": "Sumvch Partyledger",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Partyledgermstid": {
+      "Name": "Sumvch Partyledgermstid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sumvch Taxamount": {
+      "Name": "Sumvch Taxamount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Sumvch Taxunitname": {
+      "Name": "Sumvch Taxunitname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Cenvatduty Itemallocations": "Sumtrans Cenvatduty Itemallocations"
+  },
+  "Name": "Sumtrans Cenvatduty Allocations"
+}

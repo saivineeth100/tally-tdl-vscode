@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Disclosure": {
+      "Name": "Disclosure",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Disclosurehtml": {
+      "Name": "Disclosurehtml",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Msme Detail": {
+      "Name": "Msme Detail",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Msme Detail"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Msme Detail": "Msme Detail"
+  },
+  "Name": "Xbrlmsme"
+}

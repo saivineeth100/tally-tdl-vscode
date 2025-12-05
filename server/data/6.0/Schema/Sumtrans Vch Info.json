@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Sumvch Vch Cctree Infos": {
+      "Name": "Sumvch Vch Cctree Infos",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Category Allocations"
+      }
+    },
+    "Sumvch Vch Inv Infos": {
+      "Name": "Sumvch Vch Inv Infos",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Inventory Entry"
+      }
+    },
+    "Sumvch Vch Led Infos": {
+      "Name": "Sumvch Vch Led Infos",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Ledger Entry"
+      }
+    },
+    "Sumvch Vchcosttrackallocations": {
+      "Name": "Sumvch Vchcosttrackallocations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Sumtrans Costtrackallocations"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Sumvch Vch Cctree Infos": "Sumtrans Category Allocations",
+    "Sumvch Vch Inv Infos": "Sumtrans Inventory Entry",
+    "Sumvch Vch Led Infos": "Sumtrans Ledger Entry",
+    "Sumvch Vchcosttrackallocations": "Sumtrans Costtrackallocations"
+  },
+  "Name": "Sumtrans Vch Info"
+}

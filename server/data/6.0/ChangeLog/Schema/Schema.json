@@ -1,0 +1,13 @@
+{
+  "added": [
+    "ET",
+    "MM",
+    "Updatelinkrecordinfo",
+    "Vch Num Hist Mig"
+  ],
+  "deleted": [
+    "Notification Activity",
+    "Notification Config"
+  ],
+  "modifiedvalues": []
+}

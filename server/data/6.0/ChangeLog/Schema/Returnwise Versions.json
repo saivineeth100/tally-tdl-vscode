@@ -1,0 +1,41 @@
+{
+  "HasChanges": true,
+  "NameChanged": false,
+  "OldName": null,
+  "NewName": null,
+  "AddedProperties": {
+    "Fetchedreconstoredcrcnoamtsumm": {
+      "Name": "Fetchedreconstoredcrcnoamtsumm",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Lastsignedtccrosssection": {
+      "Name": "Lastsignedtccrosssection",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content"
+      }
+    },
+    "Userreconstoredcrcnoamtsumm": {
+      "Name": "Userreconstoredcrcnoamtsumm",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "DeletedProperties": {},
+  "ModifiedProperties": {},
+  "AddedMeta": {},
+  "DeletedMeta": {},
+  "ModifiedMeta": {},
+  "AddedComplexProperties": {
+    "Lastsignedtccrosssection": "Content"
+  },
+  "DeletedComplexProperties": {},
+  "ModifiedComplexProperties": {}
+}

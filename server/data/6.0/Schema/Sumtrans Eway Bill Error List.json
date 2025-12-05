@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Sumvch Exch Err Code": {
+      "Name": "Sumvch Exch Err Code",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Sumvch Exch Err Msg": {
+      "Name": "Sumvch Exch Err Msg",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Sumtrans Eway Bill Error List"
+}

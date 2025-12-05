@@ -1,0 +1,26 @@
+{
+  "Properties": {
+    "Id": {
+      "Name": "Id",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mcaloanadvancesmember": {
+      "Name": "Mcaloanadvancesmember",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mcaloanadvancesmember"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Mcaloanadvancesmember": "Mcaloanadvancesmember"
+  },
+  "Name": "Mcaloansandadvances"
+}
