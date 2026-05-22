@@ -34,6 +34,8 @@ export enum TokenKind {
     UnderScoreToken = 210,
     CommaToken = 211,
     DotToken = 212,
+    OpenParenToken = 213,
+    CloseParenToken = 214,
 
 
     MinusToken = 300,
@@ -62,7 +64,7 @@ export enum TokenKind {
     GreaterThanToken = 502,
     InToken = 503,
     NullToken = 504,
-    BetweenToken = 504,
+    BetweenToken = 505,
 
     ContainsToken = 550,
     ContainingToken = 551,

@@ -1,0 +1,285 @@
+{
+  "Alter Column": {
+    "Description": "This action is used to Alter a Column in Columnar Report. This works only display mode.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Alter Column",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Alter Column"
+  },
+  "Cancel": {
+    "Description": "This action is used in Edit Mode to Cancel the current Voucher Object.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Cancel",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Cancel"
+  },
+  "Create Column": {
+    "Description": "This action is used to Create a Column in Columnar Report. This works only display mode.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Create Column",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Create Column"
+  },
+  "Delete": {
+    "Description": "This action is used in Edit Mode to Delete the Current Object .",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Delete",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Delete"
+  },
+  "Delete Column": {
+    "Description": "This action is used to Delete  a Column in Columnar Report.This works only display mode.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Delete Column",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Delete Column"
+  },
+  "Form Accept": {
+    "Description": "This action is used to accept the form and the control is returned back to the Report or Menu from where the Form is called.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Accept",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Form Accept"
+  },
+  "Form End": {
+    "Description": "This action takes cursor to the Last field in edit mode. In Display mode it takes the cursor to the Last Scrolled line of the form.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form End",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Form End"
+  },
+  "Form Home": {
+    "Description": "This action takes the cursor to the First field in edit mode. In the Display mode it takes cursor to the First Scrolled line of the form.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Home",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Form Home"
+  },
+  "Form Next Part": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Next Part",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Display"
+    },
+    "Name": "Form Next Part"
+  },
+  "Form Next Part SFD": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Next Part SFD",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Display"
+    },
+    "Name": "Form Next Part SFD"
+  },
+  "Form Prev Part": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Prev Part",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Form Prev Part"
+  },
+  "Form Query Accept": {
+    "Description": "",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Query Accept",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Form Query Accept"
+  },
+  "Form Query Reject": {
+    "Description": "This action is used to reject the form after the query (Quit Y / N). If it is \u0027N\u0027 then it goes back to current location else it rejects the form and the control returns back.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Query Reject",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Form Query Reject"
+  },
+  "Form Reject": {
+    "Description": "This action is used to reject the form and the control is returned back to the Report or Menu from where the Form is called.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Reject",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Form Reject"
+  },
+  "Form Reject to Menu": {
+    "Description": "This action is used to reject the form and the control returns back  directly to its menu.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Reject to Menu, Menu Unconditional Reject",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Form Reject to Menu"
+  },
+  "Form Select End": {
+    "Description": "This action selects all the line from the current focused line to the last line at the bottom of the form.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Select End",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Form Select End"
+  },
+  "Form Select Home": {
+    "Description": "This action selects all the line from the current focused line to the first line at the top of the form.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Select Home",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Form Select Home"
+  },
+  "Form Select Range": {
+    "Description": "This action selects all the line from the focused line to the line where mouse is clicked.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Form Select Range",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Form Select Range"
+  },
+  "Message Box": {
+    "Description": "This action is used to display a message to the user. On Pressing any key, it returns to the calling screen.",
+    "Parameters": [
+      {
+        "Description": "This is an string expression which is displayed in the message box.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an string expression which is displayed in the message box.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Message Box",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Message Box"
+  },
+  "Remove Line": {
+    "Description": "This action is used to remove a line.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Remove Line",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Remove Line"
+  },
+  "Show Last Removed Line": {
+    "Description": "This action is used to restore last removed line.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Show Last Removed Line",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Show Last Removed Line"
+  },
+  "Show Removed Lines": {
+    "Description": "This action is used to restore all removed lines.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Show Removed Lines",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Show Removed Lines"
+  }
+}

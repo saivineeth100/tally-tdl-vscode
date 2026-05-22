@@ -1,0 +1,114 @@
+{
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "List": {
+    "Description": "This attribute specifies a string and its respective identifier in the Name Set.",
+    "Parameters": [
+      {
+        "Description": "Name/String identifier",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The string value",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List, List Name",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "List"
+  },
+  "Localise": {
+    "Description": "This sets the localisation flag. If enabled, any functions that access Name Set strings will be marked for localisation (to currently selected UI language).",
+    "Parameters": [
+      {
+        "Description": "Specifies whether the strings are to be localised or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Localise, Localize",
+      "Type": "Single"
+    },
+    "Name": "Localise"
+  },
+  "Use": {
+    "Description": " The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "Name of the definition to be used",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Name Set ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  }
+}

@@ -1,0 +1,527 @@
+{
+  "AltTable": {
+    "Description": "This function returns method value from the first field table or second field table. If the First Field\u0027s Table object has the value then it returns the method value else it returns the method value from the second field\u0027s Table object.",
+    "Parameters": [
+      {
+        "Description": "To specify the First Field name.",
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the Second Field name.",
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the Second Field name.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "3",
+      "Category": "Layout",
+      "Execution Mode": "Client"
+    },
+    "Name": "AltTable"
+  },
+  "Column": {
+    "Description": "This function is used to check the number of columns in multi-column report.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "Column"
+  },
+  "ColumnNumber": {
+    "Description": "This function is used to return the current column number in a multi-column report.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "ColumnNumber"
+  },
+  "ContextKeyword": {
+    "Description": "This function is used to get the title of the current Report or Menu which can be used to search the context sensitive /online help based on the report or Menu title.",
+    "Parameters": [
+      {
+        "Description": "This expression returns Logical value which decides whether the  if topmost report to be skipped if its in report context. If the value is specified as YES, then the title of the parent report is returned. If no report is active then the parameter is ignored. If the attribute Title is not specified in report definiton, then by default it returns the name of report definition.",
+        "Parameter Type": "Value",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This expression returns Logical value which decides whether the  if topmost report to be skipped if its in report context. If the value is specified as YES, then the title of the parent report is returned. If no report is active then the parameter is ignored. If the attribute Title is not specified in report definiton, then by default it returns the name of report definition.",
+        "Parameter Type": "Value",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "ContextKeyword"
+  },
+  "CurrentTable": {
+    "Description": "This function returns name of table currently shown in table. It is for usage when we use \u0027Change Table\u0027 action.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client"
+    },
+    "Name": "CurrentTable"
+  },
+  "CurrentTableObj": {
+    "Description": "This function returns the method value of the selected object from the table associated with the currently focused field in the report.",
+    "Parameters": [
+      {
+        "Description": "This is an expression that evaluates to a method.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Layout",
+      "Execution Mode": "Client"
+    },
+    "Name": "CurrentTableObj"
+  },
+  "DescName": {
+    "Description": "This function provides the description or name of the UI object in which it is used. It is useful when certain titles are to be displayed in reports. To display the report name as a title, some fixed strings can be concatenated with the value returned from the function and used as a title.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "DescName"
+  },
+  "EditData": {
+    "Description": "This function returns the Value of the Current Field. $$EditData will check if the current field is edited and returns the edited value.",
+    "Parameters": [
+      {
+        "Description": "This is the name of the field.",
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "No",
+        "Refers To": "Field ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "EditData"
+  },
+  "FieldColumn": {
+    "Description": "This function returns the column number of the field. While counting the field columns it includes the sub fields also.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "FieldColumn"
+  },
+  "FieldIndex": {
+    "Description": "This function returns the index of the field. Index is maintained only for leaf level fields, for all others 0 is returned",
+    "Parameters": [
+      {
+        "Description": "This expression returns Logical value which indicates whether to return index w.r.t to its parent field or line",
+        "Parameter Type": "Value",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "FieldIndex"
+  },
+  "FieldKey": {
+    "Description": "This functions evaluates the result of the expression in field hierarchy and returna key string",
+    "Parameters": [
+      {
+        "Description": "To specify the expression to be evaluated",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the expression to be evaluated",
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the ordering of values form the hierarchy. By default ststem will generate key from Top-Bottom. By passing TRUE to this parameter the key will be generated in reverse order",
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "1",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "FieldKey"
+  },
+  "FieldLevel": {
+    "Description": "This function returns the depth of the field. The depth/level starts from 1 at parent most field and incremented by 1 for every subsequent level",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "FieldLevel"
+  },
+  "GetOnTheFlyString": {
+    "Description": "This function returns the on-the-fly string entered by user.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "GetOnTheFlyString"
+  },
+  "IsActionObject": {
+    "Description": "This function returns whether object behaves as an action object in table. This depends upon \u0027Behave As\u0027 written at object level.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsActionObject"
+  },
+  "IsConfigObject": {
+    "Description": "This function returns whether object behaves as config object in table. This depends upon \u0027Behave As\u0027 written at object level.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsConfigObject"
+  },
+  "IsExternalActionObject": {
+    "Description": "This function returns whether object behaves as External Config objectin table. This depends upon \u0027Behave As\u0027 written at object level.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsExternalActionObject"
+  },
+  "IsFileTypeSupported": {
+    "Description": "This function checks whether the specified format / file extension is supported by the system. This is decided based on if any Open with program is registered against this File extension",
+    "Parameters": [
+      {
+        "Description": "To specify the file extension which needs to be checked for its support on the system",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsFileTypeSupported"
+  },
+  "IsLabelObject": {
+    "Description": "This function returns whether object behaves as label object in table. This depends upon \u0027Behave As\u0027 written at object level.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsLabelObject"
+  },
+  "IsOnTheFlyItemSelected": {
+    "Description": "This function is used to check if the item selected from the table is On The Fly object or not.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsOnTheFlyItemSelected"
+  },
+  "IsStartupValue": {
+    "Description": "This function is used to check wheteher the value is the original value or not.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which specifies the name of the field, line, part or form.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsStartupValue"
+  },
+  "KeyExplode": {
+    "Description": "This function checks if the keys Alt \u002B F1 Or Shift \u002B Enter are pressed or not and returns the logical values \u0027yes\u0027 Or \u0027No\u0027 accordingly",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "KeyExplode"
+  },
+  "Line": {
+    "Description": "This function gives the Object number of the current collection.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "Line"
+  },
+  "LineKey": {
+    "Description": "This functions evaluates the result of the expression in Line hierarchy and returna key string",
+    "Parameters": [
+      {
+        "Description": "To specify the expression to be evaluated",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the separator to be used between result of two fields",
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the separator to be used between result of two fields",
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "1",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "LineKey"
+  },
+  "PrevFld": {
+    "Description": "The function $$PrevFld is used to extract the value of the filed in the previous field. This is useful in Multi column reports where this function is used to get the value of the previous field or to find the difference between two previous field. The function $$PrevFld without any parameter retrieves the value of previous field.   It can optionally accept a single parameter which specifies the field number the value of which is to be extracted.",
+    "Parameters": [
+      {
+        "Description": "Accepts an optional parameter of type Number",
+        "Parameter Type": "Value",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client"
+    },
+    "Name": "PrevFld"
+  },
+  "PrevFldTotal": {
+    "Description": "The function $$PrevFldTotal is used to extract the total value of the previous fields. This is useful in Multi column reports. It does not accept any parameter and returns a value of type same as the type of previous fields.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client"
+    },
+    "Name": "PrevFldTotal"
+  },
+  "Table": {
+    "Description": "This function returns the method value selected from the table which mentioned in the field using the field value.",
+    "Parameters": [
+      {
+        "Description": "To specify Field name.",
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the Method name.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Layout",
+      "Execution Mode": "Client"
+    },
+    "Name": "Table"
+  },
+  "TableNumItems": {
+    "Description": "This function returns the number of items in the table. This function is to be invoked from the field level only.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "TableNumItems"
+  },
+  "TableObj": {
+    "Description": "This function returns the Function Value / Method Value from the Table which is mentioned in the Field level attribute.",
+    "Parameters": [
+      {
+        "Description": "To specify Field name.",
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the Method/Function name.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Layout",
+      "Execution Mode": "Client"
+    },
+    "Name": "TableObj"
+  },
+  "TplColumnObject": {
+    "Description": "This function evaluates the given parameter in the context of the Object associated at the Current Column Object Level if available. Otherwise it will default to current object context.",
+    "Parameters": [
+      {
+        "Description": "To specify Valid TDL expression.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Layout",
+      "Execution Mode": "Client"
+    },
+    "Name": "TplColumnObject"
+  },
+  "TplLine": {
+    "Description": "This function gives the count of current object in the current collection.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "TplLine"
+  },
+  "Value": {
+    "Description": "This function refers to the value set in the field. The value set in the field is accessible within that field definition using this function. It also considers the values entered by the user.",
+    "Parameters": [
+      {
+        "Description": "This specifies the index.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Layout",
+      "Execution Mode": "Client"
+    },
+    "Name": "Value"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Addlqualifiers": {
+      "Name": "Addlqualifiers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content Qualifier"
+      }
+    },
+    "Sectionname": {
+      "Name": "Sectionname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Statusvalue": {
+      "Name": "Statusvalue",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Statusvalue"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Addlqualifiers": "Content Qualifier",
+    "Statusvalue": "Statusvalue"
+  },
+  "Name": "Statusupdatesectioninfo"
+}

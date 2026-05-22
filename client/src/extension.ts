@@ -4,12 +4,13 @@
  * ------------------------------------------------------------------------------------------ */
 import * as path from 'path';
 import {
-    workspace, window, ExtensionContext, TextDocument, OutputChannel, WorkspaceFolder, Uri
+    workspace, window, ExtensionContext, TextDocument, OutputChannel, WorkspaceFolder, Uri, commands
 } from 'vscode';
 
 import {
     LanguageClient, LanguageClientOptions, TransportKind
 } from 'vscode-languageclient/node';
+import { spawn } from 'child_process';
 
 let defaultClient: LanguageClient;
 const clients = new Map<string, LanguageClient>();
@@ -56,7 +57,7 @@ export function activate(context: ExtensionContext) {
 
     function didOpenTextDocument(document: TextDocument): void {
         // We are only interested in language mode text
-        if (document.languageId !== 'tdl' || (document.uri.scheme !== 'file' && document.uri.scheme !== 'untitled')) {
+        if ((document.languageId !== 'tdl' && document.languageId !== 'xml') || (document.uri.scheme !== 'file' && document.uri.scheme !== 'untitled')) {
             return;
         }
 
@@ -65,11 +66,16 @@ export function activate(context: ExtensionContext) {
         if (uri.scheme === 'untitled' && !defaultClient) {
             const serverOptions = {
                 run: { module, transport: TransportKind.ipc },
-                debug: { module, transport: TransportKind.ipc }
+                debug: { 
+                    module, 
+                    transport: TransportKind.ipc,
+                    options: { execArgv: ['--nolazy', '--inspect=6009'] }
+                }
             };
             const clientOptions: LanguageClientOptions = {
                 documentSelector: [
-                    { scheme: 'untitled', language: 'tdl' }
+                    { scheme: 'untitled', language: 'tdl' },
+                    { scheme: 'untitled', language: 'xml' }
                 ],
                 diagnosticCollectionName: 'tally-tdl-server',
                 outputChannel: outputChannel
@@ -90,11 +96,17 @@ export function activate(context: ExtensionContext) {
         if (!clients.has(folder.uri.toString())) {
             const serverOptions = {
                 run: { module, transport: TransportKind.ipc },
-                debug: { module, transport: TransportKind.ipc }
+                debug: { 
+                    module, 
+                    transport: TransportKind.ipc,
+                    options: { execArgv: ['--nolazy', '--inspect=6009'] }
+                }
             };
             const clientOptions: LanguageClientOptions = {
                 documentSelector: [
-                    { scheme: 'file', language: 'tdl', pattern: `${folder.uri.fsPath}/**/*` }
+                    { scheme: 'file', language: 'tdl', pattern: `${folder.uri.fsPath}/**/*` },
+                    { scheme: 'file', language: 'xml', pattern: `${folder.uri.fsPath}/**/*.xml` },
+                    { scheme: 'file', language: 'xml', pattern: `${folder.uri.fsPath}/**/*.tdlxml` }
                 ],
                 diagnosticCollectionName: 'tally-tdl-server',
                 workspaceFolder: folder,
@@ -117,6 +129,81 @@ export function activate(context: ExtensionContext) {
             }
         }
     });
+
+    context.subscriptions.push(
+        commands.registerCommand('tally-tdl.runCurrentFile', () => {
+            const editor = window.activeTextEditor;
+            if (!editor) {
+                window.showErrorMessage('No active editor found.');
+                return;
+            }
+
+            const document = editor.document;
+            if (document.languageId !== 'tdl' && document.languageId !== 'xml') {
+                window.showErrorMessage('The current file is not a TDL or XML file.');
+                return;
+            }
+
+            const config = workspace.getConfiguration('tallyTDL');
+            const tallyExePath = config.get<string>('tallyExePath');
+            if (!tallyExePath) {
+                window.showErrorMessage('Tally executable path is not configured. Please set tallyTDL.tallyExePath in settings.');
+                return;
+            }
+
+            let args = config.get<string[]>('tallyCommandLineArgs') || [];
+            args = args.map(arg => arg.replace('${file}', document.uri.fsPath));
+
+            window.showInformationMessage(`Launching Tally with ${path.basename(document.fileName)}...`);
+            const child = spawn(tallyExePath, args, { detached: true, stdio: 'ignore' });
+            child.unref();
+            child.on('error', (err) => {
+                window.showErrorMessage(`Failed to launch Tally: ${err.message}`);
+            });
+        }),
+        commands.registerCommand('tally-tdl.convertToXml', async () => {
+            const editor = window.activeTextEditor;
+            if (!editor) {
+                window.showErrorMessage('No active editor found.');
+                return;
+            }
+
+            const document = editor.document;
+            if (document.languageId !== 'tdl' && document.languageId !== 'xml') {
+                window.showErrorMessage('The current file is not a TDL or XML file.');
+                return;
+            }
+
+            // Find the appropriate client for the current file
+            let client = defaultClient;
+            const folder = workspace.getWorkspaceFolder(document.uri);
+            if (folder) {
+                const outerFolder = getOuterMostWorkspaceFolder(folder);
+                client = clients.get(outerFolder.uri.toString()) || defaultClient;
+            }
+
+            if (!client) {
+                window.showErrorMessage('TDL Language Server is not running.');
+                return;
+            }
+
+            try {
+                // Request the server to generate XML
+                const xmlString = await client.sendRequest<string>('tdl/convertToXml', { uri: document.uri.toString() });
+                
+                if (!xmlString) {
+                    window.showErrorMessage('Failed to convert to XML.');
+                    return;
+                }
+
+                // Open an untitled document with the generated XML
+                const xmlDoc = await workspace.openTextDocument({ content: xmlString, language: 'xml' });
+                await window.showTextDocument(xmlDoc);
+            } catch (err: any) {
+                window.showErrorMessage(`Error converting to XML: ${err.message}`);
+            }
+        })
+    );
 }
 
 export function deactivate(): Thenable<void> {

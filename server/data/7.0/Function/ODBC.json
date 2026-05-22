@@ -1,0 +1,92 @@
+{
+  "XMLAttr": {
+    "Description": "It finds the attributes in XML document",
+    "Parameters": [
+      {
+        "Description": "Collection name",
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Attribute name",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Attribute name",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "3",
+      "Category": "ODBC",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "XMLAttr"
+  },
+  "XMLCount": {
+    "Description": "It finds the number of XML nodes present in a collection",
+    "Parameters": [
+      {
+        "Description": "Collection name",
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Collection name",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "NodeName:Pos:Path to NodeName from root.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "3",
+      "Category": "ODBC",
+      "Execution Mode": "Client",
+      "Return Type": "Long"
+    },
+    "Name": "XMLCount"
+  },
+  "XMLValue": {
+    "Description": "This function finds the value of a XML node",
+    "Parameters": [
+      {
+        "Description": "Collection name",
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "NodeName:Pos:Path to NodeName from root.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "ODBC",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "XMLValue"
+  }
+}

@@ -1,0 +1,43 @@
+import { describe, it, expect } from 'vitest';
+import { validateLabelSequences, BROKEN_SEQUENCE_DIAGNOSTIC_CODE } from './sequenceValidator';
+import { Parser } from '../parser/parser';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+
+function createMockDocument(text: string): TextDocument {
+    return TextDocument.create('file://test.tdl', 'tdl', 1, text);
+}
+
+describe('sequenceValidator', () => {
+    it('should detect broken numeric sequences', () => {
+        const text = `[Function: Test]
+001 : Statement 1
+003 : Statement 2
+`;
+        const doc = createMockDocument(text);
+        const parser = new Parser(text);
+        const sourceFile = parser.parse();
+
+        const diagnostics = validateLabelSequences(sourceFile, doc);
+        expect(diagnostics.length).toBe(1);
+        expect(diagnostics[0].code).toBe(BROKEN_SEQUENCE_DIAGNOSTIC_CODE);
+        expect(diagnostics[0].message).toContain('Expected: 002');
+        expect(diagnostics[0].data?.expectedLabel).toBe('002');
+    });
+
+    it('should not flag valid gaps (like jumping from numbers to letters)', () => {
+        const text = `[Function: Test]
+001 : Statement 1
+002 : Statement 2
+A : Statement A
+B : Statement B
+D : Statement D
+`;
+        const doc = createMockDocument(text);
+        const parser = new Parser(text);
+        const sourceFile = parser.parse();
+
+        const diagnostics = validateLabelSequences(sourceFile, doc);
+        expect(diagnostics.length).toBe(1); // Only the D after B is flagged
+        expect(diagnostics[0].message).toContain('Expected: C');
+    });
+});

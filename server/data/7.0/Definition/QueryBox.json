@@ -1,0 +1,143 @@
+{
+  "Default": {
+    "Description": "Sets the default index to be selected if enter or escape key is pressed.",
+    "Parameters": [
+      {
+        "Description": "To specify the index to be selected if Enter key is pressed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the index to be selected if Escape key is pressed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Default",
+      "Type": "Dual"
+    },
+    "Name": "Default"
+  },
+  "Gray Background": {
+    "Description": "Specifies if background screen needs to be grayed.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which specifies if background needs to be grayed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Gray Background, Grey Background",
+      "Type": "Single"
+    },
+    "Name": "Gray Background"
+  },
+  "Horizontal Align": {
+    "Description": "Specifies the horizontal alignment of the querybox on screen.",
+    "Parameters": [
+      {
+        "Description": "To specify the alignment type as Left,Right,Centre.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Align Type",
+        "Keywords": "Bottom, Center, Centre, Justified, Left, Prompt, Right, Top",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Horizontal Align, Horizontal Alignment",
+      "Type": "Single"
+    },
+    "Name": "Horizontal Align"
+  },
+  "Query": {
+    "Description": "Lists the query message and key.",
+    "Parameters": [
+      {
+        "Description": "Specifies the Hot Key such as \u0027Y\u0027 etc.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specifies the Query option string.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specifies the Query option string.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Query",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Query"
+  },
+  "Title": {
+    "Description": "It displays the messsage for the querybox in the corner.",
+    "Parameters": [
+      {
+        "Description": "To specify the value of the Query Box Title.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Title",
+      "Type": "Single"
+    },
+    "Name": "Title"
+  },
+  "Vertical Align": {
+    "Description": "Specifies the vertical alignment of the query box on screen. The alignment of the form across the height of the page is set by this attribute.",
+    "Parameters": [
+      {
+        "Description": "To specify the alignment type as Top,Bottom,Centre.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Align Type",
+        "Keywords": "Bottom, Center, Centre, Justified, Left, Prompt, Right, Top",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Vertical Align, Vertical Alignment",
+      "Type": "Single"
+    },
+    "Name": "Vertical Align"
+  }
+}

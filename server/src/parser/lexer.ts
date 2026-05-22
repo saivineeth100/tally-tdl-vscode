@@ -2,6 +2,7 @@
 import { CharacterCodes } from "./characterCodes";
 import { Token } from "./token";
 import { TokenKind } from "./tokenKind";
+import { TokenStringMaps } from "./TokenStringMaps";
 
 export class Lexer {
     _contents: string;
@@ -29,8 +30,9 @@ export class Lexer {
         let fullStart = this._pos;
         let leaingTokens: Token[] = [];
         let trailingTokens: Token[] = [];
-        let start = this._pos;
         this.ScanLeadingOrTrailing(this._pos > 0, false, leaingTokens);
+        // Start should be set AFTER scanning leading trivia
+        let start = this._pos;
         var token = new Token(TokenKind.Unknown, 0, 0, 0);
         if (this._pos >= this._endOfFilePos) {
             const token = new Token(TokenKind.EndOfFileToken, fullStart, start, this._pos - fullStart);
@@ -100,6 +102,14 @@ export class Lexer {
                 this._pos++;
                 token.Kind = TokenKind.PlusToken;
                 break;
+            case "(":
+                this._pos++;
+                token.Kind = TokenKind.OpenParenToken;
+                break;
+            case ")":
+                this._pos++;
+                token.Kind = TokenKind.CloseParenToken;
+                break;
             case ",":
                 this._pos++;
                 token.Kind = TokenKind.CommaToken;
@@ -139,24 +149,41 @@ export class Lexer {
                 token.Kind = TokenKind.EqualsToken;
                 break;
             case "\"":
+                // Includes quotes in token.Text
+                const startQuote = this._pos;
                 this._pos++;
-                token.Text = this.ScanText();
+                this.ScanText(char); // Advance past content
+                this._pos++; // Advance past closing quote
                 token.Kind = TokenKind.StringLiteralToken;
-                this._pos++;
+                token.Text = this.GetText(startQuote);
                 break;
             default:
                 if (this.IsNameStart(char)) {
 
-                    token.Kind = TokenKind.IdentifierToken;
                     token.Text = this.ScanIdentifier();
+                    const trimmedText = token.Text.trim().toUpperCase();
+                    // First try to match uppercase version against maps
+                    let matchedKind = TokenStringMaps.KEYWORDS.get(token.Text) ?? TokenStringMaps.RESERVED_WORDS.get(trimmedText);
+                    
+                    // Fallback to exact match (some keywords in map might be mixed case if map is not fully uppercase)
+                    if (matchedKind === undefined) {
+                        for (const [key, val] of TokenStringMaps.KEYWORDS.entries()) {
+                            if (key.toUpperCase() === trimmedText) matchedKind = val;
+                        }
+                        if (matchedKind === undefined) {
+                            for (const [key, val] of TokenStringMaps.RESERVED_WORDS.entries()) {
+                                if (key.toUpperCase() === trimmedText) matchedKind = val;
+                            }
+                        }
+                    }
+
+                    token.Kind = matchedKind ?? TokenKind.IdentifierToken;
                     break;
-                    //const trimmedText = token.Text.replaceAll(" ", "");
-                    //token.Kind = TokenStringMaps.KEYWORDS.get(trimmedText) ?? TokenStringMaps.RESERVED_WORDS.get(trimmedText) ?? token.Kind;
-                    //return new Token(TokenKind.IdentifierToken, fullStart, start, this._pos - fullStart);
                 }
                 else if (this.IsDigitChar(char)) {
                     token.Kind = TokenKind.NumberToken;
                     token.Text = this.ScanDigits();
+                    break;
                 }
                 this._pos++;
                 break;
@@ -172,11 +199,11 @@ export class Lexer {
         token.Trailing = trailingTokens;
         return token;
     }
-    ScanText(): string {
+    ScanText(quoteChar: string = "\""): string {
         let start_pos = this._pos;
         while (this._pos < this._endOfFilePos) {
             const char = this.Peek();
-            if (char === "\"" || char === "\'") {
+            if (char === quoteChar) {
                 if (this._pos + 1 < this._endOfFilePos && this._contents[this._pos + 1] === char) {
                     // Escaped quote ("" or ''), consume both
                     this._pos++;
@@ -237,9 +264,10 @@ export class Lexer {
                     break;
                 case "/":
                     if (this._pos + 1 < this._endOfFilePos && this._contents[this._pos + 1] === "*") {
+                        const commentStart = this._pos;
                         this._pos++;
                         this._pos++;
-                        tokens.push(this.ScanMultiLineComment());
+                        tokens.push(this.ScanMultiLineComment(commentStart));
                         break;
                     }
                     return;
@@ -251,8 +279,7 @@ export class Lexer {
 
         }
     }
-    ScanMultiLineComment(): Token {
-        let start = this._pos;
+    ScanMultiLineComment(start: number): Token {
         while (this._pos < this._endOfFilePos) {
             let charCode = this.Peek();
             switch (charCode) {

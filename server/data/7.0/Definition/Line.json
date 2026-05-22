@@ -1,0 +1,921 @@
+{
+  "Access Name": {
+    "Description": "This attribute is used to identify the line by using unique access name.",
+    "Parameters": [
+      {
+        "Description": "It can be a formula and evaluated to string.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Access Name",
+      "Type": "Single"
+    },
+    "Name": "Access Name"
+  },
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Belongs To": {
+    "Description": "This attribute exports the complete object hierarchy associated with the line, when its value is Yes. The default value is No.",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to Yes or No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Belongs To, Family",
+      "Type": "Single"
+    },
+    "Name": "Belongs To"
+  },
+  "Border": {
+    "Description": "Specifies the border for the line.",
+    "Parameters": [
+      {
+        "Description": "Specifies the name of border.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Border ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specifies whether the border is to be applied for the particular line.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Border",
+      "Type": "Dual"
+    },
+    "Name": "Border"
+  },
+  "Combine": {
+    "Description": "This attribute is to sum up all the repeated fields.",
+    "Parameters": [
+      {
+        "Description": "This specifies the name of the filed.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Field ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Combine, Total, Totals",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Combine"
+  },
+  "DMPMode": {
+    "Description": "This is available in Form, Part, Line, Field and it is used only in dot matrix mode of printing to set the style.",
+    "Parameters": [
+      {
+        "Description": "DMP Mode can take following values. \u0027Normal\u0027, \u0027Bold \u0027, \u0027Italics\u0027, \u0027Underline\u0027, \u0027Condensed\u0027, \u0027Enlarged\u0027, \u0027DoubleLine\u0027",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "DMPMode",
+      "Type": "Single"
+    },
+    "Name": "DMPMode"
+  },
+  "Empty": {
+    "Description": "This attribute removes the line from the Part based on condition.",
+    "Parameters": [
+      {
+        "Description": "Any expression that retruns the logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Empty, Empty if, Empty on",
+      "Type": "Single"
+    },
+    "Name": "Empty"
+  },
+  "Excel Add Row": {
+    "Description": "This attribute is used to insert a row in Excel sheet based on a condition.",
+    "Parameters": [
+      {
+        "Description": "It can be any expression that returns logical value to Insert a row in excel sheet.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Excel Add Row",
+      "Type": "Single"
+    },
+    "Name": "Excel Add Row"
+  },
+  "Explode": {
+    "Description": "Explodes a part from the line based on the condition specified.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the part.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Part ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To give condition on which the explode will happen.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Explode, Explosions",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Explode"
+  },
+  "Field": {
+    "Description": "It is used to specify the field name in this line.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the field.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Field ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Field, Fields, Left Field, Left Fields",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Field"
+  },
+  "Fixed": {
+    "Description": "This attribute helps to skip the line such that the cursor will not positioned on it.",
+    "Parameters": [
+      {
+        "Description": "Expression evaluating to Yes/No.Specifying the value to yes will not move the focus to this line.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Fixed",
+      "Type": "Single"
+    },
+    "Name": "Fixed"
+  },
+  "Full Object": {
+    "Description": "This attribute exports the object storages associated with the line, including UDFs when its value is Yes. The default value is No.",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to Yes or No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Full Object",
+      "Type": "Single"
+    },
+    "Name": "Full Object"
+  },
+  "Height": {
+    "Description": "Specifies the height of the line.",
+    "Parameters": [
+      {
+        "Description": "Specifies the height of the line.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Height",
+      "Type": "Single"
+    },
+    "Name": "Height"
+  },
+  "Help": {
+    "Description": "Specifies the Index / Id of the help file for help.",
+    "Parameters": [
+      {
+        "Description": "Specifies the Index / Id of the help file for help.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Expression that returns the GUID of the addon/module for invoking help",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Help",
+      "Type": "Dual List",
+      "Is Discrete": "No"
+    },
+    "Name": "Help"
+  },
+  "Indent": {
+    "Description": "This attribute specifies the space to be left from the Left margin before the contents of the line begin.",
+    "Parameters": [
+      {
+        "Description": "Specifies an indention for the line.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Indent",
+      "Type": "Single"
+    },
+    "Name": "Indent"
+  },
+  "Invisible": {
+    "Description": "It specifies whetther the line is to be visible or not.",
+    "Parameters": [
+      {
+        "Description": "Specifying the value to yes sets the line as invisible.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Invisible",
+      "Type": "Single"
+    },
+    "Name": "Invisible"
+  },
+  "JSON Tag As Desc Name": {
+    "Description": "This attribute uses the JSON tag as the descriptive name in the JSON export when using the new JSON format.",
+    "Parameters": [
+      {
+        "Description": "An expression which evaluates to a logical value that controls the behavior.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "JSON Tag As Desc Name",
+      "Type": "Single"
+    },
+    "Name": "JSON Tag As Desc Name"
+  },
+  "JSONTag": {
+    "Description": "To specify the tag name for the line in the exported JSON/XML file. If not specified, the tag name for the line doesn\u0027t appear in the output.",
+    "Parameters": [
+      {
+        "Description": "Name of the JSON/XML tag.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "JSONTag, XMLTag",
+      "Type": "Single"
+    },
+    "Name": "JSONTag"
+  },
+  "Key": {
+    "Description": "A key definition can be used by the Line definition to initiate the action as defined in the key definition by the Action attribute.",
+    "Parameters": [
+      {
+        "Description": "Key name that is associated to the line.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key, Keys",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Key"
+  },
+  "Line": {
+    "Description": "To define another line under a line.  If this attribute is specified the attributes Fields / Right Fields cannot be specified simultaneously.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the line.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Line ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Line, Lines, Top Line, Top Lines",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Line"
+  },
+  "Local": {
+    "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+    "Parameters": [
+      {
+        "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local",
+      "Type": "Local List",
+      "Is Discrete": "No"
+    },
+    "Name": "Local"
+  },
+  "Local Formula": {
+    "Description": "This is used to specify a local formula within the Line.",
+    "Parameters": [
+      {
+        "Description": "The name of the Local Formula.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The expression which needs to be evaluated.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local Formula",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Local Formula"
+  },
+  "Next Page": {
+    "Description": "Specifies when the Line is printed in the next page in Print mode.",
+    "Parameters": [
+      {
+        "Description": "To specify the condition in which case the line has to be printed in the next page.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Next Page",
+      "Type": "Single"
+    },
+    "Name": "Next Page"
+  },
+  "No Cursor": {
+    "Description": "This attribute is used to disallow the cursor on the line when in create or alter mode.   The default value of this attribute is set to Yes.",
+    "Parameters": [
+      {
+        "Description": "Expression evaluating to Yes/No.Specifying the value to yes will disallow the cursor on the line when in create or alter mode.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "No Cursor",
+      "Type": "Single"
+    },
+    "Name": "No Cursor"
+  },
+  "On": {
+    "Description": "ON keyword is used to specify a list of Actions to be executed on the occurance of an Event.",
+    "Parameters": [
+      {
+        "Description": "ON keyword is used to specify a list of Actions to be executed on the occurance of an Event.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "On",
+      "Type": "Event List",
+      "Is Discrete": "No"
+    },
+    "Name": "On"
+  },
+  "Option": {
+    "Description": "Option is an attribute which can be used by various definitions, to provide a conditional result in a program.",
+    "Parameters": [
+      {
+        "Description": "This specifies the name of the Optinal Line.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Line ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Logical Condition/ expression which returns logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Option, Options",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Option"
+  },
+  "Page Break": {
+    "Description": "The attribute Page Break in a line is used to specify closing page breaks and opening pagebreaks in case of horizontal page breaks. Used mostly in case of multicolumn reports.",
+    "Parameters": [
+      {
+        "Description": "The field names which appear as opening page breaks.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The field names which appear as closing page breaks.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Field ",
+        "Separator Char": "\u0027,\u0027",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The field names which appear as closing page breaks.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Page Break",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Page Break"
+  },
+  "Pre Printed": {
+    "Description": "Specifies whether the static text will be preprinted for the printing.",
+    "Parameters": [
+      {
+        "Description": "Expression evaluating to Yes/No.When the attribute is set to Yes will not print the contents of the Line on the paper assuming the statiionary is pre-printed stationary.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Pre Printed",
+      "Type": "Single"
+    },
+    "Name": "Pre Printed"
+  },
+  "Pre Printed Border": {
+    "Description": "Specifies whether the border for the line will be preprinted for the printing.",
+    "Parameters": [
+      {
+        "Description": "Expression evaluating to Yes/No.If this condition is Yes then the border specified for the line will be pre printed for the printing.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Pre Printed Border",
+      "Type": "Single"
+    },
+    "Name": "Pre Printed Border"
+  },
+  "Preaccept Object Map": {
+    "Description": "This attribute is used to call object map before the line accept.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to call object map definition before the line accept.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object Map ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This sub-attribute is used to specify the logical expression, which is to be evaluated, if yes, calls object map.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Preaccept Object Map",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Preaccept Object Map"
+  },
+  "Remove": {
+    "Description": "This attribute removes the line from the Interface.",
+    "Parameters": [
+      {
+        "Description": "It can be any expression that returns logical value to remove the line.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Remove, Remove if, Remove on",
+      "Type": "Single"
+    },
+    "Name": "Remove"
+  },
+  "Repeat": {
+    "Description": "Repeats the field with the specified collection. If collection is not specified and no SET attribute is used field is repeated on reports number of columns in case of columner report.",
+    "Parameters": [
+      {
+        "Description": "Name of the field to be repeated.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Collection name on which the field to be repeated. This is an optional parameter.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Repeat",
+      "Type": "Dual"
+    },
+    "Name": "Repeat"
+  },
+  "Right Field": {
+    "Description": "The Fields are aligned to the right of the Line.",
+    "Parameters": [
+      {
+        "Description": "To specify the field name aligned to the right.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Field ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Right Field, Right Fields",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Right Field"
+  },
+  "Select": {
+    "Description": "This attribute indicates that the line (or lines within this line) is selectable or not.",
+    "Parameters": [
+      {
+        "Description": "The default value of attribute Selectable for repeated lines is Yes and for non-repeated lines it is No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Select, Selectable",
+      "Type": "Single"
+    },
+    "Name": "Select"
+  },
+  "Set": {
+    "Description": "This is used to specify the Repeat for fields in absence of Collection, system will uses this value and create as many columns.",
+    "Parameters": [
+      {
+        "Description": "Specifies the number columns to be created for the line.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set, Set as",
+      "Type": "Single"
+    },
+    "Name": "Set"
+  },
+  "Skip Rows": {
+    "Description": "This attribute used Skip Rows in excel export.",
+    "Parameters": [
+      {
+        "Description": "Number of Rows to be skipped in excel export.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Skip Rows",
+      "Type": "Single"
+    },
+    "Name": "Skip Rows"
+  },
+  "Space Bottom": {
+    "Description": "Specifies the bottom margin.",
+    "Parameters": [
+      {
+        "Description": "Specifies the bottom margin.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Bottom",
+      "Type": "Single"
+    },
+    "Name": "Space Bottom"
+  },
+  "Space Top": {
+    "Description": "Specifies the top margin.",
+    "Parameters": [
+      {
+        "Description": "Specifies the top margin.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Top",
+      "Type": "Single"
+    },
+    "Name": "Space Top"
+  },
+  "Stripe": {
+    "Description": "This attribute enables (Yes) /disables (No) Stripes for the Line to improve readability. By default it\u0027ll be set as Yes and specific format of data will have Stripes enabled. The behavior can be overridden by usage of same attribute in the children (Part, Line).",
+    "Parameters": [
+      {
+        "Description": "Can only specify Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Stripe, Stripes",
+      "Type": "Single"
+    },
+    "Name": "Stripe"
+  },
+  "Switch": {
+    "Description": "\u0027Switch\u0027 attribute is similar to the Option attribute but reduces code complexity and improves the performance. The Switch are grouped using a label Once a condition is satisfied from one group, switch won\u0027t  check further conditions from the same group.  It will evaluate the conditions from the other groups specified, if any.",
+    "Parameters": [
+      {
+        "Description": "This can be any string combination used to group.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Line ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Switch",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Switch"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Line ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "XMLAttr": {
+    "Description": "Specifies the Atrribute and attribute value for the xml tag.",
+    "Parameters": [
+      {
+        "Description": "Used to specify the Attribute Name for the XML Tag.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the value for the Attribute.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "XMLAttr",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "XMLAttr"
+  }
+}

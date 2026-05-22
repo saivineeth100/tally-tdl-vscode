@@ -1,49 +1,87 @@
-import { describe, expect, test } from 'vitest';
+
+import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser';
-import { TokenKind } from '../../tokenKind';
-import { SyntaxKind } from '../../ast';
-import * as fs from 'fs';
-import * as path from 'path';
+import { DefinitionNode } from '../../ast';
 
-const samplesDir = 'c:/Program Files/TallyPrimeDeveloper_6/Samples/Symbols & Prefixes';
+describe('Parser - Sample Files', () => {
+    it('should parse Simple Var.txt structure', () => {
+        const input = `
+[Function: Simple Var in Func]
+    Variable    : Simple Var : String
+    01: SET     : Simple Var : "Variable value set within Function"
+    02: DISPLAY : SimpleReport
 
-describe('Parser Samples Verification', () => {
+[Report: Simple Report]
+    Form    : Simple Report
+    Title   : "Function Scope"
 
-    if (!fs.existsSync(samplesDir)) {
-        console.warn(`Samples directory not found: ${samplesDir}. Skipping sample tests.`);
-        return;
-    }
+[Form: Simple Report]
+    Parts   : Simple Report
 
-    const files = fs.readdirSync(samplesDir).filter(f => f.endsWith('.txt'));
+[Part: Simple Report]
+    Lines   : Simple Report Info
+    Width   : 60% Page
+`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
 
-    files.forEach(file => {
-        test(`Parse ${file}`, () => {
-            const fullPath = path.join(samplesDir, file);
-            const content = fs.readFileSync(fullPath, 'utf8');
+        expect(sourceFile.definitions.length).toBe(4);
+        expect(sourceFile.definitions[0].type.text).toBe("Function");
+        expect(sourceFile.definitions[1].type.text).toBe("Report");
+        expect(sourceFile.definitions[2].type.text).toBe("Form");
+        expect(sourceFile.definitions[3].type.text).toBe("Part");
+    });
 
-            const parser = new Parser(content);
-            const sourceFile = parser.parse();
+    it('should parse Collection with Filter attribute', () => {
+        const input = `
+[Collection: CAF My Ledgers]
+    Type        : Ledger
+    Child of    : $$GroupSundryDebtors
+    Belongs to  : Yes
+    Filter      : CAF Ledger Filter
+    Fetch       : Name, STPartyFullAdd, StateName
 
-            expect(sourceFile).toBeDefined();
-            expect(sourceFile.kind).toBe(SyntaxKind.SourceFile);
+[System: Formula]
+    CAF Ledger Filter : $Name CONTAINS "Ltd"
+`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
 
-            // Check if we parsed ANY definitions
-            // Some files might be empty or comments only?
-            if (sourceFile.definitions.length === 0) {
-                // Warn? Or check if content was empty?
-                // console.log(`File ${file} parsed but found 0 definitions.`);
-            } else {
-                // Check basic structure of first definition
-                const firstDef = sourceFile.definitions[0];
-                expect(firstDef.kind).toBe(SyntaxKind.Definition);
-            }
+        expect(sourceFile.definitions.length).toBe(2);
+        expect(sourceFile.definitions[0].type.text).toBe("Collection");
+        expect(sourceFile.definitions[0].attributes.length).toBeGreaterThan(3);
+        expect(sourceFile.definitions[1].type.text).toBe("System");
+    });
 
-            // Should valid TDL samples have errors? 
-            // Ideally 0 errors.
-            // But strict parser might find things it doesn't understand yet.
-            // Let's check for "Critical" errors or crashes strictly first.
+    it('should parse Variable and Button definitions', () => {
+        const input = `
+[Variable: Smp Show Master]
+    Type    : String
 
-            // To make this useful, let's Fail if we have 0 definitions but file is large?
-        });
+[Button: Smp Show Group]
+    Key     : Ctrl + R
+    Action  : Set : Smp ShowMaster : "Groups"
+    Title   : "Show Groups"
+`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+
+        expect(sourceFile.definitions.length).toBe(2);
+        expect(sourceFile.definitions[0].type.text).toBe("Variable");
+        expect(sourceFile.definitions[1].type.text).toBe("Button");
+    });
+
+    it('should parse Switch attribute in Collection', () => {
+        const input = `
+[Collection: My Coll]
+    Use     : Alias Collection
+    Switch  : OptCase : MyLed Coll : ##SmpShowMaster = "Ledgers"
+`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+
+        expect(sourceFile.definitions.length).toBe(1);
+        const coll = sourceFile.definitions[0];
+        expect(coll.attributes.some(a => a.name.text === "Switch")).toBe(true);
     });
 });

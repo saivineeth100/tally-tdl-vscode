@@ -1,0 +1,665 @@
+{
+  "CapInfo": {
+    "Description": "This function is used to retrieve capsule related information.",
+    "Parameters": [
+      {
+        "Description": "Specify the type of information to be retrieved. Such as ComponentName, RevisionID.",
+        "Parameter Type": "Keyword",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Cap Info",
+        "Keywords": "ComponentName, RevisionID",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Its the parameter which needs to be passed for the query being done. Such as Capsule ID",
+        "Parameter Type": "Value",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "System",
+      "Execution Mode": "Client"
+    },
+    "Name": "CapInfo"
+  },
+  "CmpUserLevel": {
+    "Description": "This function provides the current user Level , i.e, ?Owner? Or  ?Data  Entry? depends on the Security control.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "CmpUserLevel"
+  },
+  "CmpUserName": {
+    "Description": "This function returns the Tally Vault user name.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "CmpUserName"
+  },
+  "COMExecute": {
+    "Description": "This function is used to invoke the defined COM Interface. It can invoke Interfaces with only IN Parameters.",
+    "Parameters": [
+      {
+        "Description": "Name of the COM Interface defined using definition type COM Interface.",
+        "Parameter Type": "Identifier",
+        "Is Mandatory": "Yes",
+        "Refers To": "COM Interface ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is used to specify the IN Parameters accepted by the COM Interface in the same order as specified in the COM Interface Definition.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "No",
+        "Variable Argument": "Yes"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client"
+    },
+    "Name": "COMExecute"
+  },
+  "ContainDirectories": {
+    "Description": "This function is used to check whether the directory path contains sub (directories) folders or not.",
+    "Parameters": [
+      {
+        "Description": "Specify the string expression.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "ContainDirectories"
+  },
+  "CurrentCompany": {
+    "Description": "This function is used to refer to the name of the company which has been currently loaded. This function does not accept any parameter and returns the company name as result.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "CurrentCompany"
+  },
+  "CurrentDate": {
+    "Description": "This function is used to pick up the Current Date set in Tally. This does not accept any parameter and returns a value of type Date.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Date"
+    },
+    "Name": "CurrentDate"
+  },
+  "CurrentPeriodFrom": {
+    "Description": "The above function is used Display the Starting Date of the Current financial Period. It does not take any parameters but returns a value of type Date.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Date"
+    },
+    "Name": "CurrentPeriodFrom"
+  },
+  "CurrentPeriodTo": {
+    "Description": "The above function is used to display the Ending Date of the Current Period.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Date"
+    },
+    "Name": "CurrentPeriodTo"
+  },
+  "CurrentSimpleCompany": {
+    "Description": "This function returns the current simple company Name, which is not a group company.In case of this function is called in a Group company,  it returns first simple company under that.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "CurrentSimpleCompany"
+  },
+  "DebugLog": {
+    "Description": "This function is used to log all the parsing evaluation done when tally is run in DevMode. The expression evaluation results can be viewed in tally working directory with the excel filename starting with \u0027debug\u0027.",
+    "Parameters": [
+      {
+        "Description": "This parameter specifies the expression whose parsing has to be logged.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client"
+    },
+    "Name": "DebugLog"
+  },
+  "ExcelInfo": {
+    "Description": "This function is used to get the Excel \u0027version\u0027 and to check whether \u0027XLSX\u0027 format is supported.",
+    "Parameters": [
+      {
+        "Description": "It accepts any one of the keywords IsXLSXSupported or Version. The keyword IsXLSXSupported is used to check if the format \u0027xlsx\u0027 is supported and Version to get the Excel version number.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client"
+    },
+    "Name": "ExcelInfo"
+  },
+  "GetFileNameFromPath": {
+    "Description": "This function returns file name or the last directory from the specified path.",
+    "Parameters": [
+      {
+        "Description": "Specify the path.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "GetFileNameFromPath"
+  },
+  "GetParentDirectory": {
+    "Description": "This function returns the parent directory for specifed path.",
+    "Parameters": [
+      {
+        "Description": "Specify the path.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "GetParentDirectory"
+  },
+  "IsAnyCmpOwner": {
+    "Description": "This function checks whether the person is an administrator or not and has permission for company operations.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsAnyCmpOwner"
+  },
+  "IsCmpOwner": {
+    "Description": "This function checks if the person is the Administrator. Here Administrator is the person who is assigned as Admin in the Company Creation/Alteration Report Only.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsCmpOwner"
+  },
+  "IsDirectoryExists": {
+    "Description": "This function allows to find if given directory exists or not.",
+    "Parameters": [
+      {
+        "Description": "To specify the Path.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsDirectoryExists"
+  },
+  "IsFileExists": {
+    "Description": "This function allows to find if given file exists or not.",
+    "Parameters": [
+      {
+        "Description": "To specify the Path.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsFileExists"
+  },
+  "IsHiddenFileDir": {
+    "Description": "This function is used to check the directory or file is hidden or not.",
+    "Parameters": [
+      {
+        "Description": "To specify the path of the directory or file to be checked whether hidden or not.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsHiddenFileDir"
+  },
+  "IsInternetActive": {
+    "Description": "This function allows to find if there is an active modem or a LAN Internet connection on the local system",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsInternetActive"
+  },
+  "IsPathNetworkShared": {
+    "Description": "This function return True if the path provided is a Network shared.",
+    "Parameters": [
+      {
+        "Description": "Specify the path to be checked.",
+        "Parameter Type": "Value",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsPathNetworkShared"
+  },
+  "IsSimpleCompany": {
+    "Description": "This function is used to check whether the currently opened company is a Simple Company or not.",
+    "Parameters": [
+      {
+        "Description": "To specify the Name of the company.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "IsSimpleCompany"
+  },
+  "MakeFTPName": {
+    "Description": "The function $$MakeFTPName is used for creating the file transfer protocol based on the specifications. The parameters becomes FtpServer, FtpUser, FtpPassword, FtpPath.  FTPServer is used for  specifying the server , FTPUser is for specifying the user and so on.",
+    "Parameters": [
+      {
+        "Description": "To specify the FTP server name and optional port.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the FTP user name.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the FTP user name.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the FTP full path name.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "4",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "MakeFTPName"
+  },
+  "MakeHTTPName": {
+    "Description": "The function $$MakeHTTPName is used for creating the Hyper Text Transfer Protocol for the specified security features.  The Syntax includes the string formula HttpUrl, HttpIsSecure, Http User Name, HttpPassword \u0026 CompanyName.",
+    "Parameters": [
+      {
+        "Description": "To specify HTTP URL can be of the form URL:8000/filename or URL/filename.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the HTTP is secure or not.",
+        "Parameter Type": "Value",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the HTTP is secure or not.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the HTTP password.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "To specify the HTTP password.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "5",
+      "Total Mandatory Parameters": "4",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "MakeHTTPName"
+  },
+  "MakeMAILName": {
+    "Description": "Constructs a SMTP mail to URL from various parameters for sending mail.",
+    "Parameters": [
+      {
+        "Description": "Mail To field",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Mail To field",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Mail From field",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Mail From field",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Mail subject field",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Mail subject field",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Mail password field",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Mail password field",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Mail Use SSL on Standard SMTP Port",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Mail Use SSL on Standard SMTP Port",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "10",
+      "Total Mandatory Parameters": "8",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "MakeMAILName"
+  },
+  "OriginalCompany": {
+    "Description": "Returns the name of Original Company to which the Object Belongs. This is evaluated in the context of Primary Object available in current context",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "String"
+    },
+    "Name": "OriginalCompany"
+  },
+  "ParentPeriodFrom": {
+    "Description": "The function $$ParentPeriodFrom is used to fetch starting date of the accounting period. It accepts no parameter and returns a date value which is present in the From date of the period.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Date"
+    },
+    "Name": "ParentPeriodFrom"
+  },
+  "SetWorkingDir": {
+    "Description": "This function allows you to change the current working directory.",
+    "Parameters": [
+      {
+        "Description": "To specify the Path to be set as Working Directory. If not given then default application path wil be set.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client"
+    },
+    "Name": "SetWorkingDir"
+  },
+  "SysInfo": {
+    "Description": "This function is used to retrieve system related information.",
+    "Parameters": [
+      {
+        "Description": "Returns any one of the following: Machine Name, Machine IP Address, Machine MAC Address, Current Windows User, Current System Date, Working folder, Application folder, Returns whether Tally is running on Windows or Not, Windows Version, The IPv4 and IPv6 URL on which Tally is Running.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client"
+    },
+    "Name": "SysInfo"
+  },
+  "SystemPeriodFrom": {
+    "Description": "$$SystemPeriodFrom function will give the value of the starting date of the currently selected company.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Date"
+    },
+    "Name": "SystemPeriodFrom"
+  },
+  "SystemPeriodTo": {
+    "Description": "$$SystemPeriodTo function will give the value of the ending date of the currently selected company.",
+    "Parameters": [],
+    "Meta": {
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Date"
+    },
+    "Name": "SystemPeriodTo"
+  },
+  "ValidatePath": {
+    "Description": "This function is used to check whether syntax of a path is correct.",
+    "Parameters": [
+      {
+        "Description": "Specify the path.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client",
+      "Return Type": "Logical"
+    },
+    "Name": "ValidatePath"
+  },
+  "WordInfo": {
+    "Description": "This function is used to get the Word \u0027version\u0027 supported. This can also be used to find  if Word is installed",
+    "Parameters": [
+      {
+        "Description": "It accepts any one of the keywords IsDOCXSupported or Version. The keyword IsDOCSupported is used to check if the format \u0027docx\u0027 is supported and Version to get the Word version number.",
+        "Parameter Type": "Value",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "System",
+      "Execution Mode": "Client"
+    },
+    "Name": "WordInfo"
+  }
+}

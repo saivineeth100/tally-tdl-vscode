@@ -1,0 +1,356 @@
+{
+  "Activity Desc": {
+    "Description": "This attribute specifies the description associated with the notification report.",
+    "Parameters": [
+      {
+        "Description": "This is  used to define the string value that represents the activity description shown in the notification report.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Activity Desc, Activity Description",
+      "Type": "Single"
+    },
+    "Name": "Activity Desc"
+  },
+  "Activity Name": {
+    "Description": "This attribute is used to specify the activity name for the notification report.",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to a string value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Activity Name",
+      "Type": "Single"
+    },
+    "Name": "Activity Name"
+  },
+  "ActivityID": {
+    "Description": "This attribute is used to provide an ID to the notification which will help in uniquely identifying each notification.",
+    "Parameters": [
+      {
+        "Description": "A unique value of type Long, which serves as the identifier for the notification.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ActivityID",
+      "Type": "Single"
+    },
+    "Name": "ActivityID"
+  },
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Delete All Previous": {
+    "Description": "It specifies whether all previous notifications of this activity type should be deleted when raising a new activity of the same type. The default value is No. If set to Yes, the Raise New attribute is ignored, and a new activity will always be created.",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to a logical value (Yes/No).",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Delete All Previous",
+      "Type": "Single"
+    },
+    "Name": "Delete All Previous"
+  },
+  "Expiry DateTime": {
+    "Description": "It specifies the date and time when the notification should expire. This is used only when Expiry Relative is set to No. If this value is not provided, the Expiry Relative setting will be ignored.",
+    "Parameters": [
+      {
+        "Description": "Specify the absolute date and time for the notification to expire.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "DateTime",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Expiry DateTime",
+      "Type": "Single"
+    },
+    "Name": "Expiry DateTime"
+  },
+  "Expiry Duration": {
+    "Description": "This attribute is used to specify the duration after which the notification should expire, but only if Expiry Relative is set to Yes.",
+    "Parameters": [
+      {
+        "Description": "It provides the expiry duration, by default it is in days, it will be calculated from the time the notification is raised.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It specifies the keyword for unit of time and it can be one of: Week(s), Day(s), Hour(s), Minute(s), or Second(s).",
+        "Parameter Type": "Keyword",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Keyword Set": "Duration Unit",
+        "Keywords": "Day, Days, Hour, Hours, Minute, Minutes, Second, Seconds, Week, Weeks",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Expiry Duration",
+      "Type": "Dual"
+    },
+    "Name": "Expiry Duration"
+  },
+  "Expiry Relative": {
+    "Description": "This attribute is used to specify whether the expiry value of a particular notification an absolute date/time or relative like the expiry starts from the notification creation time. If it is not specified, it is treated as no expiry for this notification.",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to a logical value (Yes/No).",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Expiry Relative",
+      "Type": "Single"
+    },
+    "Name": "Expiry Relative"
+  },
+  "Handler": {
+    "Description": "This attribute is used to invoke a TDL function when the user presses Enter on a notification.",
+    "Parameters": [
+      {
+        "Description": "It is used to specify the name of the function.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Function ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Handler",
+      "Type": "Single"
+    },
+    "Name": "Handler"
+  },
+  "Is Company Notif": {
+    "Description": "It specifies whether the notification is at company level or at application level. The default value is Yes, i.e., at company level.",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to a logical value (Yes/No).",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Is Company Notif, Is Company Notify",
+      "Type": "Single"
+    },
+    "Name": "Is Company Notif"
+  },
+  "Persist": {
+    "Description": "It specifies whether the notification is temporarily held in memory or persisted across sessions. The default value is Yes.",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to a logical value (Yes/No).",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Persist, Persistent",
+      "Type": "Single"
+    },
+    "Name": "Persist"
+  },
+  "Raise New": {
+    "Description": "If the present notification with same activity already exists on the notification report, it specifies whether a new notification can be raised or not. The default value is Yes.",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to a logical value (Yes/No).",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Raise New",
+      "Type": "Single"
+    },
+    "Name": "Raise New"
+  },
+  "Snooze Type": {
+    "Description": "It specifies whether the notification can be snoozed or not.",
+    "Parameters": [
+      {
+        "Description": "It takes the default values of snooze types. The snooze type can be NextReminderDate or NextProductUpdate.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Snooze Type",
+        "Keywords": "NextProductUpdate, NextReminderDate",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Snooze Type",
+      "Type": "Single"
+    },
+    "Name": "Snooze Type"
+  },
+  "Snooze Value": {
+    "Description": "This attribute is applicable only when the Snooze Type is set to NextReminderDate. The value will specify the time for which the notification is snoozed.",
+    "Parameters": [
+      {
+        "Description": "It takes a unique value and it must be a positive long integer. It is used to specify the snooze duration.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It takes a keyword representing the time unit. If omitted, it defaults to days. The value for the unit can be weeks/week, days/day, hours/hour, minutes/minute, seconds/second.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Keyword Set": "Duration Unit",
+        "Keywords": "Day, Days, Hour, Hours, Minute, Minutes, Second, Seconds, Week, Weeks",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Snooze Value",
+      "Type": "Dual"
+    },
+    "Name": "Snooze Value"
+  },
+  "Type": {
+    "Description": "It specifies the type of the notification.",
+    "Parameters": [
+      {
+        "Description": "It takes the value for the notification type. Notification types can be Normal, Non-Dismissible, No-read, No-read-no-dismiss. The default value will always be Normal.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Notification Type",
+        "Keywords": "Non-dismissible, No-read, No-read-no-dismiss, Normal",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Type",
+      "Type": "Single"
+    },
+    "Name": "Type"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  }
+}

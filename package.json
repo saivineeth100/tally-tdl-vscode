@@ -21,10 +21,16 @@
         "vscode": "^1.96.0"
     },
     "activationEvents": [
-        "workspaceContains:**/*.{tcp,tpj}"
+        "onLanguage:xml",
+        "workspaceContains:**/*.{tcp,tpj,tdl,tdlxml,xml}"
     ],
     "main": "./client/out/extension",
     "contributes": {
+        "chatSkills": [
+            {
+                "path": "./skills/tally-tdl/SKILL.md"
+            }
+        ],
         "walkthroughs": [
             {
                 "id": "TallyTDLWalkthrough",
@@ -45,10 +51,23 @@
         ],
         "commands": [
             {
-                "command": "tally-tdl.helloWorld",
-                "title": "Hello World"
+                "command": "tally-tdl.runCurrentFile",
+                "title": "Tally TDL: Run Current File"
+            },
+            {
+                "command": "tally-tdl.convertToXml",
+                "title": "Tally TDL: Convert to XML"
             }
         ],
+        "menus": {
+            "editor/context": [
+                {
+                    "when": "resourceLangId == tdl",
+                    "command": "tally-tdl.convertToXml",
+                    "group": "navigation"
+                }
+            ]
+        },
         "languages": [
             {
                 "id": "tdl",
@@ -58,21 +77,18 @@
                 ],
                 "extensions": [
                     ".tdl",
-                    ".TDL"
+                    ".TDL",
+                    ".txt",
+                    ".tdxml"
                 ],
                 "configuration": "./tdl.language-configuration.json"
             },
             {
-                "id": "tdlxml",
-                "aliases": [
-                    "Tally TDL XML",
-                    "tdl xml"
-                ],
+                "id": "xml",
                 "extensions": [
                     ".tdlxml",
                     ".TDLXML"
-                ],
-                "configuration": "./tdlxml.language-configuration.json"
+                ]
             }
         ],
         "grammars": [
@@ -80,11 +96,6 @@
                 "language": "tdl",
                 "scopeName": "source.tdl",
                 "path": "./syntaxes/tdl.tmLanguage.json"
-            },
-            {
-                "language": "tdlxml",
-                "scopeName": "source.tdlxml",
-                "path": "./syntaxes/tdlxml.tmLanguage.json"
             }
         ],
         "snippets": [
@@ -93,7 +104,7 @@
                 "path": "./snippets/tdl.snippets.json"
             },
             {
-                "language": "tdlxml",
+                "language": "xml",
                 "path": "./snippets/tdlxml.snippets.json"
             }
         ],
@@ -111,7 +122,29 @@
                     ],
                     "default": "off",
                     "description": "Traces the communication between VSCode and the language server."
+                },
+                "tallyTDL.tallyExePath": {
+                    "scope": "machine",
+                    "type": "string",
+                    "default": "C:\\Program Files\\TallyPrime\\tally.exe",
+                    "description": "Path to the Tally executable."
+                },
+                "tallyTDL.tallyCommandLineArgs": {
+                    "scope": "machine",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [
+                        "${file}"
+                    ],
+                    "description": "Command line arguments to pass to Tally. Use ${file} as a placeholder for the current file path."
                 }
+            }
+        },
+        "configurationDefaults": {
+            "[tdl]": {
+                "editor.formatOnType": true
             }
         }
     },
@@ -120,7 +153,7 @@
         "compile": "tsc -b",
         "watch": "tsc -b -w",
         "lint": "eslint .",
-        "test": "sh ./scripts/e2e.sh"
+        "test": "npm run test -w server"
     },
     "devDependencies": {
         "@types/mocha": "^10.0.6",
@@ -128,7 +161,9 @@
         "@typescript-eslint/eslint-plugin": "^8.17.0",
         "@typescript-eslint/parser": "^8.17.0",
         "eslint": "^9.16.0",
-        "typescript": "^5.7.2"
+        "globals": "^17.6.0",
+        "typescript": "^5.7.2",
+        "typescript-eslint": "^8.59.4"
     },
     "workspaces": [
         "client",

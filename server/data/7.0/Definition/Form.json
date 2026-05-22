@@ -1,0 +1,1628 @@
+{
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Background": {
+    "Description": "Specifies the Background color of the Form.",
+    "Parameters": [
+      {
+        "Description": "To specify a particular color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Background",
+      "Type": "Single"
+    },
+    "Name": "Background"
+  },
+  "Balance": {
+    "Description": "The attribute inserts the total line in the form depending upon the type of balancing method set for the form, i.e. Daily, Weekly or Yearly.",
+    "Parameters": [
+      {
+        "Description": "To specify the Total line to be used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Line ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Formula Name to return date based on the Balancing Methos Daily,Weekly or yearly.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Balance, Balancing, Closing Bal, Closing Balance",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Balance"
+  },
+  "Belongs To": {
+    "Description": "This attribute works along with Full Object. Set Belongs To and Full Object to Yes to export the dependencies associated with the object(s) being exported. By default its value is No.",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to Yes or No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Belongs To, Family",
+      "Type": "Single"
+    },
+    "Name": "Belongs To"
+  },
+  "Bottom Button": {
+    "Description": "Lists the button names that appear bottom of the right vertical side of the Screen.",
+    "Parameters": [
+      {
+        "Description": "To specify which button/key to be added.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Bottom Button, Bottom Buttons",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Bottom Button"
+  },
+  "Bottom Part": {
+    "Description": "Lists the part names appearing at the bottom of the Screen.",
+    "Parameters": [
+      {
+        "Description": "To specify the Parts to be used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Part ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Bottom Part, Bottom Parts, Right Part, Right Parts",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Bottom Part"
+  },
+  "Bottom ToolBar Button": {
+    "Description": "List the button names that appear at the bottom of the form [Bottom Toolbar].",
+    "Parameters": [
+      {
+        "Description": "To specify which button/key to be added.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Bottom ToolBar Button, Bottom ToolBar Buttons",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Bottom ToolBar Button"
+  },
+  "Button": {
+    "Description": "Lists the button/key names appearing when the form is triggered.",
+    "Parameters": [
+      {
+        "Description": "To specify which button/key to be added.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Button, Buttons, Top Button, Top Buttons",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Button"
+  },
+  "Cell Write": {
+    "Description": "Specifies whether the data should be written to the excel sheet cell by cell or as a whole.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.If the value is Yes then the cell write will used to export value to excel sheet cell by cell. If the value is No then the entire data is dumped as a whole.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Cell Write",
+      "Type": "Single"
+    },
+    "Name": "Cell Write"
+  },
+  "Color": {
+    "Description": "Specifies the foreground color at Form level.",
+    "Parameters": [
+      {
+        "Description": "Name of the color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Color, Shade",
+      "Type": "Single"
+    },
+    "Name": "Color"
+  },
+  "Confirm Text": {
+    "Description": "Specify the title to be displayed for Confirm Query on Form Accept",
+    "Parameters": [
+      {
+        "Description": "To Specify value of Title to be displaye for Form Accept Query",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Confirm Text, Query Text",
+      "Type": "Single"
+    },
+    "Name": "Confirm Text"
+  },
+  "Control": {
+    "Description": "Applies Control at the form level based on the the specified condition with a prompt / message given as the first parameter.The save for the form fails if the condition evaluates to false.",
+    "Parameters": [
+      {
+        "Description": "To specify the String to be displayed.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "System Formulae",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the control based on the logical condition.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Control",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Control"
+  },
+  "Control Ex": {
+    "Description": "Applies Control Ex at the form level based on the the specified condition which prompts the extended query box.",
+    "Parameters": [
+      {
+        "Description": "To specify the extended query box name.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "QueryBox ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the control based on the logical condition.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the control based on the logical condition.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Variable ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Control Ex",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Control Ex"
+  },
+  "Default": {
+    "Description": "This attribute is used to specify the cursor focus in the report based on the logical condition. Absence of this condition always sets the cursor focus to the first line (non-fixed).",
+    "Parameters": [
+      {
+        "Description": "To specify the String to be displayed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Default",
+      "Type": "Single"
+    },
+    "Name": "Default"
+  },
+  "Default Field": {
+    "Description": "Defaults the field with the value in the Default Value attribute value if the specified condition is true.",
+    "Parameters": [
+      {
+        "Description": "To specify which Field to be used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the default field\u0027s value based on the logical formula.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Default Field",
+      "Type": "Dual"
+    },
+    "Name": "Default Field"
+  },
+  "Default Value": {
+    "Description": "This attribute sets the Default Value for the field set with the Default Field Attribute in the Form which do not have a value set with the attribute Set as. The benefit thus achieved is that when the cursor focus goes to that filed, it stays in the last position of the default string. For e.g, default value of Ch. No.: in narration field. ",
+    "Parameters": [
+      {
+        "Description": "To specify the String to be displayed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Default Value",
+      "Type": "Single"
+    },
+    "Name": "Default Value"
+  },
+  "DMPMode": {
+    "Description": "This is available in Form, Part, Line, Field and it is used only in dot matrix mode of printing to set the style.",
+    "Parameters": [
+      {
+        "Description": "Values allowed under this are: \u0027Normal\u0027, \u0027Bold\u0027, \u0027Italics\u0027, \u0027Underline\u0027, \u0027Condensed\u0027, \u0027Enlarged\u0027, \u0027DoubleLine\u0027.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "DMPMode",
+      "Type": "Single"
+    },
+    "Name": "DMPMode"
+  },
+  "Empty": {
+    "Description": "This attribute is used to make the \u0027Form\u0027 empty based on some condition in multi printing.",
+    "Parameters": [
+      {
+        "Description": "To specify the logical condition for the Attribute.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Empty, Empty if, Empty on",
+      "Type": "Single"
+    },
+    "Name": "Empty"
+  },
+  "Excel AutoFit": {
+    "Description": "Used for Excel Export, and specifies if the AutoFit property of excel should be enabled or not.",
+    "Parameters": [
+      {
+        "Description": "To specify the logical condition for the Attribute.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Excel AutoFit",
+      "Type": "Single"
+    },
+    "Name": "Excel AutoFit"
+  },
+  "Excel No Format": {
+    "Description": "This attribute when used in the form does not allow changes to format during export.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Excel No Format",
+      "Type": "Single"
+    },
+    "Name": "Excel No Format"
+  },
+  "Excel Sheet Name": {
+    "Description": "Used for Excel Export, and gives the name for the sheet in the exported Workbook.",
+    "Parameters": [
+      {
+        "Description": "To specify the Sheet Name to be displayed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This is a condition which if succeeds then a new sheet with the specified name is created.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Excel Sheet Name",
+      "Type": "Dual"
+    },
+    "Name": "Excel Sheet Name"
+  },
+  "Export": {
+    "Description": "This is used to pass the field value to the parent report from the current (trigger) report once the current report\u0027s form is accepted. This is useful to get the input from the user and pass it to the caller\u0027s report.",
+    "Parameters": [
+      {
+        "Description": "The specified field value will get pasted from current report to the caller/parent report\u0027s field from which the trigger report is called.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Field ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Export, Output",
+      "Type": "Single"
+    },
+    "Name": "Export"
+  },
+  "Fetch Object": {
+    "Description": "This attribute is used when multiple forms are available at a report and for each form the methods pertaining to different objects are to be fetched.",
+    "Parameters": [
+      {
+        "Description": "This parameter is object type identifier.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This can be any Expression.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This can be any Expression.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Fetch Object",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Fetch Object"
+  },
+  "Full Height": {
+    "Description": "Sets the hieght of the form to 100 % of the screen if the value is Yes.",
+    "Parameters": [
+      {
+        "Description": "To specify the logical condition for the Attribute.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Full Height",
+      "Type": "Single"
+    },
+    "Name": "Full Height"
+  },
+  "Full Object": {
+    "Description": "This attribute exports the object storages associated with the Report, including UDFs when its value is yes. The default value is No.",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to Yes or No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Full Object",
+      "Type": "Single"
+    },
+    "Name": "Full Object"
+  },
+  "Full Width": {
+    "Description": "Sets the width of the form to 100 % of the screen if the value is Yes.",
+    "Parameters": [
+      {
+        "Description": "To specify the logical condition for the Attribute.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Full Width",
+      "Type": "Single"
+    },
+    "Name": "Full Width"
+  },
+  "Gray Back": {
+    "Description": "This attribute helps the user to control whether the screen should be greyed-out before showing the query box or not.?The default value for this attribute is FALSE.",
+    "Parameters": [
+      {
+        "Description": "To specify the logical expression.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Gray Back, Grey Back",
+      "Type": "Single"
+    },
+    "Name": "Gray Back"
+  },
+  "Height": {
+    "Description": "Sets the height of the form to the value specified.It can be specified in any unit of measurement supported by tally eg mms,inch,or % of screen/page.",
+    "Parameters": [
+      {
+        "Description": "To specify the unit of measurement.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Height",
+      "Type": "Single"
+    },
+    "Name": "Height"
+  },
+  "Help": {
+    "Description": "Specifies the index / id of the help file.",
+    "Parameters": [
+      {
+        "Description": "To specify the Index value for the attribute.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Expression that returns the GUID of the addon/module for invoking help",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Help",
+      "Type": "Dual List",
+      "Is Discrete": "No"
+    },
+    "Name": "Help"
+  },
+  "Horizontal Align": {
+    "Description": "Specifies the horizontal alignment of the form on screen. The alignment of the form across the width of the page is set by this attribute.  The default alignment is centre of the form horizontally.",
+    "Parameters": [
+      {
+        "Description": "To specify the alignment type as Left,Right,Centre.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Align Type",
+        "Keywords": "Bottom, Center, Centre, Justified, Left, Prompt, Right, Top",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Horizontal Align, Horizontal Alignment",
+      "Type": "Single"
+    },
+    "Name": "Horizontal Align"
+  },
+  "JSON Map": {
+    "Description": "Maps tokens in the document template to expressions whose evaluated values replace the tokens during print or export.",
+    "Parameters": [
+      {
+        "Description": "Name of the token in the template.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "A valid expression whose value will replace the token during printing or export.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "A valid expression whose value will replace the token during printing or export.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Collection ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "JSON Map, Map, XML Map",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "JSON Map"
+  },
+  "JSONTag": {
+    "Description": "To specify the tag name for the form in the exported JSON/XML file. If not specified, the tag name for the form doesn\u0027t appear in the output.",
+    "Parameters": [
+      {
+        "Description": "Name of the JSON/XML tag.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "JSONTag, XMLTag",
+      "Type": "Single"
+    },
+    "Name": "JSONTag"
+  },
+  "Key": {
+    "Description": "The attribute Keys determines the list of keys active for the form.",
+    "Parameters": [
+      {
+        "Description": "To specify which key to be added.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key, Keys",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Key"
+  },
+  "Left Part": {
+    "Description": "Lists the part names appearing at the left side.",
+    "Parameters": [
+      {
+        "Description": "To specify the Parts to be used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Part ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Left Part, Left Parts, Part, Parts, Top Part, Top Parts",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Left Part"
+  },
+  "Local": {
+    "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+    "Parameters": [
+      {
+        "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local",
+      "Type": "Local List",
+      "Is Discrete": "No"
+    },
+    "Name": "Local"
+  },
+  "Local Formula": {
+    "Description": "This is used to specify a local formula within the Form.",
+    "Parameters": [
+      {
+        "Description": "The name of the Local Formula.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The expression which needs to be evaluated.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local Formula",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Local Formula"
+  },
+  "Min Height": {
+    "Description": "This attribute sets the minimum height of the form to the specified value. It supports all the Tally supported units of measurements.",
+    "Parameters": [
+      {
+        "Description": "To specify the height of the form in Tally supported units of measurements.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Min Height",
+      "Type": "Single"
+    },
+    "Name": "Min Height"
+  },
+  "Min Width": {
+    "Description": "This attribute sets the minimum width of the form to the specified value. It supports all the Tally supported units of measurements.",
+    "Parameters": [
+      {
+        "Description": "To specify the width of the form in Tally supported units of measurements.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Min Width",
+      "Type": "Single"
+    },
+    "Name": "Min Width"
+  },
+  "No Confirm": {
+    "Description": "This attribute is used to specifiy whether to get the confirmation from the user before quit or save.Setting No Confirm to yes does not display the confirmation screen.",
+    "Parameters": [
+      {
+        "Description": "To specify the logical condition for the Attribute.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "No Confirm, No Confirmation",
+      "Type": "Single"
+    },
+    "Name": "No Confirm"
+  },
+  "Notify": {
+    "Description": "This attribute notifies the user based on the condition with a warning message at the form level.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the formula and the value to be displayed when the specified condition is satisfied.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "System Formulae",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This sub-attribute is used to specify the condition on which the warning is given.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This sub-attribute is used to specify the condition on which the warning is given.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Notify",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Notify"
+  },
+  "On": {
+    "Description": "ON keyword is used to specify a list of Actions to be executed on the occurance of an Event.",
+    "Parameters": [
+      {
+        "Description": "ON keyword is used to specify a list of Actions to be executed on the occurance of an Event.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "On",
+      "Type": "Event List",
+      "Is Discrete": "No"
+    },
+    "Name": "On"
+  },
+  "Opening Bal": {
+    "Description": "This attribute inserts the opening balance line in the form. This attribute works with the combination of \u0027Balancing\u0027.",
+    "Parameters": [
+      {
+        "Description": "To specify the opening balance line to be used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Line ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Opening Bal, Opening Balance",
+      "Type": "Single"
+    },
+    "Name": "Opening Bal"
+  },
+  "Option": {
+    "Description": "Option is an attribute which can be used by various definitions, to provide a conditional result in a program.",
+    "Parameters": [
+      {
+        "Description": "This specifies the name of the Optional Form.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Form ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Logical Condition/ expression which returns logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Option, Options",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Option"
+  },
+  "Output Config Report": {
+    "Description": "Specifies the Form to be used for print.",
+    "Parameters": [
+      {
+        "Description": "To specify the Report to be printed.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Output Config Report, Print",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Output Config Report"
+  },
+  "Output Template": {
+    "Description": "To specify the output file that is to be used for printing or exporting.",
+    "Parameters": [
+      {
+        "Description": "The name of the output file for export",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Output Template",
+      "Type": "Single"
+    },
+    "Name": "Output Template"
+  },
+  "Page Break": {
+    "Description": "Lists the part names that is seen as the header and footer for the each page in print.",
+    "Parameters": [
+      {
+        "Description": "To specify the Parts to be used as Footer at the end of the page.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Part ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the Parts to be used as Header at the new page.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Part ",
+        "Separator Char": "\u0027,\u0027",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the Parts to be used as Header at the new page.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Page Break",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Page Break"
+  },
+  "Persist": {
+    "Description": "",
+    "Parameters": [
+      {
+        "Description": "",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Persist, Persistent",
+      "Type": "Single"
+    },
+    "Name": "Persist"
+  },
+  "Preaccept Object Map": {
+    "Description": "This attribute is used to call the object map before the form accept.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to call object map definition before the form accept.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object Map ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This sub-attribute is used to specify the logical expression which is to be evaluated, if yes calls object map.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Preaccept Object Map",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Preaccept Object Map"
+  },
+  "Preload Object Map": {
+    "Description": "This attribute is used to call the object map before the form load.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is object map definition which is to be called before form load.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object Map ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This sub-attribute is used to specify the logical expression which is to be evaluated.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Preload Object Map, PreProcess Object Map",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Preload Object Map"
+  },
+  "Print after Save": {
+    "Description": "This attribute is used to trigger the printing once the form is accepted/saved.",
+    "Parameters": [
+      {
+        "Description": "To specify the logical condition for the Attribute.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print after Save",
+      "Type": "Single"
+    },
+    "Name": "Print after Save"
+  },
+  "Print BG": {
+    "Description": "Gives Background Color while printing. The color thus applied for the Form will not be displayed on the screen but will be printed in color on the color printer and in shades of grey on the black \u0026 white printer.",
+    "Parameters": [
+      {
+        "Description": "To specify a particular Color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print BG",
+      "Type": "Single"
+    },
+    "Name": "Print BG"
+  },
+  "Print FG": {
+    "Description": "Specifies the foreground color at Form level for Print Mode.",
+    "Parameters": [
+      {
+        "Description": "Name of the color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print FG",
+      "Type": "Single"
+    },
+    "Name": "Print FG"
+  },
+  "Print Style": {
+    "Description": "Specifies the text style at Form level for Print Mode.",
+    "Parameters": [
+      {
+        "Description": "It determines the appearance of the text to be displayed by using a font scheme.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Style ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print Style",
+      "Type": "Single"
+    },
+    "Name": "Print Style"
+  },
+  "Repeat": {
+    "Description": "This attributes is used to indicate that the specific XML Map wherever referenced needs to be repeated as columns. The usage of this attribute will determine how to repeat. If Collection name is specified is \u0027STRING\u0027 then value will be repeated by character else the value will be repeated. Release 5.0 supports only Repat by Character",
+    "Parameters": [
+      {
+        "Description": "Name of the XML MAP. XML Map specified must be declared using XML Map attribute",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Name of the collection on which the data needs to be repeated by columns. Specify \u0027STRING\u0027 if the intent is to repeat by Character",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Repeat",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Repeat"
+  },
+  "Resource": {
+    "Description": "To specify the name of the document template that is to be used for printing or exporting. The document types useful for both printing and exporting are Word XML, Excel XML, ODT and ODS. The document types useful for exporting alone are XML and JSON.",
+    "Parameters": [
+      {
+        "Description": "The name of the Resource definition.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Resource ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Resource",
+      "Type": "Single"
+    },
+    "Name": "Resource"
+  },
+  "Set": {
+    "Description": "Initializes the value of the variable.",
+    "Parameters": [
+      {
+        "Description": "To specify the Variable Name to which the value needs to be set.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the value that needs to be set to the Variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set, Set as",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Set"
+  },
+  "Set Always": {
+    "Description": "Sets/Forces the value of the variable each time the form refreshes.",
+    "Parameters": [
+      {
+        "Description": "To specify the Variable Name to which the value needs to be set.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the value that needs to be set to the Variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Always",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Set Always"
+  },
+  "Space Bottom": {
+    "Description": "The attribute specifies space to left at the bottom of the form.  It can be specified in any unit of measurement supported by tally eg mms,inch,or % of screen/page.",
+    "Parameters": [
+      {
+        "Description": "To specify a particular Measurement.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Bottom",
+      "Type": "Single"
+    },
+    "Name": "Space Bottom"
+  },
+  "Space Left": {
+    "Description": "The attribute specifies space to be left on the left of the form. It can be specified in any unit of measurement supported by tally eg mms,inch,or % of screen/page.",
+    "Parameters": [
+      {
+        "Description": "To specify a particular Measurement.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Left",
+      "Type": "Single"
+    },
+    "Name": "Space Left"
+  },
+  "Space Right": {
+    "Description": "The attribute specifies space to be left unutilised on the right of the form. It can be specified in any unit of measurement supported by tally eg mms,inch,or % of screen/page.",
+    "Parameters": [
+      {
+        "Description": "To specify a particular Measurement.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Right",
+      "Type": "Single"
+    },
+    "Name": "Space Right"
+  },
+  "Space Top": {
+    "Description": "The attribute specifies space to be left in top of  the form.  It can be specified in any unit of measurement supported by tally eg mms,inch,or % of screen/page.",
+    "Parameters": [
+      {
+        "Description": "To specify a particular Measurement.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Top",
+      "Type": "Single"
+    },
+    "Name": "Space Top"
+  },
+  "Stripe": {
+    "Description": "This attribute enables (Yes) /disables (No) Stripes for the form to improve readability. By default it\u0027ll be set as Yes and specific format of data will have Stripes enabled. The behavior can be overridden by usage of same attribute in the child (Part).",
+    "Parameters": [
+      {
+        "Description": "Can only specify Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Stripe, Stripes",
+      "Type": "Single"
+    },
+    "Name": "Stripe"
+  },
+  "Style": {
+    "Description": "Specifies the text style at Form level.",
+    "Parameters": [
+      {
+        "Description": "It determines the appearance of the text to be displayed by using a font scheme.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Style ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Style",
+      "Type": "Single"
+    },
+    "Name": "Style"
+  },
+  "Sub Form": {
+    "Description": "This attribute specifies whether the message box or query box should be placed with reference to the Form or the entire canvas.",
+    "Parameters": [
+      {
+        "Description": "To specify the logical expression.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Sub Form, Sub Forms",
+      "Type": "Single"
+    },
+    "Name": "Sub Form"
+  },
+  "Switch": {
+    "Description": "\u0027Switch\u0027 attribute is similar to the Option attribute but reduces code complexity and improves the performance. The Switch are grouped using a label Once a condition is satisfied from one group, switch won\u0027t  check further conditions from the same group.  It will evaluate the conditions from the other groups specified, if any.",
+    "Parameters": [
+      {
+        "Description": "This can be any string combination used to group.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Form ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Switch",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Switch"
+  },
+  "Sync": {
+    "Description": "This attribute is used to specify the String Formula, based on which the Parts(Horizontal) will be Synchronized. For e.g., in case multi column cash book printing, the horizontal parts are aligned based on \u0027date\u0027.",
+    "Parameters": [
+      {
+        "Description": "To specify a particular Condition.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Sync, Synchronize",
+      "Type": "Single"
+    },
+    "Name": "Sync"
+  },
+  "Sync Rules": {
+    "Description": "This is used to specify a list of Client Rules which needs to be synchronized after accept.",
+    "Parameters": [
+      {
+        "Description": "List of Client Rules to be synchronized.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Sync Rules",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Sync Rules"
+  },
+  "SyncRulesAfterSave": {
+    "Description": " It is used to trigger Synchronization after saving the data.",
+    "Parameters": [
+      {
+        "Description": "This the expression which is evaluated to a logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "SyncRulesAfterSave",
+      "Type": "Single"
+    },
+    "Name": "SyncRulesAfterSave"
+  },
+  "ToolBar Button": {
+    "Description": "Lists the names of the buttons appearing on the toolbar.",
+    "Parameters": [
+      {
+        "Description": "To specify which button/key to be added.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ToolBar Button, ToolBar Buttons",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "ToolBar Button"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Form ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "Vertical Align": {
+    "Description": "Specifies the vertical alignment of the form on screen. The alignment of the form across the height of the page is set by this attribute.  The default alignment is centre of the form vertically on screen.",
+    "Parameters": [
+      {
+        "Description": "To specify the alignment type as Top,Bottom,Centre.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Align Type",
+        "Keywords": "Bottom, Center, Centre, Justified, Left, Prompt, Right, Top",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Vertical Align, Vertical Alignment",
+      "Type": "Single"
+    },
+    "Name": "Vertical Align"
+  },
+  "Volatile": {
+    "Description": "This attribute is basically used to refresh/destroy the form content and re-generate based on some logical condition. This is used in default TDL to refresh the voucher form when the user changes the voucher class.",
+    "Parameters": [
+      {
+        "Description": "To specify the logical condition for the Attribute.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Volatile",
+      "Type": "Single"
+    },
+    "Name": "Volatile"
+  },
+  "Width": {
+    "Description": "The attribute specifies total width of the form. It can be specified in any unit of measurement supported by tally eg mms,inch,or % of screen/page.",
+    "Parameters": [
+      {
+        "Description": "To specify a particular Width.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Width",
+      "Type": "Single"
+    },
+    "Name": "Width"
+  },
+  "XMLAttr": {
+    "Description": "Specifies the Atrribute and attribute value for the xml tag.",
+    "Parameters": [
+      {
+        "Description": "To specify the attribute name to the XML Tag.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the attribute value to the XML Tag.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "XMLAttr",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "XMLAttr"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "Properties": {
+    "Statusupdatepurposeinfo": {
+      "Name": "Statusupdatepurposeinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Statusupdatepurposeinfo"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {
+    "Statusupdatepurposeinfo": "Statusupdatepurposeinfo"
+  },
+  "Name": "Statusupdateobject"
+}

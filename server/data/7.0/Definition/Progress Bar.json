@@ -1,0 +1,173 @@
+{
+  "Activity Name": {
+    "Description": "This attribute is used to specify the Activity Name displayed to the user within the progress bar. This is a mandatory attribute for progress bar.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the activity name for progress bar (string).",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Activity Name",
+      "Type": "Single"
+    },
+    "Name": "Activity Name"
+  },
+  "Context": {
+    "Description": "This attribute is used to specify the context within the progress bar.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the context name for progress bar (string).",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Context",
+      "Type": "Single"
+    },
+    "Name": "Context"
+  },
+  "Note": {
+    "Description": "This attribute is used to specify the note in the progress bar.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the note string for progress bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Note",
+      "Type": "Single"
+    },
+    "Name": "Note"
+  },
+  "ProcessName": {
+    "Description": "This attribute is used to specify the process name within the progress bar.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the process name for progress bar (string).",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ProcessName",
+      "Type": "Single"
+    },
+    "Name": "ProcessName"
+  },
+  "Progress Indication": {
+    "Description": "This attribute is used to specify the progress indication within the progress bar.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the progress indication string for progress bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Progress Indication",
+      "Type": "Single"
+    },
+    "Name": "Progress Indication"
+  },
+  "Stages": {
+    "Description": "This attribute is used to specify the list of stages in the progress. A minimum of two stages must be specified for them to be drawn in the progress window.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to describe the purpose of each stage in the progress bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Stages",
+      "Type": "Single List",
+      "Is Discrete": "No"
+    },
+    "Name": "Stages"
+  },
+  "Subcontext": {
+    "Description": "This attribute is used to specify the sub-context within the progress bar.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the sub-context name for progress bar (string).",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Subcontext",
+      "Type": "Single"
+    },
+    "Name": "Subcontext"
+  },
+  "Total Count": {
+    "Description": "This attribute is used for defining the total number of items being processed. If the count is unknown, it can be set to 0. This is mandatory for progress bar.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the total count of processed items.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Total Count",
+      "Type": "Single"
+    },
+    "Name": "Total Count"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "Name of the definition to be reused.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Progress Bar ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  }
+}

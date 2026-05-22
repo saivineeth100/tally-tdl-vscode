@@ -1,0 +1,445 @@
+{
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Border3D": {
+    "Description": "It applies 3D border to the Menu.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Border3D",
+      "Type": "Single"
+    },
+    "Name": "Border3D"
+  },
+  "Bottom Button": {
+    "Description": "List the buttons to be displayed at the bottom of the bar when the menu is triggered.",
+    "Parameters": [
+      {
+        "Description": "Name of the Button.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Bottom Button, Bottom Buttons",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Bottom Button"
+  },
+  "Button": {
+    "Description": "List the buttons to be displayed at the top of the bar when the menu is triggered.",
+    "Parameters": [
+      {
+        "Description": "Name of the Button.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Button, Buttons, Top Button, Top Buttons",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Button"
+  },
+  "Control": {
+    "Description": "Controls the display of the specified menu item.",
+    "Parameters": [
+      {
+        "Description": "Name of the Item in the menu.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Condition is based on which the menu item is displayed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Control",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Control"
+  },
+  "Gradient": {
+    "Description": "It applies Gradience to the Menu.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Gradient",
+      "Type": "Single"
+    },
+    "Name": "Gradient"
+  },
+  "Help": {
+    "Description": "This attribute takes the System formula which in turn has a Help ID or the Help id as its parameter, the id connects the menu with a particular help file.",
+    "Parameters": [
+      {
+        "Description": "It is the index of the help file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Expression that returns the GUID of the addon/module for invoking help",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Help",
+      "Type": "Dual List",
+      "Is Discrete": "No"
+    },
+    "Name": "Help"
+  },
+  "Item": {
+    "Description": "Adds an Item to the menu.",
+    "Parameters": [
+      {
+        "Description": "Adds an Item to the menu.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Menu Item List",
+      "Is Discrete": "No"
+    },
+    "Name": "Item"
+  },
+  "Key Item": {
+    "Description": "Adds an Item to the menu.",
+    "Parameters": [
+      {
+        "Description": "Adds an Item to the menu.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Menu Item List",
+      "Is Discrete": "No"
+    },
+    "Name": "Key Item"
+  },
+  "Indent": {
+    "Description": "Adds an Item to the menu.",
+    "Parameters": [
+      {
+        "Description": "Adds an Item to the menu.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Menu Item List",
+      "Is Discrete": "No"
+    },
+    "Name": "Indent"
+  },
+  "Key": {
+    "Description": "Adds a hot key to the menu item specified.",
+    "Parameters": [
+      {
+        "Description": "Name of the Menu Item.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Single character hot key for the menu item specified.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key, Keys",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Key"
+  },
+  "Local": {
+    "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+    "Parameters": [
+      {
+        "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local",
+      "Type": "Local List",
+      "Is Discrete": "No"
+    },
+    "Name": "Local"
+  },
+  "Local Formula": {
+    "Description": "This is used to specify a local formula within the Menu.",
+    "Parameters": [
+      {
+        "Description": "The name of the Local Formula.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The expression which needs to be evaluated.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local Formula",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Local Formula"
+  },
+  "Option": {
+    "Description": "Option is an attribute which can be used by various definitions, to provide a conditional result in a program.",
+    "Parameters": [
+      {
+        "Description": "This specifies the name of the Optional Menu",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Menu ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Logical Condition/ expression which returns logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Option, Options",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Option"
+  },
+  "Switch": {
+    "Description": "\u0027Switch\u0027 attribute is similar to the Option attribute but reduces code complexity and improves the performance. The Switch are grouped using a label Once a condition is satisfied from one group, switch won\u0027t  check further conditions from the same group.  It will evaluate the conditions from the other groups specified, if any.",
+    "Parameters": [
+      {
+        "Description": "This can be any string combination used to group.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Menu ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Switch",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Switch"
+  },
+  "Symbol": {
+    "Description": "It appends the specified unicode character to the specified menu item based on the specified condition.",
+    "Parameters": [
+      {
+        "Description": "Name of the menu item for which symbol is specified.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Character symbol to be displayed for the specified menu item.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Character symbol to be displayed for the specified menu item.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Symbol",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Symbol"
+  },
+  "Title": {
+    "Description": "It gives the title for the menu",
+    "Parameters": [
+      {
+        "Description": "It accepts any valid string value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Title",
+      "Type": "Single"
+    },
+    "Name": "Title"
+  },
+  "ToolBar Button": {
+    "Description": "Adds the buttons to Toolbar.",
+    "Parameters": [
+      {
+        "Description": "Name of the Button.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ToolBar Button, ToolBar Buttons",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "ToolBar Button"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Menu ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "No"
+    },
+    "Name": "Use"
+  }
+}

@@ -1,0 +1,642 @@
+{
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "BackUp": {
+    "Description": "This attribute is used to check whether the system takes a backup before import or not.",
+    "Parameters": [
+      {
+        "Description": "Indicate whether to take a backup before import or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specify destination path for backup, if the first sub-attribute value is yes.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "BackUp",
+      "Type": "Dual"
+    },
+    "Name": "BackUp"
+  },
+  "Combine": {
+    "Description": "This is used to specify whether to total/combine values for duplicate records based on a condition.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Combine, Total, Totals",
+      "Type": "Single"
+    },
+    "Name": "Combine"
+  },
+  "Empty": {
+    "Description": "This attribute discards a particular record based on condition.",
+    "Parameters": [
+      {
+        "Description": "Any expression that retruns the logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Empty, Empty if, Empty on",
+      "Type": "Single"
+    },
+    "Name": "Empty"
+  },
+  "Excel Sheet Name": {
+    "Description": "This attribute is used to capture the name of the Excel sheet.",
+    "Parameters": [
+      {
+        "Description": "Any expression that specifies the Excel sheet name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Excel Sheet Name",
+      "Type": "Single"
+    },
+    "Name": "Excel Sheet Name"
+  },
+  "Field": {
+    "Description": "This attribute specifies the field name to be imported and the associated width.",
+    "Parameters": [
+      {
+        "Description": "Specifies the Field/Column Name for the data to be imported.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": " Width of the field in terms of no of charachers.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Field, Fields, Left Field, Left Fields",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Field"
+  },
+  "Format": {
+    "Description": "Specifies the format of the file to be imported.",
+    "Parameters": [
+      {
+        "Description": "It specifies the file format.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Format",
+      "Type": "Single"
+    },
+    "Name": "Format"
+  },
+  "Full Object": {
+    "Description": "This is used to specify whether the entire object is to be imported or not.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which accepts either Yes or No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Full Object",
+      "Type": "Single"
+    },
+    "Name": "Full Object"
+  },
+  "JSONTag": {
+    "Description": "To specify the tag name in the exported XML file.",
+    "Parameters": [
+      {
+        "Description": "Name of the XML tag.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "JSONTag, XMLTag",
+      "Type": "Single"
+    },
+    "Name": "JSONTag"
+  },
+  "Local Formula": {
+    "Description": "This is used to specify a local formula within the Import File Definition.",
+    "Parameters": [
+      {
+        "Description": "The name of the Local Formula.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The expression which needs to be evaluated.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local Formula",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Local Formula"
+  },
+  "Modifies": {
+    "Description": "To modify the values while importing.",
+    "Parameters": [
+      {
+        "Description": "Specifies the name of the storage.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It specifies the value to storage.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Modifies, Modify",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Modifies"
+  },
+  "Object": {
+    "Description": "Specifies the Import Object name which in turn is associated with an Internal Object.",
+    "Parameters": [
+      {
+        "Description": "Expression specifying the name of the Import Object which is to be defined.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Import Object ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Object, Objects",
+      "Type": "Single"
+    },
+    "Name": "Object"
+  },
+  "On": {
+    "Description": "On keyword is used to specify a list of actions to be executed on the occurance of an Event",
+    "Parameters": [
+      {
+        "Description": "On keyword is used to specify a list of actions to be executed on the occurance of an Event",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "On",
+      "Type": "Event List",
+      "Is Discrete": "No"
+    },
+    "Name": "On"
+  },
+  "Option": {
+    "Description": "Option is an attribute which can be used by various definitions, to provide a conditional result in a program.",
+    "Parameters": [
+      {
+        "Description": "This specifies the name of the Optional Import File.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Import File ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Logical Condition/ expression which returns logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Option, Options",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Option"
+  },
+  "Predefined Map": {
+    "Description": "This attribute is used to specify the complete location and name of Tally\u0027s predefined map file.",
+    "Parameters": [
+      {
+        "Description": "Specify keyword/sysname at Voucher or Master level.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specify master type name, voucher type name, or any other voucher type.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specify master type name, voucher type name, or any other voucher type.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Predefined Map",
+      "Type": "Triple"
+    },
+    "Name": "Predefined Map"
+  },
+  "Repeat": {
+    "Description": "To specify whether the import file contains repeated records or not.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Repeat",
+      "Type": "Single"
+    },
+    "Name": "Repeat"
+  },
+  "Response Report": {
+    "Description": "Specify name of the report which can be used for creating the Response XML or Response JSON. This will be used for creating response string for SOAP Requests.",
+    "Parameters": [
+      {
+        "Description": "Name of the report to that will be used for creating response XML or response JSON.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Response Report",
+      "Type": "Single"
+    },
+    "Name": "Response Report"
+  },
+  "Set": {
+    "Description": "This is used to modify or set the storage value while importing.",
+    "Parameters": [
+      {
+        "Description": "Specifies the name of the storage.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It specifies the value to storage.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set, Set as",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Set"
+  },
+  "Show Preview": {
+    "Description": "This attribute is used to check whether to show a preview or not.",
+    "Parameters": [
+      {
+        "Description": "Any logical expression to show a preview or not",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Show Preview",
+      "Type": "Single"
+    },
+    "Name": "Show Preview"
+  },
+  "Space Bottom": {
+    "Description": "The attribute specifies the no of characters to be excluded from the end of the file.",
+    "Parameters": [
+      {
+        "Description": " It should be no of characters.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Bottom",
+      "Type": "Single"
+    },
+    "Name": "Space Bottom"
+  },
+  "Space Top": {
+    "Description": "The attribute specifies the no of characters to be excluded from the beginning of  the file.",
+    "Parameters": [
+      {
+        "Description": " It should be no of characters.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Top",
+      "Type": "Single"
+    },
+    "Name": "Space Top"
+  },
+  "Switch": {
+    "Description": "\u0027Switch\u0027 attribute is similar to the Option attribute but reduces code complexity and improves the performance. The Switch are grouped using a label Once a condition is satisfied from one group, switch won\u0027t  check further conditions from the same group.  It will evaluate the conditions from the other groups specified, if any.",
+    "Parameters": [
+      {
+        "Description": "This can be any string combination used to group.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Import File ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Switch",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Switch"
+  },
+  "Sync Rules": {
+    "Description": "Specify the Server / Client Rule.",
+    "Parameters": [
+      {
+        "Description": "It is the name of the rule.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Sync Rules",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Sync Rules"
+  },
+  "SyncRulesAfterSave": {
+    "Description": "After \u0027SAVE\u0027 the voucher, that voucher will sync with Server.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "SyncRulesAfterSave",
+      "Type": "Single"
+    },
+    "Name": "SyncRulesAfterSave"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Import File ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "User Defined Map": {
+    "Description": "This attribute is used to specify the complete location and the name of the user-defined map file.",
+    "Parameters": [
+      {
+        "Description": "Specify keyword/sysname at the application or Company level.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specify the file path or company map key according to the first sub-attribute",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "User Defined Map",
+      "Type": "Dual"
+    },
+    "Name": "User Defined Map"
+  },
+  "Width": {
+    "Description": "Specifies the total size of one record.",
+    "Parameters": [
+      {
+        "Description": "It is a valid string.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Width",
+      "Type": "Single"
+    },
+    "Name": "Width"
+  },
+  "XSLT": {
+    "Description": "Specifies the XSLT file name for transformation while xml import.",
+    "Parameters": [
+      {
+        "Description": "Name of the Xslt file with the path.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "XSLT",
+      "Type": "Single"
+    },
+    "Name": "XSLT"
+  }
+}

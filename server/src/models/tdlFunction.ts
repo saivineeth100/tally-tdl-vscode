@@ -29,18 +29,27 @@ export class TDLFunction {
 }
 export class TDLFunctionParameter {
     static FromJSON(funcParam: any): TDLFunctionParameter {
-        const TDLFunctionParam = new TDLFunctionParameter();
-        TDLFunctionParam.Type = funcParam.DataType;
-        if (funcParam.IsConstant) {
-            TDLFunctionParam.IsConstant = funcParam.IsConstant;
-        }
-        TDLFunctionParam.IsOptional = funcParam["Is Mandatory"] === "No";
-        return TDLFunctionParam;
+        const param = new TDLFunctionParameter();
+        param.ParameterType = funcParam["Parameter Type"];
+        param.DataType = funcParam.Datatype || funcParam.DataType;
+        param.IsMandatory = funcParam["Is Mandatory"] === "Yes";
+        param.IsOptional = funcParam["Is Mandatory"] === "No";
+        param.IsConstant = funcParam["Is Constant"] === "Yes";
+        param.IsVariableArgument = funcParam["Variable Argument"] === "Yes";
+        param.RefersTo = funcParam["Refers To"];
+        param.KeywordSet = funcParam["Keyword Set"];
+        param.Keywords = funcParam.Keywords;
+        return param;
     }
-    Type!: string;
+    ParameterType?: string;
+    DataType?: string;
+    IsMandatory: boolean = false;
     IsOptional: boolean = false;
     IsVariableArgument: boolean = false;
-    KeywordSet: string | undefined;
-    RefersTo: string | undefined;
+    KeywordSet?: string;
+    Keywords?: string;
+    RefersTo?: string;
     IsConstant: boolean = false;
+    // Legacy alias for backwards compatibility
+    get Type(): string | undefined { return this.DataType; }
 }

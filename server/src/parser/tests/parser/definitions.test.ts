@@ -37,7 +37,7 @@ describe('Parser Definitions Tests', () => {
 
         expect(def.attributes[0].name.text).toBe('Title');
         expect(def.attributes[0].value.length).toBe(1);
-        expect((def.attributes[0].value[0] as any).value).toBe('My Tally Report');
+        expect((def.attributes[0].value[0] as any).value).toBe('"My Tally Report"');
 
         expect(def.attributes[1].name.text).toBe('Form');
         expect(def.attributes[1].value.length).toBe(1);
@@ -62,5 +62,41 @@ describe('Parser Definitions Tests', () => {
         const def = sourceFile.definitions[0];
         expect(def.type.text).toBe('Include');
         expect(def.name?.text).toBe('file.txt');
+    });
+
+    test('Definition Range includes Attributes', () => {
+        const input = `
+[Report: MyReport]
+    Title: "My Tally Report"
+`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+        const def = sourceFile.definitions[0];
+
+        // Definition should start at [
+        expect(def.start).toBe(input.indexOf('['));
+
+        // Definition should end after "My Tally Report"
+        const lastAttrValue = '"My Tally Report"';
+        const valueStart = input.indexOf(lastAttrValue);
+
+        expect(def.end).toBeGreaterThan(valueStart);
+        expect(def.end).toBeLessThanOrEqual(input.length);
+    });
+
+    test('Parse Menu Definition with Numbers and Decimals', () => {
+        const input = `[Menu: Whats New in Rel 1.52]
+
+	Indent		: "Dynamic Evaluation in Functions"
+	Item		: Blank
+	Key Item	: "Dynamic Action" 		`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+
+        expect(sourceFile.definitions.length).toBeGreaterThan(0);
+        const def = sourceFile.definitions[0];
+        expect(def.type.text).toBe('Menu');
+        expect(def.name?.text).toBe('Whats New in Rel 1.52');
+        expect(def.attributes.length).toBe(3);
     });
 });

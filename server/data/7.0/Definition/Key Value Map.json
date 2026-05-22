@@ -1,0 +1,150 @@
+{
+  "Add": {
+    "Description": "These attributes are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "These attributes are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "These attributes are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "These attributes are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "These attributes are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "These attributes are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Default": {
+    "Description": "This attribute is used to specify the TDL expression which will be used if the match is not found",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the TDL expression for returning the default value if the match is not found",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Default",
+      "Type": "Single"
+    },
+    "Name": "Default"
+  },
+  "Key": {
+    "Description": "This attribute is used to specify the list of key constant values which will be used as keys for the map to search",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the constant key value",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key, Keys",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Key"
+  },
+  "Key Type": {
+    "Description": "This attribute is used to allow the specification of data type for the key of a map",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to define the data type of the Key",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Key Value Type",
+        "Keywords": "Error Id, Long, String, Sys Id",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key Type",
+      "Type": "Single"
+    },
+    "Name": "Key Type"
+  },
+  "Key Value": {
+    "Description": "This attribute is used to specify the map between the key and the TDL expression",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to specify the constant key value",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This sub-attribute is used to specify the TDL expression",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key Value",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Key Value"
+  },
+  "Use": {
+    "Description": "This attribute is used as a keyword in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute acts as a label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key Value Map ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  }
+}

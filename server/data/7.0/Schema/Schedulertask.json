@@ -1,0 +1,18 @@
+{
+  "Properties": {
+    "Taskisactive": {
+      "Name": "Taskisactive",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "SDF Id": "SK",
+    "Is Primary": "Yes"
+  },
+  "ComplexProperties": {},
+  "Name": "Schedulertask"
+}

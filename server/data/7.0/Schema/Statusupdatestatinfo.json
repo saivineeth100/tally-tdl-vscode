@@ -1,0 +1,42 @@
+{
+  "Properties": {
+    "Statid": {
+      "Name": "Statid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Statkey": {
+      "Name": "Statkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statusupdatereturninfo": {
+      "Name": "Statusupdatereturninfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Statusupdatereturninfo"
+      }
+    },
+    "Voucherid": {
+      "Name": "Voucherid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Statusupdatereturninfo": "Statusupdatereturninfo"
+  },
+  "Name": "Statusupdatestatinfo"
+}

@@ -1,0 +1,1143 @@
+{
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Auto": {
+    "Description": "This attribute is used to tell the system that it is a specialized report which does not instantiate its own variables and objects. It also does not bring the confirmation box \u0027Accept\u0027 when the report is accepted.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Auto, Dynamic",
+      "Type": "Single"
+    },
+    "Name": "Auto"
+  },
+  "Belongs To": {
+    "Description": "By specifying the \u0027Family\u0027 name for a report, the same report can be given access for the users through security control. Once we give the family name for a report, it appears in the reports list in security control. The same family name can be given for the same category of reports.",
+    "Parameters": [
+      {
+        "Description": "It accepts the string value as \u0027family\u0027 name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Belongs To, Family",
+      "Type": "Single"
+    },
+    "Name": "Belongs To"
+  },
+  "Collection": {
+    "Description": "Majorly used for printing directly from the menu, the collection name is the primary collection on which the report will repeat. And the method name is the next level sub collections method.",
+    "Parameters": [
+      {
+        "Description": "Name of the collection on which the report will repeat.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The optional variable name can be passed here which will inherit object name in the variable and further the variable can be used in the report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Variable ",
+        "Is List": "No",
+        "Separator Char": "\u0027,\u0027",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The optional variable name can be passed here which will inherit object name in the variable and further the variable can be used in the report.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Collection, Collections",
+      "Type": "Triple"
+    },
+    "Name": "Collection"
+  },
+  "Column Report": {
+    "Description": "It is used in case of multicolumnar reports. Report Name specified with this attribute is executed when the New Column button is activated.",
+    "Parameters": [
+      {
+        "Description": "This is the name of the report which gets triggered when \u0027New Column\u0027 button is pressed. This is used to get the config info from the user for the selection of column details.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Column Report",
+      "Type": "Single"
+    },
+    "Name": "Column Report"
+  },
+  "Column Var": {
+    "Description": "This attribute lists out the variables based on which the multi-columns values are repeated. This is introduced mainly to support columnar reports in remote.",
+    "Parameters": [
+      {
+        "Description": "It denotes the name of the variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Column Var",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Column Var"
+  },
+  "Config": {
+    "Description": "This attribute specifies the configuration report name when the configuration action does not have a report name as a parameter.",
+    "Parameters": [
+      {
+        "Description": "The name of a Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Config, Config Report",
+      "Type": "Single"
+    },
+    "Name": "Config"
+  },
+  "Copies": {
+    "Description": "The number of Copies to be printed can be set with this attribute.  The default value is one for all the forms, under a report.",
+    "Parameters": [
+      {
+        "Description": "It accepts any numerical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Copies",
+      "Type": "Single"
+    },
+    "Name": "Copies"
+  },
+  "Dashboard Report Type": {
+    "Description": "This attribute specifies whether the report is of dashboard type or not.",
+    "Parameters": [
+      {
+        "Description": "Specify any logical expression. It checks whether the report is of dashboard type or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Dashboard Report Type, Dashboard Type",
+      "Type": "Single"
+    },
+    "Name": "Dashboard Report Type"
+  },
+  "Date Picker Type": {
+    "Description": "To specify the date picker type in the browser report. For example, Range, Date or None. If it is set to Range, it impacts SVFromDate and SVTodate. If it is set to a day, it impacts SVCurrentdate.",
+    "Parameters": [
+      {
+        "Description": "Specify a valid date type based on the report type. For example, Range, Date or None.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Date Picker Type",
+        "Keywords": "Day, None, Range",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Date Picker Type",
+      "Type": "Single"
+    },
+    "Name": "Date Picker Type"
+  },
+  "Default Tile": {
+    "Description": "This attribute is used to list the collection of tiles that need to be part of the original view of the Dashboard.",
+    "Parameters": [
+      {
+        "Description": "Specify the collection names that need to be part of default tiles.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Default Tile, Default Tiles",
+      "Type": "Single List",
+      "Is Discrete": "No"
+    },
+    "Name": "Default Tile"
+  },
+  "Disable Period On Tile": {
+    "Description": "This attribute determines whether the period is hidden on a specific tile in the dashboard or not. Set it to Yes to hide the period, or No to display the period on the tile.",
+    "Parameters": [
+      {
+        "Description": "An expression which evaluates to a logical value that controls the behavior.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Disable Period On Tile",
+      "Type": "Single"
+    },
+    "Name": "Disable Period On Tile"
+  },
+  "Empty": {
+    "Description": "This attribute decides whether the forms attached to the report will be printed or not. This is used in multi printing reports.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Empty, Empty if, Empty on",
+      "Type": "Single"
+    },
+    "Name": "Empty"
+  },
+  "Export": {
+    "Description": "It determines whether the current report is exportable or not.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.  Default value of this attribute is No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Export, Output",
+      "Type": "Single"
+    },
+    "Name": "Export"
+  },
+  "Export Empty Fields": {
+    "Description": "Set this attribute to Yes to include empty fields as headers when exporting the report. Default is No.",
+    "Parameters": [
+      {
+        "Description": " An expression that evaluates to Yes or No, indicating whether empty fields should be exported as headers.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Export Empty Fields",
+      "Type": "Single"
+    },
+    "Name": "Export Empty Fields"
+  },
+  "Export Header": {
+    "Description": "Specifies the header information when posting a report as XML or JSON (Request Report or Pre-Request Report).",
+    "Parameters": [
+      {
+        "Description": "Defines the header information for XML or JSON reports.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Export Header, Header",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Export Header"
+  },
+  "Fetch Collection": {
+    "Description": "This attribute is used when the same collection is used in the report either for repeating the line over its objects or multiple functions using the same, then a collection of those objects can be pre fetched at the report level using Fetch Collection. This is useful in case of remote access since the data has to come from the server and the client need not send the request again and again.",
+    "Parameters": [
+      {
+        "Description": "It is the collection whose objects need to be pre fetched at Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Fetch Collection",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Fetch Collection"
+  },
+  "Fetch Object": {
+    "Description": "This attribute is used when multple methods of a single object is required for a report, then that object can be fetched at report level using Fetch Object. This is useful in case of remote access since the data has to come from the server and the client need not send the request again and again.",
+    "Parameters": [
+      {
+        "Description": "This parameter specifies the type of the object.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This can be any of the string expression.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This can be any of the string expression.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Fetch Object",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Fetch Object"
+  },
+  "Fetch Values": {
+    "Description": "This attribute allows the computation of user defined methods based on the current object Context.",
+    "Parameters": [
+      {
+        "Description": "The List of user defined/external methods which needs to be computed.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Fetch Values",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Fetch Values"
+  },
+  "Filter": {
+    "Description": "The Filtered attribute is used to filter non-group companies from Group companies and is applicable only for a non-group company.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Filter, Filtered, Filters",
+      "Type": "Single"
+    },
+    "Name": "Filter"
+  },
+  "Form": {
+    "Description": "The Form attribute defines a form or set of forms associated with the report.",
+    "Parameters": [
+      {
+        "Description": "This is the name of the form.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Form ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Form, Forms",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Form"
+  },
+  "Full Screen": {
+    "Description": "It helps to control the display of command window/calculator pane. Full screen displays the report in the full screen.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Full Screen",
+      "Type": "Single"
+    },
+    "Name": "Full Screen"
+  },
+  "Goto Subtitle": {
+    "Description": "The subtitle of the Report to be specified along with Goto Title in Goto Report lists.",
+    "Parameters": [
+      {
+        "Description": "To specify the value of the Report Subtitle to be used in Goto lists.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Goto Subtitle",
+      "Type": "Single"
+    },
+    "Name": "Goto Subtitle"
+  },
+  "Goto Title": {
+    "Description": "The title of Report to be used in Goto Report lists. If not specified, Title will be used.",
+    "Parameters": [
+      {
+        "Description": "To specify the value of the Report Title to be used in Goto lists.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Goto Title",
+      "Type": "Single"
+    },
+    "Name": "Goto Title"
+  },
+  "Help": {
+    "Description": "This attribute takes the System formula which in turn has a Help ID or the Help id as its parameter, the id connects the report with a particular help file.",
+    "Parameters": [
+      {
+        "Description": "It is the Help ID for the help file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Expression that returns the GUID of the addon/module for invoking help",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Help",
+      "Type": "Dual List",
+      "Is Discrete": "No"
+    },
+    "Name": "Help"
+  },
+  "Inheritable Collection": {
+    "Description": "This attribute specifies the name of the collections which can be inherited by the child collections.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is the collection name which can be inherited.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Inheritable Collection, Inheritable Collections",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Inheritable Collection"
+  },
+  "Is ODBC Table": {
+    "Description": "Attribute to determine if the table should be shown or not when messagebox opens.",
+    "Parameters": [
+      {
+        "Description": "Specifies Logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Is ODBC Table, Show Table",
+      "Type": "Single"
+    },
+    "Name": "Is ODBC Table"
+  },
+  "Keep Xml Case": {
+    "Description": "By setting KeepXmlCase attribute Yes, the program will not convert to upper case automatically while exporting but will keep/preserve the case as specified by the programmer.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Keep Xml Case",
+      "Type": "Single"
+    },
+    "Name": "Keep Xml Case"
+  },
+  "List": {
+    "Description": "ListName is an attribute used in the report definition that will accept the name of the report. Later the same report name will be shown in \u0027Select Report\u0027 table list. If the list name is not given for a particular report, it takes the report name itself in the \u0027Select Report\u0027.",
+    "Parameters": [
+      {
+        "Description": "It is a valid string to List as a name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List, List Name",
+      "Type": "Single"
+    },
+    "Name": "List"
+  },
+  "List Var": {
+    "Description": "It is similar to the variable definition except that List variable can hold array of same variables values. A variable at the declaration time can be either declared as a single instance or a list by using a List Variable declaration attribute.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "List Var, List Variable",
+      "Type": "Variable List"
+    },
+    "Name": "List Var"
+  },
+  "Local": {
+    "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+    "Parameters": [
+      {
+        "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local",
+      "Type": "Local List",
+      "Is Discrete": "No"
+    },
+    "Name": "Local"
+  },
+  "MultiObjects": {
+    "Description": "This attribute is required to be specified in case multiple objects of the same collection are being modified in the Report.",
+    "Parameters": [
+      {
+        "Description": "This is the collection name whose objects are being modified.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify if objects with error need to be ignored to continue for subsequent objects. Default behaviour is to stop execution on first error object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "MultiObjects, Multiple Objects",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "MultiObjects"
+  },
+  "Object": {
+    "Description": "To specify the Object associated with the Report.",
+    "Parameters": [
+      {
+        "Description": "It specifies the type of the object.  For eg: Object: Voucher.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It accepts the object name. For e.g., Cash,Sundry Debtors etc.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Object, Objects",
+      "Type": "Dual"
+    },
+    "Name": "Object"
+  },
+  "On": {
+    "Description": "ON keyword is used to specify a list of Actions to be executed on the occurance of an Event.",
+    "Parameters": [
+      {
+        "Description": "ON keyword is used to specify a list of Actions to be executed on the occurance of an Event.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "On",
+      "Type": "Event List",
+      "Is Discrete": "No"
+    },
+    "Name": "On"
+  },
+  "Option": {
+    "Description": "Option is an attribute which can be used by various definitions, to provide a conditional result in a program.",
+    "Parameters": [
+      {
+        "Description": "This specifies the name of the Optional Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Logical Condition/ expression which returns logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Option, Options",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Option"
+  },
+  "Output Config Report": {
+    "Description": "Report Name specified with this attribute gets executed when the Print button is activated.This is used to get the inputs from the user for the priting configuration and sets the variable. Later the same will be used in the printing of the base report.",
+    "Parameters": [
+      {
+        "Description": "It accepts the report name as a parameter.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Output Config Report, Print",
+      "Type": "Single"
+    },
+    "Name": "Output Config Report"
+  },
+  "Output Pre Config Report": {
+    "Description": "This attribute is used to get the inputs from the user for the printing configuration and sets the variable for printing the base report.",
+    "Parameters": [
+      {
+        "Description": "The name of a Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "A logical expression that determines when the pre-configuration report appears.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Output Pre Config Report",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Output Pre Config Report"
+  },
+  "Plain JSON": {
+    "Description": "Set this attribute to Yes to generate the output (XML/JSON) without formatting, i.e., a plain file without indents or new lines. If not specified, the default is No (formatted output).",
+    "Parameters": [
+      {
+        "Description": "An expression that evaluates to Yes or No. Set to Yes for plain output (no formatting), or No for formatted output (with indents and new lines).",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Plain JSON, Plain Output, Plain Xml",
+      "Type": "Single"
+    },
+    "Name": "Plain JSON"
+  },
+  "Precheck": {
+    "Description": "This attribute helps to check a condition before launching the report. If the condition satisfies the report is launched else specified query is displayed for resolution of the failed condition.",
+    "Parameters": [
+      {
+        "Description": "This attribute helps to check a condition before launching the report. If the condition satisfies the report is launched else specified query is displayed for resolution of the failed condition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Precheck, PreLoad Check",
+      "Type": "PreLoad Check List",
+      "Is Discrete": "No"
+    },
+    "Name": "Precheck"
+  },
+  "PreFetch Object": {
+    "Description": "At the report level the Set attribute for changing variable value takes precedence and Fetch Object is evaluated later. In this case fetching the object first becomes mandatory. For this purpose Pre Fetch Object can be used which will be evaluated before.",
+    "Parameters": [
+      {
+        "Description": "It denotes the type of the Object.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It denotes the name of the object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It denotes the name of the object.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "PreFetch Object",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "PreFetch Object"
+  },
+  "PreLoad Control": {
+    "Description": "This attribute is used to open a message box with a message and prevent opening the report if the first parameter is true.",
+    "Parameters": [
+      {
+        "Description": "Any expression that evaluates to a logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Any string expression whose value is to be set in the message box. This is passed to the query report, where it is accessible with $$InfoParam.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Any string expression whose value is to be set in the message box. This is passed to the query report, where it is accessible with $$InfoParam.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "PreLoad Control",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "PreLoad Control"
+  },
+  "Print Set": {
+    "Description": "This is used to set the value to the variable for the report, only in print action/mode",
+    "Parameters": [
+      {
+        "Description": "It accepts the name of the variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The value to be provided to the variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print Set",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Print Set"
+  },
+  "Repeat": {
+    "Description": "The repeat variables can hold multiple value of the same type. These values can be accessed via an implicit index framework from the field, when field is repeated. Repeat variables are supported only in report scope for the purpose of the column reports. These variables can be filled using a collection and method specification in the variable.",
+    "Parameters": [
+      {
+        "Description": "It accepts variable name.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Repeat",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Repeat"
+  },
+  "Set": {
+    "Description": "This attribute initializes the value of the variable for the report.",
+    "Parameters": [
+      {
+        "Description": "Used to specify the variable name.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The value to be provided to the variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set, Set as",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Set"
+  },
+  "Skip Value Filter": {
+    "Description": "This attribute is used to skip the value filter when inheriting from a report where value filter is applied.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which accepts either yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Skip Value Filter",
+      "Type": "Single"
+    },
+    "Name": "Skip Value Filter"
+  },
+  "Stripe": {
+    "Description": "This attribute enables (Yes) /disables (No) Stripes for the report to improve readability. By default it\u0027ll be set as Yes and specific format of data will have Stripes enabled. The behavior can be overridden by usage of same attribute in the child (Form).",
+    "Parameters": [
+      {
+        "Description": "Can only specify Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Stripe, Stripes",
+      "Type": "Single"
+    },
+    "Name": "Stripe"
+  },
+  "Switch": {
+    "Description": "\u0027Switch\u0027 attribute is similar to the Option attribute but reduces code complexity and improves the performance. The Switch are grouped using a label Once a condition is satisfied from one group, switch won\u0027t  check further conditions from the same group.  It will evaluate the conditions from the other groups specified, if any.",
+    "Parameters": [
+      {
+        "Description": "This can be any string combination used to group.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Switch",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Switch"
+  },
+  "Title": {
+    "Description": "It displays the title for the report in the left top corner.",
+    "Parameters": [
+      {
+        "Description": "To specify the value of the Report Title.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Title",
+      "Type": "Single"
+    },
+    "Name": "Title"
+  },
+  "Trigger": {
+    "Description": "Primarily used to enhance the user-friendliness of Tally and always associated with a key combination.  A trigger comes into effect when a pre-defined combination of keys is pressed to obtain a desired result. It is used to fill the information from SubForm.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Trigger",
+      "Type": "Single"
+    },
+    "Name": "Trigger"
+  },
+  "Unique": {
+    "Description": "This attribute determines whether each instance of the report is unique which helps in evaluation of PrintSet of each instance.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Unique",
+      "Type": "Single"
+    },
+    "Name": "Unique"
+  },
+  "Update TopReport": {
+    "Description": "Refresh Only the Active report. During drilldown only the top most report should refresh unless pressed escape",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Update TopReport",
+      "Type": "Single"
+    },
+    "Name": "Update TopReport"
+  },
+  "Use": {
+    "Description": " The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "Variable": {
+    "Description": "Used to declare the variables at the report level.This variable is available to this report and all its child reports and functions.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Variable, Variables",
+      "Type": "Variable List"
+    },
+    "Name": "Variable"
+  }
+}

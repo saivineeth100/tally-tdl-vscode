@@ -1,0 +1,18 @@
+# Fetched Data Info Schema
+
+> **Version**: 7.0
+
+Reference documentation for the **Fetched Data Info** schema.
+
+### Meta
+
+- **Is Primary**: No
+
+> **Total Properties**: 2
+
+## Properties
+
+| Property Name | Complex | Is Repeated | Datatype / Object |
+| --- | --- | --- | --- |
+| **Fetch Date Info** | No | No |  |
+| **Purposetype** | No | No | String (Sysname) |

@@ -1,0 +1,1666 @@
+{
+  "Properties": {
+    "Addlqualifiers": {
+      "Name": "Addlqualifiers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content Qualifier"
+      }
+    },
+    "Address": {
+      "Name": "Address",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "All Inventory Entries": {
+      "Name": "All Inventory Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Inventory Entry"
+      }
+    },
+    "Assessablevalue": {
+      "Name": "Assessablevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Basic  Buyer Address": {
+      "Name": "Basic  Buyer Address",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Basic Buyer Name": {
+      "Name": "Basic Buyer Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Billofentrydate": {
+      "Name": "Billofentrydate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Billofentryno": {
+      "Name": "Billofentryno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Billtoplace": {
+      "Name": "Billtoplace",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Buyeraddresstype": {
+      "Name": "Buyeraddresstype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Cessamt": {
+      "Name": "Cessamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Cessexpectedamt": {
+      "Name": "Cessexpectedamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Cgstamt": {
+      "Name": "Cgstamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Cgstexpectedamt": {
+      "Name": "Cgstexpectedamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Cmpgstin": {
+      "Name": "Cmpgstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Cmpgstisothterritoryassessee": {
+      "Name": "Cmpgstisothterritoryassessee",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Cmpgstregistrationtype": {
+      "Name": "Cmpgstregistrationtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Cmpgststate": {
+      "Name": "Cmpgststate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Compositegstrate": {
+      "Name": "Compositegstrate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Computecrc": {
+      "Name": "Computecrc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Consigneecountryname": {
+      "Name": "Consigneecountryname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consigneegstin": {
+      "Name": "Consigneegstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consigneemailingname": {
+      "Name": "Consigneemailingname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consigneepincode": {
+      "Name": "Consigneepincode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Consigneestatename": {
+      "Name": "Consigneestatename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Contri Trans": {
+      "Name": "Contri Trans",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Contri Trans"
+      }
+    },
+    "Contributorvchid": {
+      "Name": "Contributorvchid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Contributorverid": {
+      "Name": "Contributorverid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Countryofresidence": {
+      "Name": "Countryofresidence",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Date": {
+      "Name": "Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Dispatchfromaddress": {
+      "Name": "Dispatchfromaddress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "Yes",
+        "Datatype": "String"
+      }
+    },
+    "Dispatchfromname": {
+      "Name": "Dispatchfromname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Dispatchfrompincode": {
+      "Name": "Dispatchfrompincode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Dispatchfromplace": {
+      "Name": "Dispatchfromplace",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Dispatchfromstatename": {
+      "Name": "Dispatchfromstatename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Document Date": {
+      "Name": "Document Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Document Number": {
+      "Name": "Document Number",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Documenttype": {
+      "Name": "Documenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Ecommercegstin": {
+      "Name": "Ecommercegstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Eway Bill Error List": {
+      "Name": "Eway Bill Error List",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Eway Bill Error List"
+      }
+    },
+    "Ewaybill Details": {
+      "Name": "Ewaybill Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Ewaybill Details"
+      }
+    },
+    "Excludedtaxations": {
+      "Name": "Excludedtaxations",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excludedtaxations"
+      }
+    },
+    "Fetched Retwise Details": {
+      "Name": "Fetched Retwise Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Fetched Retwise Details"
+      }
+    },
+    "Fpdate": {
+      "Name": "Fpdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Gst B2cs Attxpd Entries": {
+      "Name": "Gst B2cs Attxpd Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Gst B2cs Attxpd Entry"
+      }
+    },
+    "Gst Doc Entries": {
+      "Name": "Gst Doc Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Gst Doc Entry"
+      }
+    },
+    "Gst Hsn Entries": {
+      "Name": "Gst Hsn Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Gst Hsn Entry"
+      }
+    },
+    "Gst Nil Entries": {
+      "Name": "Gst Nil Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Gst Nil Entry"
+      }
+    },
+    "Gstadditionaldetails": {
+      "Name": "Gstadditionaldetails",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gstadvadjdetails": {
+      "Name": "Gstadvadjdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Gstadvancedetails"
+      }
+    },
+    "Gstadvtaxderivedtaxability": {
+      "Name": "Gstadvtaxderivedtaxability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstderivedkeyword": {
+      "Name": "Gstderivedkeyword",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstderivedlocationtype": {
+      "Name": "Gstderivedlocationtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstderivednatureofvoucher": {
+      "Name": "Gstderivednatureofvoucher",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstderivednaturetype": {
+      "Name": "Gstderivednaturetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstderivedrcm": {
+      "Name": "Gstderivedrcm",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstderivedregistrationtype": {
+      "Name": "Gstderivedregistrationtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstderivedsupplytype": {
+      "Name": "Gstderivedsupplytype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstderivedtaxability": {
+      "Name": "Gstderivedtaxability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gsthasacceptasisuncertain": {
+      "Name": "Gsthasacceptasisuncertain",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Gsthasformatinvaliduncertain": {
+      "Name": "Gsthasformatinvaliduncertain",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Gsthasmandatoryuncertain": {
+      "Name": "Gsthasmandatoryuncertain",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Gstisadvancecurrentmonth": {
+      "Name": "Gstisadvancecurrentmonth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Gstisadvancepriormonth": {
+      "Name": "Gstisadvancepriormonth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Gstisineligibleitcapplicable": {
+      "Name": "Gstisineligibleitcapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Gstisreturnknown": {
+      "Name": "Gstisreturnknown",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Gstitcdocumenttype": {
+      "Name": "Gstitcdocumenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gstnatureofreturn": {
+      "Name": "Gstnatureofreturn",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gstnatureofvoucher": {
+      "Name": "Gstnatureofvoucher",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gstovrdnnaturetype": {
+      "Name": "Gstovrdnnaturetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstregistrationtype": {
+      "Name": "Gstregistrationtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstsupplytype": {
+      "Name": "Gstsupplytype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Ignoreeinvvalidation": {
+      "Name": "Ignoreeinvvalidation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignoregstconflictinmig": {
+      "Name": "Ignoregstconflictinmig",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignoregstformatvalidation": {
+      "Name": "Ignoregstformatvalidation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignoregstoptionaluncertain": {
+      "Name": "Ignoregstoptionaluncertain",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Igstamt": {
+      "Name": "Igstamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Igstexpectedamt": {
+      "Name": "Igstexpectedamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Invoicevalue": {
+      "Name": "Invoicevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Irn": {
+      "Name": "Irn",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irn Ackdate": {
+      "Name": "Irn Ackdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Irn Ackno": {
+      "Name": "Irn Ackno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irn Ackupdatedatetime": {
+      "Name": "Irn Ackupdatedatetime",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "DateTime"
+      }
+    },
+    "Irn Qrcode": {
+      "Name": "Irn Qrcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irncancelcode": {
+      "Name": "Irncancelcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irncanceldate": {
+      "Name": "Irncanceldate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Irncancelled": {
+      "Name": "Irncancelled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Irncancelreason": {
+      "Name": "Irncancelreason",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irnerrorlist": {
+      "Name": "Irnerrorlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Exchange Error List"
+      }
+    },
+    "Irnirpsource": {
+      "Name": "Irnirpsource",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irnjsonexported": {
+      "Name": "Irnjsonexported",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Irp Buyer Gstin": {
+      "Name": "Irp Buyer Gstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irp Doc Date": {
+      "Name": "Irp Doc Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Irp Doc No": {
+      "Name": "Irp Doc No",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irp Doc Type": {
+      "Name": "Irp Doc Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irp Invoice Value": {
+      "Name": "Irp Invoice Value",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Irp Irn": {
+      "Name": "Irp Irn",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irp Irn Date": {
+      "Name": "Irp Irn Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Irp Item Count": {
+      "Name": "Irp Item Count",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Irp Main Item Code": {
+      "Name": "Irp Main Item Code",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Irp Seller Gstin": {
+      "Name": "Irp Seller Gstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Is Cancelled": {
+      "Name": "Is Cancelled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Ecommerce Supply": {
+      "Name": "Is Ecommerce Supply",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Op Bal Transaction": {
+      "Name": "Is Op Bal Transaction",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Optional": {
+      "Name": "Is Optional",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isboenotapplicable": {
+      "Name": "Isboenotapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Iscommonparty": {
+      "Name": "Iscommonparty",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isd Document Date": {
+      "Name": "Isd Document Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Isddocumentnumber": {
+      "Name": "Isddocumentnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Isdeleted": {
+      "Name": "Isdeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isecommercetype": {
+      "Name": "Isecommercetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Iseligibleforitc": {
+      "Name": "Iseligibleforitc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isexception": {
+      "Name": "Isexception",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isexcluded": {
+      "Name": "Isexcluded",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isgstoverridden": {
+      "Name": "Isgstoverridden",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isgstsecsevenapplicable": {
+      "Name": "Isgstsecsevenapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isincluded\u00A0": {
+      "Name": "Isincluded\u00A0",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isnettcontent": {
+      "Name": "Isnettcontent",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isonhold": {
+      "Name": "Isonhold",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ispending": {
+      "Name": "Ispending",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ispurposedeleted": {
+      "Name": "Ispurposedeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Issummary": {
+      "Name": "Issummary",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Issystem": {
+      "Name": "Issystem",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isuncertain": {
+      "Name": "Isuncertain",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ledger Entries": {
+      "Name": "Ledger Entries",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Ledger Entry"
+      }
+    },
+    "Oldstatkey": {
+      "Name": "Oldstatkey",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Onlycontributorid": {
+      "Name": "Onlycontributorid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Originalvchdate": {
+      "Name": "Originalvchdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Originalvchnumber": {
+      "Name": "Originalvchnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Overridden Return Wise Details": {
+      "Name": "Overridden Return Wise Details",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Overridden Return Wise Details"
+      }
+    },
+    "Party Ledger Name": {
+      "Name": "Party Ledger Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Party Name": {
+      "Name": "Party Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Partyaddresstype": {
+      "Name": "Partyaddresstype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Partygstin": {
+      "Name": "Partygstin",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    },
+    "Partygstisothterritoryassessee": {
+      "Name": "Partygstisothterritoryassessee",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Partylocation": {
+      "Name": "Partylocation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Partymailingname": {
+      "Name": "Partymailingname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Partypincode": {
+      "Name": "Partypincode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Period": {
+      "Name": "Period",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Placeofsupply": {
+      "Name": "Placeofsupply",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Platformappldate": {
+      "Name": "Platformappldate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Platformdetailsversion": {
+      "Name": "Platformdetailsversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Platformversion": {
+      "Name": "Platformversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Portcode": {
+      "Name": "Portcode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Purposetype": {
+      "Name": "Purposetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Qrcode Crc": {
+      "Name": "Qrcode Crc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Reference": {
+      "Name": "Reference",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Referencedate": {
+      "Name": "Referencedate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Returnname": {
+      "Name": "Returnname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Returnperiodfromdate": {
+      "Name": "Returnperiodfromdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Returnperiodtodate": {
+      "Name": "Returnperiodtodate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Schemaversiondate": {
+      "Name": "Schemaversiondate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Schemaversionno": {
+      "Name": "Schemaversionno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sectionname": {
+      "Name": "Sectionname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sectionreturnversion": {
+      "Name": "Sectionreturnversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sectionversionno": {
+      "Name": "Sectionversionno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Sgstamt": {
+      "Name": "Sgstamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Sgstexpectedamt": {
+      "Name": "Sgstexpectedamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Shippingbilldate": {
+      "Name": "Shippingbilldate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Shippingbillno": {
+      "Name": "Shippingbillno",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Shiptoplace": {
+      "Name": "Shiptoplace",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "State Name": {
+      "Name": "State Name",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statpaymenttype": {
+      "Name": "Statpaymenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Statrecid": {
+      "Name": "Statrecid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Strd Gstderivedkeyword": {
+      "Name": "Strd Gstderivedkeyword",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strd Gstderivedlocationtype": {
+      "Name": "Strd Gstderivedlocationtype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strd Gstderivednatureofvoucher": {
+      "Name": "Strd Gstderivednatureofvoucher",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strd Gstderivedrcm": {
+      "Name": "Strd Gstderivedrcm",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strdautosetoffadvrcptpymt": {
+      "Name": "Strdautosetoffadvrcptpymt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Strdautosetoffadvrcptpymtfrom": {
+      "Name": "Strdautosetoffadvrcptpymtfrom",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Strdcessamt": {
+      "Name": "Strdcessamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Strdcgstamt": {
+      "Name": "Strdcgstamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Strdcompositeturnovertype": {
+      "Name": "Strdcompositeturnovertype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strdgstadvtaxderivedtaxability": {
+      "Name": "Strdgstadvtaxderivedtaxability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strdgstderivednaturetype": {
+      "Name": "Strdgstderivednaturetype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strdgstderivedsupplytype": {
+      "Name": "Strdgstderivedsupplytype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strdgstderivedtaxability": {
+      "Name": "Strdgstderivedtaxability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strdgstitcavailability": {
+      "Name": "Strdgstitcavailability",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strdgstr1periodicitybyvchdate": {
+      "Name": "Strdgstr1periodicitybyvchdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strdhsnapplsection": {
+      "Name": "Strdhsnapplsection",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Strdhsnsecnotapplicable": {
+      "Name": "Strdhsnsecnotapplicable",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Strdhsnsummappldate": {
+      "Name": "Strdhsnsummappldate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Strdigstamt": {
+      "Name": "Strdigstamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Strdmaxhsncode": {
+      "Name": "Strdmaxhsncode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Strdpartylocation": {
+      "Name": "Strdpartylocation",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Strdsgstamt": {
+      "Name": "Strdsgstamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Subpurposeid": {
+      "Name": "Subpurposeid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Summarycontributor": {
+      "Name": "Summarycontributor",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Summarycontributor"
+      }
+    },
+    "Summarydirtyctr": {
+      "Name": "Summarydirtyctr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Systemretwisedetails": {
+      "Name": "Systemretwisedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Fetched Retwise Details"
+      }
+    },
+    "Taxadjustment": {
+      "Name": "Taxadjustment",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Taxpaymenttype": {
+      "Name": "Taxpaymenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Taxregnumber": {
+      "Name": "Taxregnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Trans Type": {
+      "Name": "Trans Type",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Transactionispurchase": {
+      "Name": "Transactionispurchase",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Transactionissales": {
+      "Name": "Transactionissales",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Uncertaindetails": {
+      "Name": "Uncertaindetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Uncertaindetails"
+      }
+    },
+    "Uncertaingroup": {
+      "Name": "Uncertaingroup",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Uncertaingroup"
+      }
+    },
+    "Updatesummaryvalues": {
+      "Name": "Updatesummaryvalues",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Urdoriginalsalevalue": {
+      "Name": "Urdoriginalsalevalue",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Vatpartytransreturndate": {
+      "Name": "Vatpartytransreturndate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Vatpartytransreturnnumber": {
+      "Name": "Vatpartytransreturnnumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Voucher Date": {
+      "Name": "Voucher Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Vouchernumber": {
+      "Name": "Vouchernumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Voucherpvcrc": {
+      "Name": "Voucherpvcrc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Voucherpvprevcrc": {
+      "Name": "Voucherpvprevcrc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Vouchertypename": {
+      "Name": "Vouchertypename",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Master Reference)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Addlqualifiers": "Content Qualifier",
+    "All Inventory Entries": "Inventory Entry",
+    "Contri Trans": "Contri Trans",
+    "Eway Bill Error List": "Eway Bill Error List",
+    "Ewaybill Details": "Ewaybill Details",
+    "Excludedtaxations": "Excludedtaxations",
+    "Fetched Retwise Details": "Fetched Retwise Details",
+    "Gst B2cs Attxpd Entries": "Gst B2cs Attxpd Entry",
+    "Gst Doc Entries": "Gst Doc Entry",
+    "Gst Hsn Entries": "Gst Hsn Entry",
+    "Gst Nil Entries": "Gst Nil Entry",
+    "Gstadvadjdetails": "Gstadvancedetails",
+    "Irnerrorlist": "Exchange Error List",
+    "Ledger Entries": "Ledger Entry",
+    "Overridden Return Wise Details": "Overridden Return Wise Details",
+    "Summarycontributor": "Summarycontributor",
+    "Systemretwisedetails": "Fetched Retwise Details",
+    "Uncertaindetails": "Uncertaindetails",
+    "Uncertaingroup": "Uncertaingroup"
+  },
+  "Name": "Content"
+}

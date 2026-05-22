@@ -1,0 +1,25 @@
+{
+  "Properties": {
+    "Countrycode": {
+      "Name": "Countrycode",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Mobilenumber": {
+      "Name": "Mobilenumber",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Mobilenumbers"
+}

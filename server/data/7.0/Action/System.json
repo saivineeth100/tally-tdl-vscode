@@ -1,0 +1,4072 @@
+{
+  "Action": {
+    "Description": "This action is to execute actions based on dynamic evaluation of parameters.",
+    "Parameters": [
+      {
+        "Description": "This can be any expression which is evaluated to an action name like LOG, DISPLAY.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "TDL Actions",
+        "Keywords": "Accept Alter, Accept Create, Accept Object, Action, Add Sheet, Add Tile, Alter, Alter Collection, Alter Column, Alter Current Collection, Alter Current Report, Alter Ex, Alter Object, Alter Target, Append, Audit Form, Audit Object, Auto Columns, Autoform Report, Auto Set, Backup Company, Break, Browse Url, Browse Url Ex, Calculator, Call, Cancel, Cancel Object, Change Crypt Company, Change Output Mode, Change Table, Clear Table Stack, Close Company, Close Encrypted Target File, Close File, Close Target File, Configuration, Continue, Copy File, Copy To Clipboard, Copy Variable, Copy Variables, Create, Create Collection, Create Column, Create Ex, Create Target, Cycle Back, Decrement, Delete, Delete Column, Delete Config Data, Delete File, DeleteNotifications, Delete Object, DisconnectUser, Display, Display Collection, Display Current Collection, Display Current Report, Display Ex, Display Help, Display Msg, Display Object, Do If, Dump Debug, Dump Profile, Dump Record, Dump Recording, Duplicate, Else, End Batch Post, End Block, End For, End If, End Msg, End Msg Box, End Progress, End Report, End Sub, End Unzip, End Walk, End While, End XSub, End Zip, Exchange, Exec COM Interface, Exec Command, Exec Command Ex, Exec Excel Macro, Execute, Execute Ex, Execute Obj Actions, ExecuteObjectMap, Execute TDL, Expand Tile, Explode, Export, Export Collection, Export Current Collection, Export Current Report, Export Report, Export Snapshot, Extract Path, Field Accept, Field Backspace, Field Blank, Field Char Delete, Field Char Delete Left, Field Char Left, Field Char NewLine, Field Char Right, Field Copy, Field Cut, Field Down, Field End, Field Erase, Field Home, Field Insert Mode, Field New Line, Field Next, Field Next Field SFD, Field Paste, Field Prev, Field Select End, Field Select Home, Field Select Left Char, Field Select Left Word, Field Select Right Char, Field Select Right Word, Field Select Word, Field Sub Form, Field Table Accept, Field Table Maximize, Field Table Mode,",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This can be any expression which is evaluated to an action name like LOG, DISPLAY.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Action",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Action"
+  },
+  "Add Tile": {
+    "Description": "This action is used to add a new tile to the Dashboard report.",
+    "Parameters": [
+      {
+        "Description": "The report name used for executing the addition of a tile to the Dashboard. This report can allow users to choose a tile report from a collection of tile report objects.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "(null)",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Add Tile",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Add Tile"
+  },
+  "Alter": {
+    "Description": "This action is used to open a specific report for alteration.",
+    "Parameters": [
+      {
+        "Description": "Name of the report",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Alter",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Alter"
+  },
+  "Alter Collection": {
+    "Description": "This action is used to serve the collection of objects for alteration purposes. The second parameter optionally can provide object identifier. The third parameter allows providing an error message or no action to be taken. The fourth parameter is provided whether no operation should be performed in case the collection is empty, or trigger report should be opened.",
+    "Parameters": [
+      {
+        "Description": "This is the name of a collection.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is the name of a collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression which evaluates to whether the trigger report should be displayed or error message in case the specified object is not found in the collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression which evaluates to whether the trigger report should be displayed or error message in case the specified object is not found in the collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Alter Collection",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Alter Collection"
+  },
+  "Alter Current Collection": {
+    "Description": "This action executes the alter collection on the collection defined at the object level.",
+    "Parameters": [
+      {
+        "Description": "Any expression which evaluates to the name of the selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any expression which evaluates to the name of the selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Alter Current Collection",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Alter Current Collection"
+  },
+  "Alter Current Report": {
+    "Description": "This action executes a alter action on the Report defined at the object level.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Alter Current Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Alter Current Report"
+  },
+  "Alter Ex": {
+    "Description": "This action is  used to Alter Extended objects. Eg. User Security Level.This action inherits the object from the calling environment.",
+    "Parameters": [
+      {
+        "Description": "This is name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Alter Ex",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Alter Ex"
+  },
+  "Append": {
+    "Description": "This action is used to Append a new object after the selected object in current report. Eg. Appending a voucher in DayBook report.",
+    "Parameters": [
+      {
+        "Description": "Name of the report to be opened to create the object to be appended.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Append",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Append"
+  },
+  "Audit Form": {
+    "Description": "This action is used to Audit forms.",
+    "Parameters": [
+      {
+        "Description": "Comma separated list of Collection names.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Audit Form",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Audit Form"
+  },
+  "Audit Object": {
+    "Description": "This action is used to perform audit on the current object.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Audit Object",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Object/Collection",
+      "Mode": "Edit"
+    },
+    "Name": "Audit Object"
+  },
+  "Auto Columns": {
+    "Description": "This action is used to add an autorepeat column in a report.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Auto Columns",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Auto Columns"
+  },
+  "Auto Set": {
+    "Description": "This action is used in the Edit mode to set values to the variable or field.",
+    "Parameters": [
+      {
+        "Description": "Name of the variable or field.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "(null)",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of the variable or field.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Auto Set",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "User Interface",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Auto Set"
+  },
+  "Backup Company": {
+    "Description": "This action is used to take Backup of specified company.",
+    "Parameters": [
+      {
+        "Description": "Seperator Character used in the next parameter.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Seperator Character used in the next parameter.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Backup Company",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Company",
+      "Mode": "Both"
+    },
+    "Name": "Backup Company"
+  },
+  "Browse Url": {
+    "Description": "This action opens the item specified by the parameter. The item can be a file or folder or URL or Exe. If no parameter is there by default it will launch Tally website.",
+    "Parameters": [
+      {
+        "Description": "This is an string expression which evaluates to path or filename.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an string expression which evaluates to path or filename.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is optional parameter. Yes for executing in hidden mode.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is optional parameter. Yes for executing in hidden mode.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Browse Url, Exec Command",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Browse Url"
+  },
+  "Browse Url Ex": {
+    "Description": "This action is same as Browse URL, but waits till browse action is completed.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evaluates path or filename.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates path or filename.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is optional parameter. Defaults to Yes. Yes for execute and wait for process completion.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Browse Url Ex, Exec Command Ex",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Browse Url Ex"
+  },
+  "Calculator": {
+    "Description": "This action is used in a field which requires some computation.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Calculator",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Calculator"
+  },
+  "Call": {
+    "Description": "This action is used to call TDL function.",
+    "Parameters": [
+      {
+        "Description": "This is the name of function to be called.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Function ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Parameters of the function being called. Properties of this varies based on the function.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Call",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Call"
+  },
+  "Cancel Object": {
+    "Description": "This action is used to Cancel current object.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Cancel Object",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Object/Collection",
+      "Mode": "Edit"
+    },
+    "Name": "Cancel Object"
+  },
+  "Change Crypt Company": {
+    "Description": "This action is  used to change the Tally Vault passoword for a Company",
+    "Parameters": [
+      {
+        "Description": "This is string expression contains the separator character used for each company in next parameter.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is string expression which contains destination path,old vault password,new vault password,company name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Change Crypt Company",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Company",
+      "Mode": "Both"
+    },
+    "Name": "Change Crypt Company"
+  },
+  "Change Output Mode": {
+    "Description": "Action to change output mode for print/export/mail/upload.",
+    "Parameters": [
+      {
+        "Description": "Name of the action.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Change Output Mode",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Change Output Mode"
+  },
+  "Change Table": {
+    "Description": "This attribute allows calling a new Table or same table with appended values in the same field, without accepting the field or moving to the next field.",
+    "Parameters": [
+      {
+        "Description": "This is a list of comma-separated table names.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is a list of comma-separated table names.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression which evaluates to identify default first matching node for the cursor.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression which evaluates to identify default first matching node for the cursor.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Change Table",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "Change Table"
+  },
+  "Clear Table Stack": {
+    "Description": "Clear all stacked table from Change table action.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Clear Table Stack",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "Clear Table Stack"
+  },
+  "Close Company": {
+    "Description": "This action is used to Close the selected Company.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Close Company",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Company",
+      "Mode": "Both"
+    },
+    "Name": "Close Company"
+  },
+  "Configuration": {
+    "Description": "This action opens the configuration for the display report.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "(null)",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Configuration",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Configuration"
+  },
+  "Copy File": {
+    "Description": "This action is used to Copy of a file from One Folder to Another Folder (File to File),Uploading of Files from a given Path to a FTP Site,Downloading of File from FTP Site to specified location/folder.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evaluates to destination file name with absolute path.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Source file name with absolute path.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Copy File",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Copy File"
+  },
+  "Copy To Clipboard": {
+    "Description": "This action is used to copy the string passed to Windows clipboard. It can be used to copy text from report in Display mode by adding a button to the report, and calling this action by passing appropriate string to be copied.",
+    "Parameters": [
+      {
+        "Description": "String that is to be copied to clipboard.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Copy To Clipboard",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Copy To Clipboard"
+  },
+  "Copy Variable": {
+    "Description": "This action copies values  from source variable to the destination variable. Copying of all variable types  are supported.",
+    "Parameters": [
+      {
+        "Description": "This is destination variable name.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is destination variable name.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Copy Variable, Copy Variables",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Copy Variable"
+  },
+  "Create": {
+    "Description": "This action is used to open a specific report for creating an object.",
+    "Parameters": [
+      {
+        "Description": "Name of the report to be opened to create an object.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Create, Execute",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Create"
+  },
+  "Create Collection": {
+    "Description": "This action is used to Create Collection of objects which are used in menus such as Voucher collection,Client Rules collection etc.",
+    "Parameters": [
+      {
+        "Description": "Name of the collection.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Create Collection",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Create Collection"
+  },
+  "Create Ex": {
+    "Description": "This action is used to Create Extended objects. Eg. User Security Level.",
+    "Parameters": [
+      {
+        "Description": "This is name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Create Ex, Execute Ex",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Create Ex"
+  },
+  "Cycle Back": {
+    "Description": "This action takes back to previous table.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Cycle Back",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "Cycle Back"
+  },
+  "Delete Config Data": {
+    "Description": "This action is used to delete the config data object which can be either an Excel Map object or a Report object saved by the user from the Company or application level.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Delete Config Data",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Delete Config Data"
+  },
+  "Delete File": {
+    "Description": "This action is used to Delete a file from specified location/folder.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evaluates to a file name with absolute path which needs to be deleted.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Delete File",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Delete File"
+  },
+  "Delete Object": {
+    "Description": "This action is used to Delete the current object.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Delete Object",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Object/Collection",
+      "Mode": "Edit"
+    },
+    "Name": "Delete Object"
+  },
+  "DeleteNotifications": {
+    "Description": "This action is used to remove all notifications of a specified activity type.",
+    "Parameters": [
+      {
+        "Description": "Provides the name of the TDL notification activity to be deleted.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "(null)",
+        "Is Mandatory": "Yes",
+        "Refers To": "Notification ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "DeleteNotifications",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "DeleteNotifications"
+  },
+  "DisconnectUser": {
+    "Description": "This action is used to Disconnect the users from companies that are accessed from TallyPrime Server. This function will display a message to the clients, to close the company within 2 minutes  before forcing a close.",
+    "Parameters": [
+      {
+        "Description": "It accepts the name of the TallyPrime Server from which the companies being accessed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It accepts the name of the company to be disconnected. \u0027*\u0027 can be used to specify all companies.",
+        "Parameter Type": "ExpressionEx",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It accepts the name of the company to be disconnected. \u0027*\u0027 can be used to specify all companies.",
+        "Parameter Type": "ExpressionEx",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "DisconnectUser",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "3",
+      "Mode": "Both"
+    },
+    "Name": "DisconnectUser"
+  },
+  "Display": {
+    "Description": "This action is  used to display a specific report.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Display",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Display",
+      "Return Type": "Logical"
+    },
+    "Name": "Display"
+  },
+  "Display Collection": {
+    "Description": "This action is used to serve the collection of objects for display purposes. The second parameter optionally can provide an object identifier. The third parameter allows providing an error message or no action to be taken. The fourth parameter is provided whether no operation should be performed in case collection is empty, or trigger report should be opened.",
+    "Parameters": [
+      {
+        "Description": "This is the name of a collection.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression that evaluates to Name of a selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression that evaluates to Name of a selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression that evaluates whether the trigger report should be displayed or not in case the collection is empty.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Display Collection",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Display Collection"
+  },
+  "Display Current Collection": {
+    "Description": "This action executes the display collection on the collection defined at the object level.",
+    "Parameters": [
+      {
+        "Description": "Any expression which evaluates to the name of the selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any logical expression. This parameter checks whether the trigger report should be displayed or the error message in case the specified object is not found in the collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Display Current Collection",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Display Current Collection"
+  },
+  "Display Current Report": {
+    "Description": "This action executes a display action on the Report defined at the object level.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Display Current Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Display Current Report"
+  },
+  "Display Ex": {
+    "Description": "This action is used to Display Extended objects such as User Security Level.This action inherits the object from wherever it is called.",
+    "Parameters": [
+      {
+        "Description": "This is name of the report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Display Ex",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Display",
+      "Return Type": "Logical"
+    },
+    "Name": "Display Ex"
+  },
+  "Display Help": {
+    "Description": "This action is used to display context based help from tally reference chm file. It lanches the help file of the module if GUID is provided otherwise Context is picked from active report. If no report active then context is taken from current menu.",
+    "Parameters": [
+      {
+        "Description": "This is an optional argument to specify the GUID of the module of which help needs to be opened.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an optional argument to specify the GUID of the module of which help needs to be opened.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Display Help",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Display Help"
+  },
+  "Do If": {
+    "Description": "Do If evaluates the given condition to true or false. If true, it executes the specified action. It can also be used in user defined functions.",
+    "Parameters": [
+      {
+        "Description": "A value, or an expression that can be evaluated to True or False.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "A value, or an expression that can be evaluated to True or False.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "TDL Actions",
+        "Keywords": "Accept Alter, Accept Create, Accept Object, Action, Add Sheet, Add Tile, Alter, Alter Collection, Alter Column, Alter Current Collection, Alter Current Report, Alter Ex, Alter Object, Alter Target, Append, Audit Form, Audit Object, Auto Columns, Autoform Report, Auto Set, Backup Company, Break, Browse Url, Browse Url Ex, Calculator, Call, Cancel, Cancel Object, Change Crypt Company, Change Output Mode, Change Table, Clear Table Stack, Close Company, Close Encrypted Target File, Close File, Close Target File, Configuration, Continue, Copy File, Copy To Clipboard, Copy Variable, Copy Variables, Create, Create Collection, Create Column, Create Ex, Create Target, Cycle Back, Decrement, Delete, Delete Column, Delete Config Data, Delete File, DeleteNotifications, Delete Object, DisconnectUser, Display, Display Collection, Display Current Collection, Display Current Report, Display Ex, Display Help, Display Msg, Display Object, Do If, Dump Debug, Dump Profile, Dump Record, Dump Recording, Duplicate, Else, End Batch Post, End Block, End For, End If, End Msg, End Msg Box, End Progress, End Report, End Sub, End Unzip, End Walk, End While, End XSub, End Zip, Exchange, Exec COM Interface, Exec Command, Exec Command Ex, Exec Excel Macro, Execute, Execute Ex, Execute Obj Actions, ExecuteObjectMap, Execute TDL, Expand Tile, Explode, Export, Export Collection, Export Current Collection, Export Current Report, Export Report, Export Snapshot, Extract Path, Field Accept, Field Backspace, Field Blank, Field Char Delete, Field Char Delete Left, Field Char Left, Field Char NewLine, Field Char Right, Field Copy, Field Cut, Field Down, Field End, Field Erase, Field Home, Field Insert Mode, Field New Line, Field Next, Field Next Field SFD, Field Paste, Field Prev, Field Select End, Field Select Home, Field Select Left Char, Field Select Left Word, Field Select Right Char, Field Select Right Word, Field Select Word, Field Sub Form, Field Table Accept, Field Table Maximize, Field Table Mode,",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "List of parameters as required by the action specified, separated by colon.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Do If",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "2",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Do If"
+  },
+  "Dump Debug": {
+    "Description": "Dumps all expressions Debuged.",
+    "Parameters": [
+      {
+        "Description": "Name of the File to which the Information is to be written. Default is Debug.xlsx",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Dump Debug",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Dump Debug"
+  },
+  "Dump Profile": {
+    "Description": "Dumps all Profiled Information to the file passed as Parameter.",
+    "Parameters": [
+      {
+        "Description": "Name of the File to which the Profile Information is to be written. Default is tdlprof.xlsx",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This specifies whether zero valued items be dumped or not, Default is No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Dump Profile",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Dump Profile"
+  },
+  "Dump Record": {
+    "Description": "Dumps all Recordings. Each recording is dumped with its name and Keys",
+    "Parameters": [
+      {
+        "Description": "Name of the File to which the Recordings is to be written to. Default is macros.log",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Seperator To be Used between the recording name and Keys. Default is \u0027~\u0027",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Dump Record, Dump Recording",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Dump Record"
+  },
+  "Duplicate": {
+    "Description": "This action is used to Duplicate the selected object in current report. Eg. Duplicating voucher in DayBook report.",
+    "Parameters": [
+      {
+        "Description": "Name of the report to be opened to create the object to be duplicated.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Duplicate",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Duplicate"
+  },
+  "Exchange": {
+    "Description": "This action is used to exchange values of two variables. Variables should be same data type.",
+    "Parameters": [
+      {
+        "Description": "Name of Variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of Variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Exchange",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Variable",
+      "Mode": "Display",
+      "Return Type": "Logical"
+    },
+    "Name": "Exchange"
+  },
+  "Exec COM Interface": {
+    "Description": "This is used to invoke the defined COM Interface.",
+    "Parameters": [
+      {
+        "Description": "It accepts the name of COM Interface Definition. The COM Interface Definition provides the information like name of function, return type and type of parameters.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "(null)",
+        "Is Mandatory": "Yes",
+        "Refers To": "COM Interface ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It accepts the name of COM Interface Definition. The COM Interface Definition provides the information like name of function, return type and type of parameters.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "(null)",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Exec COM Interface",
+      "Total Parameters": "Variable",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Exec COM Interface"
+  },
+  "Exec Excel Macro": {
+    "Description": "This action is used to execute a macro defined in an excel sheet.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evaluates to the name of the macro to be executed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to the name of the macro to be executed.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Exec Excel Macro",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Exec Excel Macro"
+  },
+  "Execute Obj Actions": {
+    "Description": "This action is used at the field level to refer to the action label of the collection when an object is selected.",
+    "Parameters": [
+      {
+        "Description": "This is a label to identify the action.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Execute Obj Actions",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Execute Obj Actions"
+  },
+  "Execute TDL": {
+    "Description": "Loads a TDL file and executes an action after loading optionally ",
+    "Parameters": [
+      {
+        "Description": "Name of the TDL file to be loaded , could be of any known TDL formats (.tdl, .tcp, .txt)",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of the TDL file to be loaded , could be of any known TDL formats (.tdl, .tcp, .txt)",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Specifies The Action to be executed after loading TDL",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Keyword Set": "TDL Actions",
+        "Keywords": "Accept Alter, Accept Create, Accept Object, Action, Add Sheet, Add Tile, Alter, Alter Collection, Alter Column, Alter Current Collection, Alter Current Report, Alter Ex, Alter Object, Alter Target, Append, Audit Form, Audit Object, Auto Columns, Autoform Report, Auto Set, Backup Company, Break, Browse Url, Browse Url Ex, Calculator, Call, Cancel, Cancel Object, Change Crypt Company, Change Output Mode, Change Table, Clear Table Stack, Close Company, Close Encrypted Target File, Close File, Close Target File, Configuration, Continue, Copy File, Copy To Clipboard, Copy Variable, Copy Variables, Create, Create Collection, Create Column, Create Ex, Create Target, Cycle Back, Decrement, Delete, Delete Column, Delete Config Data, Delete File, DeleteNotifications, Delete Object, DisconnectUser, Display, Display Collection, Display Current Collection, Display Current Report, Display Ex, Display Help, Display Msg, Display Object, Do If, Dump Debug, Dump Profile, Dump Record, Dump Recording, Duplicate, Else, End Batch Post, End Block, End For, End If, End Msg, End Msg Box, End Progress, End Report, End Sub, End Unzip, End Walk, End While, End XSub, End Zip, Exchange, Exec COM Interface, Exec Command, Exec Command Ex, Exec Excel Macro, Execute, Execute Ex, Execute Obj Actions, ExecuteObjectMap, Execute TDL, Expand Tile, Explode, Export, Export Collection, Export Current Collection, Export Current Report, Export Report, Export Snapshot, Extract Path, Field Accept, Field Backspace, Field Blank, Field Char Delete, Field Char Delete Left, Field Char Left, Field Char NewLine, Field Char Right, Field Copy, Field Cut, Field Down, Field End, Field Erase, Field Home, Field Insert Mode, Field New Line, Field Next, Field Next Field SFD, Field Paste, Field Prev, Field Select End, Field Select Home, Field Select Left Char, Field Select Left Word, Field Select Right Char, Field Select Right Word, Field Select Word, Field Sub Form, Field Table Accept, Field Table Maximize, Field Table Mode,",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Specifies The Action to be executed after loading TDL",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Execute TDL",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Execute TDL"
+  },
+  "ExecuteObjectMap": {
+    "Description": "This action is used to execute the object map definition.",
+    "Parameters": [
+      {
+        "Description": "This parameter is used to specify the name of the object map.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "(null)",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object Map ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ExecuteObjectMap",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Object/Collection",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "ExecuteObjectMap"
+  },
+  "Expand Tile": {
+    "Description": "This action is used to open the active tile report in the expanded view of the Dashboard.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Expand Tile",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Expand Tile"
+  },
+  "Export": {
+    "Description": "This action initiates data export activity using the given report.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression when eveluated to TRUE it supresses the configuration window.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression when eveluated to TRUE it supresses the configuration window.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Export",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Export"
+  },
+  "Export Collection": {
+    "Description": "This action is used to serve the collection of objects for export purposes. The second parameter optionally can provide an object identifier. The third parameter allows providing an error message or no action to be taken. The fourth parameter is provided whether no operation should be performed in case collection is empty, or trigger report should be opened.",
+    "Parameters": [
+      {
+        "Description": "This is the name of a collection.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is the name of a collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression which evaluates to whether the trigger report should be displayed or error message in case the specified object is not found in the collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression which evaluates to whether the trigger report should be displayed or error message in case the specified object is not found in the collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Export Collection",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Export Collection"
+  },
+  "Export Current Collection": {
+    "Description": "This action executes the export collection on the collection defined at the object level.",
+    "Parameters": [
+      {
+        "Description": "Any expression which evaluates to the name of the selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any expression which evaluates to the name of the selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Export Current Collection",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Export Current Collection"
+  },
+  "Export Current Report": {
+    "Description": "This action executes an Export action on the Report defined at the object level.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Export Current Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Export Current Report"
+  },
+  "Export Snapshot": {
+    "Description": "This action Exports the snapshot for  given company and rule.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evalautes to TRUE - for exporting Client rule snapshot, FALSE - for exporting Server rule snapshot.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evalautes to TRUE - for exporting Client rule snapshot, FALSE - for exporting Server rule snapshot.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an espression which evaluates to the name of the rule.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an espression which evaluates to the name of the rule.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Export Snapshot",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "4",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Export Snapshot"
+  },
+  "Focus Above Tile": {
+    "Description": "This action is used to shift the focus from the currently active tile to the tile above it in the Dashboard report. ",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Focus Above Tile",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Focus Above Tile"
+  },
+  "Focus Below Tile": {
+    "Description": "This action is used to shift the focus from the currently active tile to the tile below it in the Dashboard report.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Focus Below Tile",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Focus Below Tile"
+  },
+  "Focus Next Tile": {
+    "Description": "This action is used to shift the focus from the currently active tile to its next tile in the Dashboard report.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Focus Next Tile",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Focus Next Tile"
+  },
+  "Focus Previous Tile": {
+    "Description": "This action is used to shift the focus from the currently active tile to its previous tile in the Dashboard report.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Focus Previous Tile",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Focus Previous Tile"
+  },
+  "ForceDisconnectUser": {
+    "Description": "This action is used to forcefully disconnect the users from companies that are accessed from TallyPrime Server.",
+    "Parameters": [
+      {
+        "Description": "It accepts the name of the Tally.Server from which the companies are being accessed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It accepts the name of the company to be disconnected. \u0027*\u0027 can be used to specify all companies.",
+        "Parameter Type": "ExpressionEx",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It accepts the name of the company to be disconnected. \u0027*\u0027 can be used to specify all companies.",
+        "Parameter Type": "ExpressionEx",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ForceDisconnectUser",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "3",
+      "Mode": "Both"
+    },
+    "Name": "ForceDisconnectUser"
+  },
+  "HTTP Request": {
+    "Description": "HTTP Request Action can be used to submit data to a server over HTTP and gather the response. This will enable a TDL Report to perform a HTTP Post to a remote location.",
+    "Parameters": [
+      {
+        "Description": "This is an expression that resolves to a URL",
+        "Parameter Type": "ExpressionEx",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression that resolves to a URL",
+        "Parameter Type": "Keyword",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "HTTP Methods",
+        "Keywords": "GET, POST, PUT",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Request Format XML/JSON/JSON EX",
+        "Parameter Type": "Keyword",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "File Data Format",
+        "Keywords": "JSON, JSONEX, XML",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Request Format XML/JSON/JSON EX",
+        "Parameter Type": "Keyword",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Encoding",
+        "Keywords": "ASCII, Unicode, Unicode8, UTF16, UTF8",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is the name of the TDL Report which will be used for generating XML/JSON Request to be sent. Only header will be considered when HTTP Method is GET.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is the name of the TDL Report which will be used for generating XML/JSON Request to be sent. Only header will be considered when HTTP Method is GET.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Function ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "HTTP Request",
+      "Total Parameters": "6",
+      "Total Mandatory Parameters": "5",
+      "Category": "User Interface",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "HTTP Request"
+  },
+  "Ignore Field": {
+    "Description": "This action allows clearing the text of the field. The second parameter also allows resetting the cursor to the position required.",
+    "Parameters": [
+      {
+        "Description": "An expression which evaluates to logical value to indicate text to be cleared from field.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression which evaluates to logical value to indicate text to be cleared from field.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Ignore Field",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Ignore Field"
+  },
+  "Import": {
+    "Description": "This action initiates data import activity using the given report.",
+    "Parameters": [
+      {
+        "Description": "Name of Report / Import File.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "(null)",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of Report / Import File.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Import",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Import"
+  },
+  "Import Snapshot": {
+    "Description": "This action Imports snapshot for the given company and rule.",
+    "Parameters": [
+      {
+        "Description": "TRUE - for importing Client rule snapshot, FALSE - for importing Server rule snapshot.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "TRUE - for importing Client rule snapshot, FALSE - for importing Server rule snapshot.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an espression which evaluates to the name of the rule.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an espression which evaluates to the name of the rule.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Import Snapshot",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "4",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Import Snapshot"
+  },
+  "InitClientSync": {
+    "Description": "Requests the client(s) to initiate Synchronization. Used to initiate sync from server side.",
+    "Parameters": [
+      {
+        "Description": "Name of the company for which synchronization has to be performed. If this is empty, synchronization will be initiated for all the open companies",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of the rule to be synchronized from a given company. If this is empty, synchronization will be initiated for all server rules available in the company",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "InitClientSync",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Mode": "Both"
+    },
+    "Name": "InitClientSync"
+  },
+  "Insert": {
+    "Description": "This action is used to Insert a new object before the selected object in a current report. Eg. Inserting a voucher in DayBook report.",
+    "Parameters": [
+      {
+        "Description": "Name of the report to be opened to create the object to be inserted.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Insert",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Insert"
+  },
+  "List Add": {
+    "Description": "This action adds an element to the List variable based on Key.",
+    "Parameters": [
+      {
+        "Description": "Name of the list variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of the list variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to the value to be set.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to the value to be set.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List Add, List Append, List Set",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "2",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "List Add"
+  },
+  "List Add Ex": {
+    "Description": "This action adds an element to the List variable based on Index.",
+    "Parameters": [
+      {
+        "Description": "Name to the list variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name to the list variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Member specification.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List Add Ex, List Append Ex",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "List Add Ex"
+  },
+  "List Delete": {
+    "Description": "This action deletes element(s) from the specified List variable based on Key.",
+    "Parameters": [
+      {
+        "Description": "Name of the list variable from which the element(s) are to be deleted.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Key for which the corresponding element variable has to be deleted. If not specified, deletes all the elements of the specified list variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List Delete, List Remove",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "List Delete"
+  },
+  "List Delete Ex": {
+    "Description": "This action deletes element(s) from the specified List variable based on the Index value.",
+    "Parameters": [
+      {
+        "Description": "Name of the list variable from which the element(s) are to be deleted.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Index of the element variable which is to be deleted from the list. If not specified, deletes all the elements of the specified list variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List Delete Ex, List Remove Ex",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "List Delete Ex"
+  },
+  "List Expand": {
+    "Description": "This action expands the List variable by specified number of elements.",
+    "Parameters": [
+      {
+        "Description": "Name of List variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which specifies the number of elements to be added in the list variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List Expand",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Long"
+    },
+    "Name": "List Expand"
+  },
+  "List Fill": {
+    "Description": "This action fills a List variable from a Collection.",
+    "Parameters": [
+      {
+        "Description": "Name of the List Variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Collection Name.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Collection Name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates Value Formula.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates Value Formula.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List Fill",
+      "Total Parameters": "5",
+      "Total Mandatory Parameters": "2",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Number"
+    },
+    "Name": "List Fill"
+  },
+  "List Key Sort": {
+    "Description": "This action sorts the elements of List variable based on KEY.",
+    "Parameters": [
+      {
+        "Description": "Name of the List Variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of the List Variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Datatype for KEY used for sorting.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Datatype for KEY used for sorting.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List Key Sort, List Sort",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "List Key Sort"
+  },
+  "List Reset Sort": {
+    "Description": "This action resets the sort to the insertion order.",
+    "Parameters": [
+      {
+        "Description": "Name of the List Variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List Reset Sort",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "List Reset Sort"
+  },
+  "List Value Sort": {
+    "Description": "This action sorts the element of the List Variable based on Value.",
+    "Parameters": [
+      {
+        "Description": "Name of the List Variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This accepts value True to sort the elements in Ascending order else FALSE.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This accepts value True to sort the elements in Ascending order else FALSE.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Member specification in case of compound variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "List Value Sort",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "List Value Sort"
+  },
+  "Load Language": {
+    "Description": "This action is used to load a language dictionary given a language ID.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evaluates to language ID.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Load Language",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Load Language"
+  },
+  "Load TDL": {
+    "Description": "Specify file-path of the TDL to be loaded",
+    "Parameters": [
+      {
+        "Description": "Specify the name of State for which VAT Upload session is to be created.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Load TDL",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Load TDL"
+  },
+  "Load Variable": {
+    "Description": "This action loads the values of the variable which were persisted into a file.",
+    "Parameters": [
+      {
+        "Description": "File name where variable were persisted.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is List of comma separated variables.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "(null)",
+        "Is Mandatory": "No",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Load Variable, Load Variables",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Load Variable"
+  },
+  "Log Object": {
+    "Description": "This action is to log the context object, its method and collection in the specified name.",
+    "Parameters": [
+      {
+        "Description": "This is File name where to log the context of the object.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which returns the Expression OverWrite flag.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Log Object",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Log Object"
+  },
+  "Mail": {
+    "Description": "This action mails the specified report.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evaluates to Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression when eveluated to TRUE it supresses the configuration window.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Mail",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Mail"
+  },
+  "Mail Collection": {
+    "Description": "This action is used to serve the collection of objects for mail purpose. The second parameter optionally can provide object identifier. The third parameter allows providing an error message or no action to be taken. The fourth parameter is provided whether no operation should be performed in case the collection is empty, or trigger report should be opened.",
+    "Parameters": [
+      {
+        "Description": "This is the name of a collection.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression that evaluates to Name of a selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression that evaluates to Name of a selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression which evaluates to whether the trigger report should be displayed or not in case the collection is empty.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Mail Collection",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Mail Collection"
+  },
+  "Mail Current Collection": {
+    "Description": "This action executes the mail collection on the collection defined at the object level.",
+    "Parameters": [
+      {
+        "Description": "Any expression which evaluates to the name of the selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any logical expression. This parameter checks whether the trigger report should be displayed or the error message in case the specified object is not found in the collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Mail Current Collection",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Mail Current Collection"
+  },
+  "Mail Current Report": {
+    "Description": "This action executes a mail action on the Report defined at the object level.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Mail Current Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Mail Current Report"
+  },
+  "MailEx": {
+    "Description": "This action mails the specified report.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evaluates to Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "MailEx",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "MailEx"
+  },
+  "Make Dir": {
+    "Description": "Creates a directory.",
+    "Parameters": [
+      {
+        "Description": "The directory path that needs to be created. Creates the entire path if it does not exist.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Make Dir",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Make Dir"
+  },
+  "MasterImport": {
+    "Description": "This action will import default masters to the current company. Currently only payroll masters gets re-imported",
+    "Parameters": [
+      {
+        "Description": "Specify the Stage information to be displayed in progress info section of Progress Bar in Migration scenarios.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "MasterImport",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "MasterImport"
+  },
+  "Menu": {
+    "Description": "This action is used to launch a menu.",
+    "Parameters": [
+      {
+        "Description": "Menu name which is to be launched",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Menu ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Menu",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Menu"
+  },
+  "Menu Reject All": {
+    "Description": "This action is used to Reject all menus.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Menu Reject All",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Menu Reject All"
+  },
+  "Modify Dashboard Variables": {
+    "Description": "This action is used to launch a report in Auto mode and modify the values of all existing tile variables if the scope is set to the dashboard. Once the modification is done successfully, all tiles will refresh to reflect the updated values.",
+    "Parameters": [
+      {
+        "Description": "Specify the report name",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Modify Dashboard Variables",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Variable",
+      "Mode": "Both"
+    },
+    "Name": "Modify Dashboard Variables"
+  },
+  "Modify Object": {
+    "Description": "This action is used to update/modify   multiple values of an object from any  level.",
+    "Parameters": [
+      {
+        "Description": "Comma separated list of Method Name and value pair.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Modify Object",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "Modify Object"
+  },
+  "Modify Original": {
+    "Description": "This action is used to launch a report in Auto mode and modify the value of a variables in the context of parent report. But this replaces the Current auto report with the specified report for variable modification.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Modify Original",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Variable",
+      "Mode": "Both"
+    },
+    "Name": "Modify Original"
+  },
+  "Modify System": {
+    "Description": "This action launches a report in Auto mode and allows to modify the  variables at system scope.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Modify System",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Variable",
+      "Mode": "Edit"
+    },
+    "Name": "Modify System"
+  },
+  "Modify Variables": {
+    "Description": "This action is used to launch a report in Auto mode and modify the value of a variables in the context of parent report. After a successful modification, refreshes the parent report.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Modify Variables",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Variable",
+      "Mode": "Both"
+    },
+    "Name": "Modify Variables"
+  },
+  "Modify Variables Only": {
+    "Description": "This action is used to launch a report in Auto mode and modify the value of a variables in the context of parent report. But it does not refresh the parent report after acceptance.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Modify Variables Only",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Variable",
+      "Mode": "Both"
+    },
+    "Name": "Modify Variables Only"
+  },
+  "Multi Field Set": {
+    "Description": "This action is used to set values into multiple fields.",
+    "Parameters": [
+      {
+        "Description": "Comma separated list of Field  Name and Variable name pair",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Expression or values to be set into the fields.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Multi Field Set",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Multi Field Set"
+  },
+  "Multi Set": {
+    "Description": "Sets the multiple Member Variable with the values specified. These members value pairs can be specified comma separated.",
+    "Parameters": [
+      {
+        "Description": "Name of the List variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Member Variable specification.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Member Variable specification.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Multi Set",
+      "Total Parameters": "Variable",
+      "Total Mandatory Parameters": "3",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Multi Set"
+  },
+  "Online Snapshot Exchange": {
+    "Description": "This action is initiates online snapshot exchange for the given company and rule.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evalautes to the name of the company.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evalautes to the name of the company.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Online Snapshot Exchange",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Online Snapshot Exchange"
+  },
+  "Pause Record": {
+    "Description": "Used to Pause current Recording.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Pause Record, Pause Recording",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Pause Record"
+  },
+  "Playback Key": {
+    "Description": "This action is used to playback recorded macros.",
+    "Parameters": [
+      {
+        "Description": "This takes an expression that contains comma seperated keys.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This takes an expression that contains comma seperated keys.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Playback Key",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Playback Key"
+  },
+  "Popup Menu": {
+    "Description": "This action launches a popup menu from the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the popup menu.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Menu ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Popup Menu",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Popup Menu"
+  },
+  "Print": {
+    "Description": "This action is used to Print a report.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to a logical value to indicate whether to show configuration screen and UI or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Display",
+      "Return Type": "Logical"
+    },
+    "Name": "Print"
+  },
+  "Print Collection": {
+    "Description": "This action is used to serve the collection of objects for print purpose. The second parameter optionally can provide object identifier. The third parameter allows providing an error message or no action to be taken. The fourth parameter is provided whether no operation should be performed in case collection is empty, or trigger report should be opened.",
+    "Parameters": [
+      {
+        "Description": "This is the name of a collection.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression that evaluates to Name of a selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression that evaluates to Name of a selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "An expression which evaluates to whether the trigger report should be displayed or not in case the collection is empty.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print Collection",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "Print Collection"
+  },
+  "Print Current Collection": {
+    "Description": "This action executes the print collection on the collection defined at the object level.",
+    "Parameters": [
+      {
+        "Description": "Any expression which evaluates to the name of the selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any logical expression. This parameter checks whether the trigger report should be displayed or the error message in case the specified object is not found in the collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print Current Collection",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Print Current Collection"
+  },
+  "Print Current Report": {
+    "Description": "This action executes a print action on the Report defined at the object level.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Print Current Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Print Current Report"
+  },
+  "RaiseNotification": {
+    "Description": "This action is used to open or raise a notification report and use this  specifically where notification-related behavior is required.",
+    "Parameters": [
+      {
+        "Description": "It specifies the name of the TDL notification.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "(null)",
+        "Is Mandatory": "Yes",
+        "Refers To": "Notification ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It specifies the text to be displayed for a notification.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "RaiseNotification",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "RaiseNotification"
+  },
+  "Refresh Data": {
+    "Description": "This action is used to update the company data in memory with latest updates from the  database in case of a multi user environment.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Refresh Data",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Refresh Data"
+  },
+  "Related Display": {
+    "Description": "This action is used to display other Related reports from current report. Eg. Dislaying movement analysis report in stock voucher report.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Related Display",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Related Display"
+  },
+  "Remove Tile": {
+    "Description": "This action is used to remove the active tile from a Dashboard report.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Remove Tile",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Remove Tile"
+  },
+  "Replace": {
+    "Description": "This Action is used to replace the current report by another such as Stock Item Creation,Godown Creation,Stock Group Creation reports can be switched among themselves.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Replace",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both"
+    },
+    "Name": "Replace"
+  },
+  "Reset Password": {
+    "Description": "Provides an option to user to change his password.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Reset Password",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Reset Password"
+  },
+  "Restore Company": {
+    "Description": "This action is used to Restore the specified company.",
+    "Parameters": [
+      {
+        "Description": "Seperator Character used in the next parameter.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is string expression which contains Company destination path,source path,company name,company number.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Restore Company",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Company",
+      "Mode": "Both"
+    },
+    "Name": "Restore Company"
+  },
+  "Resume Record": {
+    "Description": "Used to Resume the Paused Recording.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Resume Record, Resume Recording",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Resume Record"
+  },
+  "Save Variable": {
+    "Description": "The action SAVE VARIABLE is used to persist the Report Scope Variables in a user specified file.",
+    "Parameters": [
+      {
+        "Description": "Name of the file to save.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is a list of comma separated variables.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "(null)",
+        "Is Mandatory": "No",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Save Variable, Save Variables",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Save Variable"
+  },
+  "Select Company": {
+    "Description": "This action is used to Select a Company.",
+    "Parameters": [
+      {
+        "Description": "This is string expression contains the separator character used for each company in next parameter.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is string expression which contains Name and number of the Company.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Select Company",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Company",
+      "Mode": "Both"
+    },
+    "Name": "Select Company"
+  },
+  "Select Display": {
+    "Description": "This action is used to display list of reports belonging to a specific category such as displaying inventory reports/accounting reports from monthly summary report.",
+    "Parameters": [
+      {
+        "Description": "Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Select Display",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Select Display"
+  },
+  "Set": {
+    "Description": "This action to set values to the variable or Field.",
+    "Parameters": [
+      {
+        "Description": "Name of the variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "(null)",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of the variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Variable",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Set"
+  },
+  "Set Field": {
+    "Description": "This action is used to set the value of the owner field in edit mode.",
+    "Parameters": [
+      {
+        "Description": "This as a Value or expression to be set.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Field",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Set Field"
+  },
+  "Set Object Values": {
+    "Description": "The action Set Object values work only in the Edit mode of a Report . It updates/modifies the values of an object from current context as specified. The object values are updates in memory. The changes are stored in the Tally database only when the primary object is saved.",
+    "Parameters": [
+      {
+        "Description": "Comma separated list of Method Name and value pair.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Object Values",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "Set Object Values"
+  },
+  "Show Window": {
+    "Description": "Creates a directory.",
+    "Parameters": [
+      {
+        "Description": "Specify Yes / No to indicate whether to Show the Window or Hide. Default value is Yes.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Show Window",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Show Window"
+  },
+  "Shut Company": {
+    "Description": "This action is used to Shutdown a Company.",
+    "Parameters": [
+      {
+        "Description": "This is string expression contains the separator character used for each company in next parameter.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is string expression which contains Name and number of the Company.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Shut Company",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Company",
+      "Mode": "Both"
+    },
+    "Name": "Shut Company"
+  },
+  "Shut Company Collection": {
+    "Description": "This action enables to shut company with a selection of a company from anywhere in the system.",
+    "Parameters": [
+      {
+        "Description": "This has to be the name of the collection to list companies. This must have a Trigger report for showing Select Table listing the company collection.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Shut Company Collection",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "Shut Company Collection"
+  },
+  "Sleep": {
+    "Description": "This action suspends the execution for specified Time.",
+    "Parameters": [
+      {
+        "Description": "Time for which to suspend the execution of current thread.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Sleep",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Sleep"
+  },
+  "Start Debug": {
+    "Description": "Used to Start Debugging. All Expressions Evaluated will be Debugged.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Start Debug",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Start Debug"
+  },
+  "Start Profile": {
+    "Description": "Used to Start Profiling. Every Function, Collection Gather and Expressions Are Profiled once the Profiling has started.",
+    "Parameters": [
+      {
+        "Description": "This specifies whether the profiler is to be run in detailed (In-Depth) mode. Default is No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Start Profile",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Start Profile"
+  },
+  "Start Record": {
+    "Description": "Used to Start Recording. Every Key entered will be recorded, which can be later used to Play Back.",
+    "Parameters": [
+      {
+        "Description": "Name of the Recording. Defualt is Macro",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Start Record, Start Recording",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Start Record"
+  },
+  "Start Service": {
+    "Description": "This action is used to start the specified service.",
+    "Parameters": [
+      {
+        "Description": "It accepts expression which evaluates to name of the service.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Start Service",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Start Service"
+  },
+  "Start Timer": {
+    "Description": "This Action starts a Timer for a specified Duration.",
+    "Parameters": [
+      {
+        "Description": "This is name of the timer.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is name of the timer.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Start Timer",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Start Timer"
+  },
+  "Start Vat Session": {
+    "Description": "This action is used for Creating a session for VAT Upload.",
+    "Parameters": [
+      {
+        "Description": "Specify the name of State for which VAT Upload session is to be created.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Specify the name of State for which VAT Upload session is to be created.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Specify the password for VAT Upload Portal",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Specify the password for VAT Upload Portal",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "(null)",
+        "Is Mandatory": "No",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Start Vat Session",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "3",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Start Vat Session"
+  },
+  "StartScheduler": {
+    "Description": "This action starts and runs the scheduler service. If the service is not already installed, it will be installed automatically and then started. If it is already installed, the action simply starts and runs it.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "StartScheduler",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "StartScheduler"
+  },
+  "Stop Debug": {
+    "Description": "Used to Stop Debugging. If the First Parameter is Passed then the information is also dumped into the file.",
+    "Parameters": [
+      {
+        "Description": "Name of the File to which the Information is to be written.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Stop Debug",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Stop Debug"
+  },
+  "Stop Profile": {
+    "Description": "Used to Stop Profiling. If the First Parameter is Passed then the information is also dumped into the file. ",
+    "Parameters": [
+      {
+        "Description": "Name of the File to which the Information is to be written. If this parameter is not passed the dump is not generated.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This specifies whether zero valued items be dumped or not, Default is No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Stop Profile",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Stop Profile"
+  },
+  "Stop Record": {
+    "Description": "Used to Stop Recording.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Stop Record, Stop Recording",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Both"
+    },
+    "Name": "Stop Record"
+  },
+  "Stop Service": {
+    "Description": "This action is used to stop the specified service.",
+    "Parameters": [
+      {
+        "Description": "It accepts an expression which evaluates to name of the service.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Stop Service",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Stop Service"
+  },
+  "Stop Timer": {
+    "Description": "This action stops the specified timer.",
+    "Parameters": [
+      {
+        "Description": "This is the name of Timer.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Stop Timer",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Stop Timer"
+  },
+  "Sub Form": {
+    "Description": "This action enables to execute a report through a button from the current context.",
+    "Parameters": [
+      {
+        "Description": "This refers to the name of a report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Sub Form",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Sub Form"
+  },
+  "Synchronize": {
+    "Description": "This action initiates synchronization and exchanges data between client and server.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evaluates to Name of the company.  If this is empty, synchronization will be initiated for all the open companies.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to Name of the company.  If this is empty, synchronization will be initiated for all the open companies.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Synchronize",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Synchronize"
+  },
+  "Synchronize Fixed": {
+    "Description": "Initiates synchronization and exchanges data between client and server",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Synchronize Fixed",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Synchronize Fixed"
+  },
+  "Trigger Key": {
+    "Description": "This action is used to execute the Trigger Key action. This supports comma-separated list of expressions, each evaluating to give a key/key-sequence",
+    "Parameters": [
+      {
+        "Description": "Key to be executed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Trigger Key",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Trigger Key"
+  },
+  "Unload TDL": {
+    "Description": "This action is used to unload the specified TDL by its name or GUID.",
+    "Parameters": [
+      {
+        "Description": "Specify name of the TDL or GUID of the TDL to be unloaded.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Unload TDL",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Unload TDL"
+  },
+  "Unzip": {
+    "Description": "Action to extract a zip archive file.",
+    "Parameters": [
+      {
+        "Description": "Target folder name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Target folder name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Password with which to extract zip contents.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Password with which to extract zip contents.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Whether to show progress bar or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Whether to show progress bar or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Unzip",
+      "Total Parameters": "6",
+      "Total Mandatory Parameters": "2",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Unzip"
+  },
+  "Upload": {
+    "Description": "Mails specicfied report to output to given address in selected format",
+    "Parameters": [
+      {
+        "Description": "Specify the name of the report to be used for exporting",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Specify the name of the report to be used for exporting",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Upload",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Upload"
+  },
+  "Upload Vat Return": {
+    "Description": "This action is used for uploading VAT Returns.",
+    "Parameters": [
+      {
+        "Description": "Specify the URL to which - the VAT Returns to be uploaded. The URL also specifies the required parameters such as - itis VAT, state, Period, Type and Filename etc.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Specify the URL to which - the VAT Returns to be uploaded. The URL also specifies the required parameters such as - itis VAT, state, Period, Type and Filename etc.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Specify the type of file (format of the file) to be uploaded for VAT Returns",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Specify the type of file (format of the file) to be uploaded for VAT Returns",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Upload Vat Return",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "4",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Number"
+    },
+    "Name": "Upload Vat Return"
+  },
+  "WhatsApp": {
+    "Description": "This action shares the specified report via WhatsApp.",
+    "Parameters": [
+      {
+        "Description": "Any expression which evaluates to the Name of Report.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any expression which evaluates to the Name of Report.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "WhatsApp",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "WhatsApp"
+  },
+  "WhatsApp Collection": {
+    "Description": "This action is used to serve the collection of objects for WhatsApp purposes.",
+    "Parameters": [
+      {
+        "Description": "Specify the name of a collection.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Specify the name of a collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any expression. It checks whether to display the trigger report when the specified object is not found in the collection. This is an optional parameter.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any expression. It checks whether to display the trigger report when the specified object is not found in the collection. This is an optional parameter.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "WhatsApp Collection",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "User Interface",
+      "Mode": "Display"
+    },
+    "Name": "WhatsApp Collection"
+  },
+  "WhatsApp Current Collection": {
+    "Description": "This executes the WhatsApp collection on the Collection defined at the object level.",
+    "Parameters": [
+      {
+        "Description": "Any expression which evaluates the name of the selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any expression which evaluates the name of the selected object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "WhatsApp Current Collection",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "WhatsApp Current Collection"
+  },
+  "WhatsApp Current Report": {
+    "Description": "This executes a WhatsApp action on the Report defined at the object level.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "WhatsApp Current Report",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "User Interface",
+      "Mode": "Both"
+    },
+    "Name": "WhatsApp Current Report"
+  },
+  "WriteINI": {
+    "Description": "This action is used to add/alter the value of any parameter in the specified INI file.",
+    "Parameters": [
+      {
+        "Description": "It accepts the path and filename of the INI file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It accepts the path and filename of the INI file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It accepts Parameter whose value is to be fetched from the INI.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It accepts Parameter whose value is to be fetched from the INI.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It accepts It can be used when multiple values for the same parameter are accepted. In the absence of index where the parameter accepts multiple values, the value of last index will be updated.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "WriteINI",
+      "Total Parameters": "5",
+      "Total Mandatory Parameters": "3",
+      "Category": "Generic Operations",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "WriteINI"
+  },
+  "Zip": {
+    "Description": "Action to create a zip archive file.",
+    "Parameters": [
+      {
+        "Description": "Name of target zip file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Source Path to zip.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Source Path to zip.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Whether to overwrite existing file or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Whether to overwrite existing file or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Whether to show progress bar or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Zip",
+      "Total Parameters": "6",
+      "Total Mandatory Parameters": "2",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Zip"
+  }
+}

@@ -1,0 +1,738 @@
+{
+  "Properties": {
+    "Addlqualifiers": {
+      "Name": "Addlqualifiers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content Qualifier"
+      }
+    },
+    "Consider User Ovrdn Status": {
+      "Name": "Consider User Ovrdn Status",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Content Section Qualifier": {
+      "Name": "Content Section Qualifier",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Contenttype": {
+      "Name": "Contenttype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Counterpartystatus": {
+      "Name": "Counterpartystatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Declared Cess": {
+      "Name": "Declared Cess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Declared Cgst": {
+      "Name": "Declared Cgst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Declared Igst": {
+      "Name": "Declared Igst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Declared Sgst": {
+      "Name": "Declared Sgst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Derived Content": {
+      "Name": "Derived Content",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Derived Content"
+      }
+    },
+    "Exchange Status": {
+      "Name": "Exchange Status",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Fetchedcontent": {
+      "Name": "Fetchedcontent",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Derived Content"
+      }
+    },
+    "Fetchedcontentversion": {
+      "Name": "Fetchedcontentversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Fetchedlinkinfo": {
+      "Name": "Fetchedlinkinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Reconlinkdet"
+      }
+    },
+    "Fetchedreconstoredcrc": {
+      "Name": "Fetchedreconstoredcrc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Fetchedreconstoredcrcnoamt": {
+      "Name": "Fetchedreconstoredcrcnoamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Fetchedreconstoredcrcnoamtsumm": {
+      "Name": "Fetchedreconstoredcrcnoamtsumm",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Fpdate": {
+      "Name": "Fpdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Gatewayid\u00A0": {
+      "Name": "Gatewayid\u00A0",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gstcurrentactionstatus": {
+      "Name": "Gstcurrentactionstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstderivedstatus": {
+      "Name": "Gstderivedstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstimsdeclaredcess": {
+      "Name": "Gstimsdeclaredcess",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gstimsdeclaredcgst": {
+      "Name": "Gstimsdeclaredcgst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gstimsdeclaredigst": {
+      "Name": "Gstimsdeclaredigst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gstimsdeclaredsgst": {
+      "Name": "Gstimsdeclaredsgst",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Amount"
+      }
+    },
+    "Gstimsderivedexchangestatus": {
+      "Name": "Gstimsderivedexchangestatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstimsexchangestatus": {
+      "Name": "Gstimsexchangestatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstimsisitcredrequired": {
+      "Name": "Gstimsisitcredrequired",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Gstimsremarks": {
+      "Name": "Gstimsremarks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gstindirectexchstatus": {
+      "Name": "Gstindirectexchstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstmanualactionstatus": {
+      "Name": "Gstmanualactionstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstmanualreconstatus": {
+      "Name": "Gstmanualreconstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstmanualstatus": {
+      "Name": "Gstmanualstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstnactionstatus": {
+      "Name": "Gstnactionstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstnrejectdetails": {
+      "Name": "Gstnrejectdetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Excherrinfo"
+      }
+    },
+    "Gstnrejectreason": {
+      "Name": "Gstnrejectreason",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gstnstatus": {
+      "Name": "Gstnstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstntransid": {
+      "Name": "Gstntransid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gstnuploadstatus": {
+      "Name": "Gstnuploadstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Gstnuploadtransid": {
+      "Name": "Gstnuploadtransid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Gstpreviousactionstatus": {
+      "Name": "Gstpreviousactionstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Has Fetched Data": {
+      "Name": "Has Fetched Data",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Ignoreforrecon": {
+      "Name": "Ignoreforrecon",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Amend As Zero": {
+      "Name": "Is Amend As Zero",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is Counter Party Signed": {
+      "Name": "Is Counter Party Signed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Is Reversed": {
+      "Name": "Is Reversed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Is To Be Deleted": {
+      "Name": "Is To Be Deleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isauthenticated": {
+      "Name": "Isauthenticated",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isdeleted": {
+      "Name": "Isdeleted",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isfetchedonly": {
+      "Name": "Isfetchedonly",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isforceupload": {
+      "Name": "Isforceupload",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isitcdeclared": {
+      "Name": "Isitcdeclared",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isitcredrequired": {
+      "Name": "Isitcredrequired",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Isreconciled": {
+      "Name": "Isreconciled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isremarksprovided": {
+      "Name": "Isremarksprovided",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isreturnsigned": {
+      "Name": "Isreturnsigned",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isreturnversionfiled": {
+      "Name": "Isreturnversionfiled",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isreturnversionfilinginprogress": {
+      "Name": "Isreturnversionfilinginprogress",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isreturnversioninexchange": {
+      "Name": "Isreturnversioninexchange",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isreturnversionsigned": {
+      "Name": "Isreturnversionsigned",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Issectionreversed": {
+      "Name": "Issectionreversed",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Issigned": {
+      "Name": "Issigned",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Isstatuncertain": {
+      "Name": "Isstatuncertain",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Lastsignedtallycontent": {
+      "Name": "Lastsignedtallycontent",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content"
+      }
+    },
+    "Lastsignedtccrosssection": {
+      "Name": "Lastsignedtccrosssection",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content"
+      }
+    },
+    "Manual Gstn Status": {
+      "Name": "Manual Gstn Status",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Packetid": {
+      "Name": "Packetid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Period": {
+      "Name": "Period",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Platformappldate": {
+      "Name": "Platformappldate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Platformdetailsversion": {
+      "Name": "Platformdetailsversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Platformversion": {
+      "Name": "Platformversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Reconcpstatus": {
+      "Name": "Reconcpstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Reconstatus": {
+      "Name": "Reconstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Remarks": {
+      "Name": "Remarks",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Returnextdatainfoid": {
+      "Name": "Returnextdatainfoid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Returnname": {
+      "Name": "Returnname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Returnperiodicity": {
+      "Name": "Returnperiodicity",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sectionqualifier": {
+      "Name": "Sectionqualifier",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Sectionreturnversion": {
+      "Name": "Sectionreturnversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Tallycontent": {
+      "Name": "Tallycontent",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Content"
+      }
+    },
+    "Tc Version": {
+      "Name": "Tc Version",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Tcsid": {
+      "Name": "Tcsid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Usercontentversion": {
+      "Name": "Usercontentversion",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Userlinkinfo": {
+      "Name": "Userlinkinfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Reconlinkdet"
+      }
+    },
+    "Userreconcomputedcrc": {
+      "Name": "Userreconcomputedcrc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Userreconstoredcrc": {
+      "Name": "Userreconstoredcrc",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Userreconstoredcrcnoamt": {
+      "Name": "Userreconstoredcrcnoamt",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Userreconstoredcrcnoamtsumm": {
+      "Name": "Userreconstoredcrcnoamtsumm",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Vchchecksum": {
+      "Name": "Vchchecksum",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Version": {
+      "Name": "Version",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Xtuploadstatus": {
+      "Name": "Xtuploadstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Addlqualifiers": "Content Qualifier",
+    "Derived Content": "Derived Content",
+    "Fetchedcontent": "Derived Content",
+    "Fetchedlinkinfo": "Reconlinkdet",
+    "Gstnrejectdetails": "Excherrinfo",
+    "Lastsignedtallycontent": "Content",
+    "Lastsignedtccrosssection": "Content",
+    "Tallycontent": "Content",
+    "Userlinkinfo": "Reconlinkdet"
+  },
+  "Name": "Returnwise Versions"
+}

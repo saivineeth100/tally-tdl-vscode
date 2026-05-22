@@ -51,4 +51,12 @@ Last modification –
         var tokens = lexer.Generate();
         expect(tokens.length).toBe(16);
     });
+    test('Token Start Position after Comment', () => {
+        const tdl = `; Comment
+[Report: Test]`;
+        const lexer = new Lexer(tdl);
+        const tokens = lexer.Generate();
+        // [ is at index 10 (length of "; Comment\n")
+        expect(tokens[0].Start).toBe(10);
+    });
 }); 

@@ -1,0 +1,138 @@
+{
+  "Properties": {
+    "Allowrecvlist": {
+      "Name": "Allowrecvlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncallowdisallow"
+      }
+    },
+    "Allowsendlist": {
+      "Name": "Allowsendlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncallowdisallow"
+      }
+    },
+    "Disallowrecvlist": {
+      "Name": "Disallowrecvlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncallowdisallow"
+      }
+    },
+    "Disallowsendlist": {
+      "Name": "Disallowsendlist",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Syncallowdisallow"
+      }
+    },
+    "Originaldepth": {
+      "Name": "Originaldepth",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Originalname": {
+      "Name": "Originalname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Originalsortposition": {
+      "Name": "Originalsortposition",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number"
+      }
+    },
+    "Recvdata": {
+      "Name": "Recvdata",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remignorevchnumbering": {
+      "Name": "Remignorevchnumbering",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remoteenabledonewaysync": {
+      "Name": "Remoteenabledonewaysync",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remoteignoremodvtmasters": {
+      "Name": "Remoteignoremodvtmasters",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remoteoverridevchbankmanualstatus": {
+      "Name": "Remoteoverridevchbankmanualstatus",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Remoteupdmoditemopbal": {
+      "Name": "Remoteupdmoditemopbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Remoteupdmodledopbal": {
+      "Name": "Remoteupdmodledopbal",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Senddata": {
+      "Name": "Senddata",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Serverisremotealter": {
+      "Name": "Serverisremotealter",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Allowrecvlist": "Syncallowdisallow",
+    "Allowsendlist": "Syncallowdisallow",
+    "Disallowrecvlist": "Syncallowdisallow",
+    "Disallowsendlist": "Syncallowdisallow"
+  },
+  "Name": "Prevsettings"
+}

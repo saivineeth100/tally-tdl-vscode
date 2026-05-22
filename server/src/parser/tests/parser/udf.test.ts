@@ -21,7 +21,7 @@ describe('Parser - UDFs', () => {
         expect(def.statements.length).toBe(2);
 
         const stmt1 = def.statements[0];
-        expect(stmt1.label?.text).toBe("01"); // IdentifierNode or LiteralNode depending on implementation
+        expect((stmt1.label as any)?.text).toBe("01"); // IdentifierNode or LiteralNode depending on implementation
         expect(stmt1.action.text).toBe("Log");
         // Check args
     });
@@ -42,7 +42,7 @@ describe('Parser - UDFs', () => {
         expect(def.attributes[1].name.text).toBe("Returns");
 
         expect(def.statements.length).toBe(1);
-        expect(def.statements[0].label?.text).toBe("00");
+        expect((def.statements[0].label as any)?.text).toBe("00");
     });
 
     it('should parse function with Start label', () => {
@@ -55,7 +55,7 @@ describe('Parser - UDFs', () => {
         const def = sourceFile.definitions[0] as DefinitionNode;
 
         expect(def.statements.length).toBe(1);
-        expect(def.statements[0].label?.text).toBe("Start");
+        expect((def.statements[0].label as any)?.text).toBe("Start");
         expect(def.statements[0].action.text).toBe("Log");
     });
 });

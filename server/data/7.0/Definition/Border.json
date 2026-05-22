@@ -1,0 +1,187 @@
+{
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Bottom": {
+    "Description": "Specifies the type of border to draw the Bottom. Parameters may be specified using comma-separated parameters.",
+    "Parameters": [
+      {
+        "Description": "It takes the following values: [Thin/Thick], [Flush], [FullLength], [Double] Thin: specifies a thin line border. Thick: specifies a thick line border. Flush: When space top/bottom is used in line/part etc. this can be used so that the space will be left at top/bottom after the border. Full Length: It draws the complete border including specified space left/right. Double: It draws double lined border.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Border Type",
+        "Keywords": "Bold, Double Lined, Flush, Full Length, Normal, Thick, Thin",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Bottom",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Bottom"
+  },
+  "Color": {
+    "Description": "Specifies the border color in display/alter/create mode.",
+    "Parameters": [
+      {
+        "Description": "It specifies the name of the color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Color, Shade",
+      "Type": "Single"
+    },
+    "Name": "Color"
+  },
+  "Left": {
+    "Description": "Specifies the type of border to draw the Left. Parameters may be specified using comma-separated parameters.",
+    "Parameters": [
+      {
+        "Description": "It takes the following values:[Thin/Thick], [Double], [Flush], [Full Length], [Double]. Thin: specifies a thin line border. Thick: specifies a thick line border. Double: It draws double lined border.                                          Flush: Border is drawn inclusive of the space given at the Left.   Full Length : To disregard the space given at the left or right or top or bottom and to get the border in full length.                         Double: This parameter specifies whether the line is to be single or double. If this is not specified, then the border is of single line.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Border Type",
+        "Keywords": "Bold, Double Lined, Flush, Full Length, Normal, Thick, Thin",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Left",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Left"
+  },
+  "Print FG": {
+    "Description": "Specifies the border color in print mode.",
+    "Parameters": [
+      {
+        "Description": "It specifies the border color while printing.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print FG",
+      "Type": "Single"
+    },
+    "Name": "Print FG"
+  },
+  "Right": {
+    "Description": "Specifies the type of border to draw the Right. Parameters may be specified using comma-separated parameters.",
+    "Parameters": [
+      {
+        "Description": "It takes the following values:[Thin/Thick], [Double], [Flush], [Full Length], [Double]. Thin: specifies a thin line border. Thick: specifies a thick line border. Double: It draws double lined border.                                          Flush: Border is drawn inclusive of the space given at the right.   Full Length : To disregard the space given at the left or right or top or bottom and to get the border in full length.                         Double: This parameter specifies whether the line is to be single or double. If this is not specified, then the border is of single line.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Border Type",
+        "Keywords": "Bold, Double Lined, Flush, Full Length, Normal, Thick, Thin",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Right",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Right"
+  },
+  "Top": {
+    "Description": "Specifies the type of border to draw the Top. Parameters may be specified using comma-separated parameters.",
+    "Parameters": [
+      {
+        "Description": "This attribute takes the following values:[Thin/Thick], [Flush], [FullLength], [Double] Thin: specifies a thin line border. Thick: specifies a thick line border. Flush: When space top/bottom is used in line/part etc. this can be used so that the space will be left at top/bottom after the border. Full Length: It draws the complete border including specified space left/right. Double: It draws double lined border.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Border Type",
+        "Keywords": "Bold, Double Lined, Flush, Full Length, Normal, Thick, Thin",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Top",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Top"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Border ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  }
+}

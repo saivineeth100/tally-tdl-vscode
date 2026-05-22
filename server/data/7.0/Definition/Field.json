@@ -1,0 +1,1945 @@
+{
+  "Act On Table Element": {
+    "Description": "This attribute allows specifying the action that should be performed when an object is selected from a Table.",
+    "Parameters": [
+      {
+        "Description": "This is to provide a condition.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This is to provide action. The action would be executed if the condition is true.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "TDL Actions",
+        "Keywords": "Accept Alter, Accept Create, Accept Object, Action, Add Sheet, Add Tile, Alter, Alter Collection, Alter Column, Alter Current Collection, Alter Current Report, Alter Ex, Alter Object, Alter Target, Append, Audit Form, Audit Object, Auto Columns, Autoform Report, Auto Set, Backup Company, Break, Browse Url, Browse Url Ex, Calculator, Call, Cancel, Cancel Object, Change Crypt Company, Change Output Mode, Change Table, Clear Table Stack, Close Company, Close Encrypted Target File, Close File, Close Target File, Configuration, Continue, Copy File, Copy To Clipboard, Copy Variable, Copy Variables, Create, Create Collection, Create Column, Create Ex, Create Target, Cycle Back, Decrement, Delete, Delete Column, Delete Config Data, Delete File, DeleteNotifications, Delete Object, DisconnectUser, Display, Display Collection, Display Current Collection, Display Current Report, Display Ex, Display Help, Display Msg, Display Object, Do If, Dump Debug, Dump Profile, Dump Record, Dump Recording, Duplicate, Else, End Batch Post, End Block, End For, End If, End Msg, End Msg Box, End Progress, End Report, End Sub, End Unzip, End Walk, End While, End XSub, End Zip, Exchange, Exec COM Interface, Exec Command, Exec Command Ex, Exec Excel Macro, Execute, Execute Ex, Execute Obj Actions, ExecuteObjectMap, Execute TDL, Expand Tile, Explode, Export, Export Collection, Export Current Collection, Export Current Report, Export Report, Export Snapshot, Extract Path, Field Accept, Field Backspace, Field Blank, Field Char Delete, Field Char Delete Left, Field Char Left, Field Char NewLine, Field Char Right, Field Copy, Field Cut, Field Down, Field End, Field Erase, Field Home, Field Insert Mode, Field New Line, Field Next, Field Next Field SFD, Field Paste, Field Prev, Field Select End, Field Select Home, Field Select Left Char, Field Select Left Word, Field Select Right Char, Field Select Right Word, Field Select Word, Field Sub Form, Field Table Accept, Field Table Maximize, Field Table Mode,",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This is to provide action. The action would be executed if the condition is true.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Act On Table Element",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Act On Table Element"
+  },
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Align": {
+    "Description": "This attribute aligns the particular field as per the string formula stated.",
+    "Parameters": [
+      {
+        "Description": "Specifies the alignment for the content of the field.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Align Type",
+        "Keywords": "Bottom, Center, Centre, Justified, Left, Prompt, Right, Top",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Align, Alignment",
+      "Type": "Single"
+    },
+    "Name": "Align"
+  },
+  "Alter": {
+    "Description": "Specifies the report name which is to be executed in alter mode based on the condition when Ctrl\u002BE is hit in combination at the field.",
+    "Parameters": [
+      {
+        "Description": "Name of the report to be altered.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Condition to alter the report specified with the report name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Alter",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Alter"
+  },
+  "ASCII Only": {
+    "Description": "It restricts the user input in the field to ASCII characters (English characters) only irrespective of the keyboard language.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ASCII Only",
+      "Type": "Single"
+    },
+    "Name": "ASCII Only"
+  },
+  "Auto": {
+    "Description": "The values specified as parameters with the attribute Dynamic, are dynamically added to the table being displayed by the current field.",
+    "Parameters": [
+      {
+        "Description": "The string values to be added dynamically in the table.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Auto, Dynamic",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Auto"
+  },
+  "Background": {
+    "Description": "This attribute sets the background color for the field.",
+    "Parameters": [
+      {
+        "Description": "Specify the name of the color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Background",
+      "Type": "Single"
+    },
+    "Name": "Background"
+  },
+  "Border": {
+    "Description": "Specifies the border for the field.",
+    "Parameters": [
+      {
+        "Description": "Name of the Border.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Border ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Border",
+      "Type": "Dual"
+    },
+    "Name": "Border"
+  },
+  "Border3D": {
+    "Description": "It applies 3D border to the field.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Border3D",
+      "Type": "Single"
+    },
+    "Name": "Border3D"
+  },
+  "Bound": {
+    "Description": "This attribute is used typically in auto column reports to restrict the maximum and mimimum width of the field.",
+    "Parameters": [
+      {
+        "Description": "It is used to specify the Lower Bound of the width.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It is used to specify the Upper Bound of the width.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Separator Char": "\u0027,\u0027",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Bound",
+      "Type": "Dual"
+    },
+    "Name": "Bound"
+  },
+  "Cancel": {
+    "Description": "The inactive attribute is used, when the defined field is to be excluded from processing under certain conditions.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which evaluates to either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Cancel, Inactive",
+      "Type": "Single"
+    },
+    "Name": "Cancel"
+  },
+  "Case": {
+    "Description": "Specifies the case of the text contained in the field.",
+    "Parameters": [
+      {
+        "Description": "To specify the type of the case. Ie, Title case, normal etc.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Case",
+        "Keywords": "All Capital, All Lower, First Upper Case, Lower Case, Normal, Proper Case, Small Case, Title Case, Title Case Exact, Upper Case",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify condition whether to user can toggle the case or not. Default value is Yes i.e. case for any field can be toggled unless specified.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Case",
+      "Type": "Dual"
+    },
+    "Name": "Case"
+  },
+  "Cell": {
+    "Description": "Specifies the number of cells to be occupied for the field content in the excel sheet in case of excel export.",
+    "Parameters": [
+      {
+        "Description": "It accepts any numerical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Cell, Cells",
+      "Type": "Single"
+    },
+    "Name": "Cell"
+  },
+  "Cell Write": {
+    "Description": "Enables writing a cell in the Excel file,before the whole information gets written.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The Logical Value either Yes/No - to specify whether to set focus while writing data to cell, Default value is No",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Cell Write",
+      "Type": "Dual"
+    },
+    "Name": "Cell Write"
+  },
+  "Color": {
+    "Description": "Specifies the fore color of the content of the field.",
+    "Parameters": [
+      {
+        "Description": "Name of the color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Color, Shade",
+      "Type": "Single"
+    },
+    "Name": "Color"
+  },
+  "Common Table": {
+    "Description": "If the attribute Common Table is set Yes, then the same memory is used to access the table for each instance of the field, hence reducing the memory required for the application drastically.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Common Table",
+      "Type": "Single"
+    },
+    "Name": "Common Table"
+  },
+  "Control": {
+    "Description": "This attribute pops up a message box with the content as specified in the String Expression when the an invalid value is entered in the field as per condition specified .",
+    "Parameters": [
+      {
+        "Description": "To specify the message to be displayed in the message box.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "System Formulae",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It is a logical condition which specifies the validation condition.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Control",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Control"
+  },
+  "Cyclic Behavior": {
+    "Description": "This attribute allows the field to regather the table when the values are changed for the Table.",
+    "Parameters": [
+      {
+        "Description": "This is to provide logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Cyclic Behavior, Process Change Table",
+      "Type": "Single"
+    },
+    "Name": "Cyclic Behavior"
+  },
+  "Default Table Item": {
+    "Description": "This attribute facilitates to position the focus of cursor in a Table associated with the field. In the absence of the condition; the focus of the cursor is placed to the first item in the Table.",
+    "Parameters": [
+      {
+        "Description": "This is an expression evaluates to a string in the Table.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Default Table Item",
+      "Type": "Single"
+    },
+    "Name": "Default Table Item"
+  },
+  "Display": {
+    "Description": "Specifies the report name which is to be executed in Display mode based on the condition when Enter key is hit at the line.",
+    "Parameters": [
+      {
+        "Description": "Name of the report to be displayed.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Condition to display the report specified with the report name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Display",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Display"
+  },
+  "DMPMode": {
+    "Description": "Specify the Dot matrix mode to be used for printing. This is applicable only for dot matrix mode of printing (and ignored in case of other printing modes.",
+    "Parameters": [
+      {
+        "Description": "Values allowed under this are: \u0027Normal\u0027, \u0027Bold\u0027, \u0027Italics\u0027, \u0027Underline\u0027, \u0027Condensed\u0027, \u0027Enlarged\u0027, \u0027DoubleLine\u0027",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "DMPMode",
+      "Type": "Single"
+    },
+    "Name": "DMPMode"
+  },
+  "Excel Formula": {
+    "Description": "Specifies the excel formula that needs to be inserted in the excel cell while exporting.",
+    "Parameters": [
+      {
+        "Description": "String Expression which will be set as excel formula.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Excel Formula",
+      "Type": "Single"
+    },
+    "Name": "Excel Formula"
+  },
+  "Fetch Object": {
+    "Description": "This attribute is used to Fetch Object values dynamically based on current field values.",
+    "Parameters": [
+      {
+        "Description": "This is the object type identifier.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This can be any of the expression.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This can be any of the expression.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Fetch Object",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Fetch Object"
+  },
+  "FG Highlight": {
+    "Description": "This attribute allows you to highlight specific words in a field with a defined style and color.",
+    "Parameters": [
+      {
+        "Description": "It evaluates to an expression which defines the text to be highlighted.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the style to apply for rendering the highlighted text.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Style ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the style to apply for rendering the highlighted text.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "FG Highlight",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "FG Highlight"
+  },
+  "Field": {
+    "Description": "It specifies the field name under the field definitions,where a field can consist of multiple fields within it.",
+    "Parameters": [
+      {
+        "Description": "List of field names.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This expression evaluates to a Logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Field, Fields, Left Field, Left Fields",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Field"
+  },
+  "Fixed": {
+    "Description": "The attribute Fixed when used in the field does not allow the user to change the value of the field.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Fixed",
+      "Type": "Single"
+    },
+    "Name": "Fixed"
+  },
+  "Format": {
+    "Description": "Specifies the format for the content of field.",
+    "Parameters": [
+      {
+        "Description": "String defining the format of the value of the field.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Format",
+      "Type": "Single"
+    },
+    "Name": "Format"
+  },
+  "Full Width": {
+    "Description": "Specifies whether the field will occupy the remaining width in the line.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Full Width",
+      "Type": "Single"
+    },
+    "Name": "Full Width"
+  },
+  "Graph Label": {
+    "Description": "Specifies whether the field value serves as the x-axis Label for the graph.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Graph Label",
+      "Type": "Single"
+    },
+    "Name": "Graph Label"
+  },
+  "Graph Value": {
+    "Description": "Specifies whether the field value serves as the x-axis values for the graph.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Graph Value",
+      "Type": "Single"
+    },
+    "Name": "Graph Value"
+  },
+  "Graph X Axis Legend Title": {
+    "Description": "This attribute specifies the graph x axis legend title. The default value for this attribute is the description name of the field.",
+    "Parameters": [
+      {
+        "Description": "Specifies X Axis Legend title to be displayed.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Graph X Axis Legend Title",
+      "Type": "Single"
+    },
+    "Name": "Graph X Axis Legend Title"
+  },
+  "Help": {
+    "Description": "This helps to get the help of the area depending upon the context we are in. Specifies the index / id of the help file.",
+    "Parameters": [
+      {
+        "Description": "Specifies the index / id of the help file for help.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Expression that returns the GUID of the addon/module for invoking help",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Help",
+      "Type": "Dual List",
+      "Is Discrete": "No"
+    },
+    "Name": "Help"
+  },
+  "Indent": {
+    "Description": "Specifies an indentation for the field. This formula can decide as to what extent each instance of the field has to be indented from the initial place.",
+    "Parameters": [
+      {
+        "Description": "Number of characters to move from left.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Indent",
+      "Type": "Single"
+    },
+    "Name": "Indent"
+  },
+  "Info": {
+    "Description": "Specifies the value to be displayed in the field and overwrites the value specifed with \u0027Set as\u0027",
+    "Parameters": [
+      {
+        "Description": "String Expression whose value is to be set in the field",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Info",
+      "Type": "Single"
+    },
+    "Name": "Info"
+  },
+  "Invisible": {
+    "Description": "It specifies the condition on which the field should be invisible.",
+    "Parameters": [
+      {
+        "Description": "The condition which evaluates to either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Invisible",
+      "Type": "Single"
+    },
+    "Name": "Invisible"
+  },
+  "Is ODBC Table": {
+    "Description": "It controls the Display type for the Table specified with the field with the Table Attribute.",
+    "Parameters": [
+      {
+        "Description": "Permissible Values are Always,On Error,On First Key,Never \u0026 Default",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Table Type",
+        "Keywords": "Always, Always and Never Hide, Default, Never, On Blank, On Empty, On Error, On First Key",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Is ODBC Table, Show Table",
+      "Type": "Single"
+    },
+    "Name": "Is ODBC Table"
+  },
+  "JSONTag": {
+    "Description": "To specify the tag name for the field in the exported JSON/XML file. In the absence of this attribute, the tag name defaults to the definition name.",
+    "Parameters": [
+      {
+        "Description": "Name of the JSON/XML tag.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "JSONTag, XMLTag",
+      "Type": "Single"
+    },
+    "Name": "JSONTag"
+  },
+  "KBLanguage": {
+    "Description": "This is used to set the Language id for the field.",
+    "Parameters": [
+      {
+        "Description": "To specify the language id.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "KBLanguage",
+      "Type": "Single"
+    },
+    "Name": "KBLanguage"
+  },
+  "Key": {
+    "Description": "Lists the keys associated with the field.",
+    "Parameters": [
+      {
+        "Description": "Name of the key.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key, Keys",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Key"
+  },
+  "Line": {
+    "Description": "This attribute is used to display more than one line in a field.  By default maximum of 1 line gets displayed.",
+    "Parameters": [
+      {
+        "Description": "To specify the number of lines in number directly or using a variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Line, Lines, Top Line, Top Lines",
+      "Type": "Single"
+    },
+    "Name": "Line"
+  },
+  "Local": {
+    "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+    "Parameters": [
+      {
+        "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local",
+      "Type": "Local List",
+      "Is Discrete": "No"
+    },
+    "Name": "Local"
+  },
+  "Local Formula": {
+    "Description": "This is used to specify a local formula within the Field.",
+    "Parameters": [
+      {
+        "Description": "The name of the Local Formula.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The expression which needs to be evaluated.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local Formula",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Local Formula"
+  },
+  "Max": {
+    "Description": "This attribute specifies the maximum number of characters that can be entered in the current field.Minimum no. of characters is zero and maximum is 972",
+    "Parameters": [
+      {
+        "Description": "It is a numerical value which is less than 972.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Max, Maximum",
+      "Type": "Single"
+    },
+    "Name": "Max"
+  },
+  "Modifies": {
+    "Description": "This attribute is used to update / modify the value of the variable . The value can variable value can be modified either based on the field\u0027s acceptance or form\u0027s acceptance.",
+    "Parameters": [
+      {
+        "Description": "Name of the variable to be modified.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specifying Yes will modify the variable value as soon as the field gets accepted. No will update once the form is accepted.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specifying Yes will modify the variable value as soon as the field gets accepted. No will update once the form is accepted.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Modifies, Modify",
+      "Type": "Triple"
+    },
+    "Name": "Modifies"
+  },
+  "Notify": {
+    "Description": "Notifies the user based on the condition with a message/ prompt.",
+    "Parameters": [
+      {
+        "Description": "Formula whose value is to be displayed if the specified condition is satisfied.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "System Formulae",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Condition on which the warning is given.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Notify",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Notify"
+  },
+  "Object": {
+    "Description": "This is used to specify Object Association at the field level.",
+    "Parameters": [
+      {
+        "Description": "Specifies the Object Type eg Ledger,Cost Center etc.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specifies the Object Identifier formula.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Object, Objects",
+      "Type": "Dual"
+    },
+    "Name": "Object"
+  },
+  "On": {
+    "Description": "ON keyword is used to specify a list of Actions to be executed on the occurance of an Event.",
+    "Parameters": [
+      {
+        "Description": "ON keyword is used to specify a list of Actions to be executed on the occurance of an Event.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "On",
+      "Type": "Event List",
+      "Is Discrete": "No"
+    },
+    "Name": "On"
+  },
+  "Option": {
+    "Description": "Option is an attribute which can be used by various definitions, to provide a conditional result in a program.",
+    "Parameters": [
+      {
+        "Description": "This specifies the name of the Optional Field.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Logical Condition/ expression which returns logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Option, Options",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Option"
+  },
+  "Pre Printed": {
+    "Description": "Specifies whether the static text will be preprinted for the printing.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Pre Printed",
+      "Type": "Single"
+    },
+    "Name": "Pre Printed"
+  },
+  "Pre Printed Border": {
+    "Description": "Specifies whether the border for the field will be preprinted for the printing.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Pre Printed Border",
+      "Type": "Single"
+    },
+    "Name": "Pre Printed Border"
+  },
+  "Preaccept Object Map": {
+    "Description": "This attribute is used to call the object map before the field accept.",
+    "Parameters": [
+      {
+        "Description": "This sub-attribute is used to call the object map definition before the field accept.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object Map ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This sub-attribute is used to specify the logical expression, which is to be evaluated, if yes, calls object map.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Preaccept Object Map",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Preaccept Object Map"
+  },
+  "Print BG": {
+    "Description": "Specifies the background color of the field in print mode.",
+    "Parameters": [
+      {
+        "Description": "Specifies the background color of the field in print mode.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print BG",
+      "Type": "Single"
+    },
+    "Name": "Print BG"
+  },
+  "Print FG": {
+    "Description": "Specifies the foreground color of the field in print mode.",
+    "Parameters": [
+      {
+        "Description": "Specifies the foreground color of the field in print mode.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print FG",
+      "Type": "Single"
+    },
+    "Name": "Print FG"
+  },
+  "Print Style": {
+    "Description": "This attribute sets the style of font for the field to be printed on the printer.",
+    "Parameters": [
+      {
+        "Description": "Style name in which the value is to be printed in print mode.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Style ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Print Style",
+      "Type": "Single"
+    },
+    "Name": "Print Style"
+  },
+  "Quick Search": {
+    "Description": "It allows the search of the content of the value present in the field by using an alphabet key press.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Quick Search",
+      "Type": "Single"
+    },
+    "Name": "Quick Search"
+  },
+  "Read Only": {
+    "Description": "Specifies whether the field content is readonly or not based on the condition.",
+    "Parameters": [
+      {
+        "Description": "Condition specifing the editablity of the field value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Read Only",
+      "Type": "Single"
+    },
+    "Name": "Read Only"
+  },
+  "Scale": {
+    "Description": "This attribute can be used to specify the scale factor for the value displayed in the field which can be either hundreds,thousands,crores etc.",
+    "Parameters": [
+      {
+        "Description": "Specifies the scale factor for the value displayed in the field.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Scale",
+      "Type": "Single"
+    },
+    "Name": "Scale"
+  },
+  "Scroll": {
+    "Description": "Specifies whether the field can be scrolled horizontally or not.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Scroll, Scrolled",
+      "Type": "Single"
+    },
+    "Name": "Scroll"
+  },
+  "Set": {
+    "Description": "This attribute sets the value to be displayed / printed by the field.",
+    "Parameters": [
+      {
+        "Description": "Specifies the value to be displayed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set, Set as",
+      "Type": "Single"
+    },
+    "Name": "Set"
+  },
+  "Set Always": {
+    "Description": "This attribute is used to refresh the values in the field each time the values in the variables / fields it refers to get affected / changed.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Always",
+      "Type": "Single"
+    },
+    "Name": "Set Always"
+  },
+  "Set By Condition": {
+    "Description": "Specifies the value that is set to the field based on the condition.",
+    "Parameters": [
+      {
+        "Description": "Value to be set.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Condition on which the value is set.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set By Condition",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Set By Condition"
+  },
+  "Skip": {
+    "Description": "This attribute causes the cursor to skip the particular field and hence, the value in the field cannot be altered by the user, even if the report is in Create or Alter mode.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which evaluates to either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Skip, Skip on",
+      "Type": "Single"
+    },
+    "Name": "Skip"
+  },
+  "Skip Action": {
+    "Description": "This attribute facilitates to position the focus of cursor in a Table associated with the field. Its evaluated if \u0027Default table item\u0027 not specified or condition fails.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Skip Action, Skip Actions",
+      "Type": "Single"
+    },
+    "Name": "Skip Action"
+  },
+  "Skip Cell": {
+    "Description": "This attribute causes the field to skip the particular field during export",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which evaluates to either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Skip Cell, Skip Cells",
+      "Type": "Single"
+    },
+    "Name": "Skip Cell"
+  },
+  "Skip Forward": {
+    "Description": "Skips the field forward. When backsapce is hit from the next field then focus moves to this field.",
+    "Parameters": [
+      {
+        "Description": "Logical Condition which controls the behavior.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Skip Forward",
+      "Type": "Single"
+    },
+    "Name": "Skip Forward"
+  },
+  "Skip SysNames": {
+    "Description": "This attribute when enabled will not store the system names if selected from the table values by the user.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Skip SysNames, Skip System Names",
+      "Type": "Single"
+    },
+    "Name": "Skip SysNames"
+  },
+  "Space Left": {
+    "Description": "The attribute specifies space to be left on the left of the Field.This space is additional to the field width.",
+    "Parameters": [
+      {
+        "Description": "To specify the left margin.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Left",
+      "Type": "Single"
+    },
+    "Name": "Space Left"
+  },
+  "Space Right": {
+    "Description": "The attribute specifies space to be left on the right of the Field.This space is additional to the field width.",
+    "Parameters": [
+      {
+        "Description": "Specifies the right margin.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Right",
+      "Type": "Single"
+    },
+    "Name": "Space Right"
+  },
+  "Storage": {
+    "Description": "Specifies the method of the object where the field value is to be saved.",
+    "Parameters": [
+      {
+        "Description": "Name of the method where the value to be stored.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specifies the complete path of the Object whose method is altered eg Ledger Entries",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specifies the complete path of the Object whose method is altered eg Ledger Entries",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Storage",
+      "Type": "Triple"
+    },
+    "Name": "Storage"
+  },
+  "Style": {
+    "Description": "Specifies the style of content of the field.",
+    "Parameters": [
+      {
+        "Description": "It determines the appearance of the text to be displayed by using a font scheme.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Style ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Style",
+      "Type": "Single"
+    },
+    "Name": "Style"
+  },
+  "Sub Form": {
+    "Description": "Specifies the report name which is to be executed when enter key is hit based on the condition.",
+    "Parameters": [
+      {
+        "Description": "Report to be triggred when enter key is hit.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Condition on which the Form will be triggered.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Sub Form, Sub Forms",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Sub Form"
+  },
+  "Sub Title": {
+    "Description": "It specifies whether the field acts as a sub-title or not.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Sub Title",
+      "Type": "Single"
+    },
+    "Name": "Sub Title"
+  },
+  "Switch": {
+    "Description": "\u0027Switch\u0027 attribute is similar to the Option attribute but reduces code complexity and improves the performance. The Switch are grouped using a label Once a condition is satisfied from one group, switch won\u0027t  check further conditions from the same group.  It will evaluate the conditions from the other groups specified, if any.",
+    "Parameters": [
+      {
+        "Description": "This can be any string combination used to group.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Field ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Switch",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Switch"
+  },
+  "Table": {
+    "Description": "Specifies the table that is to be displayed for selection of value based on the condition specified.",
+    "Parameters": [
+      {
+        "Description": "Table to be listed based on condition.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It is a logical condition which specifies the validation condition.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Table, Tables",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Table"
+  },
+  "Table Search": {
+    "Description": "Table Search is used to filter the table by \u0027Contains\u0027 method. Based on the user\u0027s inputs, it continuously reduces the table records that are being satisfied using \u0027Contains\u0027 search.",
+    "Parameters": [
+      {
+        "Description": "To specify as to whether to activate the \u0027reducing list\u0027 for the tables based on user\u0027s inputs.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify as to whether the \u0027reducing list\u0027 should be based on the first column value or all the column values present in the table. True will consider all the columns present in the table.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Table Search",
+      "Type": "Dual"
+    },
+    "Name": "Table Search"
+  },
+  "Tooltip": {
+    "Description": "Specifies the value to be displayed as a tip,if the mouse points to the field.",
+    "Parameters": [
+      {
+        "Description": "It is a string expression which is to be displayed as a tooltip.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Tooltip",
+      "Type": "Single"
+    },
+    "Name": "Tooltip"
+  },
+  "Trigger": {
+    "Description": "This attribute is used to invoke a report to get the inputs from the user based on the given condition. The user input then can be pushed to the parent field using \u0027output\u0027 attribute at the form level in the trigger report.",
+    "Parameters": [
+      {
+        "Description": "Name of the Report to be displayed.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The Logical condition which evaluates to yes/no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Trigger",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Trigger"
+  },
+  "TriggerEx": {
+    "Description": "The attribute Trigger Ex allows to add values to the dynamic table through an expession or user defined functions.",
+    "Parameters": [
+      {
+        "Description": "It is an expression/function which evaluates to a String if the \u003CTrigger Condition\u003E is true.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "It is a logical value which evaluates to either  yes or no.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "TriggerEx",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "TriggerEx"
+  },
+  "Type": {
+    "Description": "Specifies the type of the value of the field.",
+    "Parameters": [
+      {
+        "Description": "Name of the data type.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Method",
+        "Keywords": "Aggregate, Amount, Date, DateTime, Due Date, Duration, FlagSet, Logical, Long, Number, NumSet, Quantity, Rate, Rate of Exchange, String, Sys Id, Time",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Specifies the subtype in case the Data Type is a composite type.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Sub Type",
+        "Keywords": "Alternate Units, Base, Base Units, Date, Direct Base, DrCr, Forced, Forex, Price, Primary Units, Quantity, Rate, Secondary Units, Time, Unit Symbol",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Type",
+      "Type": "Dual"
+    },
+    "Name": "Type"
+  },
+  "Unique": {
+    "Description": "When this attribute is set to Yes the values accepted will be unique with respect to the collection associated with the storage attribute of the field.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Takes Logical Value - Yes/No and default value is No. Applicable for String data type. Use this attribute to determine whether to perform exact string comparision. when specified as Yes - it will perform case-insensitive exact compare of strings to find uniqueness",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Unique",
+      "Type": "Dual"
+    },
+    "Name": "Unique"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Field ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "Valid": {
+    "Description": "Validates the value of the field based on the condition.The cursor will not move to the next field until the condition is satisfied.",
+    "Parameters": [
+      {
+        "Description": "Condition to validate the field value",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Valid, Validate, Validation",
+      "Type": "Single"
+    },
+    "Name": "Valid"
+  },
+  "Variable": {
+    "Description": "When the field value is to be accessed as a variable this attribute is used.",
+    "Parameters": [
+      {
+        "Description": "The name of the variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Variable ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Variable, Variables",
+      "Type": "Single"
+    },
+    "Name": "Variable"
+  },
+  "Wide Space": {
+    "Description": "This allows increased spacing between the characters of the string value specified in the field.",
+    "Parameters": [
+      {
+        "Description": "The Logical Value either Yes/No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Wide Space, Wide Spaced",
+      "Type": "Single"
+    },
+    "Name": "Wide Space"
+  },
+  "Width": {
+    "Description": "Specifies width of the field.",
+    "Parameters": [
+      {
+        "Description": "To specify the width of the field.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Width",
+      "Type": "Single"
+    },
+    "Name": "Width"
+  },
+  "XMLAttr": {
+    "Description": "Specifies the Atrribute and attribute value for the xml tag.",
+    "Parameters": [
+      {
+        "Description": "Name of the Attribute.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Value to attribute",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "XMLAttr",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "XMLAttr"
+  }
+}

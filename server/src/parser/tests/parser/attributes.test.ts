@@ -18,17 +18,17 @@ describe('Parser Complex Attributes Tests', () => {
         const attr1 = def.attributes[0];
         expect(attr1.name.text).toBe('Set As');
 
-        expect(attr1.value.length).toBeGreaterThan(1);
+        expect(attr1.value.length).toBe(1);
 
         const val0 = attr1.value[0] as any;
         expect(val0.kind).toBe(SyntaxKind.FunctionCall);
         expect(val0.functionName.text).toBe('IsEmpty');
 
-        // val1 is Colon Identifier
-
-        const val2 = attr1.value[2] as any;
-        expect(val2.kind).toBe(SyntaxKind.FieldReference);
-        expect(val2.fieldName.text).toBe('FieldName');
+        // Verify #FieldName is parsed as an ARGUMENT to $$IsEmpty
+        expect(val0.arguments.length).toBeGreaterThan(0);
+        const arg0 = val0.arguments[0] as any;
+        expect(arg0.kind).toBe(SyntaxKind.FieldReference);
+        expect(arg0.fieldName.text).toBe('FieldName');
 
         // Set By: ##Variable
         const attr2 = def.attributes[1];

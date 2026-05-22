@@ -1,0 +1,2164 @@
+{
+  "Accept Alter": {
+    "Description": "This action accepts the Target Object to Company DB. Alters an exiting object in DB. If the object does not exists it results in error. Alias is ALTER TARGET.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Accept Alter, Alter Target",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Accept Alter"
+  },
+  "Accept Create": {
+    "Description": "This action accepts the Target Object to Company Data base. That is it saves the target object to the Database. This creates a new object in the database if it does not exist else results in an error. Alias is CREATE TARGET.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Accept Create, Create Target",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Accept Create"
+  },
+  "Accept Object": {
+    "Description": "This action accepts the Target Object to Company DB. This automatically handles creation/alteration based on the way object was created using NEW OBJECT. Alias is SAVE TARGET.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Accept Object, Save Target",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Accept Object"
+  },
+  "Add Sheet": {
+    "Description": "This action adds a sheet in the current workbook which is opened for writing. Sheet will always be inserted at the end.",
+    "Parameters": [
+      {
+        "Description": "It can be an expression which evaluates to the string and will be considered as the name of the sheet.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Add Sheet",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Add Sheet"
+  },
+  "Break": {
+    "Description": "Break action is used terminate the execution of the remaining statements inside the loop and the control is transferred to the statement immediately following the loop.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Break",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "Break"
+  },
+  "Close Encrypted Target File": {
+    "Description": "This action is used to close an opened target file as encrypted file.",
+    "Parameters": [
+      {
+        "Description": "Type of encryption. Currently only support SCBPKCS7 for PKCS\u0026 encrytion supported by SCB and BOBAES256CBC for AES 256 supported by BOB. Later will support other symmetric and assymetric algo",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Encryption Type",
+        "Keywords": "BOBAES256CBC, SCBPKCS7",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Public or symmetric key buffer",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Close Encrypted Target File",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Close Encrypted Target File"
+  },
+  "Close File": {
+    "Description": "This action is used to close an opened source file.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Close File",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Close File"
+  },
+  "Close Target File": {
+    "Description": "This action is used to close an opened target file.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Close Target File",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Close Target File"
+  },
+  "Continue": {
+    "Description": "This action is used to continue the loop with the next iteration after skipping the subsequent statements after that.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Continue",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "Continue"
+  },
+  "Decrement": {
+    "Description": "This Action is used to decrement the value of a Variable by the specified Number. If the decrement number is not specified then by default the value is decremented by 1.",
+    "Parameters": [
+      {
+        "Description": "This is the name of the Simple Non Repeat Variable of Number type whose value is to be decremented.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an optional parameter which specifies the decrement count. If this is not specified then the variable is decremented by 1.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Decrement",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both"
+    },
+    "Name": "Decrement"
+  },
+  "Display Msg": {
+    "Description": "This action is used to display a message box to user in Async mode. It doesnt Wait for an Input from user.",
+    "Parameters": [
+      {
+        "Description": "This is the value displayed on the title bar of the message window.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression and it is the actual message which is displayed in the box.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Display Msg, Start Msg Box",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Display Msg"
+  },
+  "Else": {
+    "Description": "All the subsequent statements after the ELSE action are executed if the condition specified within IF Action is FALSE.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Else",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "Else"
+  },
+  "End Batch Post": {
+    "Description": ".",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End Batch Post",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both"
+    },
+    "Name": "End Batch Post"
+  },
+  "End Block": {
+    "Description": "This action is used to close the block of statements initiated using the START BLOCK, the Object context is restored back to the original state.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End Block",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "End Block"
+  },
+  "End For": {
+    "Description": "This action is used to end the FOR loop.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End For",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "End For"
+  },
+  "End If": {
+    "Description": "This action is used to close the block of statements specified within the IF statement.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End If",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "End If"
+  },
+  "End Msg": {
+    "Description": "Thiwsaction is used to end a prevoiusly Displayed Message.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End Msg, End Msg Box",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "End Msg"
+  },
+  "End Progress": {
+    "Description": "When a task is completed, Progress Bar can be stopped by using action END PROGRESS.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End Progress",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "End Progress"
+  },
+  "End Sub": {
+    "Description": "This action is used to close the block of statements initiated using the START SUB.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End Sub",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "End Sub"
+  },
+  "End Unzip": {
+    "Description": "This action is used to extract the files at the specified target directory.",
+    "Parameters": [
+      {
+        "Description": "Target Folder for extraction.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Target Folder for extraction.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Whether to show progress bar or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "End Unzip",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "End Unzip"
+  },
+  "End Walk": {
+    "Description": "This action is used to end the walk collection loop.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End Walk",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "End Walk"
+  },
+  "End While": {
+    "Description": "This action is used to close the body of loop started with While Action.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End While",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "End While"
+  },
+  "End XSub": {
+    "Description": "This action is used to close the block of statements initiated using the START XSUB.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "End XSub",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "End XSub"
+  },
+  "End Zip": {
+    "Description": "This action makes the zip file.",
+    "Parameters": [
+      {
+        "Description": "Password to give to target Zip file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Whether to show progress bar or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "End Zip",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "End Zip"
+  },
+  "Extract Path": {
+    "Description": "This action is used to add a path to be included for unzipping.",
+    "Parameters": [
+      {
+        "Description": "The path to be extracted from the zip file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Extract Path",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Extract Path"
+  },
+  "Finalize ProgressBar": {
+    "Description": "When a task is completed, Progress Bar can be stopped by using action Finalize ProgressBar.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Finalize ProgressBar",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Finalize ProgressBar"
+  },
+  "For Coll": {
+    "Description": "This action is used to walk the collection for a specific value.",
+    "Parameters": [
+      {
+        "Description": "This is the name of variable used for the iteration.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is the name of variable used for the iteration.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It can be an expression and the value of this is returned in the iterator variable. If the value expression is not specified the name of the object is returned.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It can be an expression and the value of this is returned in the iterator variable. If the value expression is not specified the name of the object is returned.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "For Coll, For Collection",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "2",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "For Coll"
+  },
+  "For Each": {
+    "Description": "The FOR EACH action is used to iterate over the values in the list variable. The number of iterations depends on the number items in the list variable.",
+    "Parameters": [
+      {
+        "Description": "It is the name of the variable which holds the Key value in every occurrence of the iteration.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It is the name of the variable which holds the Key value in every occurrence of the iteration.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "For Each, For In",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "For Each"
+  },
+  "For Range": {
+    "Description": "This action allows the user to loop on range of numbers or date. This loop can be used to repeat a loop for the given range of specified values. The range can either be incremental or decremental.",
+    "Parameters": [
+      {
+        "Description": "It is the name of variable used for the iteration.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It is the name of variable used for the iteration.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to number or date values. It refers to the starting value of the range.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to number or date values. It refers to the starting value of the range.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to number by which the \u003CStartRangeExpr\u003E value is incremented. Its optional and the default value is one.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to number by which the \u003CStartRangeExpr\u003E value is incremented. Its optional and the default value is one.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "For Range",
+      "Total Parameters": "6",
+      "Total Mandatory Parameters": "4",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "For Range"
+  },
+  "For Token": {
+    "Description": "This action is used to walk a String expression separated by a delimiter character. It is used to loop on a String expression and returns one value at a time. The value is returned in the iterator variable.",
+    "Parameters": [
+      {
+        "Description": "This is the name of variable used for the iteration.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is the name of variable used for the iteration.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It can be any expression which evaluates into a character used for separating string expression. It is optional. The default separator char is \u0027:\u0027.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It can be any expression which evaluates into a character used for separating string expression. It is optional. The default separator char is \u0027:\u0027.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "For Token",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "2",
+      "Category": "Procedural-General",
+      "Mode": "Edit"
+    },
+    "Name": "For Token"
+  },
+  "Format Excel Sheet": {
+    "Description": "This action is used to modify properties of excel sheet. Only the properties supported by the system can be modified.",
+    "Parameters": [
+      {
+        "Description": "Property that is to be modified in the excel sheet. Supported properties are ColumnWidth, CellTextWrap.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "ExcelSheet Properties",
+        "Keywords": "CellTextWrap, ColumnWidth",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Property that is to be modified in the excel sheet. Supported properties are ColumnWidth, CellTextWrap.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Format Excel Sheet",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Format Excel Sheet"
+  },
+  "If": {
+    "Description": "This action is used to specify a condition.The subsequent statements within the IF and END IF are executed based on whether the condition evaluates to true or false.",
+    "Parameters": [
+      {
+        "Description": "Any value or expression that can be evaluated to TRUE or FALSE.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "If",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "If"
+  },
+  "Increment": {
+    "Description": "This Action is used to increment the value of a Variable by the specified Number. If the increment number is not specified then by default the value is incremented by 1.",
+    "Parameters": [
+      {
+        "Description": "This is the name of the Simple Non Repeat Variable of Number type whose value is to be incremented.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Variable ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an optional parameter which specifies the increment count. If this is not specified then the variable is incremented by 1.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Increment",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Variable",
+      "Mode": "Both"
+    },
+    "Name": "Increment"
+  },
+  "Initialize ProgressBar": {
+    "Description": "This action initializes progress bar object by executing a ProgressBar definition mentioned in the parameter",
+    "Parameters": [
+      {
+        "Description": "This parameter shows the name of the Progress Bar definition.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Refers To": "Progress Bar ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Initialize ProgressBar",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Initialize ProgressBar"
+  },
+  "Insert Collection Object": {
+    "Description": "This action inserts the new object of the type specified in the collection and makes it as current target object. This object is inserted into the collection at the end.",
+    "Parameters": [
+      {
+        "Description": "Name of the collection.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of the collection.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an expression which evaluates to logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Insert Collection Object",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Insert Collection Object"
+  },
+  "Log": {
+    "Description": "During expression evaluation, intermediate values of the expression can be passed to calculator window and a log file \u0027tdlfunc.log\u0027 inside the application directory.",
+    "Parameters": [
+      {
+        "Description": "This is an expression whose value need to be passed to the calculator window.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Log",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Edit",
+      "Return Type": "String"
+    },
+    "Name": "Log"
+  },
+  "Log Target": {
+    "Description": "This action is used to create the log of object, its method and collection for the target object to the specified file.  It accepts filename as a parameter.",
+    "Parameters": [
+      {
+        "Description": "It accepts the name of file along with the path in which the log is created. If no file name is specified the contents of object are logged in \u0027TDLfunc.log\u0027 when logging is disabled otherwise it logs in to the Calculator pane.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It accepts the name of file along with the path in which the log is created. If no file name is specified the contents of object are logged in \u0027TDLfunc.log\u0027 when logging is disabled otherwise it logs in to the Calculator pane.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Log Target",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Edit"
+    },
+    "Name": "Log Target"
+  },
+  "Message Report": {
+    "Description": "This action allows the developer to display a message Report with a specified string.",
+    "Parameters": [
+      {
+        "Description": "Name of Report to be used as message box.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of Report to be used as message box.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any expression which displays the actual message in the Message Report. This value can be extracted using $$InfoParam in the report context.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any expression which displays the actual message in the Message Report. This value can be extracted using $$InfoParam in the report context.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Message Report",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Message Report"
+  },
+  "Msg Box": {
+    "Description": "This action is used to display a message box to user.",
+    "Parameters": [
+      {
+        "Description": "This is the value displayed on the title bar of the message window.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is the value displayed on the title bar of the message window.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This indicates if the background window to be greyed out during message display. It takes two values ie YES/NO",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Msg Box",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "2",
+      "Category": "Procedural-User Interface",
+      "Mode": "Edit"
+    },
+    "Name": "Msg Box"
+  },
+  "New Object": {
+    "Description": "Creates a New object from object specification and sets it as target object.",
+    "Parameters": [
+      {
+        "Description": "This is the type of the object to be created.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Object ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This  is the unique identifier of the object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This  is the unique identifier of the object.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "New Object",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "New Object"
+  },
+  "Open File": {
+    "Description": "This action is used to open a text/excel file for read/write operations.",
+    "Parameters": [
+      {
+        "Description": "Filename to be opened.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Filename to be opened.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Keyword Set": "File Format",
+        "Keywords": "Excel, Text",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "File Open mode.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Keyword Set": "File open mode",
+        "Keywords": "Read, Write",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "File Open mode.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Keyword Set": "Encoding",
+        "Keywords": "ASCII, Unicode, Unicode8, UTF16, UTF8",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Open File",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Open File"
+  },
+  "ProgressBar Set Active Stage": {
+    "Description": "This action is used to set the active stage. This will reset the Total Count.",
+    "Parameters": [
+      {
+        "Description": "This parameter is used to show a number which denotes active satge in the Progress Bar",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ProgressBar Set Active Stage",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "ProgressBar Set Active Stage"
+  },
+  "ProgressBar Set ItemsDone": {
+    "Description": "This action is used to set the number of steps completed in the task.",
+    "Parameters": [
+      {
+        "Description": "This parameter shows a number which denoted the amount of work completed in the Progress bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ProgressBar Set ItemsDone",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "ProgressBar Set ItemsDone"
+  },
+  "ProgressBar Update Activity Name": {
+    "Description": "This action is used to set Activity Name to be displayed in progress bar window.",
+    "Parameters": [
+      {
+        "Description": "This parameter shows the Title for the Progress Bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ProgressBar Update Activity Name",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "ProgressBar Update Activity Name"
+  },
+  "ProgressBar Update Context": {
+    "Description": "This action is used to set Context to be displayed in progress bar window.",
+    "Parameters": [
+      {
+        "Description": "This parameter shows the Context for the Progress Bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ProgressBar Update Context",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "ProgressBar Update Context"
+  },
+  "ProgressBar Update Note": {
+    "Description": "This action is used to set Note to be displayed in progress bar window.",
+    "Parameters": [
+      {
+        "Description": "This parameter shows the Note for the Progress Bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ProgressBar Update Note",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "ProgressBar Update Note"
+  },
+  "ProgressBar Update Process Name": {
+    "Description": "This action is used to set Process Name to be displayed in progress bar window.",
+    "Parameters": [
+      {
+        "Description": "This parameter shows the Process Name for the Progress Bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ProgressBar Update Process Name",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "ProgressBar Update Process Name"
+  },
+  "ProgressBar Update Progress Indication": {
+    "Description": "This action is used to set Progress indication to be displayed in progress bar window.",
+    "Parameters": [
+      {
+        "Description": "This parameter shows the Progress for the Progress Bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ProgressBar Update Progress Indication",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "ProgressBar Update Progress Indication"
+  },
+  "ProgressBar Update SubContext": {
+    "Description": "This action is used to set Subcontext to be displayed in progress bar window.",
+    "Parameters": [
+      {
+        "Description": "This parameter shows the Subcontext for the Progress Bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ProgressBar Update SubContext",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "ProgressBar Update SubContext"
+  },
+  "ProgressBar Update Total Count": {
+    "Description": "This action is used to reset the total number of steps involved in the task. This will reset the Items Done.",
+    "Parameters": [
+      {
+        "Description": "This parameter shows the total number of steps in the Progress Bar.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ProgressBar Update Total Count",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "ProgressBar Update Total Count"
+  },
+  "Query Box": {
+    "Description": "This action is used to Display a confirmation box to user and ask for an yes/no response.",
+    "Parameters": [
+      {
+        "Description": "This is the message which is displayed inside the box. This can be an expression.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is the message which is displayed inside the box. This can be an expression.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is a flag which indicates the response when the user presses ESC key. This can be specified as YES/NO. A YES value for this flag indicates that the response should be treated as YES on press of an ESC key.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Query Box",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Query Box"
+  },
+  "Query Box Ex": {
+    "Description": "This action is used to Display a extended confirmation box to user.",
+    "Parameters": [
+      {
+        "Description": "This is the name of the Query Box description to be displayed.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "(null)",
+        "Is Mandatory": "Yes",
+        "Refers To": "QueryBox ",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Query Box Ex",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Query Box Ex"
+  },
+  "Query Report": {
+    "Description": "This action allows displaying a Query Report with the specified string.",
+    "Parameters": [
+      {
+        "Description": "Name of Report to be used as query box.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Report ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Name of Report to be used as query box.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any expression which displays the actual message in the Query Report. This value can be extracted using $$InfoParam in the report context.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Any expression which displays the actual message in the Query Report. This value can be extracted using $$InfoParam in the report context.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Query Report",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Edit",
+      "Return Type": "String"
+    },
+    "Name": "Query Report"
+  },
+  "Remove Sheet": {
+    "Description": "This action removes the specified sheet from current workbook.",
+    "Parameters": [
+      {
+        "Description": "Sheet Name to be removed from the active workbook.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Remove Sheet",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Remove Sheet"
+  },
+  "Rename Sheet": {
+    "Description": "Renames an existing sheet to the New sheet name specified.",
+    "Parameters": [
+      {
+        "Description": "Sheet Name to be renamed in the active workbook.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "New Sheet Name",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Rename Sheet",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "2",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Rename Sheet"
+  },
+  "Reset Value": {
+    "Description": "This action sets the value of the method using the Value Formula. If Value Formula is not specified it sets the existing value to null.",
+    "Parameters": [
+      {
+        "Description": "This is the name of the method.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is an optional parameter and if it is used, it will reset the value of the method.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Reset Value",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Reset Value"
+  },
+  "Return": {
+    "Description": "This action is used to return the flow of control to the calling program with or without returning a value.",
+    "Parameters": [
+      {
+        "Description": "This can be any value or expression.This is the value which is returned to the caller.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Return",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Edit"
+    },
+    "Name": "Return"
+  },
+  "Seek File": {
+    "Description": " This action is used to seek to the specified position in the target file.",
+    "Parameters": [
+      {
+        "Description": "It can be any expression which evaluates to number which considered as number of characters.Number of chars to seek. -1 to seek to End of File.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Seek File",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Seek File"
+  },
+  "Seek Source File": {
+    "Description": "This action sets the current file pointer to the position specified.",
+    "Parameters": [
+      {
+        "Description": "It can be any expression which evaluates to number which is no of characters.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Seek Source File",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Seek Source File"
+  },
+  "Set Active Sheet": {
+    "Description": "This action is used to change the active sheet during read and write operations.",
+    "Parameters": [
+      {
+        "Description": "\u003CSheet Name\u003E can be an expression which evaluates to the string and will be considered as the name of the sheet. Sheet name to be made active.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Active Sheet",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Set Active Sheet"
+  },
+  "Set File Log Off": {
+    "Description": "This Action is used in conjunction with SET FILE LOG ON. Logging to the file \u0027tdlfunc.log\u0027 can be stopped by action SET FILE LOG OFF. ",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Set File Log Off",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Edit"
+    },
+    "Name": "Set File Log Off"
+  },
+  "Set File Log On": {
+    "Description": "This action is used to Log the values of an expression to log file \u0027tdlfunc.log\u0027.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Set File Log On",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Edit"
+    },
+    "Name": "Set File Log On"
+  },
+  "Set Log Off": {
+    "Description": "This Action is used in conjunction with SET FILE LOG ON. Logging to the file \u0027tdlfunc.log\u0027 can be stopped by action SET FILE LOG OFF. ",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Set Log Off",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Edit"
+    },
+    "Name": "Set Log Off"
+  },
+  "Set Log On": {
+    "Description": "This action is used to Log the values of an expression to log file \u0027tdlfunc.log\u0027.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Set Log On",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Debugging",
+      "Mode": "Edit"
+    },
+    "Name": "Set Log On"
+  },
+  "Set Object": {
+    "Description": "This action sets the current object with the object Specification. If no object specification is given the target object will be  set as the current object.",
+    "Parameters": [
+      {
+        "Description": "This is an optional parameter and it is the name of the secondary object.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Object",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "Set Object"
+  },
+  "Set Target": {
+    "Description": "This action sets the target object with the Object Specification. If no object specification is given the current object will be set as the target object.",
+    "Parameters": [
+      {
+        "Description": "This is the name of the secondary object.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Target",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "Set Target"
+  },
+  "Set Value": {
+    "Description": "This action sets value of a method for the target object. The value formula is evaluated with respect to the current object context.",
+    "Parameters": [
+      {
+        "Description": "This is the name of the method of the Target Object which needs to be set.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This is the value which needs to be set to the method. It is optional.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Value",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Edit",
+      "Return Type": "Logical"
+    },
+    "Name": "Set Value"
+  },
+  "Show Progress": {
+    "Description": "This Action shows the current status of the task to the user.",
+    "Parameters": [
+      {
+        "Description": "It is a number denotes the amount of work completed.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This can be used to update the progress status",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Show Progress",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Show Progress"
+  },
+  "Start Batch Post": {
+    "Description": "Starts batch posting. The batch post mode is optimized for posting large amount of data.",
+    "Parameters": [
+      {
+        "Description": "Number of posts have occurred since the start of the batch. Defaults value is -1.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Start Batch Post",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both"
+    },
+    "Name": "Start Batch Post"
+  },
+  "Start Block": {
+    "Description": "This action is used to save the current state and execute some actions within the block and return back to the original state.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Start Block",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "Start Block"
+  },
+  "Start Progress": {
+    "Description": "This action setup the Progress Bar by mentioning total number of steps involved in the task. In addition to this, Title, Sub Title and Subject of the Progress Bar also can be given as parameter.",
+    "Parameters": [
+      {
+        "Description": "It denotes the whole task quantified as a number.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It denotes the whole task quantified as a number.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It shows the Sub Title.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "It shows the Sub Title.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Start Progress",
+      "Total Parameters": "4",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-User Interface",
+      "Mode": "Both"
+    },
+    "Name": "Start Progress"
+  },
+  "Start Sub": {
+    "Description": "This is used to execute a set of actions as a \u0027sub\u0027 procedure effecting the dependency accumulation and triggering.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Start Sub",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "Start Sub"
+  },
+  "Start Unzip": {
+    "Description": "This action is used to set the unzip source file and password.",
+    "Parameters": [
+      {
+        "Description": "Source Zip file name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Source Zip file name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Skip CRC check for this archive file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Start Unzip",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Start Unzip"
+  },
+  "Start XSub": {
+    "Description": "This is used to execute a set of actions as an exclusive \u0027sub\u0027 procedure effecting the dependency accumulation and triggering.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Start XSub",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "Start XSub"
+  },
+  "Start Zip": {
+    "Description": "This action is used to initialize the target zip file.",
+    "Parameters": [
+      {
+        "Description": "Target Zip file name.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Whether to overwrite existing zip file or not.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Start Zip",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Start Zip"
+  },
+  "Sub Action": {
+    "Description": "This action is to execute action considering it as a \u0027sub\u0027 procedure and effecting the dependency accumulation and triggering.",
+    "Parameters": [
+      {
+        "Description": "Action keyword to be executed as a SUB",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "TDL Actions",
+        "Keywords": "Accept Alter, Accept Create, Accept Object, Action, Add Sheet, Add Tile, Alter, Alter Collection, Alter Column, Alter Current Collection, Alter Current Report, Alter Ex, Alter Object, Alter Target, Append, Audit Form, Audit Object, Auto Columns, Autoform Report, Auto Set, Backup Company, Break, Browse Url, Browse Url Ex, Calculator, Call, Cancel, Cancel Object, Change Crypt Company, Change Output Mode, Change Table, Clear Table Stack, Close Company, Close Encrypted Target File, Close File, Close Target File, Configuration, Continue, Copy File, Copy To Clipboard, Copy Variable, Copy Variables, Create, Create Collection, Create Column, Create Ex, Create Target, Cycle Back, Decrement, Delete, Delete Column, Delete Config Data, Delete File, DeleteNotifications, Delete Object, DisconnectUser, Display, Display Collection, Display Current Collection, Display Current Report, Display Ex, Display Help, Display Msg, Display Object, Do If, Dump Debug, Dump Profile, Dump Record, Dump Recording, Duplicate, Else, End Batch Post, End Block, End For, End If, End Msg, End Msg Box, End Progress, End Report, End Sub, End Unzip, End Walk, End While, End XSub, End Zip, Exchange, Exec COM Interface, Exec Command, Exec Command Ex, Exec Excel Macro, Execute, Execute Ex, Execute Obj Actions, ExecuteObjectMap, Execute TDL, Expand Tile, Explode, Export, Export Collection, Export Current Collection, Export Current Report, Export Report, Export Snapshot, Extract Path, Field Accept, Field Backspace, Field Blank, Field Char Delete, Field Char Delete Left, Field Char Left, Field Char NewLine, Field Char Right, Field Copy, Field Cut, Field Down, Field End, Field Erase, Field Home, Field Insert Mode, Field New Line, Field Next, Field Next Field SFD, Field Paste, Field Prev, Field Select End, Field Select Home, Field Select Left Char, Field Select Left Word, Field Select Right Char, Field Select Right Word, Field Select Word, Field Sub Form, Field Table Accept, Field Table Maximize, Field Table Mode,",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Action keyword to be executed as a SUB",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Sub Action",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "Sub Action"
+  },
+  "Truncate File": {
+    "Description": "This action is used to resets the file content.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Truncate File",
+      "Total Parameters": "0",
+      "Total Mandatory Parameters": "0",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Truncate File"
+  },
+  "Unzip Exclude Path": {
+    "Description": "This action is used to add a path to be excluded from unzipping.",
+    "Parameters": [
+      {
+        "Description": "Path to exclude from extraction.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Unzip Exclude Path",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Unzip Exclude Path"
+  },
+  "Walk Collection": {
+    "Description": "The Walk Collection is used to execute a set of statements for each object of the collection.",
+    "Parameters": [
+      {
+        "Description": "It can be any expression which evaluates to collection name.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "This can be an expression which evaluates to logical value. If it is True then the collection objects are traversed in reverse order. This parameter is optional.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Walk Collection",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-Object/Collection",
+      "Mode": "Both"
+    },
+    "Name": "Walk Collection"
+  },
+  "While": {
+    "Description": "This action is used to specify the conditional expression to  execute the body of the loop.",
+    "Parameters": [
+      {
+        "Description": "Any value or expression that can be evaluated to TRUE or FALSE.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "While",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-General",
+      "Mode": "Both"
+    },
+    "Name": "While"
+  },
+  "Write Cell": {
+    "Description": "This action Writes the specified content at the cell address specified by row and column number of the currently active sheet.",
+    "Parameters": [
+      {
+        "Description": "Row Number",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Row Number",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Data to be written in the cell specified.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Write Cell",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "3",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Write Cell"
+  },
+  "Write Cell Ex": {
+    "Description": "This action Writes the specified content at the cell address specified by row and column number of the currently active sheet. Apart from writing the data, it also sets focus to the given Cell",
+    "Parameters": [
+      {
+        "Description": "Row Number",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Column Number",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Column Number",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Write Cell Ex",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "3",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Write Cell Ex"
+  },
+  "Write Column": {
+    "Description": "This action writes multiple cell values at a specified column in the active sheet. The number of values separated by commas are written starting from the initial row number specified for the column.",
+    "Parameters": [
+      {
+        "Description": "Variable Row Number from where to start writing cell data",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Variable Row Number from where to start writing cell data",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Comma separated contents to be written",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Write Column",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "3",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Write Column"
+  },
+  "Write File": {
+    "Description": "This action is used to append a file with the text specified and it is always works on the target file context.",
+    "Parameters": [
+      {
+        "Description": "It can be any expression which evaluates to data that need to be written to the file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Write File",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Write File"
+  },
+  "Write File Line": {
+    "Description": "This action is similar to WRITE FILE but it also places a new line character (New Line/Carriage Return) after the text. All the subsequent writes begin from the next line.This action always works on the target context.",
+    "Parameters": [
+      {
+        "Description": "It can be any expression which evaluates to data that need to be written to the file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Write File Line",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Write File Line"
+  },
+  "Write Row": {
+    "Description": "This action writes multiple cell values at a specified row in the active sheet. The number of values separated by commas are written starting from the initial column number specified for the row specified.",
+    "Parameters": [
+      {
+        "Description": "Fixed Row Number in which to write the content.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Variable Column Number from where to start writing data.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Variable Column Number from where to start writing data.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Write Row",
+      "Total Parameters": "3",
+      "Total Mandatory Parameters": "3",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Write Row"
+  },
+  "XSub Action": {
+    "Description": "This action is to execute action considering it as an exclusive \u0027sub\u0027 procedure and effecting the dependency accumulation and triggering.",
+    "Parameters": [
+      {
+        "Description": "Action keyword to be executed as a SUB",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "TDL Actions",
+        "Keywords": "Accept Alter, Accept Create, Accept Object, Action, Add Sheet, Add Tile, Alter, Alter Collection, Alter Column, Alter Current Collection, Alter Current Report, Alter Ex, Alter Object, Alter Target, Append, Audit Form, Audit Object, Auto Columns, Autoform Report, Auto Set, Backup Company, Break, Browse Url, Browse Url Ex, Calculator, Call, Cancel, Cancel Object, Change Crypt Company, Change Output Mode, Change Table, Clear Table Stack, Close Company, Close Encrypted Target File, Close File, Close Target File, Configuration, Continue, Copy File, Copy To Clipboard, Copy Variable, Copy Variables, Create, Create Collection, Create Column, Create Ex, Create Target, Cycle Back, Decrement, Delete, Delete Column, Delete Config Data, Delete File, DeleteNotifications, Delete Object, DisconnectUser, Display, Display Collection, Display Current Collection, Display Current Report, Display Ex, Display Help, Display Msg, Display Object, Do If, Dump Debug, Dump Profile, Dump Record, Dump Recording, Duplicate, Else, End Batch Post, End Block, End For, End If, End Msg, End Msg Box, End Progress, End Report, End Sub, End Unzip, End Walk, End While, End XSub, End Zip, Exchange, Exec COM Interface, Exec Command, Exec Command Ex, Exec Excel Macro, Execute, Execute Ex, Execute Obj Actions, ExecuteObjectMap, Execute TDL, Expand Tile, Explode, Export, Export Collection, Export Current Collection, Export Current Report, Export Report, Export Snapshot, Extract Path, Field Accept, Field Backspace, Field Blank, Field Char Delete, Field Char Delete Left, Field Char Left, Field Char NewLine, Field Char Right, Field Copy, Field Cut, Field Down, Field End, Field Erase, Field Home, Field Insert Mode, Field New Line, Field Next, Field Next Field SFD, Field Paste, Field Prev, Field Select End, Field Select Home, Field Select Left Char, Field Select Left Word, Field Select Right Char, Field Select Right Word, Field Select Word, Field Sub Form, Field Table Accept, Field Table Maximize, Field Table Mode,",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Action keyword to be executed as a SUB",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "XSub Action",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Generic Operations",
+      "Mode": "Both"
+    },
+    "Name": "XSub Action"
+  },
+  "Zip Add Path": {
+    "Description": "This action adds a path to be included for zipping.",
+    "Parameters": [
+      {
+        "Description": "Path to be zipped.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      },
+      {
+        "Description": "Path to be zipped.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Zip Add Path",
+      "Total Parameters": "2",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Zip Add Path"
+  },
+  "Zip Exclude Path": {
+    "Description": "This action adds a path to be excluded from zipping.",
+    "Parameters": [
+      {
+        "Description": "Exclusion pattern.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Variable Argument": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Zip Exclude Path",
+      "Total Parameters": "1",
+      "Total Mandatory Parameters": "1",
+      "Category": "Procedural-File I/O",
+      "Mode": "Both",
+      "Return Type": "Logical"
+    },
+    "Name": "Zip Exclude Path"
+  }
+}

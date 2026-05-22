@@ -34,7 +34,7 @@ describe('Advanced UDF Features', () => {
         // Assuming we store directives in the definition or just skip them without error
         // For now, let's verify we at least get the statement
         expect(def.statements.length).toBe(1);
-        expect(def.statements[0].label?.text).toBe("00");
+        expect((def.statements[0].label as any)?.text).toBe("00");
     });
 
     it('should parse Object attribute in function', () => {
@@ -50,5 +50,48 @@ describe('Advanced UDF Features', () => {
         expect(def.attributes.length).toBe(1);
         expect(def.attributes[0].name.text).toBe("Object");
         expect(def.statements.length).toBe(1);
+    });
+
+    it('should parse complex dotted method references', () => {
+        const input = `
+[Function: Test]
+    01 : Log : $(Ledger, @@Party).BillAllocations[1].OpeningBalance
+`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+        const def = sourceFile.definitions[0] as DefinitionNode;
+        const stmt = def.statements[0];
+        const arg = stmt.args[0] as any;
+        expect(arg.constructor.name).toBe("ComplexMethodReferenceNode");
+        expect(arg.primaryObject.type.text).toBe("Ledger");
+        expect(arg.primaryObject.identifier.formulaName.text).toBe("Party"); // Fixed to check formulaName
+        expect(arg.pathSpecs.length).toBe(1);
+        expect(arg.pathSpecs[0].collectionName.text).toBe("BillAllocations");
+        expect(arg.pathSpecs[0].index.value).toBe(1);
+        expect(arg.methodName.text).toBe("OpeningBalance");
+    });
+
+    it('should parse advanced procedural blocks', () => {
+        const input = `
+[Function: TestBlocks]
+    01 : START BATCH POST : 100
+    02 : END BATCH POST
+    03 : Start MSG BOX : "Title" : "Msg"
+    04 : End MSG BOX
+`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+        const def = sourceFile.definitions[0] as DefinitionNode;
+        
+
+
+
+        
+        expect(def.statements.length).toBe(2);
+        expect(def.statements[0].constructor.name).toBe("BatchPostNode");
+        expect((def.statements[0] as any).batchSize.value).toBe(100);
+        expect(def.statements[1].constructor.name).toBe("MsgBoxNode");
+        expect((def.statements[1] as any).title.value).toBe('"Title"');
+        expect((def.statements[1] as any).message.value).toBe('"Msg"');
     });
 });

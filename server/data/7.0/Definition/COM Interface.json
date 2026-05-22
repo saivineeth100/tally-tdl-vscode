@@ -1,0 +1,182 @@
+{
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Class": {
+    "Description": "Name of the class to be used.",
+    "Parameters": [
+      {
+        "Description": "Name of the class.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Class",
+      "Type": "Single"
+    },
+    "Name": "Class"
+  },
+  "Interface": {
+    "Description": "Name of the external function which needs to be called with the help og this description.",
+    "Parameters": [
+      {
+        "Description": "Name of the external function defined inside a class/namespace of 3rd party COM Server.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Interface",
+      "Type": "Single"
+    },
+    "Name": "Interface"
+  },
+  "Parameter": {
+    "Description": "This attribute is used to specify the parameter name/datatype and whether it is in or out for a COM Interface.",
+    "Parameters": [
+      {
+        "Description": "It is the name of the Parameter in COM Interface description.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Data type of the parameter.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "COMDatatype",
+        "Keywords": "Amount, Bool, Boolean, Byte, Char, Currency, Date, Double, Float, Integer, Logical, Long, Long Long, Number, Scode, Short, String, Unsigned char, Unsigned Integer, Unsigned Long, Unsigned Long Long, Unsigned short, Variant, WChar",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Data type of the parameter.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "ParamInOut",
+        "Keywords": "In, In Out, Out",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Parameter, Parameters",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Parameter"
+  },
+  "Project": {
+    "Description": "Name of the project/namespace which contains the class to be used.",
+    "Parameters": [
+      {
+        "Description": "Name of the project/namespace.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Project",
+      "Type": "Single"
+    },
+    "Name": "Project"
+  },
+  "Return": {
+    "Description": "Return type of the function.",
+    "Parameters": [
+      {
+        "Description": "Return datatype of the function being described.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Method",
+        "Keywords": "Aggregate, Amount, Date, DateTime, Due Date, Duration, FlagSet, Logical, Long, Number, NumSet, Quantity, Rate, Rate of Exchange, String, Sys Id, Time",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Return, Returns",
+      "Type": "Single"
+    },
+    "Name": "Return"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "COM Interface ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  }
+}

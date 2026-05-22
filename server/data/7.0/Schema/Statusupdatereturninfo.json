@@ -1,0 +1,34 @@
+{
+  "Properties": {
+    "Effective Date": {
+      "Name": "Effective Date",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Returnname": {
+      "Name": "Returnname",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    },
+    "Statusupdatesectioninfo": {
+      "Name": "Statusupdatesectioninfo",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Statusupdatesectioninfo"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Statusupdatesectioninfo": "Statusupdatesectioninfo"
+  },
+  "Name": "Statusupdatereturninfo"
+}

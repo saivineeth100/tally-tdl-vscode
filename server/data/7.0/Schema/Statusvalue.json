@@ -1,0 +1,33 @@
+{
+  "Properties": {
+    "Statustype": {
+      "Name": "Statustype",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statusvaluestr": {
+      "Name": "Statusvaluestr",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String"
+      }
+    },
+    "Statusvaluesysid": {
+      "Name": "Statusvaluesysid",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "String (Sysname)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {},
+  "Name": "Statusvalue"
+}

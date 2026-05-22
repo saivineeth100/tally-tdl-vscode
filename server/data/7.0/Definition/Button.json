@@ -1,0 +1,772 @@
+{
+  "Action": {
+    "Description": "It specifies the action that is to be performed if the button/Key is clicked / activated.",
+    "Parameters": [
+      {
+        "Description": "It can be any Global or Object Specific Action except the Function specific Actions.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "TDL Actions",
+        "Keywords": "Accept Alter, Accept Create, Accept Object, Action, Add Sheet, Add Tile, Alter, Alter Collection, Alter Column, Alter Current Collection, Alter Current Report, Alter Ex, Alter Object, Alter Target, Append, Audit Form, Audit Object, Auto Columns, Autoform Report, Auto Set, Backup Company, Break, Browse Url, Browse Url Ex, Calculator, Call, Cancel, Cancel Object, Change Crypt Company, Change Output Mode, Change Table, Clear Table Stack, Close Company, Close Encrypted Target File, Close File, Close Target File, Configuration, Continue, Copy File, Copy To Clipboard, Copy Variable, Copy Variables, Create, Create Collection, Create Column, Create Ex, Create Target, Cycle Back, Decrement, Delete, Delete Column, Delete Config Data, Delete File, DeleteNotifications, Delete Object, DisconnectUser, Display, Display Collection, Display Current Collection, Display Current Report, Display Ex, Display Help, Display Msg, Display Object, Do If, Dump Debug, Dump Profile, Dump Record, Dump Recording, Duplicate, Else, End Batch Post, End Block, End For, End If, End Msg, End Msg Box, End Progress, End Report, End Sub, End Unzip, End Walk, End While, End XSub, End Zip, Exchange, Exec COM Interface, Exec Command, Exec Command Ex, Exec Excel Macro, Execute, Execute Ex, Execute Obj Actions, ExecuteObjectMap, Execute TDL, Expand Tile, Explode, Export, Export Collection, Export Current Collection, Export Current Report, Export Report, Export Snapshot, Extract Path, Field Accept, Field Backspace, Field Blank, Field Char Delete, Field Char Delete Left, Field Char Left, Field Char NewLine, Field Char Right, Field Copy, Field Cut, Field Down, Field End, Field Erase, Field Home, Field Insert Mode, Field New Line, Field Next, Field Next Field SFD, Field Paste, Field Prev, Field Select End, Field Select Home, Field Select Left Char, Field Select Left Word, Field Select Right Char, Field Select Right Word, Field Select Word, Field Sub Form, Field Table Accept, Field Table Maximize, Field Table Mode,",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "The various parameters seperated by a colon as required by the Action specified.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Action",
+      "Type": "Dual"
+    },
+    "Name": "Action"
+  },
+  "Action List": {
+    "Description": "Lists the Key Names which are to be triggered in sequence when this button/key is clicked / activated.",
+    "Parameters": [
+      {
+        "Description": "Name of the Key/ Button.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Action List",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Action List"
+  },
+  "ActionEx": {
+    "Description": "Use ActionEx to specify multiple actions for execution on invoking a key or button.",
+    "Parameters": [
+      {
+        "Description": "A string to uniquely identify the specified action.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "A global or object specific action except function specific action.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "TDL Actions",
+        "Keywords": "Accept Alter, Accept Create, Accept Object, Action, Add Sheet, Add Tile, Alter, Alter Collection, Alter Column, Alter Current Collection, Alter Current Report, Alter Ex, Alter Object, Alter Target, Append, Audit Form, Audit Object, Auto Columns, Autoform Report, Auto Set, Backup Company, Break, Browse Url, Browse Url Ex, Calculator, Call, Cancel, Cancel Object, Change Crypt Company, Change Output Mode, Change Table, Clear Table Stack, Close Company, Close Encrypted Target File, Close File, Close Target File, Configuration, Continue, Copy File, Copy To Clipboard, Copy Variable, Copy Variables, Create, Create Collection, Create Column, Create Ex, Create Target, Cycle Back, Decrement, Delete, Delete Column, Delete Config Data, Delete File, DeleteNotifications, Delete Object, DisconnectUser, Display, Display Collection, Display Current Collection, Display Current Report, Display Ex, Display Help, Display Msg, Display Object, Do If, Dump Debug, Dump Profile, Dump Record, Dump Recording, Duplicate, Else, End Batch Post, End Block, End For, End If, End Msg, End Msg Box, End Progress, End Report, End Sub, End Unzip, End Walk, End While, End XSub, End Zip, Exchange, Exec COM Interface, Exec Command, Exec Command Ex, Exec Excel Macro, Execute, Execute Ex, Execute Obj Actions, ExecuteObjectMap, Execute TDL, Expand Tile, Explode, Export, Export Collection, Export Current Collection, Export Current Report, Export Report, Export Snapshot, Extract Path, Field Accept, Field Backspace, Field Blank, Field Char Delete, Field Char Delete Left, Field Char Left, Field Char NewLine, Field Char Right, Field Copy, Field Cut, Field Down, Field End, Field Erase, Field Home, Field Insert Mode, Field New Line, Field Next, Field Next Field SFD, Field Paste, Field Prev, Field Select End, Field Select Home, Field Select Left Char, Field Select Left Word, Field Select Right Char, Field Select Right Word, Field Select Word, Field Sub Form, Field Table Accept, Field Table Maximize, Field Table Mode,",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "A global or object specific action except function specific action.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "ActionEx",
+      "Type": "Triple List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "ActionEx"
+  },
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Background": {
+    "Description": "This attribute specifies the background color for the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Background",
+      "Type": "Single"
+    },
+    "Name": "Background"
+  },
+  "Border": {
+    "Description": "This attribute specifies the border for the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the style.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Border ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To add borders based on the given condition.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Border",
+      "Type": "Dual"
+    },
+    "Name": "Border"
+  },
+  "BottomToolbar Position": {
+    "Description": "Specifies the position of the key in bottom toolbar starting from BottomToolBarBtn1 to BottomToolBarBtn10.",
+    "Parameters": [
+      {
+        "Description": "The button position can be any of permissible keywords starting from \u0027BottomToolBarBtn1\u0027 to \u0027BottomToolBarBtn10\u0027.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "BottomToolbar Position",
+      "Type": "Single"
+    },
+    "Name": "BottomToolbar Position"
+  },
+  "Cancel": {
+    "Description": "It is used to deactivate the button based on some condition.",
+    "Parameters": [
+      {
+        "Description": "The condition which determines whether whether to deactivate the button/key.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Cancel, Inactive",
+      "Type": "Single"
+    },
+    "Name": "Cancel"
+  },
+  "Color": {
+    "Description": "This attribute specifies the foreground color for the title of the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Color, Shade",
+      "Type": "Single"
+    },
+    "Name": "Color"
+  },
+  "Focus BG": {
+    "Description": "This attribute specifies the background color of the button when it is focused.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Focus BG, Focus BG Color, Focus BG Colour, Focus BG Shade",
+      "Type": "Single"
+    },
+    "Name": "Focus BG"
+  },
+  "Height": {
+    "Description": "This attribute specifies the height of the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the height.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Height",
+      "Type": "Single"
+    },
+    "Name": "Height"
+  },
+  "Help": {
+    "Description": "Specifies the Index / Id of the help file for help.",
+    "Parameters": [
+      {
+        "Description": "It is the index of the help file.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Long",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Expression that returns the GUID of the addon/module for invoking help",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Help",
+      "Type": "Dual List",
+      "Is Discrete": "No"
+    },
+    "Name": "Help"
+  },
+  "Horizontal Align": {
+    "Description": "This attribute specifies the horizontal alignment of the button. The default alignment is left.",
+    "Parameters": [
+      {
+        "Description": "To specify the alignment type as Left, Right, Centre.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Align Type",
+        "Keywords": "Bottom, Center, Centre, Justified, Left, Prompt, Right, Top",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Horizontal Align, Horizontal Alignment",
+      "Type": "Single"
+    },
+    "Name": "Horizontal Align"
+  },
+  "Image": {
+    "Description": "This attribute is used to draw the image from the specified resource.",
+    "Parameters": [
+      {
+        "Description": "To specify the image to be drawn when key is active",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Resource ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "To specify the image to be drawn when the key is inactive",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Resource ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Image",
+      "Type": "Dual"
+    },
+    "Name": "Image"
+  },
+  "Inactive Color": {
+    "Description": "This attribute specifies the foreground  color of key and title of the button when it is inactive.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Inactive Color, Inactive Colour, Inactive Shade",
+      "Type": "Single"
+    },
+    "Name": "Inactive Color"
+  },
+  "Key": {
+    "Description": "This attribute is used to give a unique key combination which is used to trigger the button/key when associated at various interfaces.",
+    "Parameters": [
+      {
+        "Description": "Specifies the Key combinations for ex alt\u002B K ,ctrl\u002BU etc.",
+        "Parameter Type": "Value",
+        "Is Constant": "Yes",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key, Keys",
+      "Type": "Single"
+    },
+    "Name": "Key"
+  },
+  "Key Color": {
+    "Description": "This attribute specifies the foreground color of the key of the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the color.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Color ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key Color, Key Colour, Key Shade",
+      "Type": "Single"
+    },
+    "Name": "Key Color"
+  },
+  "Key Style": {
+    "Description": "This attribute specifies the style for the key of the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the style.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Style ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key Style",
+      "Type": "Single"
+    },
+    "Name": "Key Style"
+  },
+  "Key Vertical Align": {
+    "Description": "This attribute specifies the vertical alignment for the key of the button. The default alignment is same as vertical alignment of the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the alignment type as Top, Bottom, Centre.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Align Type",
+        "Keywords": "Bottom, Center, Centre, Justified, Left, Prompt, Right, Top",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Key Vertical Align, Key Vertical Alignment",
+      "Type": "Single"
+    },
+    "Name": "Key Vertical Align"
+  },
+  "Line": {
+    "Description": "This attribute specifies the number of lines for the title of the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the number of lines.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Line, Lines, Top Line, Top Lines",
+      "Type": "Single"
+    },
+    "Name": "Line"
+  },
+  "Mode": {
+    "Description": "Specifies whether the action of the key has to be performed in Display mode, Edit mode or both the modes.",
+    "Parameters": [
+      {
+        "Description": "It specifies the mode type ie, Display, Edit, etc.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Edit Mode",
+        "Keywords": "Both, Display, Edit",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Mode",
+      "Type": "Single"
+    },
+    "Name": "Mode"
+  },
+  "Modifier Button": {
+    "Description": "This attribute specifies a dynamic modifier for the button. This allows the same button to be extended using modifier keys (E.g. Crtl, Alt, Shift) for another action.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the modifier button.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Modifier Button, Modifier Buttons, Modifier Key, Modifier Keys",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Modifier Button"
+  },
+  "Option": {
+    "Description": "Option is an attribute which can be used by various definitions, to provide a conditional result in a program.",
+    "Parameters": [
+      {
+        "Description": "This specifies the name of the Optional Key.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "Logical Condition/ expression which returns logical value.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Option, Options",
+      "Type": "Dual List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Option"
+  },
+  "Scope": {
+    "Description": "It specifies the scope for the action which is to be performed.",
+    "Parameters": [
+      {
+        "Description": "It can have any of the following possible values: Current Line/ Line, All Lines, Selected Lines, Unselected Lines etc.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Action Scope",
+        "Keywords": "All Lines, Current Line, Dashboard, Line, None, Report, Selected Lines, Unselected Lines",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Scope",
+      "Type": "Single"
+    },
+    "Name": "Scope"
+  },
+  "Skip Forward": {
+    "Description": "This attribute skips the button while navigating forward. The focus comes back to the button when the key backsapce is pressed from the next button.",
+    "Parameters": [
+      {
+        "Description": "To specify the logical condition which controls the behavior.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Skip Forward",
+      "Type": "Single"
+    },
+    "Name": "Skip Forward"
+  },
+  "Space Left": {
+    "Description": "This attribute specifies space to be left on the left side of the button. ",
+    "Parameters": [
+      {
+        "Description": "To specify a particular Measurement.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Left",
+      "Type": "Single"
+    },
+    "Name": "Space Left"
+  },
+  "Space Right": {
+    "Description": "This attribute specifies space to be left on the right side of the button. ",
+    "Parameters": [
+      {
+        "Description": "To specify a particular Measurement.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Space Right",
+      "Type": "Single"
+    },
+    "Name": "Space Right"
+  },
+  "Style": {
+    "Description": "This attribute specifies the style for the title of the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the name of the style.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Style ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Style",
+      "Type": "Single"
+    },
+    "Name": "Style"
+  },
+  "Switch": {
+    "Description": "\u0027Switch\u0027 attribute is similar to the Option attribute but reduces code complexity and improves the performance. The Switch are grouped using a label Once a condition is satisfied from one group, switch won\u0027t  check further conditions from the same group.  It will evaluate the conditions from the other groups specified, if any.",
+    "Parameters": [
+      {
+        "Description": "This can be any string combination used to group.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This name must be of  same definition type in which the switch modifier is used.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Switch",
+      "Type": "Triple List",
+      "Is Discrete": "No"
+    },
+    "Name": "Switch"
+  },
+  "Title": {
+    "Description": "It can be used to give a meaningful Title to the Button being displayed on the Button Bar.",
+    "Parameters": [
+      {
+        "Description": "Specifies the Title for the button.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Title",
+      "Type": "Single"
+    },
+    "Name": "Title"
+  },
+  "Tooltip": {
+    "Description": "Specifies the tooltip text to be displayed on mouse hover.",
+    "Parameters": [
+      {
+        "Description": "String to be displayed as tooltip for button.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "Yes",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Tooltip",
+      "Type": "Single"
+    },
+    "Name": "Tooltip"
+  },
+  "Type": {
+    "Description": "It specifies the category of buttons.",
+    "Parameters": [
+      {
+        "Description": "The button type can be any of the permissible types as PrintButton,Export Button,MailButton etc.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Type",
+      "Type": "Single"
+    },
+    "Name": "Type"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Key ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "Vertical Align": {
+    "Description": "This attribute specifies the vertical alignment of the button. The default alignment is center.",
+    "Parameters": [
+      {
+        "Description": "To specify the alignment type as Top, Bottom, Centre.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "Yes",
+        "Keyword Set": "Align Type",
+        "Keywords": "Bottom, Center, Centre, Justified, Left, Prompt, Right, Top",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Vertical Align, Vertical Alignment",
+      "Type": "Single"
+    },
+    "Name": "Vertical Align"
+  },
+  "Width": {
+    "Description": "This attribute specifies the width of the button.",
+    "Parameters": [
+      {
+        "Description": "To specify the width.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Number",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "Yes"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Width",
+      "Type": "Single"
+    },
+    "Name": "Width"
+  }
+}

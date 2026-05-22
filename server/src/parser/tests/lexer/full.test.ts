@@ -67,12 +67,12 @@ describe('Lexer Full Tests', () => {
         const tokens = lexer.Generate();
 
         expect(tokens[0].Kind).toBe(TokenKind.StringLiteralToken);
-        expect(tokens[0].Text).toBe('Hello World');
+        expect(tokens[0].Text).toBe('"Hello World"');
         expect(tokens[0].Trailing.length).toBeGreaterThan(0);
         expect(tokens[0].Trailing[0].Kind).toBe(TokenKind.SpaceToken);
 
         expect(tokens[1].Kind).toBe(TokenKind.StringLiteralToken);
-        expect(tokens[1].Text).toBe('Escaped "" Quote');
+        expect(tokens[1].Text).toBe('"Escaped "" Quote"');
         expect(tokens[1].Trailing.length).toBeGreaterThan(0);
         expect(tokens[1].Trailing[0].Kind).toBe(TokenKind.SpaceToken);
 

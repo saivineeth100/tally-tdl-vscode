@@ -1,0 +1,18 @@
+{
+  "Properties": {
+    "Allusers": {
+      "Name": "Allusers",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "User List"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Allusers": "User List"
+  },
+  "Name": "Cmploaddetails"
+}

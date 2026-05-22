@@ -39,11 +39,9 @@ describe('Lexer Samples Verification', () => {
             // Let's count them and warn if too many? Or just fail if *all* are unknown?
             const unknownTokens = tokens.filter(t => t.Kind === TokenKind.Unknown);
             if (unknownTokens.length > 0) {
-                // For now, just log them to see what's missing. Fail if it's a huge percentage?
-                // console.log(`File: ${file} has ${unknownTokens.length} unknown tokens out of ${tokens.length}`);
+                console.error(`File: ${file} has ${unknownTokens.length} unknown tokens:`, unknownTokens.map(t => t.Text));
             }
-
-            // Ensure no throw
+            expect(unknownTokens.length).toBe(0);
         });
     });
 });

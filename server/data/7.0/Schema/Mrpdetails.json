@@ -1,0 +1,50 @@
+{
+  "Properties": {
+    "Fromdate": {
+      "Name": "Fromdate",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Date"
+      }
+    },
+    "Isaltered": {
+      "Name": "Isaltered",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Logical"
+      }
+    },
+    "Mrpratedetails": {
+      "Name": "Mrpratedetails",
+      "IsComplex": true,
+      "Meta": {
+        "Object Name": "Mrpratedetails"
+      }
+    },
+    "Totalvercount": {
+      "Name": "Totalvercount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    },
+    "Vercount": {
+      "Name": "Vercount",
+      "IsComplex": false,
+      "Meta": {
+        "Is Repeated": "No",
+        "Datatype": "Number (Integer)"
+      }
+    }
+  },
+  "Meta": {
+    "Is Primary": "No"
+  },
+  "ComplexProperties": {
+    "Mrpratedetails": "Mrpratedetails"
+  },
+  "Name": "Mrpdetails"
+}

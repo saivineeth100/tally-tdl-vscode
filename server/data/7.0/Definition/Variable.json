@@ -1,0 +1,265 @@
+{
+  "Add": {
+    "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Add modifiers are used in a definition to Add an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Add"
+  },
+  "Replace": {
+    "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Replace modifiers are used in a definition to Replace an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Replace"
+  },
+  "Delete": {
+    "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+    "Parameters": [
+      {
+        "Description": "The Delete modifiers are used in a definition to Delete an attribute to the Definition.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Type": "Modifier List",
+      "Is Discrete": "No"
+    },
+    "Name": "Delete"
+  },
+  "Default": {
+    "Description": "Gives the default value of the variable.",
+    "Parameters": [
+      {
+        "Description": "To set the default value for the variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Default",
+      "Type": "Single"
+    },
+    "Name": "Default"
+  },
+  "List Var": {
+    "Description": "Specify a list of either a Simple or Compound Variable.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "List Var, List Variable",
+      "Type": "Variable List"
+    },
+    "Name": "List Var"
+  },
+  "Local": {
+    "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+    "Parameters": [
+      {
+        "Description": "The Local attribute is used in the context of the definition to set local value within the scope of that definition only.",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Local",
+      "Type": "Local List",
+      "Is Discrete": "No"
+    },
+    "Name": "Local"
+  },
+  "Persist": {
+    "Description": "Specifies whether the value of the variable can be persisted/retained across multiple tally instances or not.",
+    "Parameters": [
+      {
+        "Description": "When it is set to Yes, the variable will retain its value even after exiting tally.(Default value: No)",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Persist, Persistent",
+      "Type": "Single"
+    },
+    "Name": "Persist"
+  },
+  "Repeat": {
+    "Description": "Specifies the name of the Collection based on which the variable assumes multiple vales in context of a multi-columnar report.",
+    "Parameters": [
+      {
+        "Description": "This is an expression which evaluates to a collection name.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "Yes",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      },
+      {
+        "Description": "This is the name of the method from the collection from which the value is picked up for the variable.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "String",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Repeat",
+      "Type": "Dual"
+    },
+    "Name": "Repeat"
+  },
+  "Set Always": {
+    "Description": "It modifies the value of the variable immediately.",
+    "Parameters": [
+      {
+        "Description": "It is a logical value which  accepts either Yes or No.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Set Always",
+      "Type": "Single"
+    },
+    "Name": "Set Always"
+  },
+  "System Name": {
+    "Description": "Specifies whether sysnames can be stored in the variable.",
+    "Parameters": [
+      {
+        "Description": "If it is YES the variable can hold a sysname.",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "System Name",
+      "Type": "Single"
+    },
+    "Name": "System Name"
+  },
+  "Table": {
+    "Description": "This attribute overrides the default collection used in the variable.  This attribute is used locally in a report to override the default table for the variable.",
+    "Parameters": [
+      {
+        "Description": "This is a collection which overrides the default collection for the variable.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "No",
+        "Is Mandatory": "No",
+        "Refers To": "Collection ",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Table, Tables",
+      "Type": "Single"
+    },
+    "Name": "Table"
+  },
+  "Type": {
+    "Description": "Specifies the type of the data held by the variable.",
+    "Parameters": [
+      {
+        "Description": "It refers to the type of data to be stored in the variable.",
+        "Parameter Type": "Keyword",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Keyword Set": "Method",
+        "Keywords": "Aggregate, Amount, Date, DateTime, Due Date, Duration, FlagSet, Logical, Long, Number, NumSet, Quantity, Rate, Rate of Exchange, String, Sys Id, Time",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Type",
+      "Type": "Single"
+    },
+    "Name": "Type"
+  },
+  "Use": {
+    "Description": "The USE keyword is used in a definition to reuse an existing definition.",
+    "Parameters": [
+      {
+        "Description": "It acts as label for grouping.",
+        "Parameter Type": "Identifier",
+        "Is Constant": "Yes",
+        "Is Mandatory": "No",
+        "Refers To": "Variable ",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Use",
+      "Type": "Single List",
+      "Is Discrete": "Yes"
+    },
+    "Name": "Use"
+  },
+  "Variable": {
+    "Description": "To specify a Simple or Compound Variable within a Variable Definition.",
+    "Parameters": [],
+    "Meta": {
+      "Aliases": "Variable, Variables",
+      "Type": "Variable List"
+    },
+    "Name": "Variable"
+  },
+  "Volatile": {
+    "Description": "Specifies whether the value of the variable can retained across multiple scopes.",
+    "Parameters": [
+      {
+        "Description": "When it is set to Yes, the variable reatins the previous value from the caller scope   in current instance of Tally. (Default value: Yes)",
+        "Parameter Type": "Value",
+        "Is Constant": "No",
+        "Datatype": "Logical",
+        "Is Mandatory": "No",
+        "Is List": "No",
+        "Dimension Expression": "No"
+      }
+    ],
+    "Meta": {
+      "Aliases": "Volatile",
+      "Type": "Single"
+    },
+    "Name": "Volatile"
+  }
+}
