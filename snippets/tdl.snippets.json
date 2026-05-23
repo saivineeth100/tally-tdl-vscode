@@ -50,5 +50,160 @@
             "   Set as   : ${5:someval}\n"
         ],
         "description": "Creates Report with form,part,line and fields"
+    },
+    "Create Collection": {
+        "prefix": "Collection",
+        "body": [
+            "[Collection: ${1:collectionName}]",
+            "\tType    : ${2:Type}",
+            "\tFormat  : \\$\\$SysName:${3:Format}",
+            "\t$0"
+        ],
+        "description": "Creates a standard Collection"
+    },
+    "Create HTTP Collection": {
+        "prefix": "Collection HTTP",
+        "body": [
+            "[Collection: ${1:collectionName}]",
+            "\tRemote URL : ${2:URL}",
+            "\tFormat     : \\$\\$SysName:JSON",
+            "\t$0"
+        ],
+        "description": "Creates an HTTP Collection"
+    },
+    "Create Function": {
+        "prefix": "Function",
+        "body": [
+            "[Function: ${1:functionName}]",
+            "\tVariable : ${2:varName} : ${3:Type}",
+            "\tReturns  : ${4:ReturnType}",
+            "\t01 : ${5:Statement}",
+            "\t02 : Return : \\$\\$Return",
+            "\t$0"
+        ],
+        "description": "Creates a Function definition"
+    },
+    "Create Variable": {
+        "prefix": "Variable",
+        "body": [
+            "[Variable: ${1:varName}]",
+            "\tType    : ${2:String}",
+            "\tDefault : ${3:\"\"}",
+            "\t$0"
+        ],
+        "description": "Creates a Variable"
+    },
+    "Create System Variable": {
+        "prefix": "System Variable",
+        "body": [
+            "[System : Variable]",
+            "\t${1:varName} : ${2:DefaultValue}",
+            "\t$0"
+        ],
+        "description": "Sets a System Variable"
+    },
+    "Create Form": {
+        "prefix": "Form",
+        "body": [
+            "[Form: ${1:formName}]",
+            "\tPart : ${2:partName}",
+            "\t$0"
+        ],
+        "description": "Creates a Form definition"
+    },
+    "Create Part": {
+        "prefix": "Part",
+        "body": [
+            "[Part: ${1:partName}]",
+            "\tLine : ${2:lineName}",
+            "\t$0"
+        ],
+        "description": "Creates a Part definition"
+    },
+    "Create Line": {
+        "prefix": "Line",
+        "body": [
+            "[Line: ${1:lineName}]",
+            "\tField : ${2:fieldName}",
+            "\t$0"
+        ],
+        "description": "Creates a Line definition"
+    },
+    "Create Field": {
+        "prefix": "Field",
+        "body": [
+            "[Field: ${1:fieldName}]",
+            "\tUse : ${2:Name Field}",
+            "\tSet As : ${3:\"\"}",
+            "\t$0"
+        ],
+        "description": "Creates a Field definition"
+    },
+    "Create Style": {
+        "prefix": "Style",
+        "body": [
+            "[Style: ${1:styleName}]",
+            "\tFont : ${2:Arial}",
+            "\tHeight : ${3:10}",
+            "\t$0"
+        ],
+        "description": "Creates a Style definition"
+    },
+    "Create Color": {
+        "prefix": "Color",
+        "body": [
+            "[Color: ${1:colorName}]",
+            "\tRGB : ${2:255}, ${3:255}, ${4:255}",
+            "\t$0"
+        ],
+        "description": "Creates a Color definition"
+    },
+    "Create Border": {
+        "prefix": "Border",
+        "body": [
+            "[Border: ${1:borderName}]",
+            "\tTop : ${2:Thin}",
+            "\tBottom : ${3:Thin}",
+            "\t$0"
+        ],
+        "description": "Creates a Border definition"
+    },
+    "If Else Block": {
+        "prefix": "If",
+        "body": [
+            "${1:01} : If ${2:Condition}",
+            "${3:02} : \t${4:Statement}",
+            "${5:03} : Else",
+            "${6:04} : \t${7:Statement}",
+            "${8:05} : End If",
+            "\t$0"
+        ],
+        "description": "If-Else block"
+    },
+    "For Loop Block": {
+        "prefix": "For",
+        "body": [
+            "${1:01} : Walk Collection : ${2:CollectionName}",
+            "${3:02} : \t${4:Statement}",
+            "${5:03} : End Walk",
+            "\t$0"
+        ],
+        "description": "Walk Collection (For Loop) block"
+    },
+    "Modify Definition": {
+        "prefix": "mod",
+        "body": [
+            "[#${1:DefinitionType}: ${2:DefinitionName}]",
+            "\t$0"
+        ],
+        "description": "Modifies an existing definition"
+    },
+    "Replace Definition": {
+        "prefix": "replace",
+        "body": [
+            "[!${1:DefinitionType}: ${2:DefinitionName}]",
+            "\t$0"
+        ],
+        "description": "Replaces an existing definition"
     }
 }

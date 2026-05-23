@@ -591,6 +591,31 @@ export function registerCompletion(
                         }
 
                         if (currentSchema) {
+                            const systemAttributes = [
+                                { name: 'Action', type: 'String', values: ['Create', 'Alter', 'Delete'] },
+                                { name: 'NAME', type: 'String' }
+                            ];
+                            
+                            if (currentSchema.Name.toUpperCase() === 'VOUCHER') {
+                                systemAttributes.push(
+                                    { name: 'VCHTYPE', type: 'String' },
+                                    { name: 'OBJVIEW', type: 'String', values: ['Accounting Voucher View', 'Invoice Voucher View'] }
+                                );
+                            }
+
+                            for (const sysAttr of systemAttributes) {
+                                if (context.partial === '' || sysAttr.name.toLowerCase().includes(context.partial.toLowerCase())) {
+                                    items.push({
+                                        label: sysAttr.name,
+                                        kind: CompletionItemKind.Property,
+                                        detail: `System Attribute (${sysAttr.type})`,
+                                        insertText: `${sysAttr.name}="$1"$0`,
+                                        insertTextFormat: 2,
+                                        sortText: '0_' + sysAttr.name.toLowerCase()
+                                    });
+                                }
+                            }
+
                             for (const [propName, propDef] of currentSchema.Properties) {
                                 let displayProp = propName.toUpperCase().replace(/\s+/g, '');
                                 let insertText = '';
@@ -921,6 +946,31 @@ export function registerCompletion(
                         let currentSchema = rootKey ? md.schemas.get(rootKey) : undefined;
                         
                         if (currentSchema) {
+                            const systemAttributes = [
+                                { name: 'Action', type: 'String', values: ['Create', 'Alter', 'Delete'] },
+                                { name: 'NAME', type: 'String' }
+                            ];
+                            
+                            if (currentSchema.Name.toUpperCase() === 'VOUCHER') {
+                                systemAttributes.push(
+                                    { name: 'VCHTYPE', type: 'String' },
+                                    { name: 'OBJVIEW', type: 'String', values: ['Accounting Voucher View', 'Invoice Voucher View'] }
+                                );
+                            }
+
+                            for (const sysAttr of systemAttributes) {
+                                if (context.partial === '' || sysAttr.name.toLowerCase().includes(context.partial.toLowerCase())) {
+                                    items.push({
+                                        label: sysAttr.name,
+                                        kind: CompletionItemKind.Property,
+                                        detail: `System Attribute (${sysAttr.type})`,
+                                        insertText: `${sysAttr.name}="$1"$0`,
+                                        insertTextFormat: 2,
+                                        sortText: '0_' + sysAttr.name.toLowerCase()
+                                    });
+                                }
+                            }
+
                             for (const [propName, propDef] of currentSchema.Properties) {
                                 let displayProp = propName.toUpperCase().replace(/\s+/g, '');
                                 let insertText = '';
@@ -1037,6 +1087,33 @@ export function registerCompletion(
 
                         if (currentSchema) {
                             const normalizedAttrName = context.attributeName!.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+                            
+                            if (normalizedAttrName === 'ACTION') {
+                                const actions = ['Create', 'Alter', 'Delete'];
+                                for (const action of actions) {
+                                    if (context.partial === '' || action.toLowerCase().includes(context.partial.toLowerCase())) {
+                                        items.push({
+                                            label: action,
+                                            kind: CompletionItemKind.Value,
+                                            insertText: action,
+                                            sortText: '0_' + action.toLowerCase()
+                                        });
+                                    }
+                                }
+                            } else if (normalizedAttrName === 'OBJVIEW' && currentSchema.Name.toUpperCase() === 'VOUCHER') {
+                                const views = ['Accounting Voucher View', 'Invoice Voucher View'];
+                                for (const view of views) {
+                                    if (context.partial === '' || view.toLowerCase().includes(context.partial.toLowerCase())) {
+                                        items.push({
+                                            label: view,
+                                            kind: CompletionItemKind.Value,
+                                            insertText: view,
+                                            sortText: '0_' + view.toLowerCase()
+                                        });
+                                    }
+                                }
+                            }
+
                             const propKey = Array.from(currentSchema.Properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
                             if (propKey) {
                                 const propDef = currentSchema.Properties.get(propKey)!;

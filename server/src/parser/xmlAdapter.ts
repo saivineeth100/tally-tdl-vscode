@@ -26,7 +26,7 @@ export function parseXmlToAst(xmlText: string, metadata?: TdlMetadata): SourceFi
     const tagStack: TagState[] = [];
     
     const definitionWrappers = new Set(['TDLMESSAGE', 'TALLYMESSAGE', 'TDL']);
-    const structuralWrappers = new Set(['ENVELOPE', 'HEADER', 'BODY', 'DATA']);
+    const structuralWrappers = new Set(['ENVELOPE', 'HEADER', 'BODY', 'DATA', 'DESC', 'IMPORTDATA', 'EXPORTDATA', 'REQUESTDESC', 'REQUESTDATA', 'STATICVARIABLES']);
     const knownDefTypes = new Set([
         'FORM', 'PART', 'LINE', 'FIELD', 'MENU', 'REPORT', 'COLLECTION', 
         'BUTTON', 'KEY', 'SYSTEM', 'VARIABLE', 'STYLE', 'BORDER', 'COLOR',
@@ -34,6 +34,7 @@ export function parseXmlToAst(xmlText: string, metadata?: TdlMetadata): SourceFi
     ]);
 
     let insideTdlMessage = 0;
+    let activeDefinitionStartTagEnd = 0;
     
     function padEntities(text: string): string {
         return text
@@ -124,6 +125,23 @@ export function parseXmlToAst(xmlText: string, metadata?: TdlMetadata): SourceFi
                     activeDefinition.modifier = mod;
                 }
                 
+                // Parse other attributes as TDL attributes
+                for (const attrKey of Object.keys(node.attributes)) {
+                    const upperKey = attrKey.toUpperCase();
+                    if (upperKey === 'NAME' || upperKey === 'ACTION' || upperKey === 'ISMODIFY' || upperKey === 'ISOPTION' || upperKey === 'ISINITIALIZE' || upperKey === 'ISFIXED' || upperKey === 'ISINTERNAL') continue;
+                    
+                    const attrVal = node.attributes[attrKey] as string;
+                    const attrText = `${attrKey} : ${attrVal}`;
+                    const tempParser = new Parser(attrText);
+                    const attrs = tempParser.parseStandaloneAttributes();
+                    if (attrs.length > 0) {
+                        const attr = attrs[0];
+                        adjustNodeOffsets(attr, startPos);
+                        activeDefinition.attributes.push(attr);
+                    }
+                }
+                
+                activeDefinitionStartTagEnd = parser.position - 3;
                 return;
             }
         }
@@ -251,6 +269,13 @@ export function parseXmlToAst(xmlText: string, metadata?: TdlMetadata): SourceFi
                                     tagStack[tagStack.length - 1].node.attributes.push(attr);
                                 } else {
                                     activeDefinition.attributes.push(attr);
+                                    if (popped.node.name.text.toUpperCase() === 'NAME' && !activeDefinition.name) {
+                                        const nameAttrVal = paddedInnerText.trim();
+                                        const nameTokenStart = actualStart;
+                                        const nameToken = new Token(TokenKind.IdentifierToken, nameTokenStart, nameTokenStart, nameAttrVal.length);
+                                        nameToken.Text = nameAttrVal;
+                                        activeDefinition.name = new IdentifierNode([nameToken], nameAttrVal);
+                                    }
                                 }
                             }
                         }
@@ -276,6 +301,22 @@ export function parseXmlToAst(xmlText: string, metadata?: TdlMetadata): SourceFi
                     const typeToken = new Token(TokenKind.DefinitionTypeToken, closeNameStart, closeNameStart, tagName.length);
                     typeToken.Text = tagName;
                     activeDefinition.closeType = new IdentifierNode([typeToken], tagName);
+                }
+                
+                // If it has inner text and no complex objects (e.g. <SYSTEM> $ClosingBalance = 0 </SYSTEM>)
+                if (activeDefinition.complexObjects.length === 0 && activeDefinition.attributes.length === 0 && activeDefinition.statements.length === 0) {
+                    const rawInnerText = xmlText.substring(activeDefinitionStartTagEnd, closeStart);
+                    if (rawInnerText.trim()) {
+                        const paddedInnerText = padEntities(rawInnerText);
+                        const stmtText = paddedInnerText;
+                        const tempParser = new Parser(stmtText);
+                        const stmts = tempParser.parseStandaloneStatements();
+                        if (stmts.length > 0) {
+                            const stmt = stmts[0];
+                            adjustNodeOffsets(stmt, activeDefinitionStartTagEnd);
+                            activeDefinition.statements.push(stmt);
+                        }
+                    }
                 }
                 
                 if (activeDefinition.statements.length > 0) {

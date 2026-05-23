@@ -1,5 +1,5 @@
 
-import { AttributeNode, DefinitionNode, DiagnosticError, IdentifierNode, LiteralNode, SourceFile, StatementNode, SyntaxKind, EmptyNode, FunctionCallNode, CommentNode, ListNode, BlockStatementNode, IfNode, WhileNode, ForNode, WalkNode, BinaryExpressionNode, UnaryExpressionNode, ComplexMethodReferenceNode, BatchPostNode, MsgBoxNode, ZipNode, UnzipNode, PathSpec } from "./ast";
+import { AttributeNode, DefinitionNode, DiagnosticError, IdentifierNode, LiteralNode, SourceFile, StatementNode, SyntaxKind, EmptyNode, FunctionCallNode, CommentNode, ListNode, BlockStatementNode, IfNode, WhileNode, ForNode, WalkNode, BinaryExpressionNode, UnaryExpressionNode, ComplexMethodReferenceNode, BatchPostNode, MsgBoxNode, ZipNode, UnzipNode, PathSpec, StartBlockNode, DoIfNode, ReturnNode, BreakNode, ContinueNode, SetNode, ExchangeNode, IncrementNode, DecrementNode } from "./ast";
 import { Lexer } from "./lexer";
 import { Token } from "./token";
 import { TokenKind } from "./tokenKind";
@@ -677,6 +677,18 @@ export class Parser {
                 } else {
                     targetArray.push(stmt);
                 }
+            } else if (actionText === "DOIF") {
+                const doIfNode = new DoIfNode(stmt);
+                doIfNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
+                if (stmt.args.length > 1 && stmt.args[1].kind === SyntaxKind.Identifier) {
+                    const nestedAction = stmt.args[1] as IdentifierNode;
+                    const nestedArgs = stmt.args.slice(2);
+                    const nestedStmt = new StatementNode(stmt.label, nestedAction, nestedArgs);
+                    
+                    const groupedNested = this.GroupStatements([nestedStmt]);
+                    doIfNode.actionStatement = groupedNested.length > 0 ? groupedNested[0] : nestedStmt;
+                }
+                targetArray.push(doIfNode);
             } else if (actionText === "WHILE") {
                 const whileNode = new WhileNode(stmt);
                 whileNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
@@ -693,6 +705,10 @@ export class Parser {
                 walkNode.collectionName = stmt.args.length > 0 ? stmt.args[0] : undefined;
                 targetArray.push(walkNode);
                 stack.push({ node: walkNode, targetArray: walkNode.statements });
+            } else if (actionText === "STARTBLOCK") {
+                const blockNode = new StartBlockNode(stmt);
+                targetArray.push(blockNode);
+                stack.push({ node: blockNode, targetArray: blockNode.statements });
             } else if (actionText === "STARTBATCHPOST") {
                 const batchNode = new BatchPostNode(stmt);
                 batchNode.batchSize = stmt.args.length > 0 ? stmt.args[0] : undefined;
@@ -716,6 +732,34 @@ export class Parser {
                 unzipNode.password = stmt.args.length > 1 ? stmt.args[1] : undefined;
                 targetArray.push(unzipNode);
                 stack.push({ node: unzipNode, targetArray: unzipNode.statements });
+            } else if (actionText === "RETURN") {
+                const retNode = new ReturnNode(stmt);
+                retNode.returnValue = stmt.args.length > 0 ? stmt.args[0] : undefined;
+                targetArray.push(retNode);
+            } else if (actionText === "BREAK") {
+                targetArray.push(new BreakNode(stmt));
+            } else if (actionText === "CONTINUE") {
+                targetArray.push(new ContinueNode(stmt));
+            } else if (actionText === "SET") {
+                const setNode = new SetNode(stmt);
+                setNode.targetVariable = stmt.args.length > 0 ? stmt.args[0] : undefined;
+                setNode.valueExpression = stmt.args.length > 1 ? stmt.args[1] : undefined;
+                targetArray.push(setNode);
+            } else if (actionText === "EXCHANGE") {
+                const exNode = new ExchangeNode(stmt);
+                exNode.var1 = stmt.args.length > 0 ? stmt.args[0] : undefined;
+                exNode.var2 = stmt.args.length > 1 ? stmt.args[1] : undefined;
+                targetArray.push(exNode);
+            } else if (actionText === "INCREMENT") {
+                const incNode = new IncrementNode(stmt);
+                incNode.targetVariable = stmt.args.length > 0 ? stmt.args[0] : undefined;
+                incNode.stepValue = stmt.args.length > 1 ? stmt.args[1] : undefined;
+                targetArray.push(incNode);
+            } else if (actionText === "DECREMENT") {
+                const decNode = new DecrementNode(stmt);
+                decNode.targetVariable = stmt.args.length > 0 ? stmt.args[0] : undefined;
+                decNode.stepValue = stmt.args.length > 1 ? stmt.args[1] : undefined;
+                targetArray.push(decNode);
             } else if (actionText.startsWith("END") && actionText.length > 3) {
                 if (stack.length > 0) {
                     const popped = stack.pop();
@@ -743,6 +787,8 @@ export class Parser {
                             } else if (actionText === "ENDZIP" && poppedActionText === "STARTZIP") {
                                 isMatch = true;
                             } else if (actionText === "ENDUNZIP" && poppedActionText === "STARTUNZIP") {
+                                isMatch = true;
+                            } else if (actionText === "ENDBLOCK" && poppedActionText === "STARTBLOCK") {
                                 isMatch = true;
                             }
                         }

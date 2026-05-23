@@ -24,3 +24,5 @@ test_links.js
 verify_hover.ts
 .gitignore
 .gitattributes
+node_modules/tally-tdl-client
+node_modules/tally-tdl-server

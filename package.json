@@ -1,13 +1,18 @@
 {
     "name": "tally-tdl",
+    "version": "0.0.1",
     "displayName": "Tally TDL",
     "description": "TDL support for VS Code",
     "author": "Sai Vineeth",
-    "license": "MIT",
-    "version": "0.0.1",
+    "license": "GPL-3.0-or-later",
+    "icon": "images/tally-tdl-vscode-logo.png",
     "repository": {
         "type": "git",
-        "url": "https://github.com/saivineeth/tally-tdl"
+        "url": "https://github.com/saivineeth100/tally-tdl-vscode"
+    },
+    "funding": {
+        "type": "github",
+        "url": "https://github.com/sponsors/saivineeth100"
     },
     "publisher": "saivineeth",
     "categories": [
@@ -38,9 +43,18 @@
                 "description": "Get started with Tally TDL Development",
                 "steps": [
                     {
-                        "id": "Configure TDLEnvironment",
-                        "title": "Setup TDL Environment",
-                        "description": "Setup TDL Environment",
+                        "id": "SetupTallyPath",
+                        "title": "1. Select Tally Executable",
+                        "description": "Locate your Tally installation. We will try to find it automatically.\n[Select Tally Path](command:tally-tdl.setupTallyPath)",
+                        "media": {
+                            "image": "media/image.png",
+                            "altText": "Empty image"
+                        }
+                    },
+                    {
+                        "id": "SetupOdbcPort",
+                        "title": "2. Open ODBC Port",
+                        "description": "Configure Tally to listen for XML/JSON requests on an available port.\n[Configure Port](command:tally-tdl.setupOdbcPort)",
                         "media": {
                             "image": "media/image.png",
                             "altText": "Empty image"
@@ -58,6 +72,14 @@
             {
                 "command": "tally-tdl.convertToXml",
                 "title": "Tally TDL: Convert to XML"
+            },
+            {
+                "command": "tally-tdl.setupTallyPath",
+                "title": "Tally TDL: Setup Tally Path"
+            },
+            {
+                "command": "tally-tdl.setupOdbcPort",
+                "title": "Tally TDL: Setup ODBC Port"
             }
         ],
         "menus": {
@@ -132,10 +154,16 @@
                     "description": "Traces the communication between VSCode and the language server."
                 },
                 "tallyTDL.tallyExePath": {
-                    "scope": "machine",
+                    "scope": "resource",
                     "type": "string",
                     "default": "C:\\Program Files\\TallyPrime\\tally.exe",
                     "description": "Path to the Tally executable."
+                },
+                "tallyTDL.tallyPort": {
+                    "scope": "resource",
+                    "type": "number",
+                    "default": 9000,
+                    "description": "Port number configured for Tally XML/JSON."
                 },
                 "tallyTDL.tallyCommandLineArgs": {
                     "scope": "machine",

@@ -1,0 +1,57 @@
+name: Publish to VS Code Marketplace
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger when a version tag is pushed (e.g., v1.0.0, v1.0.1-pre)
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Semver
+        run: npm install semver --no-save
+
+      - name: Parse Version and Release Type
+        id: parse_version
+        run: |
+          # Extract tag and cleanly strip any 'v' prefix if it exists
+          RAW_TAG=${GITHUB_REF#refs/tags/}
+          RAW_VERSION=${RAW_TAG#v}
+          
+          # 1. Detect if the tag contains a pre-release suffix (e.g., -beta)
+          IS_PRE=$(node -p "require('semver').prerelease('$RAW_VERSION') !== null")
+          
+          # 2. VS Code STRICTLY rejects suffixes like '-beta' inside package.json.
+          # We must strip them (e.g., '1.0.1-beta' becomes '1.0.1') using semver.coerce()
+          CLEAN_VERSION=$(node -p "require('semver').coerce('$RAW_VERSION').version")
+          
+          echo "VERSION=$CLEAN_VERSION" >> $GITHUB_ENV
+          
+          if [ "$IS_PRE" = "true" ]; then
+            echo "PRERELEASE_FLAG=--pre-release" >> $GITHUB_ENV
+          else
+            echo "PRERELEASE_FLAG=" >> $GITHUB_ENV
+          fi
+
+      - name: Inject Version into package.json
+        run: npm pkg set version=${{ env.VERSION }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Publish Extension
+        run: npx @vscode/vsce publish --no-git-tag-version ${{ env.PRERELEASE_FLAG }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}

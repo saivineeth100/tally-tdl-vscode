@@ -427,4 +427,86 @@ export class ZipNode extends BlockStatementNode {
 export class UnzipNode extends BlockStatementNode {
     public sourceFile: ExpressionNode | LiteralNode | IdentifierNode | undefined;
     public password: ExpressionNode | LiteralNode | IdentifierNode | undefined;
-}
+}
+
+export class StartBlockNode extends BlockStatementNode {
+    constructor(stmt: StatementNode) {
+        super(stmt);
+    }
+}
+
+export class DoIfNode extends StatementNode {
+    public condition: any | undefined;
+    public actionStatement: StatementNode | undefined;
+    constructor(stmt: StatementNode) {
+        super(stmt.label, stmt.action, stmt.args);
+        this.start = stmt.start;
+        this.end = stmt.end;
+    }
+}
+
+export class ReturnNode extends StatementNode {
+    public returnValue: any | undefined;
+    constructor(stmt: StatementNode) {
+        super(stmt.label, stmt.action, stmt.args);
+        this.start = stmt.start;
+        this.end = stmt.end;
+    }
+}
+
+export class BreakNode extends StatementNode {
+    constructor(stmt: StatementNode) {
+        super(stmt.label, stmt.action, stmt.args);
+        this.start = stmt.start;
+        this.end = stmt.end;
+    }
+}
+
+export class ContinueNode extends StatementNode {
+    constructor(stmt: StatementNode) {
+        super(stmt.label, stmt.action, stmt.args);
+        this.start = stmt.start;
+        this.end = stmt.end;
+    }
+}
+
+export class SetNode extends StatementNode {
+    public targetVariable: any | undefined;
+    public valueExpression: any | undefined;
+    constructor(stmt: StatementNode) {
+        super(stmt.label, stmt.action, stmt.args);
+        this.start = stmt.start;
+        this.end = stmt.end;
+    }
+}
+
+export class ExchangeNode extends StatementNode {
+    public var1: any | undefined;
+    public var2: any | undefined;
+    constructor(stmt: StatementNode) {
+        super(stmt.label, stmt.action, stmt.args);
+        this.start = stmt.start;
+        this.end = stmt.end;
+    }
+}
+
+export class IncrementNode extends StatementNode {
+    public targetVariable: any | undefined;
+    public stepValue: any | undefined;
+    constructor(stmt: StatementNode) {
+        super(stmt.label, stmt.action, stmt.args);
+        this.start = stmt.start;
+        this.end = stmt.end;
+    }
+}
+
+export class DecrementNode extends StatementNode {
+    public targetVariable: any | undefined;
+    public stepValue: any | undefined;
+    constructor(stmt: StatementNode) {
+        super(stmt.label, stmt.action, stmt.args);
+        this.start = stmt.start;
+        this.end = stmt.end;
+    }
+}
+

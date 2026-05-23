@@ -1,9 +1,17 @@
 import { CodeActionParams, CodeAction, CodeActionKind, TextEdit } from "vscode-languageserver";
 import { DocManager } from "../docManager";
 import { BROKEN_SEQUENCE_DIAGNOSTIC_CODE } from "./sequenceValidator";
-import { MISSING_DEFINITION_DIAGNOSTIC_CODE } from "./validation";
+import { 
+    MISSING_DEFINITION_DIAGNOSTIC_CODE,
+    UNKNOWN_DEFINITION_TYPE_DIAGNOSTIC_CODE,
+    UNKNOWN_ATTRIBUTE_DIAGNOSTIC_CODE,
+    UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE,
+    MISSING_END_STATEMENT_DIAGNOSTIC_CODE
+} from "./validation";
 import { TextDocuments } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { findClosestMatch } from "../utils/stringUtils";
+import { TdlMetadata } from "../tdlMetaData";
 import { StatementNode, BlockStatementNode, IdentifierNode, LiteralNode, SyntaxKind } from "../parser/ast";
 import { incrementLabel, matchesSequencePattern } from "../utils/labelUtils";
 
@@ -15,6 +23,7 @@ export function provideCodeActions(
     const actions: CodeAction[] = [];
     const doc = docs.get(params.textDocument.uri);
     const docState = docManager.get(params.textDocument.uri);
+    const md = (globalThis as any).TDL_METADATA as TdlMetadata;
 
     if (!doc || !docState) return actions;
 
@@ -135,6 +144,99 @@ export function provideCodeActions(
                         }
                     }
                 });
+            }
+        } else if (diagnostic.code === MISSING_END_STATEMENT_DIAGNOSTIC_CODE) {
+            const expectedEnd = (diagnostic.data as any)?.expectedEnd;
+            if (expectedEnd) {
+                actions.push({
+                    title: `Insert '${expectedEnd}'`,
+                    kind: CodeActionKind.QuickFix,
+                    diagnostics: [diagnostic],
+                    edit: {
+                        changes: {
+                            [params.textDocument.uri]: [
+                                TextEdit.insert(diagnostic.range.end, `\n\t${expectedEnd}`)
+                            ]
+                        }
+                    }
+                });
+            }
+        } else if (diagnostic.code === UNKNOWN_DEFINITION_TYPE_DIAGNOSTIC_CODE) {
+            const defTypeName = (diagnostic.data as any)?.defTypeName;
+            if (defTypeName && md) {
+                const types = Array.from(md.definitions.keys() as IterableIterator<string>);
+                const closest = findClosestMatch(defTypeName, types);
+                if (closest) {
+                    actions.push({
+                        title: `Change to '${closest}'`,
+                        kind: CodeActionKind.QuickFix,
+                        diagnostics: [diagnostic],
+                        edit: {
+                            changes: {
+                                [params.textDocument.uri]: [
+                                    TextEdit.replace(diagnostic.range, closest)
+                                ]
+                            }
+                        }
+                    });
+                }
+            }
+        } else if (diagnostic.code === UNKNOWN_ATTRIBUTE_DIAGNOSTIC_CODE) {
+            const data = diagnostic.data as any;
+            if (data?.attrName && data?.defTypeName && md) {
+                let attrs = md.definitions.get(data.defTypeName);
+                if (!attrs) {
+                    const key = Array.from(md.definitions.keys() as IterableIterator<string>).find((k: string) => k.toLowerCase() === data.defTypeName.toLowerCase());
+                    if (key) attrs = md.definitions.get(key);
+                }
+                if (attrs) {
+                    const attrNames: string[] = [];
+                    attrs.forEach((a: any) => {
+                        attrNames.push(a.Name);
+                        if (a.Aliases) attrNames.push(...a.Aliases.split(',').map((al: string) => al.trim()));
+                    });
+                    const closest = findClosestMatch(data.attrName, attrNames);
+                    if (closest) {
+                        actions.push({
+                            title: `Change to '${closest}'`,
+                            kind: CodeActionKind.QuickFix,
+                            diagnostics: [diagnostic],
+                            edit: {
+                                changes: {
+                                    [params.textDocument.uri]: [
+                                        TextEdit.replace(diagnostic.range, closest)
+                                    ]
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        } else if (diagnostic.code === UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE) {
+            const data = diagnostic.data as any;
+            if (data?.attrName && data?.schemaName && md) {
+                const schemaKey = Array.from(md.schemas.keys() as IterableIterator<string>).find((k: string) => k.toUpperCase() === data.schemaName.toUpperCase());
+                if (schemaKey) {
+                    const schema = md.schemas.get(schemaKey);
+                    if (schema) {
+                        const props = Array.from(schema.Properties.keys() as IterableIterator<string>);
+                        const closest = findClosestMatch(data.attrName, props);
+                        if (closest) {
+                            actions.push({
+                                title: `Change to '${closest}'`,
+                                kind: CodeActionKind.QuickFix,
+                                diagnostics: [diagnostic],
+                                edit: {
+                                    changes: {
+                                        [params.textDocument.uri]: [
+                                            TextEdit.replace(diagnostic.range, closest)
+                                        ]
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
             }
         }
     }

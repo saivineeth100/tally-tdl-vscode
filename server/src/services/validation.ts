@@ -1,6 +1,6 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { SourceFile, DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNode, BinaryExpressionNode, UnaryExpressionNode, Node } from "../parser/ast";
+import { SourceFile, DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNode, BinaryExpressionNode, UnaryExpressionNode, Node, BreakNode, ContinueNode, ReturnNode, SetNode, ExchangeNode, IncrementNode, DecrementNode, WhileNode, WalkNode, ForNode, DoIfNode } from "../parser/ast";
 import { TokenKind } from "../parser/tokenKind";
 
 import { TdlMetadata, TDLDefinition } from "../tdlMetaData";
@@ -12,6 +12,10 @@ import * as fs from 'fs';
 import { URI } from 'vscode-uri';
 
 export const MISSING_DEFINITION_DIAGNOSTIC_CODE = 'missing_definition';
+export const UNKNOWN_DEFINITION_TYPE_DIAGNOSTIC_CODE = 'unknown_definition_type';
+export const UNKNOWN_ATTRIBUTE_DIAGNOSTIC_CODE = 'unknown_attribute';
+export const UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE = 'unknown_schema_property';
+export const MISSING_END_STATEMENT_DIAGNOSTIC_CODE = 'missing_end_statement';
 
 /**
  * Check if an attribute name matches a definition (by name or alias)
@@ -261,6 +265,14 @@ export function validateDefinitionAttributes(
 
     // Skip validation if we don't have metadata for this definition type
     if (!allowedAttrs) {
+        diagnostics.push({
+            severity: DiagnosticSeverity.Warning,
+            range: { start: doc.positionAt(def.type.start), end: doc.positionAt(def.type.end) },
+            message: `Unknown definition type '${defTypeName}'`,
+            code: UNKNOWN_DEFINITION_TYPE_DIAGNOSTIC_CODE,
+            data: { defTypeName },
+            source: 'tdl'
+        });
         return diagnostics;
     }
 
@@ -278,6 +290,8 @@ export function validateDefinitionAttributes(
                 severity: DiagnosticSeverity.Warning,
                 range: { start: startPos, end: endPos },
                 message: `Unknown attribute '${attrName}' for ${defTypeName} definition`,
+                code: UNKNOWN_ATTRIBUTE_DIAGNOSTIC_CODE,
+                data: { attrName, defTypeName },
                 source: 'tdl'
             });
             continue;
@@ -478,12 +492,31 @@ function validateSchemaObject(
         if (!attr.name) continue;
         const attrName = attr.name.text;
         const normalizedAttrName = attrName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+        
+        // System attributes allowed on schemas in XML payloads
+        const systemAttributes = ['ACTION', 'VCHTYPE', 'OBJVIEW', 'NAME'];
+        if (systemAttributes.includes(normalizedAttrName)) {
+            // For VCHTYPE and OBJVIEW, these are typically only valid on VOUCHER.
+            if ((normalizedAttrName === 'VCHTYPE' || normalizedAttrName === 'OBJVIEW') && schemaName.toUpperCase() !== 'VOUCHER') {
+                 diagnostics.push({
+                     severity: DiagnosticSeverity.Warning,
+                     range: { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
+                     message: `Property '${attrName}' is only valid on VOUCHER schema`,
+                     source: 'tdl'
+                 });
+            }
+            // Skip further property validation for system attributes
+            continue;
+        }
+
         const propKey = Array.from(schema.Properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
         if (!propKey) {
             diagnostics.push({
                 severity: DiagnosticSeverity.Warning,
                 range: { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
                 message: `Unknown property '${attrName}' for schema '${schemaName}'`,
+                code: UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE,
+                data: { attrName, schemaName },
                 source: 'tdl'
             });
             continue;
@@ -567,6 +600,8 @@ function validateSchemaObject(
                 severity: DiagnosticSeverity.Warning,
                 range: { start: doc.positionAt(complexObj.name.start), end: doc.positionAt(complexObj.name.end) },
                 message: `Unknown complex property '${objName}' for schema '${schemaName}'`,
+                code: UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE,
+                data: { attrName: objName, schemaName: schemaName },
                 source: 'tdl'
             });
             continue;
@@ -653,7 +688,7 @@ export function validateSourceFile(
             }
 
             // Disable validation for specific definition types as requested
-            if (['collection', 'field', 'system'].includes(normalizedType)) {
+            if (['collection', 'field', 'system','object'].includes(normalizedType)) {
                 continue;
             }
         }
@@ -676,7 +711,7 @@ export function validateSourceFile(
                 existsInMetadata = existingNames.some(n => normalizeTypeName(n) === normalizeTypeName(defName));
             }
 
-            if (!def.modifier) {
+            if (!def.modifier || def.modifier.Text === '!') {
                 // Rule 1: No duplicate new definitions allowed
                 // Check against Default TDL
                 if (existsInMetadata) {
@@ -766,7 +801,72 @@ export function validateSourceFile(
                 }
 
                 const labels = new Set<string>();
-                const checkStatement = (stmt: any) => {
+                const checkStatement = (stmt: any, inLoop: boolean = false) => {
+                    if (stmt instanceof BreakNode || stmt instanceof ContinueNode) {
+                        if (!inLoop) {
+                            diagnostics.push({
+                                severity: DiagnosticSeverity.Error,
+                                range: { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
+                                message: `'${stmt.action?.text}' statement can only be used inside a loop (While, Walk, For)`,
+                                source: 'tdl'
+                            });
+                        }
+                    }
+
+                    if (stmt instanceof ReturnNode) {
+                        if (def.type.text.toUpperCase() !== "FUNCTION") {
+                            diagnostics.push({
+                                severity: DiagnosticSeverity.Error,
+                                range: { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
+                                message: `'Return' statement can only be used inside a Function definition`,
+                                source: 'tdl'
+                            });
+                        }
+                    }
+
+                    if (stmt instanceof SetNode || stmt instanceof ExchangeNode || stmt instanceof IncrementNode || stmt instanceof DecrementNode) {
+                        if (stmt.args.length < 1) {
+                            diagnostics.push({
+                                severity: DiagnosticSeverity.Error,
+                                range: { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
+                                message: `'${stmt.action?.text}' statement requires at least a target variable`,
+                                source: 'tdl'
+                            });
+                        } else {
+                            const arg1 = stmt.args[0];
+                            if (arg1.kind !== SyntaxKind.VariableReference && arg1.kind !== SyntaxKind.Identifier && arg1.kind !== SyntaxKind.FieldReference) {
+                                diagnostics.push({
+                                    severity: DiagnosticSeverity.Error,
+                                    range: { start: doc.positionAt(arg1.start || stmt.start), end: doc.positionAt(arg1.end || stmt.end) },
+                                    message: `First argument of '${stmt.action?.text}' must be a variable or field reference`,
+                                    source: 'tdl'
+                                });
+                            }
+                        }
+
+                        if (stmt instanceof SetNode || stmt instanceof ExchangeNode) {
+                            if (stmt.args.length < 2) {
+                                diagnostics.push({
+                                    severity: DiagnosticSeverity.Error,
+                                    range: { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
+                                    message: `'${stmt.action?.text}' statement requires 2 arguments`,
+                                    source: 'tdl'
+                                });
+                            }
+                            if (stmt instanceof ExchangeNode && stmt.args.length >= 2) {
+                                const arg2 = stmt.args[1];
+                                if (arg2.kind !== SyntaxKind.VariableReference && arg2.kind !== SyntaxKind.Identifier && arg2.kind !== SyntaxKind.FieldReference) {
+                                    diagnostics.push({
+                                        severity: DiagnosticSeverity.Error,
+                                        range: { start: doc.positionAt(arg2.start || stmt.start), end: doc.positionAt(arg2.end || stmt.end) },
+                                        message: `Second argument of 'Exchange' must be a variable or field reference`,
+                                        source: 'tdl'
+                                    });
+                                }
+                            }
+                        }
+                    }
+
                     if (stmt.label) {
                         let labelText = '';
                         if (stmt.label.kind === SyntaxKind.Identifier) {
@@ -812,14 +912,39 @@ export function validateSourceFile(
                         }
                     }
 
+                    const isLoop = stmt instanceof WhileNode || stmt instanceof WalkNode || stmt instanceof ForNode;
                     if (stmt.statements) {
-                        for (const s of stmt.statements) checkStatement(s);
+                        for (const s of stmt.statements) checkStatement(s, inLoop || isLoop);
                     }
                     if (stmt.elseStatements) {
-                        for (const s of stmt.elseStatements) checkStatement(s);
+                        for (const s of stmt.elseStatements) checkStatement(s, inLoop || isLoop);
                     }
                     if (stmt.endStatement) {
-                        checkStatement(stmt.endStatement);
+                        checkStatement(stmt.endStatement, inLoop || isLoop);
+                    }
+                    if (stmt instanceof DoIfNode && stmt.actionStatement) {
+                        checkStatement(stmt.actionStatement, inLoop);
+                    }
+                    if (stmt.statements !== undefined && 'endStatement' in stmt) {
+                        const blockStmt = stmt as any;
+                        if (!blockStmt.endStatement) {
+                            let expectedEnd = 'End Block';
+                            const actText = stmt.action.text.toLowerCase();
+                            if (actText === 'if') expectedEnd = 'End If';
+                            else if (actText === 'while') expectedEnd = 'End While';
+                            else if (actText === 'walk collection') expectedEnd = 'End Walk';
+                            else if (actText.startsWith('for ')) expectedEnd = 'End For';
+                            else if (actText === 'start block') expectedEnd = 'End Block';
+                            
+                            diagnostics.push({
+                                severity: DiagnosticSeverity.Error,
+                                range: { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
+                                message: `Statement block must end with '${expectedEnd}'`,
+                                code: MISSING_END_STATEMENT_DIAGNOSTIC_CODE,
+                                source: 'tdl',
+                                data: { expectedEnd }
+                            });
+                        }
                     }
                 };
 

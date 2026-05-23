@@ -11,6 +11,7 @@ import {
     LanguageClient, LanguageClientOptions, TransportKind
 } from 'vscode-languageclient/node';
 import { spawn } from 'child_process';
+import { setupTallyPath, setupOdbcPort } from './onboarding';
 
 let defaultClient: LanguageClient;
 const clients = new Map<string, LanguageClient>();
@@ -209,7 +210,9 @@ export function activate(context: ExtensionContext) {
             } catch (err: any) {
                 window.showErrorMessage(`Error converting to XML: ${err.message}`);
             }
-        })
+        }),
+        commands.registerCommand('tally-tdl.setupTallyPath', setupTallyPath),
+        commands.registerCommand('tally-tdl.setupOdbcPort', setupOdbcPort)
     );
 }
 

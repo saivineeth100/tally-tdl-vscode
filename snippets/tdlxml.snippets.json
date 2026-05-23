@@ -15,10 +15,10 @@
             "   <FIELDS>${2:fieldname},${3:fieldname2}</FIELDS>",
             "</LINE>",
             "<FIELD ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${2:fieldname}\">",
-            "   <SETAS>$${4:someval}</SETAS>",
+            "   <SETAS>\\$${4:someval}</SETAS>",
             "</FIELD>",
             "<FIELD ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${3:fieldname2}\">",
-            "   <SETAS>$${5:someval2}</SETAS>",
+            "   <SETAS>\\$${5:someval2}</SETAS>",
             "</FIELD>"
         ],
         "description": "Creates Report with form,part,line and fields"
@@ -39,15 +39,238 @@
             "   <FIELDS>${3:fieldname},${4:fieldname2}</FIELDS>",
             "</LINE>",
             "<FIELD ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${3:fieldname}\">",
-            "   <SETAS>$${5:someval}</SETAS>",
+            "   <SETAS>\\$${5:someval}</SETAS>",
             "</FIELD>",
             "<FIELD ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${4:fieldname2}\">",
-            "   <SETAS>$${6:someval2}</SETAS>",
+            "   <SETAS>\\$${6:someval2}</SETAS>",
             "</FIELD>",
             "<COLLECTION ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${2:collectionName}\">",
             "   <TYPE>${7:objectType}</TYPE>",
             "</COLLECTION>"
         ],
         "description": "Creates Report with form,part,line,fields and collection"
+    },
+    "Tally XML Envelope: Import Masters": {
+        "prefix": "Create Masters",
+        "body": [
+            "<ENVELOPE>",
+            "    <HEADER>",
+            "        <VERSION>1</VERSION>",
+            "        <TALLYREQUEST>Import</TALLYREQUEST>",
+            "        <TYPE>Data</TYPE>",
+            "        <ID>All Masters</ID>",
+            "    </HEADER>",
+            "    <BODY>",
+            "        <DESC>",
+            "            <STATICVARIABLES>",
+            "                <SVMSTIMPORTFORMAT>XML</SVMSTIMPORTFORMAT>",
+            "                <SVCURRENTCOMPANY>${1:Company Name}</SVCURRENTCOMPANY>",
+            "            </STATICVARIABLES>",
+            "            <TALLYMESSAGE>",
+            "                $0",
+            "            </TALLYMESSAGE>",
+            "        </DESC>",
+            "    </BODY>",
+            "</ENVELOPE>"
+        ],
+        "description": "Tally XML Envelope for Importing Masters (Ledgers, Groups, Items, etc.)"
+    },
+    "Tally XML Envelope: Import Vouchers": {
+        "prefix": "Create Vouchers",
+        "body": [
+            "<ENVELOPE>",
+            "    <HEADER>",
+            "        <VERSION>1</VERSION>",
+            "        <TALLYREQUEST>Import</TALLYREQUEST>",
+            "        <TYPE>Data</TYPE>",
+            "        <ID>Vouchers</ID>",
+            "    </HEADER>",
+            "    <BODY>",
+            "        <DESC>",
+            "            <STATICVARIABLES>",
+            "                <SVVCHIMPORTFORMAT>XML</SVVCHIMPORTFORMAT>",
+            "                <SVCURRENTCOMPANY>${1:Company Name}</SVCURRENTCOMPANY>",
+            "            </STATICVARIABLES>",
+            "            <TALLYMESSAGE xmlns:UDF=\"TallyUDF\">",
+            "                $0",
+            "            </TALLYMESSAGE>",
+            "        </DESC>",
+            "    </BODY>",
+            "</ENVELOPE>"
+        ],
+        "description": "Tally XML Envelope for Importing Vouchers"
+    },
+    "Tally XML Envelope: Export Collection": {
+        "prefix": "Get Data from custom TDL Collection",
+        "body": [
+            "<ENVELOPE>",
+            "    <HEADER>",
+            "        <VERSION>1</VERSION>",
+            "        <TALLYREQUEST>Export</TALLYREQUEST>",
+            "        <TYPE>Collection</TYPE>",
+            "        <ID>${1:CollectionName}</ID>",
+            "    </HEADER>",
+            "    <BODY>",
+            "        <DESC>",
+            "            <STATICVARIABLES>",
+            "                <SVEXPORTFORMAT>\\$\\$SysName:XML</SVEXPORTFORMAT>",
+            "                <SVCURRENTCOMPANY>${2:Company Name}</SVCURRENTCOMPANY>",
+            "            </STATICVARIABLES>",
+            "            <TDL>",
+            "                <TDLMESSAGE>",
+            "                    <COLLECTION NAME=\"${1:CollectionName}\">",
+            "                        <TYPE>${3|Ledger,Voucher,Group,StockItem|}</TYPE>",
+            "                        <NATIVEMETHOD>$0</NATIVEMETHOD>",
+            "                    </COLLECTION>",
+            "                </TDLMESSAGE>",
+            "            </TDL>",
+            "        </DESC>",
+            "    </BODY>",
+            "</ENVELOPE>"
+        ],
+        "description": "Tally XML Envelope for Exporting a Collection via TDL"
+    },
+    "Tally XML Envelope: Export Default Collection": {
+        "prefix": "Get Data from existing Collection",
+        "body": [
+            "<ENVELOPE>",
+            "    <HEADER>",
+            "        <VERSION>1</VERSION>",
+            "        <TALLYREQUEST>Export</TALLYREQUEST>",
+            "        <TYPE>Collection</TYPE>",
+            "        <ID>${1|Ledger,Group,Voucher,StockItem,Godown,Unit|}</ID>",
+            "    </HEADER>",
+            "    <BODY>",
+            "        <DESC>",
+            "            <STATICVARIABLES>",
+            "                <SVEXPORTFORMAT>XML</SVEXPORTFORMAT>",
+            "                <SVCURRENTCOMPANY>${2:Company Name}</SVCURRENTCOMPANY>",
+            "            </STATICVARIABLES>",
+            "        </DESC>",
+            "    </BODY>",
+            "</ENVELOPE>"
+        ],
+        "description": "Tally XML Envelope for Exporting Default Collections"
+    },
+    "Tally Ledger": {
+        "prefix": "Ledger",
+        "body": [
+            "<LEDGER NAME=\"${1:LedgerName}\" Action=\"${2|Create,Alter,Delete|}\">",
+            "   <NAME>${1:LedgerName}</NAME>",
+            "   <PARENT>${3:Sundry Debtors}</PARENT>",
+            "   <OPENINGBALANCE>${4:0}</OPENINGBALANCE>",
+            "   $0",
+            "</LEDGER>"
+        ],
+        "description": "Ledger object for Tally XML"
+    },
+    "Tally Group": {
+        "prefix": "Group",
+        "body": [
+            "<GROUP NAME=\"${1:GroupName}\" Action=\"${2|Create,Alter,Delete|}\">",
+            "   <NAME>${1:GroupName}</NAME>",
+            "   <PARENT>${3:Primary}</PARENT>",
+            "   $0",
+            "</GROUP>"
+        ],
+        "description": "Group object for Tally XML"
+    },
+    "Tally Stock Item": {
+        "prefix": "StockItem",
+        "body": [
+            "<STOCKITEM NAME=\"${1:ItemName}\" Action=\"${2|Create,Alter,Delete|}\">",
+            "   <NAME>${1:ItemName}</NAME>",
+            "   <PARENT>${3:Primary}</PARENT>",
+            "   <BASEUNITS>${4:Nos}</BASEUNITS>",
+            "   $0",
+            "</STOCKITEM>"
+        ],
+        "description": "Stock Item object for Tally XML"
+    },
+    "Tally Stock Group": {
+        "prefix": "StockGroup",
+        "body": [
+            "<STOCKGROUP NAME=\"${1:GroupName}\" Action=\"${2|Create,Alter,Delete|}\">",
+            "   <NAME>${1:GroupName}</NAME>",
+            "   <PARENT>${3:Primary}</PARENT>",
+            "   $0",
+            "</STOCKGROUP>"
+        ],
+        "description": "Stock Group object for Tally XML"
+    },
+    "Tally Unit": {
+        "prefix": "Unit",
+        "body": [
+            "<UNIT NAME=\"${1:UnitName}\" Action=\"${2|Create,Alter,Delete|}\">",
+            "   <NAME>${1:UnitName}</NAME>",
+            "   <ORIGINALNAME>${2:FormalName}</ORIGINALNAME>",
+            "   <BASEUNITS>${1:UnitName}</BASEUNITS>",
+            "   $0",
+            "</UNIT>"
+        ],
+        "description": "Unit object for Tally XML"
+    },
+    "Tally Godown": {
+        "prefix": "Godown",
+        "body": [
+            "<GODOWN NAME=\"${1:GodownName}\" Action=\"${2|Create,Alter,Delete|}\">",
+            "   <NAME>${1:GodownName}</NAME>",
+            "   <PARENT>${3:Primary}</PARENT>",
+            "   $0",
+            "</GODOWN>"
+        ],
+        "description": "Godown object for Tally XML"
+    },
+    "Tally Accounting Voucher": {
+        "prefix": "Voucher Accounting",
+        "body": [
+            "<VOUCHER VCHTYPE=\"${1:Sales}\" ACTION=\"${2|Create,Alter,Delete|}\" OBJVIEW=\"Accounting Voucher View\">",
+            "   <DATE>${3:20240401}</DATE>",
+            "   <VOUCHERTYPENAME>${1:Sales}</VOUCHERTYPENAME>",
+            "   <PARTYLEDGERNAME>${4:PartyName}</PARTYLEDGERNAME>",
+            "   <PERSISTEDVIEW>Accounting Voucher View</PERSISTEDVIEW>",
+            "   <ALLLEDGERENTRIES.LIST>",
+            "       <LEDGERNAME>${4:PartyName}</LEDGERNAME>",
+            "       <ISDEEMEDPOSITIVE>${5|Yes,No|}</ISDEEMEDPOSITIVE>",
+            "       <AMOUNT>${6:-1000.00}</AMOUNT>",
+            "   </ALLLEDGERENTRIES.LIST>",
+            "   <ALLLEDGERENTRIES.LIST>",
+            "       <LEDGERNAME>${7:Sales Account}</LEDGERNAME>",
+            "       <ISDEEMEDPOSITIVE>${8|No,Yes|}</ISDEEMEDPOSITIVE>",
+            "       <AMOUNT>${9:1000.00}</AMOUNT>",
+            "   </ALLLEDGERENTRIES.LIST>",
+            "   $0",
+            "</VOUCHER>"
+        ],
+        "description": "Accounting Voucher for Tally XML"
+    },
+    "Tally Invoice Voucher": {
+        "prefix": "Voucher Invoice",
+        "body": [
+            "<VOUCHER VCHTYPE=\"${1:Sales}\" ACTION=\"${2|Create,Alter,Delete|}\" OBJVIEW=\"Invoice Voucher View\">",
+            "   <DATE>${3:20240401}</DATE>",
+            "   <VOUCHERTYPENAME>${1:Sales}</VOUCHERTYPENAME>",
+            "   <PARTYLEDGERNAME>${4:PartyName}</PARTYLEDGERNAME>",
+            "   <PERSISTEDVIEW>Invoice Voucher View</PERSISTEDVIEW>",
+            "   <ALLLEDGERENTRIES.LIST>",
+            "       <LEDGERNAME>${4:PartyName}</LEDGERNAME>",
+            "       <ISDEEMEDPOSITIVE>${5|Yes,No|}</ISDEEMEDPOSITIVE>",
+            "       <AMOUNT>${6:-1000.00}</AMOUNT>",
+            "   </ALLLEDGERENTRIES.LIST>",
+            "   <ALLLEDGERENTRIES.LIST>",
+            "       <LEDGERNAME>${7:Sales Account}</LEDGERNAME>",
+            "       <ISDEEMEDPOSITIVE>${8|No,Yes|}</ISDEEMEDPOSITIVE>",
+            "       <AMOUNT>${9:1000.00}</AMOUNT>",
+            "       <INVENTORYALLOCATIONS.LIST>",
+            "           <STOCKITEMNAME>${10:ItemName}</STOCKITEMNAME>",
+            "           <RATE>${11:100.00}/nos</RATE>",
+            "           <AMOUNT>${9:1000.00}</AMOUNT>",
+            "           <BILLEDQTY>${12:10} nos</BILLEDQTY>",
+            "       </INVENTORYALLOCATIONS.LIST>",
+            "   </ALLLEDGERENTRIES.LIST>",
+            "   $0",
+            "</VOUCHER>"
+        ],
+        "description": "Invoice Voucher with Inventory for Tally XML"
     }
 }

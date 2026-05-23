@@ -12,7 +12,12 @@ describe('Definition Validation (Mocked)', () => {
             ['Report', ['Balance Sheet', 'Trial Balance']],
             ['Field', ['Name', 'Amount']]
         ]),
-        definitions: new Map(), // For attributes (empty for this test)
+        definitions: new Map<string, any>([
+            ['Report', []],
+            ['Menu', []],
+            ['Function', []],
+            ['Field', []]
+        ]), // For attributes
         actions: [] // Add empty actions array to fix tests
     } as unknown as TdlMetadata;
 

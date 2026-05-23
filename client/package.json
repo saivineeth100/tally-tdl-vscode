@@ -7,7 +7,7 @@
     "publisher": "saivineeth",
     "repository": {
         "type": "git",
-        "url": "https://github.com/saivineeth/tally-tdl"
+        "url": "https://github.com/saivineeth100/tally-tdl-vscode"
     },
     "engines": {
         "vscode": "^1.96.0"

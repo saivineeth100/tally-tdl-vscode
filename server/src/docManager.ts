@@ -189,7 +189,7 @@ export class DocManager {
                     start: def.start,
                     end: def.end,
                     definitionType: def.type.text,
-                    isModifier: !!def.modifier
+                    isModifier: !!def.modifier && def.modifier.Text !== '!'
                 };
                 this.symbolTable.addSymbol(symbolInfo);
             }
