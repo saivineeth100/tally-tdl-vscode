@@ -181,6 +181,11 @@ function validateBinaryExpression(
 export function inferExpressionType(exprNode: Node, metadata: TdlMetadata): string | undefined {
     if (exprNode.kind === SyntaxKind.Literal) {
         const lit = exprNode as LiteralNode;
+        const tk = lit.token?.Kind;
+        if (tk === TokenKind.YesToken || tk === TokenKind.NoToken || tk === TokenKind.TrueToken || 
+            tk === TokenKind.FalseToken || tk === TokenKind.OnToken || tk === TokenKind.OffToken) {
+            return 'Logical';
+        }
         return typeof lit.value === 'number' ? 'Number' : 'String';
     }
     
@@ -454,6 +459,125 @@ export function validateDefinitionAttributes(
 }
 
 /**
+ * Recursively validate schema object nodes and their properties
+ */
+function validateSchemaObject(
+    node: DefinitionNode | import('../parser/ast').ComplexObjectNode, 
+    schemaName: string, 
+    doc: TextDocument, 
+    metadata: TdlMetadata, 
+    diagnostics: Diagnostic[]
+) {
+    const schemaKey = Array.from(metadata.schemas.keys()).find(k => k.toUpperCase() === schemaName.toUpperCase());
+    if (!schemaKey) return;
+    const schema = metadata.schemas.get(schemaKey);
+    if (!schema) return;
+
+    // Validate simple attributes
+    for (const attr of node.attributes) {
+        if (!attr.name) continue;
+        const attrName = attr.name.text;
+        const normalizedAttrName = attrName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+        const propKey = Array.from(schema.Properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
+        if (!propKey) {
+            diagnostics.push({
+                severity: DiagnosticSeverity.Warning,
+                range: { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
+                message: `Unknown property '${attrName}' for schema '${schemaName}'`,
+                source: 'tdl'
+            });
+            continue;
+        }
+
+        const propDef = schema.Properties.get(propKey)!;
+        if (propDef.DataType?.toLowerCase() === 'logical' && attr.value.length > 0) {
+            const firstVal = attr.value[0];
+            if (firstVal.kind === SyntaxKind.Identifier) {
+                const valText = (firstVal as IdentifierNode).text.toLowerCase();
+                if (!['yes', 'no', 'true', 'false'].includes(valText)) {
+                    diagnostics.push({
+                        severity: DiagnosticSeverity.Warning,
+                        range: { start: doc.positionAt(firstVal.start), end: doc.positionAt(firstVal.end) },
+                        message: `Invalid logical value '${valText}'. Expected: Yes, No`,
+                        source: 'tdl'
+                    });
+                }
+            }
+        }
+    }
+
+    // Validate nested complex objects
+    for (const complexObj of node.complexObjects || []) {
+        if (!complexObj.name) continue;
+        const objName = complexObj.name.text;
+        const normalizedObjName = objName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+        const complexPropKey = Array.from(schema.ComplexProperties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedObjName);
+        if (!complexPropKey) {
+            const simplePropKey = Array.from(schema.Properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedObjName);
+            const simpleProp = simplePropKey ? schema.Properties.get(simplePropKey) : undefined;
+            if (simpleProp && simpleProp.IsRepeated) {
+                // Validate inner tags
+                for (const attr of complexObj.attributes) {
+                    if (!attr.name) continue;
+                    const attrName = attr.name.text;
+                    const normalizedAttrName = attrName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+                    if (normalizedAttrName !== normalizedObjName && normalizedAttrName !== 'TYPE') {
+                        diagnostics.push({
+                            severity: DiagnosticSeverity.Warning,
+                            range: { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
+                            message: `Invalid inner tag '${attrName}'. Expected '${objName.replace(/\.LIST$/i, '')}'`,
+                            source: 'tdl'
+                        });
+                    } else if (normalizedAttrName === normalizedObjName) {
+                        // Validate data type
+                        if (simpleProp.DataType?.toLowerCase() === 'logical' && attr.value.length > 0) {
+                            const firstVal = attr.value[0];
+                            if (firstVal.kind === 1) { // SyntaxKind.Identifier
+                                const valText = (firstVal as any).text.toLowerCase();
+                                if (!['yes', 'no', 'true', 'false'].includes(valText)) {
+                                    diagnostics.push({
+                                        severity: DiagnosticSeverity.Warning,
+                                        range: { start: doc.positionAt(firstVal.start), end: doc.positionAt(firstVal.end) },
+                                        message: `Invalid logical value '${valText}'. Expected: Yes, No`,
+                                        source: 'tdl'
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                for (const innerObj of complexObj.complexObjects || []) {
+                    if (!innerObj.name) continue;
+                    const innerName = innerObj.name.text;
+                    const normalizedInnerName = innerName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+                    if (normalizedInnerName !== normalizedObjName) {
+                        diagnostics.push({
+                            severity: DiagnosticSeverity.Warning,
+                            range: { start: doc.positionAt(innerObj.name.start), end: doc.positionAt(innerObj.name.end) },
+                            message: `Invalid inner tag '${innerName}'. Expected '${objName.replace(/\.LIST$/i, '')}'`,
+                            source: 'tdl'
+                        });
+                    }
+                }
+                continue;
+            }
+
+            diagnostics.push({
+                severity: DiagnosticSeverity.Warning,
+                range: { start: doc.positionAt(complexObj.name.start), end: doc.positionAt(complexObj.name.end) },
+                message: `Unknown complex property '${objName}' for schema '${schemaName}'`,
+                source: 'tdl'
+            });
+            continue;
+        }
+
+        const nextSchemaName = schema.ComplexProperties.get(complexPropKey)!;
+        validateSchemaObject(complexObj, nextSchemaName, doc, metadata, diagnostics);
+    }
+}
+
+/**
  * Validate an entire source file
  * Runs all metadata-based validations
  */
@@ -501,6 +625,12 @@ export function validateSourceFile(
     for (const def of sourceFile.definitions) {
         if (def.type) {
             const normalizedType = normalizeTypeName(def.type.text);
+            const typeUpper = def.type.text.toUpperCase();
+            
+            if (metadata.primarySchemaNames && metadata.primarySchemaNames.some(s => s.toUpperCase() === typeUpper)) {
+                validateSchemaObject(def, def.type.text, doc, metadata, diagnostics);
+                continue;
+            }
             
             // Check for circular includes
             if (normalizedType === 'include' || normalizedType === 'import') {

@@ -1,21 +1,29 @@
 import * as sax from 'sax';
 import { 
     SourceFile, DefinitionNode, AttributeNode, StatementNode, 
-    IdentifierNode, CommentNode
+    IdentifierNode, CommentNode, ComplexObjectNode
 } from './ast';
 import { Token } from './token';
 import { TokenKind } from './tokenKind';
 import { Parser } from './parser';
+import { TdlMetadata } from '../tdlMetaData';
 
-export function parseXmlToAst(xmlText: string): SourceFile {
+interface TagState {
+    name: string;
+    start: number;
+    hasChildren: boolean;
+    startTagEnd: number;
+    node: ComplexObjectNode;
+}
+
+export function parseXmlToAst(xmlText: string, metadata?: TdlMetadata): SourceFile {
     const sourceFile = new SourceFile(0, xmlText.length);
     sourceFile.lineOffsets = computeLineOffsets(xmlText);
 
     const parser = sax.parser(false, { position: true, lowercase: false });
     
     let activeDefinition: DefinitionNode | null = null;
-    let activePropertyTag: string | null = null;
-    let activePropertyStartTagEnd = 0;
+    const tagStack: TagState[] = [];
     
     const definitionWrappers = new Set(['TDLMESSAGE', 'TALLYMESSAGE', 'TDL']);
     const structuralWrappers = new Set(['ENVELOPE', 'HEADER', 'BODY', 'DATA']);
@@ -51,7 +59,14 @@ export function parseXmlToAst(xmlText: string): SourceFile {
         
         if (!activeDefinition) {
             const hasName = node.attributes['NAME'] !== undefined;
-            if (insideTdlMessage > 0 || hasName || knownDefTypes.has(tagUpper)) {
+            
+            // Check if it's a primary schema
+            let isPrimarySchema = false;
+            if (metadata) {
+                isPrimarySchema = metadata.primarySchemaNames.some(s => s.toUpperCase() === tagUpper);
+            }
+
+            if (insideTdlMessage > 0 || hasName || knownDefTypes.has(tagUpper) || isPrimarySchema) {
                 let startPos = parser.startTagPosition - 4;
                 if (startPos < 0) startPos = 0;
                 
@@ -69,7 +84,6 @@ export function parseXmlToAst(xmlText: string): SourceFile {
                 
                 if (node.attributes['NAME'] !== undefined) {
                     const nameAttrVal = (node.attributes['NAME'] as string) || '';
-                    // The position includes the tag parsing up to current state.
                     const currentPos = parser.position;
                     const openingTagText = xmlText.substring(startPos, currentPos);
                     
@@ -113,27 +127,51 @@ export function parseXmlToAst(xmlText: string): SourceFile {
                 return;
             }
         }
-        if (knownDefTypes.has(tagUpper) && node.attributes['NAME'] !== undefined) {
-            if (activeDefinition) {
-                // Force close the old definition
-                activeDefinition.end = parser.position - 3;
-                if (activeDefinition.statements.length > 0) {
-                    const tempParser = new Parser("");
-                    activeDefinition.statements = (tempParser as any).GroupStatements(activeDefinition.statements);
-                }
-                sourceFile.definitions.push(activeDefinition);
-                activeDefinition = null;
-                activePropertyTag = null;
-                
-                // Recursively call onopentag for the new definition
-                parser.onopentag(node);
-                return;
+
+        let isNewDef = false;
+        if (metadata && !metadata.primarySchemaNames.some(s => s.toUpperCase() === tagUpper)) {
+            if (knownDefTypes.has(tagUpper) && node.attributes['NAME'] !== undefined) {
+                isNewDef = true;
             }
+        } else if (knownDefTypes.has(tagUpper) && node.attributes['NAME'] !== undefined) {
+            isNewDef = true;
+        }
+
+        if (isNewDef && activeDefinition) {
+            // Force close the old definition
+            activeDefinition.end = parser.position - 3;
+            if (activeDefinition.statements.length > 0) {
+                const tempParser = new Parser("");
+                activeDefinition.statements = (tempParser as any).GroupStatements(activeDefinition.statements);
+            }
+            sourceFile.definitions.push(activeDefinition);
+            activeDefinition = null;
+            tagStack.length = 0; // clear stack
+            
+            // Recursively call onopentag for the new definition
+            parser.onopentag(node);
+            return;
         }
         
-        if (activeDefinition && !activePropertyTag) {
-            activePropertyTag = node.name;
-            activePropertyStartTagEnd = parser.position - 3;
+        if (activeDefinition) {
+            const startPos = parser.startTagPosition - 4;
+            const nameToken = new Token(TokenKind.IdentifierToken, startPos, startPos, node.name.length);
+            nameToken.Text = node.name;
+            const ident = new IdentifierNode([nameToken], node.name);
+            
+            const newTag: TagState = {
+                name: node.name,
+                start: startPos,
+                hasChildren: false,
+                startTagEnd: parser.position - 3,
+                node: new ComplexObjectNode(startPos, startPos, ident)
+            };
+            
+            if (tagStack.length > 0) {
+                tagStack[tagStack.length - 1].hasChildren = true;
+            }
+            
+            tagStack.push(newTag);
             return;
         }
     };
@@ -147,95 +185,107 @@ export function parseXmlToAst(xmlText: string): SourceFile {
             return;
         }
         
-        if (activePropertyTag && tagName === activePropertyTag) {
-            let propertyCloseTagStart = parser.startTagPosition - 4;
-            if (propertyCloseTagStart < activePropertyStartTagEnd) {
-                propertyCloseTagStart = activePropertyStartTagEnd; 
-            }
-            
-            const rawInnerText = xmlText.substring(activePropertyStartTagEnd, propertyCloseTagStart);
-            const actualStart = activePropertyStartTagEnd;
-            
-            if (rawInnerText.trim()) {
-                const paddedInnerText = padEntities(rawInnerText);
+        if (activeDefinition) {
+            // Check if this closes the active property
+            if (tagStack.length > 0 && tagStack[tagStack.length - 1].name === tagName) {
+                const popped = tagStack.pop()!;
+                let propertyCloseTagStart = parser.startTagPosition - 4;
+                if (propertyCloseTagStart < popped.startTagEnd) {
+                    propertyCloseTagStart = popped.startTagEnd;
+                }
                 
-                if (activePropertyTag.toUpperCase() === 'ACTION') {
-                    const stmtText = paddedInnerText;
-                    const tempParser = new Parser(stmtText);
-                    const stmts = tempParser.parseStandaloneStatements();
-                    if (stmts.length > 0) {
-                        const stmt = stmts[0];
-                        adjustNodeOffsets(stmt, actualStart);
-                        activeDefinition!.statements.push(stmt);
+                const closeNameStart = propertyCloseTagStart + 2;
+                const closeNameToken = new Token(TokenKind.IdentifierToken, closeNameStart, closeNameStart, tagName.length);
+                closeNameToken.Text = tagName;
+                popped.node.closeName = new IdentifierNode([closeNameToken], tagName);
+                popped.node.end = parser.position - 3;
+                
+                if (!popped.hasChildren) {
+                    // Treat as simple attribute
+                    const rawInnerText = xmlText.substring(popped.startTagEnd, propertyCloseTagStart);
+                    const actualStart = popped.startTagEnd;
+                    
+                    if (rawInnerText.trim() || popped.node.name.text.toUpperCase() === 'ACTION') {
+                        const paddedInnerText = padEntities(rawInnerText);
+                        
+                        if (popped.node.name.text.toUpperCase() === 'ACTION') {
+                            const stmtText = paddedInnerText;
+                            const tempParser = new Parser(stmtText);
+                            const stmts = tempParser.parseStandaloneStatements();
+                            if (stmts.length > 0) {
+                                const stmt = stmts[0];
+                                adjustNodeOffsets(stmt, actualStart);
+                                activeDefinition.statements.push(stmt);
+                            }
+                        } else {
+                            const attrText = `${popped.node.name.text} : ${paddedInnerText}`;
+                            const tempParser = new Parser(attrText);
+                            const attrs = tempParser.parseStandaloneAttributes();
+                            if (attrs.length > 0) {
+                                const attr = attrs[0];
+                                
+                                let openTagStart = xmlText.lastIndexOf('<', popped.startTagEnd - 1);
+                                if (openTagStart < activeDefinition.start) {
+                                    openTagStart = activeDefinition.start;
+                                }
+                                
+                                const nameDelta = openTagStart !== -1 ? openTagStart + 1 : actualStart;
+                                const valueDelta = actualStart - (popped.node.name.text.length + 3);
+                                
+                                if (attr.name) adjustNodeOffsets(attr.name, nameDelta);
+                                
+                                if (attr.colon) {
+                                    attr.colon.Start += valueDelta;
+                                    attr.colon.FullStart += valueDelta;
+                                }
+                                
+                                for (const val of attr.value) {
+                                    adjustNodeOffsets(val, valueDelta);
+                                }
+                                
+                                attr.start = attr.name ? attr.name.start : nameDelta;
+                                attr.end = attr.value.length > 0 ? attr.value[attr.value.length - 1].end : actualStart;
+                                attr.closeName = popped.node.closeName;
+                                
+                                if (tagStack.length > 0) {
+                                    tagStack[tagStack.length - 1].node.attributes.push(attr);
+                                } else {
+                                    activeDefinition.attributes.push(attr);
+                                }
+                            }
+                        }
                     }
                 } else {
-                    const attrText = `${activePropertyTag} : ${paddedInnerText}`;
-                    const tempParser = new Parser(attrText);
-                    const attrs = tempParser.parseStandaloneAttributes();
-                    if (attrs.length > 0) {
-                        const attr = attrs[0];
-                        
-                        let openTagStart = xmlText.lastIndexOf('<', activePropertyStartTagEnd - 1);
-                        if (openTagStart < activeDefinition!.start) {
-                            openTagStart = activeDefinition!.start;
-                        }
-                        
-                        const nameDelta = openTagStart !== -1 ? openTagStart + 1 : actualStart;
-                        const valueDelta = actualStart - (activePropertyTag.length + 3);
-                        
-                        if (attr.name) adjustNodeOffsets(attr.name, nameDelta);
-                        
-                        if (attr.colon) {
-                            attr.colon.Start += valueDelta;
-                            attr.colon.FullStart += valueDelta;
-                        }
-                        
-                        for (const val of attr.value) {
-                            adjustNodeOffsets(val, valueDelta);
-                        }
-                        
-                        attr.start = attr.name ? attr.name.start : nameDelta;
-                        attr.end = attr.value.length > 0 ? attr.value[attr.value.length - 1].end : actualStart;
-                        
-                        const closeStart = parser.startTagPosition - 4;
-                        if (xmlText.substring(closeStart, closeStart + 2) === '</') {
-                            const closeNameStart = closeStart + 2;
-                            const nameToken = new Token(TokenKind.IdentifierToken, closeNameStart, closeNameStart, tagName.length);
-                            nameToken.Text = tagName;
-                            attr.closeName = new IdentifierNode([nameToken], tagName);
-                        }
-                        
-                        activeDefinition!.attributes.push(attr);
+                    // It's a complex object
+                    if (tagStack.length > 0) {
+                        tagStack[tagStack.length - 1].node.complexObjects.push(popped.node);
+                    } else {
+                        activeDefinition.complexObjects.push(popped.node);
                     }
                 }
-            }
-            activePropertyTag = null;
-            return;
-        }
-        
-        // Force close active property tag if we see the definition closing tag
-        if (activeDefinition && tagName.toUpperCase() === activeDefinition.type.text.toUpperCase()) {
-            activePropertyTag = null;
-        }
-        
-        if (activeDefinition && !activePropertyTag) {
-            activeDefinition.end = parser.position - 3;
-            
-            const closeStart = parser.startTagPosition - 4;
-            if (xmlText.substring(closeStart, closeStart + 2) === '</') {
-                const closeNameStart = closeStart + 2;
-                const typeToken = new Token(TokenKind.DefinitionTypeToken, closeNameStart, closeNameStart, tagName.length);
-                typeToken.Text = tagName;
-                activeDefinition.closeType = new IdentifierNode([typeToken], tagName);
+                return;
             }
             
-            if (activeDefinition.statements.length > 0) {
-                const tempParser = new Parser("");
-                activeDefinition.statements = (tempParser as any).GroupStatements(activeDefinition.statements);
+            // If it matches the active definition type, close it
+            if (tagName.toUpperCase() === activeDefinition.type.text.toUpperCase() && tagStack.length === 0) {
+                activeDefinition.end = parser.position - 3;
+                
+                const closeStart = parser.startTagPosition - 4;
+                if (xmlText.substring(closeStart, closeStart + 2) === '</') {
+                    const closeNameStart = closeStart + 2;
+                    const typeToken = new Token(TokenKind.DefinitionTypeToken, closeNameStart, closeNameStart, tagName.length);
+                    typeToken.Text = tagName;
+                    activeDefinition.closeType = new IdentifierNode([typeToken], tagName);
+                }
+                
+                if (activeDefinition.statements.length > 0) {
+                    const tempParser = new Parser("");
+                    activeDefinition.statements = (tempParser as any).GroupStatements(activeDefinition.statements);
+                }
+                
+                sourceFile.definitions.push(activeDefinition);
+                activeDefinition = null;
             }
-            
-            sourceFile.definitions.push(activeDefinition);
-            activeDefinition = null;
         }
     };
     

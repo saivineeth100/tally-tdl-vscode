@@ -125,7 +125,7 @@ function getFunctionSuggestions(
  * Context for completion
  */
 export interface CompletionContext {
-    type: 'definition_type' | 'definition_name' | 'attribute' | 'attribute_value' | 'function' | 'variable' | 'field' | 'function_action' | 'function_action_parameter' | 'modifier_value' | 'unknown';
+    type: 'schema_type' | 'definition_type' | 'definition_name' | 'attribute' | 'attribute_value' | 'function' | 'variable' | 'field' | 'function_action' | 'function_action_parameter' | 'modifier_value' | 'xml_schema_attribute' | 'unknown';
     partial: string;
     hasModifier: boolean;
     modifier?: string;
@@ -135,6 +135,7 @@ export interface CompletionContext {
     paramIndex?: number;
     modifierName?: string;
     modifierParts?: string[];
+    tagPath?: string[];
 }
 
 /**
@@ -433,10 +434,10 @@ export function detectXmlCompletionContext(xmlText: string, offset: number, curr
         // Inside a tag declaration
         const tagText = textBefore.slice(lastOpenIdx + 1);
         
-        // Find parent tag
+        // Find parent tag path
         let searchIdx = lastOpenIdx;
         let depth = 0;
-        let parentTag = '';
+        let tagPath: string[] = [];
         
         while (searchIdx > 0) {
             const cIdx = xmlText.lastIndexOf('>', searchIdx - 1);
@@ -451,23 +452,28 @@ export function detectXmlCompletionContext(xmlText: string, offset: number, curr
                 if (depth > 0) {
                     depth--;
                 } else {
-                    parentTag = tagStr.split(/\s+/)[0].toUpperCase();
-                    break;
+                    tagPath.push(tagStr.split(/\s+/)[0].toUpperCase());
                 }
             }
             searchIdx = oIdx;
         }
+        tagPath.reverse();
+        const parentTag = tagPath.length > 0 ? tagPath[tagPath.length - 1] : '';
         
-        if (parentTag === 'TDLMESSAGE') {
+        if (parentTag === 'TALLYMESSAGE') {
+            return { type: 'schema_type', partial: tagText, hasModifier: false };
+        } else if (parentTag === 'TDLMESSAGE' || parentTag === 'TDL') {
             return { type: 'definition_type', partial: tagText, hasModifier: false };
         } else if (currentDef && parentTag === currentDef.type.text.toUpperCase()) {
-            return { type: 'attribute', partial: tagText, hasModifier: false };
+            return { type: 'attribute', partial: tagText, hasModifier: false, tagPath };
+        } else if (tagPath.length > 0) {
+            return { type: 'xml_schema_attribute', partial: tagText, hasModifier: false, tagPath };
         }
     } else {
         // Between tags
         let searchIdx = offset;
         let depth = 0;
-        let lastTag = '';
+        let tagPath: string[] = [];
         
         while (searchIdx > 0) {
             const closeIdx = xmlText.lastIndexOf('>', searchIdx - 1);
@@ -482,12 +488,13 @@ export function detectXmlCompletionContext(xmlText: string, offset: number, curr
                 if (depth > 0) {
                     depth--;
                 } else {
-                    lastTag = tagStr.split(/\s+/)[0].toUpperCase();
-                    break;
+                    tagPath.push(tagStr.split(/\s+/)[0].toUpperCase());
                 }
             }
             searchIdx = openIdx;
         }
+        tagPath.reverse();
+        const lastTag = tagPath.length > 0 ? tagPath[tagPath.length - 1] : '';
         
         const partial = textBefore.slice(lastCloseIdx + 1).trimStart();
         
@@ -496,7 +503,7 @@ export function detectXmlCompletionContext(xmlText: string, offset: number, curr
             return { type: 'function', partial: functionMatch[1], hasModifier: false };
         }
         
-        if (lastTag !== 'TDL' && lastTag !== 'TDLMESSAGE' && (!currentDef || lastTag !== currentDef.type.text.toUpperCase())) {
+        if (lastTag !== 'TDL' && lastTag !== 'TDLMESSAGE' && lastTag !== 'TALLYMESSAGE' && (!currentDef || lastTag !== currentDef.type.text.toUpperCase())) {
             const paramIndex = (partial.match(/,/g) || []).length;
             const partialVal = partial.slice(partial.lastIndexOf(',') + 1).trimStart();
             
@@ -505,7 +512,8 @@ export function detectXmlCompletionContext(xmlText: string, offset: number, curr
                 partial: partialVal,
                 hasModifier: false,
                 attributeName: lastTag,
-                paramIndex
+                paramIndex,
+                tagPath
             };
         }
     }
@@ -551,6 +559,94 @@ export function registerCompletion(
         }
 
         switch (context.type) {
+            case 'xml_schema_attribute':
+                if (isXml && context.tagPath && context.tagPath.length > 0) {
+                    // Find the primary schema tag in the tagPath (searching backwards from current position)
+                    let rootTagIdx = -1;
+                    let rootTag = '';
+                    for (let i = context.tagPath.length - 1; i >= 0; i--) {
+                        if (md.primarySchemaNames.some(s => s.toUpperCase() === context.tagPath![i].toUpperCase())) {
+                            rootTagIdx = i;
+                            rootTag = context.tagPath[i];
+                            break;
+                        }
+                    }
+
+                    if (rootTagIdx !== -1) {
+                        const rootKey = Array.from(md.schemas.keys()).find(k => k.toUpperCase() === rootTag.toUpperCase());
+                        let currentSchema = rootKey ? md.schemas.get(rootKey) : undefined;
+                        
+                        for (let i = rootTagIdx + 1; i < context.tagPath.length; i++) {
+                            const step = context.tagPath[i];
+                            const normalizedStep = step.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+                            const complexPropKey = Array.from(currentSchema?.ComplexProperties.keys() || []).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
+                            if (complexPropKey) {
+                                const nextSchemaName = currentSchema!.ComplexProperties.get(complexPropKey)!;
+                                const nextKey = Array.from(md.schemas.keys()).find(k => k.toUpperCase() === nextSchemaName.toUpperCase());
+                                currentSchema = nextKey ? md.schemas.get(nextKey) : undefined;
+                            } else {
+                                currentSchema = undefined;
+                                break;
+                            }
+                        }
+
+                        if (currentSchema) {
+                            for (const [propName, propDef] of currentSchema.Properties) {
+                                let displayProp = propName.toUpperCase().replace(/\s+/g, '');
+                                let insertText = '';
+                                
+                                if (propDef.IsComplex) {
+                                    if (!displayProp.endsWith('.LIST')) {
+                                        displayProp += '.LIST';
+                                    }
+                                    insertText = `${displayProp}>\n\t$0\n</${displayProp}>`;
+                                } else if (propDef.IsRepeated) {
+                                    if (!displayProp.endsWith('.LIST')) {
+                                        displayProp += '.LIST';
+                                    }
+                                    const innerTag = propName.toUpperCase().replace(/\s+/g, '');
+                                    const cleanType = propDef.DataType ? propDef.DataType.split(' ')[0] : '';
+                                    const typeAttr = cleanType ? ` TYPE="${cleanType}"` : '';
+                                    insertText = `${displayProp}${typeAttr}>\n\t<${innerTag}>$0</${innerTag}>\n</${displayProp}>`;
+                                } else {
+                                    insertText = `${displayProp}>$0</${displayProp}>`;
+                                }
+
+                                if (context.partial === '' || displayProp.toLowerCase().includes(context.partial.toLowerCase()) || propName.toLowerCase().includes(context.partial.toLowerCase())) {
+                                    items.push({
+                                        label: displayProp,
+                                        kind: CompletionItemKind.Property,
+                                        detail: `Schema Property (${propDef.DataType || 'String'})`,
+                                        insertText: insertText,
+                                        insertTextFormat: 2,
+                                        documentation: { kind: MarkupKind.Markdown, value: `Type: ${propDef.DataType || 'String'}\nOriginal Name: ${propName}` },
+                                        sortText: displayProp,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 'schema_type':
+                const schemas = md.primarySchemaNames;
+                const normalizedSchemaPartial = normalizeTypeName(context.partial);
+                for (const schema of schemas) {
+                    if (normalizedSchemaPartial === '' || normalizeTypeName(schema).includes(normalizedSchemaPartial)) {
+                        const displayType = schema.toUpperCase().replace(/\s+/g, '');
+                        items.push({
+                            label: displayType,
+                            kind: CompletionItemKind.Class,
+                            detail: 'TDL Schema Type',
+                            insertText: `${displayType}>\n\t$0\n</${displayType}>`,
+                            insertTextFormat: 2,
+                            sortText: schema.toLowerCase(),
+                        });
+                    }
+                }
+                break;
+
             case 'definition_type':
                 // Suggest definition types from metadata
                 const defTypes = getDefinitionTypes(md);
@@ -601,6 +697,8 @@ export function registerCompletion(
                 // TODO: Variable suggestions after ##
                 break;
                 
+
+
             case 'function_action':
                 for (const act of md.actions) {
                     if (context.partial === '' || act.Name.toLowerCase().includes(context.partial.toLowerCase())) {
@@ -807,6 +905,60 @@ export function registerCompletion(
                 break;
 
             case 'attribute':
+                if (isXml && context.tagPath && context.tagPath.length > 0) {
+                    let rootTagIdx = -1;
+                    let rootTag = '';
+                    for (let i = context.tagPath.length - 1; i >= 0; i--) {
+                        if (md.primarySchemaNames.some(s => s.toUpperCase() === context.tagPath![i].toUpperCase())) {
+                            rootTagIdx = i;
+                            rootTag = context.tagPath[i];
+                            break;
+                        }
+                    }
+
+                    if (rootTagIdx !== -1) {
+                        const rootKey = Array.from(md.schemas.keys()).find(k => k.toUpperCase() === rootTag.toUpperCase());
+                        let currentSchema = rootKey ? md.schemas.get(rootKey) : undefined;
+                        
+                        if (currentSchema) {
+                            for (const [propName, propDef] of currentSchema.Properties) {
+                                let displayProp = propName.toUpperCase().replace(/\s+/g, '');
+                                let insertText = '';
+                                
+                                if (propDef.IsComplex) {
+                                    if (!displayProp.endsWith('.LIST')) {
+                                        displayProp += '.LIST';
+                                    }
+                                    insertText = `${displayProp}>\n\t$0\n</${displayProp}>`;
+                                } else if (propDef.IsRepeated) {
+                                    if (!displayProp.endsWith('.LIST')) {
+                                        displayProp += '.LIST';
+                                    }
+                                    const innerTag = propName.toUpperCase().replace(/\s+/g, '');
+                                    const cleanType = propDef.DataType ? propDef.DataType.split(' ')[0] : '';
+                                    const typeAttr = cleanType ? ` TYPE="${cleanType}"` : '';
+                                    insertText = `${displayProp}${typeAttr}>\n\t<${innerTag}>$0</${innerTag}>\n</${displayProp}>`;
+                                } else {
+                                    insertText = `${displayProp}>$0</${displayProp}>`;
+                                }
+
+                                if (context.partial === '' || displayProp.toLowerCase().includes(context.partial.toLowerCase()) || propName.toLowerCase().includes(context.partial.toLowerCase())) {
+                                    items.push({
+                                        label: displayProp,
+                                        kind: CompletionItemKind.Property,
+                                        detail: `Schema Property (${propDef.DataType || 'String'})`,
+                                        insertText: insertText,
+                                        insertTextFormat: 2,
+                                        documentation: { kind: MarkupKind.Markdown, value: `Type: ${propDef.DataType || 'String'}\nOriginal Name: ${propName}` },
+                                        sortText: displayProp,
+                                    });
+                                }
+                            }
+                        }
+                        break; // Stop here, don't show normal definition attributes for schema
+                    }
+                }
+
                 // Attribute completion within a definition
                 if (currentDef) {
                     const defTypeName = currentDef.type.text;
@@ -851,6 +1003,63 @@ export function registerCompletion(
                 break;
 
             case 'attribute_value':
+                if (isXml && context.tagPath && context.tagPath.length > 0 && context.attributeName) {
+                    let rootTagIdx = -1;
+                    let rootTag = '';
+                    for (let i = context.tagPath.length - 1; i >= 0; i--) {
+                        if (md.primarySchemaNames.some(s => s.toUpperCase() === context.tagPath![i].toUpperCase())) {
+                            rootTagIdx = i;
+                            rootTag = context.tagPath[i];
+                            break;
+                        }
+                    }
+
+                    if (rootTagIdx !== -1) {
+                        const rootKey = Array.from(md.schemas.keys()).find(k => k.toUpperCase() === rootTag.toUpperCase());
+                        let currentSchema = rootKey ? md.schemas.get(rootKey) : undefined;
+                        
+                        // tagPath gives us the path to the parent. We are typing the value of `context.attributeName`
+                        // Since tagPath includes the attributeName as its last element, we loop up to length - 1
+                        // But wait! rootTagIdx is the index of the primary schema.
+                        for (let i = rootTagIdx + 1; i < context.tagPath.length - 1; i++) {
+                            const step = context.tagPath[i];
+                            const normalizedStep = step.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+                            const complexPropKey = Array.from(currentSchema?.ComplexProperties.keys() || []).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
+                            if (complexPropKey) {
+                                const nextSchemaName = currentSchema!.ComplexProperties.get(complexPropKey)!;
+                                const nextKey = Array.from(md.schemas.keys()).find(k => k.toUpperCase() === nextSchemaName.toUpperCase());
+                                currentSchema = nextKey ? md.schemas.get(nextKey) : undefined;
+                            } else {
+                                currentSchema = undefined;
+                                break;
+                            }
+                        }
+
+                        if (currentSchema) {
+                            const normalizedAttrName = context.attributeName!.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+                            const propKey = Array.from(currentSchema.Properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
+                            if (propKey) {
+                                const propDef = currentSchema.Properties.get(propKey)!;
+                                if (propDef.DataType?.toLowerCase() === 'logical') {
+                                    const logicalValues = ['Yes', 'No'];
+                                    for (const val of logicalValues) {
+                                        if (context.partial === '' || val.toLowerCase().includes(context.partial.toLowerCase())) {
+                                            items.push({
+                                                label: val,
+                                                kind: CompletionItemKind.Value,
+                                                detail: 'Logical value',
+                                                insertText: val,
+                                                sortText: '0_' + val.toLowerCase(),
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break; // Stop here, no normal attribute completion
+                    }
+                }
+
                 if (currentDef && context.attributeName && context.paramIndex !== undefined) {
                     const defTypeName = currentDef.type.text;
                     const normalizedDefType = normalizeTypeName(defTypeName);

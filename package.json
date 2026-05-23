@@ -52,7 +52,8 @@
         "commands": [
             {
                 "command": "tally-tdl.runCurrentFile",
-                "title": "Tally TDL: Run Current File"
+                "title": "Tally TDL: Run Current File",
+                "icon": "$(play)"
             },
             {
                 "command": "tally-tdl.convertToXml",
@@ -60,6 +61,13 @@
             }
         ],
         "menus": {
+            "editor/title/run": [
+                {
+                    "when": "resourceLangId == tdl",
+                    "command": "tally-tdl.runCurrentFile",
+                    "group": "navigation"
+                }
+            ],
             "editor/context": [
                 {
                     "when": "resourceLangId == tdl",
@@ -135,10 +143,8 @@
                     "items": {
                         "type": "string"
                     },
-                    "default": [
-                        "${file}"
-                    ],
-                    "description": "Command line arguments to pass to Tally. Use ${file} as a placeholder for the current file path."
+                    "default": [],
+                    "description": "Additional command line arguments to pass to Tally. The /TDL and file path arguments are added automatically. Use ${file} as a placeholder for the current file path if needed elsewhere."
                 }
             }
         },

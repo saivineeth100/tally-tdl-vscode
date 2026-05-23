@@ -155,9 +155,12 @@ export class DocManager {
     async rebuild(doc: TextDocument): Promise<void> {
         let sourceFile: SourceFile;
         const text = doc.getText();
+        const isXml = doc.languageId === 'xml';
 
-        if (doc.languageId === 'xml') {
-            sourceFile = parseXmlToAst(text);
+        const metadata = (globalThis as any).TDL_METADATA as TdlMetadata | undefined;
+
+        if (isXml) {
+            sourceFile = parseXmlToAst(text, metadata);
         } else {
             const parser = new Parser(text);
             sourceFile = parser.parse();
@@ -196,7 +199,6 @@ export class DocManager {
         this.scopeManager.buildFileScope(doc.uri, sourceFile);
 
         // Run metadata-based validations if metadata is available
-        const metadata = (globalThis as any).TDL_METADATA as TdlMetadata | undefined;
         if (metadata) {
             diagnostics.push(...validateSourceFile(sourceFile, doc, metadata, this.symbolTable, this.scopeManager, this.resolveIncludePath));
         }

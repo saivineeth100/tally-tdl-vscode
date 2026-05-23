@@ -124,6 +124,8 @@ export class TDLSchemaProperty {
 export class TDLSchema {
     Name!: string;
     Properties: Map<string, TDLSchemaProperty> = new Map();
+    IsPrimary: boolean = false;
+    ComplexProperties: Map<string, string> = new Map(); // PropertyName -> SchemaName
 
     static FromJSON(name: string, json: any): TDLSchema {
         const schema = new TDLSchema();
@@ -131,6 +133,14 @@ export class TDLSchema {
         if (json.Properties) {
             for (const propName of Object.keys(json.Properties)) {
                 schema.Properties.set(propName, TDLSchemaProperty.FromJSON(json.Properties[propName]));
+            }
+        }
+        if (json.Meta && json.Meta["Is Primary"] === "Yes") {
+            schema.IsPrimary = true;
+        }
+        if (json.ComplexProperties) {
+            for (const propName of Object.keys(json.ComplexProperties)) {
+                schema.ComplexProperties.set(propName, json.ComplexProperties[propName]);
             }
         }
         return schema;
@@ -155,6 +165,7 @@ export class TdlMetadata {
     allDefinitions: string[] = [];
     allFunctions: string[] = [];
     allSchemas: string[] = [];
+    primarySchemaNames: string[] = [];
     appInfo?: AppInfo;
 
     // Fast lookup maps (populated during load)
@@ -368,7 +379,11 @@ export class TdlMetadata {
             const schemaName = schemaFile.replace('.json', '');
             const schemaData = await loadJsonSafe<any>(path.join(schemasPath, schemaFile));
             if (schemaData) {
-                this.schemas.set(schemaName, TDLSchema.FromJSON(schemaName, schemaData));
+                const schema = TDLSchema.FromJSON(schemaName, schemaData);
+                this.schemas.set(schemaName, schema);
+                if (schema.IsPrimary) {
+                    this.primarySchemaNames.push(schemaName);
+                }
             }
         }
     }

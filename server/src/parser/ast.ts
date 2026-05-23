@@ -17,7 +17,8 @@ export enum SyntaxKind {
     FormulaReference,
     Statement,
     Comment,
-    List
+    List,
+    ComplexObject
 }
 
 export interface Node {
@@ -75,9 +76,10 @@ export class DefinitionNode implements Node {
     colon?: Token;
     name?: IdentifierNode;
     modifier?: Token;
-    closeBracket: Token;
+    public closeBracket: Token;
     public attributes: AttributeNode[] = [];
     public statements: StatementNode[] = [];
+    public complexObjects: ComplexObjectNode[] = [];
 
     /** 
      * Indicates if this definition was parsed with error recovery.
@@ -121,6 +123,24 @@ export class StatementNode implements Node {
         this.start = label ? label.start : action.start;
         // End will be calculated based on last arg
         this.end = args.length > 0 ? args[args.length - 1].end : action.end;
+    }
+}
+
+export class ComplexObjectNode implements Node {
+    kind = SyntaxKind.ComplexObject as const;
+    parent?: Node;
+    start: number;
+    end: number;
+    name: IdentifierNode;
+    closeName?: IdentifierNode;
+    public attributes: AttributeNode[] = [];
+    public complexObjects: ComplexObjectNode[] = [];
+    isIncomplete: boolean = false;
+
+    constructor(start: number, end: number, name: IdentifierNode) {
+        this.start = start;
+        this.end = end;
+        this.name = name;
     }
 }
 

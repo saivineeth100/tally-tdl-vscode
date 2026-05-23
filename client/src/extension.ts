@@ -84,9 +84,14 @@ export function activate(context: ExtensionContext) {
             defaultClient.start();
             return;
         }
+        
         let folder = workspace.getWorkspaceFolder(uri);
-        // Files outside a folder can't be handled. This might depend on the language.
-        // Single file languages like JSON might handle files outside the workspace folders.
+        // Files outside a folder get their own client scoped to their directory
+        if (!folder && uri.scheme === 'file') {
+            const dir = path.dirname(uri.fsPath);
+            folder = { uri: Uri.file(dir), name: path.basename(dir), index: -1 };
+        }
+        
         if (!folder) {
             return;
         }
@@ -151,11 +156,13 @@ export function activate(context: ExtensionContext) {
                 return;
             }
 
-            let args = config.get<string[]>('tallyCommandLineArgs') || [];
-            args = args.map(arg => arg.replace('${file}', document.uri.fsPath));
+            let userArgs = config.get<string[]>('tallyCommandLineArgs') || [];
+            userArgs = userArgs.map(arg => arg.replace('${file}', document.uri.fsPath));
+
+            const finalArgs = ['/TDL', document.uri.fsPath, ...userArgs];
 
             window.showInformationMessage(`Launching Tally with ${path.basename(document.fileName)}...`);
-            const child = spawn(tallyExePath, args, { detached: true, stdio: 'ignore' });
+            const child = spawn(tallyExePath, finalArgs, { detached: true, stdio: 'ignore' });
             child.unref();
             child.on('error', (err) => {
                 window.showErrorMessage(`Failed to launch Tally: ${err.message}`);
