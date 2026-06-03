@@ -265,14 +265,14 @@ export function validateDefinitionAttributes(
 
     // Skip validation if we don't have metadata for this definition type
     if (!allowedAttrs) {
-        diagnostics.push({
-            severity: DiagnosticSeverity.Warning,
-            range: { start: doc.positionAt(def.type.start), end: doc.positionAt(def.type.end) },
-            message: `Unknown definition type '${defTypeName}'`,
-            code: UNKNOWN_DEFINITION_TYPE_DIAGNOSTIC_CODE,
-            data: { defTypeName },
-            source: 'tdl'
-        });
+        // diagnostics.push({
+        //     severity: DiagnosticSeverity.Warning,
+        //     range: { start: doc.positionAt(def.type.start), end: doc.positionAt(def.type.end) },
+        //     message: `Unknown definition type '${defTypeName}'`,
+        //     code: UNKNOWN_DEFINITION_TYPE_DIAGNOSTIC_CODE,
+        //     data: { defTypeName },
+        //     source: 'tdl'
+        // });
         return diagnostics;
     }
 

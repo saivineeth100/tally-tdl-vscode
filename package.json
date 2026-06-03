@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "displayName": "Tally TDL",
     "description": "TDL support for VS Code",
-    "author": "Sai Vineeth",
+    "author": "Tallapudi Sai Vineeth",
     "license": "GPL-3.0-or-later",
     "icon": "images/tally-tdl-vscode-logo.png",
     "repository": {
@@ -80,6 +80,16 @@
             {
                 "command": "tally-tdl.setupOdbcPort",
                 "title": "Tally TDL: Setup ODBC Port"
+            },
+            {
+                "command": "tally-tdl.sendXmlRequest",
+                "title": "Tally TDL: Send XML Request",
+                "icon": "$(play)"
+            },
+            {
+                "command": "tally-tdl.viewXmlAsTable",
+                "title": "Tally: View XML as Table",
+                "icon": "$(layout-sidebar-right)"
             }
         ],
         "menus": {
@@ -88,12 +98,36 @@
                     "when": "resourceLangId == tdl",
                     "command": "tally-tdl.runCurrentFile",
                     "group": "navigation"
+                },
+                {
+                    "when": "resourceLangId == xml",
+                    "command": "tally-tdl.sendXmlRequest",
+                    "group": "navigation"
+                }
+            ],
+            "editor/title": [
+                {
+                    "when": "resourceLangId == xml",
+                    "command": "tally-tdl.viewXmlAsTable",
+                    "group": "navigation"
                 }
             ],
             "editor/context": [
                 {
+                    "when": "resourceLangId == xml",
+                    "command": "tally-tdl.viewXmlAsTable",
+                    "group": "navigation"
+                },
+                {
                     "when": "resourceLangId == tdl",
                     "command": "tally-tdl.convertToXml",
+                    "group": "navigation"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "when": "resourceExtname == .xml",
+                    "command": "tally-tdl.viewXmlAsTable",
                     "group": "navigation"
                 }
             ]
@@ -158,6 +192,18 @@
                     "type": "string",
                     "default": "C:\\Program Files\\TallyPrime\\tally.exe",
                     "description": "Path to the Tally executable."
+                },
+                "tallyTDL.variableTypes": {
+                    "type": "object",
+                    "default": {
+                        "SVFROMDATE": "date",
+                        "SVTODATE": "date"
+                    },
+                    "description": "Map variable names to UI input types (e.g., date, number). Defaults to string if not specified.",
+                    "additionalProperties": {
+                        "type": "string",
+                        "enum": ["string", "number", "date", "company"]
+                    }
                 },
                 "tallyTDL.tallyPort": {
                     "scope": "resource",

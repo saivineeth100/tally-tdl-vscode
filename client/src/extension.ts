@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 import * as path from 'path';
 import {
-    workspace, window, ExtensionContext, TextDocument, OutputChannel, WorkspaceFolder, Uri, commands
+    workspace, window, ExtensionContext, TextDocument, OutputChannel, WorkspaceFolder, Uri, commands, TextEdit
 } from 'vscode';
 
 import {
@@ -12,6 +12,9 @@ import {
 } from 'vscode-languageclient/node';
 import { spawn } from 'child_process';
 import { setupTallyPath, setupOdbcPort } from './onboarding';
+import { ResponsePanel } from './responsePanel';
+import { extractVariables, extractVariableTags, substituteVariables } from './templateEngine';
+import { sendXmlRequest, checkTallyRunning, launchTallyAndWait, fetchActiveCompanies } from './tallyClient';
 
 let defaultClient: LanguageClient;
 const clients = new Map<string, LanguageClient>();
@@ -136,6 +139,78 @@ export function activate(context: ExtensionContext) {
         }
     });
 
+    // Helper to get stored variables
+    function getStoredVariables(documentUri: Uri, varNames: string[]): Map<string, { value: string, isWorkspace: boolean }> {
+        const result = new Map<string, { value: string, isWorkspace: boolean }>();
+        const fileKeyPrefix = `xmlVars:${documentUri.toString()}:`;
+        const workspaceKeyPrefix = `xmlVars:workspace:`;
+
+        for (const name of varNames) {
+            // Check file specific first (workspaceState)
+            let value = context.workspaceState.get<string>(fileKeyPrefix + name);
+            if (value !== undefined) {
+                result.set(name, { value, isWorkspace: false });
+                continue;
+            }
+
+            // Fallback to workspace/global default
+            value = context.globalState.get<string>(workspaceKeyPrefix + name);
+            if (value !== undefined) {
+                result.set(name, { value, isWorkspace: true });
+                continue;
+            }
+
+            // No value found
+            result.set(name, { value: '', isWorkspace: false });
+        }
+        return result;
+    }
+    
+    // Auto-update variables when XML file changes
+    const updatePanelVariables = async (document: TextDocument) => {
+        if (ResponsePanel.currentPanel && document.languageId === 'xml') {
+            const text = document.getText();
+            const variables = extractVariables(text);
+            const variableTags = extractVariableTags(text);
+            const storedVars = getStoredVariables(document.uri, variables);
+            
+            const config = workspace.getConfiguration('tallyTDL');
+            const port = config.get<number>('tallyPort') || 9000;
+            const variableTypes = { ...config.get<Record<string, string>>('variableTypes') || {} };
+            
+            // Auto-assign types based on enclosing XML tag or variable name itself
+            for (const varName of variables) {
+                const tag = variableTags[varName] || varName;
+                const normalized = tag.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                
+                if (normalized.includes('SVCURRENTCOMPANY')) {
+                    variableTypes[varName] = 'company';
+                } else if (normalized.includes('SVFROM') || normalized.includes('SVTO')) {
+                    variableTypes[varName] = 'date';
+                }
+            }
+            
+            let activeCompanies: string[] = [];
+            if (Object.values(variableTypes).includes('company')) {
+                activeCompanies = await fetchActiveCompanies(port);
+            }
+            
+            ResponsePanel.currentPanel.updateVariables(variables, storedVars, variableTypes, activeCompanies);
+        }
+    };
+
+    workspace.onDidChangeTextDocument(e => {
+        if (window.activeTextEditor && e.document === window.activeTextEditor.document) {
+            updatePanelVariables(e.document);
+        }
+    });
+
+    window.onDidChangeActiveTextEditor(editor => {
+        if (editor && editor.document.languageId === 'xml') {
+            updatePanelVariables(editor.document);
+        }
+    });
+
     context.subscriptions.push(
         commands.registerCommand('tally-tdl.runCurrentFile', () => {
             const editor = window.activeTextEditor;
@@ -145,8 +220,14 @@ export function activate(context: ExtensionContext) {
             }
 
             const document = editor.document;
-            if (document.languageId !== 'tdl' && document.languageId !== 'xml') {
-                window.showErrorMessage('The current file is not a TDL or XML file.');
+            if (document.languageId === 'xml') {
+                // Route XML files to the new request runner
+                commands.executeCommand('tally-tdl.sendXmlRequest');
+                return;
+            }
+
+            if (document.languageId !== 'tdl') {
+                window.showErrorMessage('The current file is not a TDL file.');
                 return;
             }
 
@@ -209,6 +290,166 @@ export function activate(context: ExtensionContext) {
                 await window.showTextDocument(xmlDoc);
             } catch (err: any) {
                 window.showErrorMessage(`Error converting to XML: ${err.message}`);
+            }
+        }),
+        commands.registerCommand('tally-tdl.viewXmlAsTable', async (arg?: any) => {
+            let content = '';
+            
+            let sourceUri: Uri | undefined;
+            if (typeof arg === 'string') {
+                // Invoked from webview raw tab
+                content = arg;
+            } else if (arg && arg.fsPath) {
+                // Invoked from explorer context menu or editor title with Uri
+                sourceUri = arg as Uri;
+                try {
+                    const fileData = await workspace.fs.readFile(sourceUri);
+                    let encoding: BufferEncoding = 'utf8';
+                    let offset = 0;
+                    
+                    if (fileData.length >= 2) {
+                        if (fileData[0] === 0xFF && fileData[1] === 0xFE) {
+                            encoding = 'utf16le';
+                            offset = 2;
+                        } else if (fileData[0] === 0x3C && fileData[1] === 0x00) {
+                            encoding = 'utf16le';
+                            offset = 0;
+                        } else if (fileData.length >= 3 && fileData[0] === 0xEF && fileData[1] === 0xBB && fileData[2] === 0xBF) {
+                            encoding = 'utf8';
+                            offset = 3;
+                        }
+                    }
+                    
+                    const buffer = Buffer.from(fileData);
+                    content = buffer.toString(encoding, offset);
+                } catch (e) {
+                    window.showErrorMessage('Failed to read XML file.');
+                    return;
+                }
+            } else {
+                // Fallback to active editor
+                const editor = window.activeTextEditor;
+                if (!editor || editor.document.languageId !== 'xml') {
+                    window.showErrorMessage('No active XML editor found.');
+                    return;
+                }
+                sourceUri = editor.document.uri;
+                content = editor.document.getText();
+            }
+            
+            const panel = ResponsePanel.createFullScreenTable(context.extensionUri, content, sourceUri);
+            panel.onDidLogError = (errorMsg, stack) => {
+                outputChannel.appendLine(`[Webview Error] ${errorMsg}`);
+                if (stack) {
+                    outputChannel.appendLine(stack);
+                }
+            };
+        }),
+        commands.registerCommand('tally-tdl.sendXmlRequest', async () => {
+            const editor = window.activeTextEditor;
+            if (!editor) {
+                window.showErrorMessage('No active XML editor found.');
+                return;
+            }
+
+            const document = editor.document;
+            if (document.languageId !== 'xml') {
+                window.showErrorMessage('The current file is not an XML file.');
+                return;
+            }
+
+            const config = workspace.getConfiguration('tallyTDL');
+            const port = config.get<number>('tallyPort') || 9000;
+            const xmlContent = document.getText();
+            const variables = extractVariables(xmlContent);
+
+            const panel = ResponsePanel.createOrShow(context.extensionUri);
+
+            // Wire up callbacks
+            panel.onDidLogError = (errorMsg, stack) => {
+                outputChannel.appendLine(`[Webview Error] ${errorMsg}`);
+                if (stack) {
+                    outputChannel.appendLine(stack);
+                }
+            };
+
+            panel.onDidSaveDefault = async (varName: string, value: string) => {
+                await context.globalState.update(`xmlVars:workspace:${varName}`, value);
+                await context.workspaceState.update(`xmlVars:${document.uri.toString()}:${varName}`, undefined);
+                updatePanelVariables(document);
+            };
+            
+            panel.onDidRefresh = () => {
+                updatePanelVariables(document);
+            };
+
+
+
+            const executeRequest = async (finalVars: Map<string, string>) => {
+                panel.setStatus('loading', 'Checking Tally connection...');
+                
+                let isRunning = await checkTallyRunning(port);
+                if (!isRunning) {
+                    const exePath = config.get<string>('tallyExePath');
+                    if (!exePath) {
+                        panel.setStatus('error', 'Tally not running and tallyExePath not configured.');
+                        const choice = await window.showErrorMessage('Tally is not running on port ' + port + '. Please launch Tally manually or configure Tally Path.', 'Setup Path');
+                        if (choice === 'Setup Path') {
+                            commands.executeCommand('tally-tdl.setupTallyPath');
+                        }
+                        return;
+                    }
+
+                    const launchResult = await launchTallyAndWait(exePath, port, []);
+                    if (!launchResult) {
+                        panel.setStatus('error', 'Failed to connect to Tally.');
+                        const choice = await window.showErrorMessage('Failed to connect to Tally on port ' + port + '. Make sure ODBC port is configured.', 'Setup ODBC Port');
+                        if (choice === 'Setup ODBC Port') {
+                            commands.executeCommand('tally-tdl.setupOdbcPort');
+                        }
+                        return;
+                    }
+                }
+
+                panel.setStatus('loading', 'Sending request...');
+                const processedXml = substituteVariables(document.getText(), finalVars);
+                
+                try {
+                    const response = await sendXmlRequest(processedXml, port);
+                    panel.setStatus('success', `Status: ${response.statusCode}`);
+                    
+                    panel.showResponse(response.body, '', response.elapsed);
+                } catch (err: any) {
+                    panel.setStatus('error', err.message);
+                    outputChannel.appendLine(`[Request Error] ${err.message}`);
+                    if (err.stack) {
+                        outputChannel.appendLine(err.stack);
+                    }
+                }
+            };
+
+            panel.onDidSendRequest = async (submittedVars: Map<string, string>) => {
+                // Save specific variable values for this file
+                const fileKeyPrefix = `xmlVars:${document.uri.toString()}:`;
+                for (const [k, v] of submittedVars.entries()) {
+                    await context.workspaceState.update(fileKeyPrefix + k, v);
+                }
+                
+                await executeRequest(submittedVars);
+            };
+
+            const storedVars = getStoredVariables(document.uri, variables);
+            updatePanelVariables(document);
+
+            // If there are missing variables, just show the panel and wait for user to fill them
+            const hasEmptyVars = Array.from(storedVars.values()).some(v => !v.value);
+            if (variables.length === 0 || !hasEmptyVars) {
+                // Auto-send if no vars or all vars are already filled
+                const varsMap = new Map<string, string>();
+                for (const [k, v] of storedVars.entries()) {
+                    varsMap.set(k, v.value);
+                }
+                await executeRequest(varsMap);
             }
         }),
         commands.registerCommand('tally-tdl.setupTallyPath', setupTallyPath),
