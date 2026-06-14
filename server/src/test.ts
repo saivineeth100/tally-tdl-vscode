@@ -1,1 +1,0 @@
-﻿import { getWorkspaceSymbols } from './services/workspaceSymbol'; console.log('test');

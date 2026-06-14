@@ -14,8 +14,7 @@ describe('Advanced UDF Features', () => {
         const sourceFile = parser.parse();
         const def = sourceFile.definitions[0] as DefinitionNode;
         const stmt = def.statements[0];
-        console.log("Args found:", stmt.args.length);
-        stmt.args.forEach((a, i) => console.log(`Arg ${i}:`, (a as any).text || (a as any).value));
+
 
         expect(stmt.args.length).toBe(3);
         expect((stmt.args[2] as any).text).toBe("Arg3");

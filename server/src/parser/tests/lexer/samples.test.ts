@@ -4,17 +4,13 @@ import { TokenKind } from '../../tokenKind';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const samplesDir = 'c:/Program Files/TallyPrimeDeveloper_6/Samples/Symbols & Prefixes';
+const samplesDir = process.env.TDL_SAMPLES_DIR 
+    ? path.join(process.env.TDL_SAMPLES_DIR, 'Symbols & Prefixes')
+    : 'c:/Program Files/TallyPrimeDeveloper_6/Samples/Symbols & Prefixes';
+const hasSamples = fs.existsSync(samplesDir);
 
-describe('Lexer Samples Verification', () => {
-
-    // Get all .txt files in the directory
-    if (!fs.existsSync(samplesDir)) {
-        console.warn(`Samples directory not found: ${samplesDir}. Skipping sample tests.`);
-        return;
-    }
-
-    const files = fs.readdirSync(samplesDir).filter(f => f.endsWith('.txt'));
+describe.skipIf(!hasSamples)('Lexer Samples Verification', () => {
+    const files = hasSamples ? fs.readdirSync(samplesDir).filter(f => f.endsWith('.txt')) : [];
 
     files.forEach(file => {
         test(`Tokenize ${file}`, () => {

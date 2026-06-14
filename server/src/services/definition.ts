@@ -282,6 +282,8 @@ export function findReferenceAtOffset(
                     let name: string = '';
                     if (foundValueNode.kind === SyntaxKind.List) {
                         name = (foundValueNode as any).values.map((v: any) => v.text || v.value || '').join(' ');
+                    } else if (foundValueNode.kind === SyntaxKind.VariableReference) {
+                        name = '##' + (foundValueNode as any).variableName.text;
                     } else if ('text' in foundValueNode) {
                         name = (foundValueNode as IdentifierNode).text;
                     } else if ('value' in foundValueNode) {

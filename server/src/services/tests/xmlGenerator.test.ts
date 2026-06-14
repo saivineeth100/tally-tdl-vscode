@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Parser } from '../../parser/parser';
 import { generateXml } from '../xmlGenerator';
+import { parseXmlToAst } from '../../parser/xmlAdapter';
 
 describe('XML Generator', () => {
     it('should generate XML for a standard definition with attributes', async () => {
@@ -58,13 +59,33 @@ describe('XML Generator', () => {
     it('should escape XML special characters in attributes', async () => {
         const input = `
 [Field: Test]
-    Set as : "A < B & C > D"
+    Set as : "A < B & C > D ' E"
 `;
         const parser = new Parser(input);
         const sourceFile = parser.parse();
         const xml = await generateXml(sourceFile, input);
 
-        expect(xml).toContain('<SETAS>&quot;A &lt; B &amp; C &gt; D&quot;</SETAS>');
+        expect(xml).toContain('<SETAS>&quot;A &lt; B &amp; C &gt; D &apos; E&quot;</SETAS>');
+    });
+
+    it('should round-trip TDL -> XML -> parse XML -> compare definitions', async () => {
+        const input = `
+[Report: TSPL Smp CollSrcObj]
+    Use : TSPL Smp ReWalkReCompute
+    Title : "Function CollSrcObj"
+`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+        const xml = await generateXml(sourceFile, input);
+        
+        const parsedAst = parseXmlToAst(xml);
+        
+        expect(parsedAst.definitions.length).toBe(sourceFile.definitions.length);
+        expect(parsedAst.definitions[0].name?.text).toBe(sourceFile.definitions[0].name?.text);
+        expect(parsedAst.definitions[0].type?.text.toUpperCase()).toBe(sourceFile.definitions[0].type?.text.toUpperCase());
+        expect(parsedAst.definitions[0].attributes.length).toBe(sourceFile.definitions[0].attributes.length);
+        expect(parsedAst.definitions[0].attributes[0].name?.text.toUpperCase()).toBe(sourceFile.definitions[0].attributes[0].name?.text.toUpperCase());
+        expect(parsedAst.definitions[0].attributes[1].name?.text.toUpperCase()).toBe(sourceFile.definitions[0].attributes[1].name?.text.toUpperCase());
     });
 
     it('should skip INCLUDE and IMPORT statements when not resolved', async () => {

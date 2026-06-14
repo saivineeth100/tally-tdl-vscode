@@ -12,7 +12,7 @@ describe('Lexer - Line Continuation', () => {
 
         // Log all tokens for debugging
         tokens.forEach((t, i) => {
-            console.log(`Token ${i}: Kind=${TokenKind[t.Kind]} Text='${t.Text}' Leading=${t.Leading?.map(l => TokenKind[l.Kind]).join(',')} Trailing=${t.Trailing?.map(l => TokenKind[l.Kind]).join(',')}`);
+
         });
 
         // Basic assertions

@@ -47,10 +47,10 @@ describe('XML Suggestions Tests', () => {
             position: doc.positionAt(xmlContent.length)
         });
         
-        console.log('Test 1 MD keys:', md.existingDefinitions.size);
+
         
         const reportItem = result.items.find((i: any) => i.label === 'REPORT');
-        console.log('Test 1 Items:', result.items.length, result.items.slice(0, 2));
+
         expect(reportItem).toBeDefined();
         expect(reportItem.insertTextFormat).toBe(2); // Snippet
         expect(reportItem.insertText).toBe('REPORT NAME="$1">\n\t$0\n</REPORT>');
@@ -94,7 +94,7 @@ describe('XML Suggestions Tests', () => {
         });
         
         const formItem = result.items.find((i: any) => i.label === 'FORM');
-        console.log('Test 2 Items:', result.items.length, result.items.slice(0, 2));
+
         expect(formItem).toBeDefined();
         // Since it's an attribute in XML, we don't put < in the label anymore
         expect(formItem.label).toBe('FORM');
@@ -150,7 +150,7 @@ describe('XML Suggestions Tests', () => {
         });
         
         const item = result.items.find((i: any) => i.label === 'Simple Trial Balance');
-        console.log('Test 3 Items:', result.items.length, result.items.slice(0, 2));
+
         expect(item).toBeDefined();
         // The insert text is just the text because it's the value of the tag
         expect(item.insertText).toBe('Simple Trial Balance');
@@ -206,7 +206,7 @@ describe('XML Suggestions Tests', () => {
         expect(result.items.length).toBeGreaterThan(0);
         
         const formItem = result.items.find((i: any) => i.label === 'Simple Trial Balance');
-        console.log('Test 4 Items:', result.items.length, result.items.slice(0, 2));
+
         expect(formItem).toBeDefined();
     });
 });

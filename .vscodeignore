@@ -26,3 +26,5 @@ verify_hover.ts
 .gitattributes
 node_modules/tally-tdl-client
 node_modules/tally-tdl-server
+coverage/
+server/coverage/

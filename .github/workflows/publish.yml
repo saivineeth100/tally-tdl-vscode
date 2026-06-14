@@ -51,6 +51,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Compile
+        run: npm run compile
+
+      - name: Run tests
+        run: npm test
+
       - name: Publish Extension
         run: npx @vscode/vsce publish --no-git-tag-version ${{ env.PRERELEASE_FLAG }}
         env:

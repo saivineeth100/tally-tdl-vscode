@@ -5,13 +5,15 @@ import { Lexer } from '../../lexer';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const SAMPLES_DIR = 'c:/Program Files/TallyPrimeDeveloper_6/Samples';
+const SAMPLES_DIR = process.env.TDL_SAMPLES_DIR || 'c:/Program Files/TallyPrimeDeveloper_6/Samples';
+const hasSamples = fs.existsSync(SAMPLES_DIR);
 
 /**
  * Recursively finds all .txt files in a directory
  */
 function findTxtFiles(dir: string): string[] {
     const results: string[] = [];
+    if (!hasSamples) return results;
     try {
         const items = fs.readdirSync(dir, { withFileTypes: true });
         for (const item of items) {
@@ -32,7 +34,7 @@ function findTxtFiles(dir: string): string[] {
     return results;
 }
 
-describe('Parser - Full Sample File Validation', () => {
+describe.skipIf(!hasSamples)('Parser - Full Sample File Validation', () => {
     const allTxtFiles = findTxtFiles(SAMPLES_DIR);
 
     it(`should have found sample files`, () => {
