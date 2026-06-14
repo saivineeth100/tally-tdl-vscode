@@ -91,6 +91,17 @@ export class ScopeManager {
     }
 
     /**
+     * Remove scopes associated with a file
+     */
+    removeFileScope(uri: string): void {
+        const fileScope = this.fileMap.get(uri);
+        if (fileScope) {
+            this.projectScope.children = this.projectScope.children.filter(c => c !== fileScope);
+            this.fileMap.delete(uri);
+        }
+    }
+
+    /**
      * Build scopes for a source file
      * This should be called whenever a file is parsed
      */

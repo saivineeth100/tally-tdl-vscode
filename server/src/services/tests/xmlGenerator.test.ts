@@ -15,7 +15,7 @@ describe('XML Generator', () => {
         
         expect(xml).toContain('<REPORT NAME="TSPL Smp CollSrcObj" ISMODIFY="No" ISFIXED="No" ISINITIALIZE="No" ISOPTION="No" ISINTERNAL="No">');
         expect(xml).toContain('<USE>TSPL Smp ReWalkReCompute</USE>');
-        expect(xml).toContain('<TITLE>"Function CollSrcObj"</TITLE>');
+        expect(xml).toContain('<TITLE>&quot;Function CollSrcObj&quot;</TITLE>');
     });
 
     it('should handle modifiers correctly', async () => {
@@ -49,9 +49,9 @@ describe('XML Generator', () => {
         
         expect(xml).toContain('<ACTION>10 : Set : vNumVar1 : #TSPLSmpIncrDecrValueA</ACTION>');
         expect(xml).toContain('<ACTION>20 : If  : $$IsSysName:MyName</ACTION>');
-        expect(xml).toContain('<ACTION>30 :    Set : vNumVar2 : "Hello"</ACTION>');
+        expect(xml).toContain('<ACTION>30 :    Set : vNumVar2 : &quot;Hello&quot;</ACTION>');
         expect(xml).toContain('<ACTION>40 : Else</ACTION>');
-        expect(xml).toContain('<ACTION>50 :    Set : vNumVar2 : "World"</ACTION>');
+        expect(xml).toContain('<ACTION>50 :    Set : vNumVar2 : &quot;World&quot;</ACTION>');
         expect(xml).toContain('<ACTION>60 : EndIf</ACTION>');
     });
 
@@ -64,7 +64,7 @@ describe('XML Generator', () => {
         const sourceFile = parser.parse();
         const xml = await generateXml(sourceFile, input);
 
-        expect(xml).toContain('<SETAS>"A &lt; B &amp; C &gt; D"</SETAS>');
+        expect(xml).toContain('<SETAS>&quot;A &lt; B &amp; C &gt; D&quot;</SETAS>');
     });
 
     it('should skip INCLUDE and IMPORT statements when not resolved', async () => {

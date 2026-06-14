@@ -20,9 +20,22 @@ export function extractVariableTags(xml: string): Record<string, string> {
     return result;
 }
 
+function escapeXml(unsafe: string): string {
+    return unsafe.replace(/[<>&'"]/g, (c) => {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+            default: return c;
+        }
+    });
+}
+
 export function substituteVariables(xml: string, values: Map<string, string>): string {
     return xml.replace(/\{\{([^}]+)\}\}/g, (match, p1) => {
         const varName = p1.trim();
-        return values.has(varName) ? values.get(varName)! : match;
+        return values.has(varName) ? escapeXml(values.get(varName)!) : match;
     });
 }

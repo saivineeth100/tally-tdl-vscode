@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { SemanticTokenTypes } from "vscode-languageserver";
 import { parseAndGetTokens } from "./semanticTokens.test";
 

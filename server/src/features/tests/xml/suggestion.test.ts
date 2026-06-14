@@ -7,6 +7,8 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 import { SymbolTable, SymbolKind } from '../../../services/symbolTable';
 
+import { testMetadata } from '../../../test-setup';
+
 describe('XML Suggestions Tests', () => {
     let md: TdlMetadata;
     let mockConnection: any;
@@ -16,8 +18,7 @@ describe('XML Suggestions Tests', () => {
     let completionCallback: Function;
 
     beforeAll(async () => {
-        md = new TdlMetadata(path.resolve(__dirname, '../../../../data'), '7.0');
-        await md.load();
+        md = testMetadata!;
         (globalThis as any).TDL_METADATA = md;
     });
 

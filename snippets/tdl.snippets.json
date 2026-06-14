@@ -19,11 +19,11 @@
     "Create Button": {
         "prefix": "Button",
         "body": [
-            "[Menu : ${1:btnName}]",
+            "[Button : ${1:btnName}]",
             "   Key     : ${2:key}",
             "   Action  : "
         ],
-        "description": "Creates Menu"
+        "description": "Creates Button"
     },
     "Create Report": {
         "prefix": "Report",

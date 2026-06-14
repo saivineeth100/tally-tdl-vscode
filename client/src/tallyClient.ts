@@ -74,9 +74,11 @@ export async function sendXmlRequest(xmlBody: string, port: number): Promise<Tal
         const startTime = Date.now();
         let isDone = false;
         
+        let req: http.ClientRequest;
         const timeoutId = setTimeout(() => {
             if (!isDone) {
                 isDone = true;
+                if (req) req.destroy();
                 reject(new Error('Request to Tally timed out after 30 seconds.'));
             }
         }, 30000);
@@ -92,7 +94,7 @@ export async function sendXmlRequest(xmlBody: string, port: number): Promise<Tal
             }
         };
         
-        const req = http.request(options, (res) => {
+        req = http.request(options, (res) => {
             const responsesDir = path.join(os.tmpdir(), 'tally-tdl-responses');
             if (!fs.existsSync(responsesDir)) {
                 fs.mkdirSync(responsesDir, { recursive: true });
@@ -171,5 +173,20 @@ export async function fetchActiveCompanies(port: number): Promise<string[]> {
     } catch (e) {
         console.error('Failed to fetch companies', e);
         return [];
+    }
+}
+
+export function cleanupTempFiles() {
+    try {
+        const responsesDir = path.join(os.tmpdir(), 'tally-tdl-responses');
+        if (fs.existsSync(responsesDir)) {
+            const files = fs.readdirSync(responsesDir);
+            for (const file of files) {
+                fs.unlinkSync(path.join(responsesDir, file));
+            }
+            fs.rmdirSync(responsesDir);
+        }
+    } catch (e) {
+        console.error('Failed to cleanup temp files', e);
     }
 }

@@ -21,7 +21,7 @@ import { URI } from 'vscode-uri';
 import { TdlMetadata } from "./tdlMetaData";
 import { registerCompletion } from "./features/completion";
 import { createDocumentSymbols } from "./services/documentSymbol";
-import { getDefinitionAtOffset, createHoverContent } from "./services/hover";
+import { getHoverInfo } from "./services/hover";
 import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from "./services/definition";
 
 // Create LSP connection
@@ -64,8 +64,8 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         globalWorkspaceFolders = params.workspaceFolders.map(f => URI.parse(f.uri).fsPath);
     }
 
-    // Start metadata loading in background (don't block initialization)
-    setImmediate(() => loadMetadata("7.0"));
+    // Block initialization until metadata is loaded to ensure handlers don't fail
+    await loadMetadata("7.0");
 
     return {
         capabilities: {
@@ -150,7 +150,6 @@ connection.onHover((params: HoverParams): Hover | null => {
     const metadata = (globalThis as any).TDL_METADATA;
 
     // Use enhanced hover with AST-based detection
-    const { getHoverInfo } = require('./services/hover');
     const hoverResult = getHoverInfo(docState.sourceFile, offset, metadata, docManager.scopeManager, params.textDocument.uri);
     if (!hoverResult) return null;
 
@@ -162,7 +161,7 @@ connection.onHover((params: HoverParams): Hover | null => {
     };
 });
 
-export function resolveIncludePath(currentPath: string, includeName: string): string {
+export function resolveIncludePath(currentPath: string, includeName: string): string | null {
     // 1. Try relative to current file's directory
     const relativePath = path.resolve(path.dirname(currentPath), includeName);
     if (fs.existsSync(relativePath)) {
@@ -177,8 +176,8 @@ export function resolveIncludePath(currentPath: string, includeName: string): st
         }
     }
     
-    // Fallback to relative path so it remains clickable even if not found
-    return relativePath;
+    // File not found
+    return null;
 }
 
 // Handle go-to-definition request

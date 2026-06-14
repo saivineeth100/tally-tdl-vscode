@@ -25,13 +25,13 @@ export class Token {
         if (text === null) {
             return null;
         }
-        return text.substring(this.Start, this.Length - (this.Start - this.FullStart));
+        return text.substring(this.Start, this.Start + this.Text.length);
     }
     GetFullText(text: string): string {
         if (text === null) {
             return "";
         }
-        return text.substring(this.FullStart, this.Length);
+        return text.substring(this.FullStart, this.FullStart + this.Length);
     }
 
 }

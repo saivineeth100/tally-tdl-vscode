@@ -28,16 +28,16 @@ export class Lexer {
     }
     private Scan(): Token {
         let fullStart = this._pos;
-        let leaingTokens: Token[] = [];
+        let leadingTokens: Token[] = [];
         let trailingTokens: Token[] = [];
-        this.ScanLeadingOrTrailing(this._pos > 0, false, leaingTokens);
+        this.ScanLeadingOrTrailing(this._pos > 0, false, leadingTokens);
         // Start should be set AFTER scanning leading trivia
         let start = this._pos;
         var token = new Token(TokenKind.Unknown, 0, 0, 0);
         if (this._pos >= this._endOfFilePos) {
             const token = new Token(TokenKind.EndOfFileToken, fullStart, start, this._pos - fullStart);
             token.Text = this.GetText(this._pos);
-            token.Leading = leaingTokens;
+            token.Leading = leadingTokens;
             return token;
         }
         let char = this.Peek();
@@ -195,7 +195,7 @@ export class Lexer {
         token.FullStart = fullStart;
         token.Start = start;
         token.Length = this._pos - fullStart;
-        token.Leading = leaingTokens;
+        token.Leading = leadingTokens;
         token.Trailing = trailingTokens;
         return token;
     }

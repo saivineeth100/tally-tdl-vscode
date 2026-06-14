@@ -14,7 +14,7 @@ import { spawn } from 'child_process';
 import { setupTallyPath, setupOdbcPort } from './onboarding';
 import { ResponsePanel } from './responsePanel';
 import { extractVariables, extractVariableTags, substituteVariables } from './templateEngine';
-import { sendXmlRequest, checkTallyRunning, launchTallyAndWait, fetchActiveCompanies } from './tallyClient';
+import { sendXmlRequest, checkTallyRunning, launchTallyAndWait, fetchActiveCompanies, cleanupTempFiles } from './tallyClient';
 
 let defaultClient: LanguageClient;
 const clients = new Map<string, LanguageClient>();
@@ -459,6 +459,7 @@ export function activate(context: ExtensionContext) {
 }
 
 export function deactivate(): Thenable<void> {
+    cleanupTempFiles();
     const promises: Thenable<void>[] = [];
     if (defaultClient) {
         promises.push(defaultClient.stop());

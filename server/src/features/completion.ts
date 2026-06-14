@@ -719,7 +719,25 @@ export function registerCompletion(
                 break;
 
             case 'variable':
-                // TODO: Variable suggestions after ##
+                // 1. Local variables from scope
+                const scope = manager.scopeManager.getScopeAt(params.textDocument.uri, offset);
+                if (scope && scope.symbols) {
+                    for (const [varName, varInfo] of scope.symbols.entries()) {
+                        if (context.partial === '' || varName.toLowerCase().includes(context.partial.toLowerCase())) {
+                            items.push({
+                                label: varName,
+                                kind: CompletionItemKind.Variable,
+                                detail: `Local Variable`,
+                                insertText: varName,
+                                sortText: '0_' + varName.toLowerCase()
+                            });
+                        }
+                    }
+                }
+                
+                // 2. Global definitions
+                items.push(...getSuggestionsForDefinitionType('Variable', context.partial, md, symbolTable));
+                items.push(...getSuggestionsForDefinitionType('System Variable', context.partial, md, symbolTable));
                 break;
                 
 

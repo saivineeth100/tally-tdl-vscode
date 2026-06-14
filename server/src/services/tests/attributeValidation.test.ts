@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { Parser } from '../../parser/parser';
 import { TDLDefinition } from '../../tdlMetaData';
 import { TDLFunction } from '../../models/tdlFunction';

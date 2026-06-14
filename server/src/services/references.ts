@@ -66,7 +66,7 @@ export function findReferences(
     // Iterate through all indexed documents
     // Note: in a real, highly optimized language server, we would use an index. 
     // Here we will do a fast text search followed by AST verification.
-    for (const [docUri, docState] of (docManager as any).docs.entries()) {
+    for (const [docUri, docState] of docManager.getAllDocs()) {
         const textDoc = docs.get(docUri);
         if (!textDoc) continue;
         const text = textDoc.getText();
@@ -129,9 +129,7 @@ export function findReferences(
     return uniqueLocations;
 }
 
-function escapeRegExp(string: string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+
 
 function filterDuplicateLocations(locations: Location[]): Location[] {
     const seen = new Set<string>();

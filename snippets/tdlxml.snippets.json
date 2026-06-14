@@ -6,7 +6,7 @@
             "   <FORM>${1:reportname}</FORM>",
             "</REPORT>",
             "<FORM ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
-            "   <PARTS>${1:reportname}<PARTS>",
+            "   <PARTS>${1:reportname}</PARTS>",
             "</FORM>",
             "<PART ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
             "   <LINES>${1:reportname}</LINES>",
@@ -30,7 +30,7 @@
             "   <FORM>${1:reportname}</FORM>",
             "</REPORT>",
             "<FORM ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
-            "   <PARTS>${1:reportname}<PARTS>",
+            "   <PARTS>${1:reportname}</PARTS>",
             "</FORM>",
             "<PART ISMODIFY=\"No\" ISFIXED=\"No\" ISINITIALIZE=\"No\" ISOPTION=\"No\" ISINTERNAL=\"No\" NAME=\"${1:reportname}\">",
             "   <LINES>${1:reportname}:${2:collectionName}</LINES>",
@@ -203,7 +203,7 @@
         "body": [
             "<UNIT NAME=\"${1:UnitName}\" Action=\"${2|Create,Alter,Delete|}\">",
             "   <NAME>${1:UnitName}</NAME>",
-            "   <ORIGINALNAME>${2:FormalName}</ORIGINALNAME>",
+            "   <ORIGINALNAME>${3:FormalName}</ORIGINALNAME>",
             "   <BASEUNITS>${1:UnitName}</BASEUNITS>",
             "   $0",
             "</UNIT>"

@@ -47,6 +47,7 @@ export class DocManager {
         documents.onDidClose(e => {
             this.docs.delete(e.document.uri);
             this.symbolTable.clearDocument(e.document.uri);
+            this.scopeManager.removeFileScope(e.document.uri);
             this.connection.sendDiagnostics({ uri: e.document.uri, diagnostics: [] });
         });
     }
@@ -56,6 +57,13 @@ export class DocManager {
      */
     get(uri: string): DocState | undefined {
         return this.docs.get(uri);
+    }
+
+    /**
+     * Get all active document states
+     */
+    getAllDocs(): IterableIterator<[string, DocState]> {
+        return this.docs.entries();
     }
 
     /**
@@ -103,7 +111,7 @@ export class DocManager {
             const fullPath = path.join(dirPath, entry.name);
 
             if (entry.isDirectory()) {
-                // Skip node_modules, .git, etc8888888.
+                // Skip node_modules, .git, etc.
                 if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
                     await this.scanDirectory(fullPath);
                 }
@@ -144,8 +152,9 @@ export class DocManager {
                     this.symbolTable.addSymbol(symbolInfo);
                 }
             }
-        } catch {
-            // Silently skip files that can't be read
+        } catch (err) {
+            // Silently skip files that can't be read, but log error
+            this.connection.console.warn(`Error indexing file ${filePath}: ${err}`);
         }
     }
 

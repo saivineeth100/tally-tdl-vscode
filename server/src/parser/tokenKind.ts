@@ -12,14 +12,18 @@ export enum TokenKind {
     SingleLineComment = 50,
     MultiLineComment = 51,
 
+    SlashToken = 16,
+    OpenCommentSlashToken = 17,
+    CloseCommentSlashToken = 18,
+
     OpenSquareBracketToken = 100,
     CloseSquareBracketToken = 101,
 
     ExclamationToken = 102,
     AsteriskToken = 103,
     HashToken = 104,
-    DefinitionTypeToken = 105,
-    DefinitionNameToken = 106,
+    MultiplyToken = 28,
+    UnderScoreToken = 29,
 
     AtTheRateToken = 200,
     DoubleAtTheRateToken = 201,
@@ -27,11 +31,7 @@ export enum TokenKind {
     DollarToken = 203,
     DoubleDollarToken = 204,
     ColonToken = 205,
-    SlashToken = 206,
-    OpenCommentSlashToken = 207,
-    CloseCommentSlashToken = 208,
     PlusToken = 209,
-    UnderScoreToken = 210,
     CommaToken = 211,
     DotToken = 212,
     OpenParenToken = 213,
@@ -40,13 +40,12 @@ export enum TokenKind {
 
     MinusToken = 300,
     DivisionToken = 301,
-    MultiplyToken = 302,
     PercentToken = 303,
 
     GreaterThanEqualsToken = 510,
     LessThanEqualsToken = 511,
     NotEqualsToken = 512,
-    StringLiteralToken = 602,
+    StringLiteralToken = 604,
 
     OrToken = 400,
     AndToken = 401,
@@ -81,6 +80,8 @@ export enum TokenKind {
     SpaceToken = 601,
     StringToken = 602,
     NumberToken = 603,
+    DefinitionTypeToken = 801,
+    DefinitionNameToken = 802,
 
 
     BorderDefTypeToken = 700,
