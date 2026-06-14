@@ -1,6 +1,10 @@
 import * as http from 'http';
 import * as net from 'net';
 import * as vscode from 'vscode';
+import * as child_process from 'child_process';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { spawn } from 'child_process';
 
 export async function checkTallyRunning(port: number): Promise<boolean> {
@@ -60,7 +64,7 @@ export async function launchTallyAndWait(exePath: string, port: number, args: st
 }
 
 export interface TallyResponse {
-    body: string;
+    filePath: string;
     statusCode: number;
     elapsed: number;
 }
@@ -89,21 +93,31 @@ export async function sendXmlRequest(xmlBody: string, port: number): Promise<Tal
         };
         
         const req = http.request(options, (res) => {
-            let data = '';
+            const responsesDir = path.join(os.tmpdir(), 'tally-tdl-responses');
+            if (!fs.existsSync(responsesDir)) {
+                fs.mkdirSync(responsesDir, { recursive: true });
+            }
+            const tmpFilePath = path.join(responsesDir, `tally_response_${Date.now()}.xml`);
+            const writeStream = fs.createWriteStream(tmpFilePath);
             
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
+            res.pipe(writeStream);
             
-            res.on('end', () => {
+            writeStream.on('finish', () => {
                 if (isDone) return;
                 isDone = true;
                 clearTimeout(timeoutId);
                 resolve({
-                    body: data,
+                    filePath: tmpFilePath,
                     statusCode: res.statusCode || 200,
                     elapsed: Date.now() - startTime
                 });
+            });
+
+            writeStream.on('error', (e) => {
+                if (isDone) return;
+                isDone = true;
+                clearTimeout(timeoutId);
+                reject(e);
             });
         });
         
@@ -140,11 +154,19 @@ export async function fetchActiveCompanies(port: number): Promise<string[]> {
         const response = await sendXmlRequest(xml, port);
         const companies: string[] = [];
         const regex = /<COMPANY[^>]+NAME="([^"]+)"/gi;
+        
+        // Read file content for companies (this is small enough to load entirely)
+        const responseBody = await fs.promises.readFile(response.filePath, 'utf8');
+        
         let match;
-        while ((match = regex.exec(response.body)) !== null) {
+        while ((match = regex.exec(responseBody)) !== null) {
             const name = match[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039;/g, "'");
             companies.push(name);
         }
+        
+        // Clean up temp file
+        fs.unlink(response.filePath, () => {});
+        
         return [...new Set(companies)];
     } catch (e) {
         console.error('Failed to fetch companies', e);

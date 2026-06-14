@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tally Response</title>
+    <link rel="stylesheet" href="##STYLE_URI##">
+</head>
+<body>
+    <div id="variablesSection" class="section" style="display: none;">
+        <div class="header">Variables</div>
+        <div id="variablesList"></div>
+    </div>
+    
+    <div class="status-bar" id="statusBar" style="display: none;">
+        <div id="statusIndicator" class="status-indicator"></div>
+        <span id="statusMessage"></span>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-top: 10px;">
+        <div class="tabs">
+            <div class="tab active" data-target="tableView">Table</div>
+            <div class="tab" data-target="rawView">Raw</div>
+            <div style="flex: 1"></div>
+            <button id="refreshBtn" class="secondary" style="margin: 3px;" title="Refresh variables from current XML file">↻ Refresh</button>
+            <button id="sendBtn" style="margin: 3px;" title="Send Request">▶ Send Request</button>
+            <button id="openEditorBtn" class="secondary" style="margin: 3px;" title="Open currently active view in a new editor tab">↗ Open in Editor</button>
+        </div>
+        
+        <div id="tableView" class="tab-content active">
+            <div id="breadcrumb" class="breadcrumb" style="display: none; flex-shrink: 0;"></div>
+            <div id="tableSearchContainer" style="margin-bottom: 15px; display: none; flex-shrink: 0;">
+                <input type="text" id="tableSearch" placeholder="Search data or section headers..." style="width: 100%; max-width: 400px; padding: 6px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border);" />
+            </div>
+            <div id="tableContainer" style="overflow: auto; flex: 1;">
+                <div style="padding: 20px; text-align: center; color: var(--vscode-descriptionForeground);">
+                    Send a request to see data.
+                </div>
+            </div>
+        </div>
+
+        <div id="rawView" class="tab-content"></div>
+    </div>
+
+    ##SCRIPT_URI##
+</body>
+</html>

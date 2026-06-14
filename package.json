@@ -202,7 +202,12 @@
                     "description": "Map variable names to UI input types (e.g., date, number). Defaults to string if not specified.",
                     "additionalProperties": {
                         "type": "string",
-                        "enum": ["string", "number", "date", "company"]
+                        "enum": [
+                            "string",
+                            "number",
+                            "date",
+                            "company"
+                        ]
                     }
                 },
                 "tallyTDL.tallyPort": {
@@ -238,6 +243,7 @@
     "devDependencies": {
         "@types/mocha": "^10.0.6",
         "@types/node": "^20.11.0",
+        "@types/sax": "^1.2.7",
         "@typescript-eslint/eslint-plugin": "^8.17.0",
         "@typescript-eslint/parser": "^8.17.0",
         "eslint": "^9.16.0",
@@ -248,5 +254,8 @@
     "workspaces": [
         "client",
         "server"
-    ]
+    ],
+    "dependencies": {
+        "sax": "^1.6.0"
+    }
 }

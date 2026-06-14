@@ -195,7 +195,7 @@ export function activate(context: ExtensionContext) {
                 activeCompanies = await fetchActiveCompanies(port);
             }
             
-            ResponsePanel.currentPanel.updateVariables(variables, storedVars, variableTypes, activeCompanies);
+            ResponsePanel.currentPanel?.updateVariables(variables, storedVars, variableTypes, activeCompanies);
         }
     };
 
@@ -418,7 +418,8 @@ export function activate(context: ExtensionContext) {
                     const response = await sendXmlRequest(processedXml, port);
                     panel.setStatus('success', `Status: ${response.statusCode}`);
                     
-                    panel.showResponse(response.body, '', response.elapsed);
+                    // We now pass the file path instead of the entire string to avoid IPC limits
+                    panel.showResponse(response.filePath, '', response.elapsed);
                 } catch (err: any) {
                     panel.setStatus('error', err.message);
                     outputChannel.appendLine(`[Request Error] ${err.message}`);
