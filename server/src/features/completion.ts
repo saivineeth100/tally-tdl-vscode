@@ -531,8 +531,7 @@ function getDefinitionTypes(md: TdlMetadata): string[] {
 export function registerCompletion(
     connection: Connection,
     documents: TextDocuments<TextDocument>,
-    manager: DocManager,
-    symbolTable?: SymbolTable
+    manager: DocManager
 ) {
     connection.onCompletion((params: CompletionParams): CompletionList => {
         const items: CompletionItem[] = [];
@@ -551,6 +550,7 @@ export function registerCompletion(
         const currentDef = sourceFile ? findDefinitionAtCursor(sourceFile, offset) : undefined;
 
         const isXml = doc.languageId === 'xml';
+        const symbolTable = manager.getSymbolTable(params.textDocument.uri);
         let context: CompletionContext;
         if (isXml) {
             context = detectXmlCompletionContext(doc.getText(), offset, currentDef);
@@ -720,7 +720,7 @@ export function registerCompletion(
 
             case 'variable':
                 // 1. Local variables from scope
-                const scope = manager.scopeManager.getScopeAt(params.textDocument.uri, offset);
+                const scope = manager.getScopeManager(params.textDocument.uri).getScopeAt(params.textDocument.uri, offset);
                 if (scope && scope.symbols) {
                     for (const [varName, varInfo] of scope.symbols.entries()) {
                         if (context.partial === '' || varName.toLowerCase().includes(context.partial.toLowerCase())) {

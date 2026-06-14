@@ -28,14 +28,20 @@ export interface DocState {
 export class DocManager {
     private docs = new Map<string, DocState>();
 
-    /** Global symbol table for all documents */
-    public readonly symbolTable = new SymbolTable();
+    /** Global symbol table for TDL documents */
+    public readonly tdlSymbolTable = new SymbolTable();
+    /** Global symbol table for XML documents */
+    public readonly xmlSymbolTable = new SymbolTable();
 
-    /** Scope Manager for handling hierarchical scopes */
-    public readonly scopeManager = new ScopeManager(this.symbolTable);
+    /** Scope Manager for TDL files */
+    public readonly tdlScopeManager = new ScopeManager(this.tdlSymbolTable);
+    /** Scope Manager for XML files */
+    public readonly xmlScopeManager = new ScopeManager(this.xmlSymbolTable);
 
     /** Flag to track if workspace scan is in progress */
     private scanningInProgress = false;
+    /** Queue for workspace scan requests */
+    private scanQueue: string[][] = [];
 
     constructor(
         private connection: Connection, 
@@ -46,10 +52,20 @@ export class DocManager {
         documents.onDidChangeContent(e => this.rebuild(e.document));
         documents.onDidClose(e => {
             this.docs.delete(e.document.uri);
-            this.symbolTable.clearDocument(e.document.uri);
-            this.scopeManager.removeFileScope(e.document.uri);
+            this.getSymbolTable(e.document.uri).clearDocument(e.document.uri);
+            this.getScopeManager(e.document.uri).removeFileScope(e.document.uri);
             this.connection.sendDiagnostics({ uri: e.document.uri, diagnostics: [] });
         });
+    }
+
+    /** Helper to get the right SymbolTable for a URI */
+    public getSymbolTable(uri: string): SymbolTable {
+        return uri.toLowerCase().endsWith('.xml') || uri.toLowerCase().endsWith('.tdlxml') ? this.xmlSymbolTable : this.tdlSymbolTable;
+    }
+
+    /** Helper to get the right ScopeManager for a URI */
+    public getScopeManager(uri: string): ScopeManager {
+        return uri.toLowerCase().endsWith('.xml') || uri.toLowerCase().endsWith('.tdlxml') ? this.xmlScopeManager : this.tdlScopeManager;
     }
 
     /**
@@ -71,7 +87,10 @@ export class DocManager {
      * @param workspaceFolders Array of workspace folder URIs
      */
     scanWorkspaceFolders(workspaceFolders: string[]): void {
-        if (this.scanningInProgress) return;
+        if (this.scanningInProgress) {
+            this.scanQueue.push(workspaceFolders);
+            return;
+        }
         this.scanningInProgress = true;
 
         // Use setImmediate to not block the event loop
@@ -80,13 +99,27 @@ export class DocManager {
                 for (const folderUri of workspaceFolders) {
                     await this.scanFolder(folderUri);
                 }
-                this.connection.console.log(`Workspace scan complete. ${this.symbolTable.getSymbolCount()} definitions indexed.`);
+                const count = this.tdlSymbolTable.getSymbolCount() + this.xmlSymbolTable.getSymbolCount();
+                this.connection.console.log(`Workspace scan complete. ${count} definitions indexed.`);
             } catch (error) {
                 this.connection.console.error(`Workspace scan error: ${error}`);
             } finally {
                 this.scanningInProgress = false;
+                
+                if (this.scanQueue.length > 0) {
+                    const nextScan = this.scanQueue.shift()!;
+                    this.scanWorkspaceFolders(nextScan);
+                }
             }
         });
+    }
+
+    /**
+     * Clear all symbols for a specific folder path
+     */
+    clearFolderSymbols(folderPath: string): void {
+        this.tdlSymbolTable.clearFolder(folderPath);
+        this.xmlSymbolTable.clearFolder(folderPath);
     }
 
     /**
@@ -149,7 +182,7 @@ export class DocManager {
                         end: def.end,
                         definitionType: def.type.text
                     };
-                    this.symbolTable.addSymbol(symbolInfo);
+                    this.getSymbolTable(uri).addSymbol(symbolInfo);
                 }
             }
         } catch (err) {
@@ -188,7 +221,8 @@ export class DocManager {
         });
 
         // Update symbol table
-        this.symbolTable.clearDocument(doc.uri);
+        const symTable = this.getSymbolTable(doc.uri);
+        symTable.clearDocument(doc.uri);
         for (const def of sourceFile.definitions) {
             if (!def.isIncomplete && def.name) {
                 const symbolInfo: SymbolInfo = {
@@ -200,16 +234,17 @@ export class DocManager {
                     definitionType: def.type.text,
                     isModifier: !!def.modifier && def.modifier.Text !== '!'
                 };
-                this.symbolTable.addSymbol(symbolInfo);
+                symTable.addSymbol(symbolInfo);
             }
         }
 
         // Build Scope Tree for the file
-        this.scopeManager.buildFileScope(doc.uri, sourceFile);
+        const scopeMgr = this.getScopeManager(doc.uri);
+        scopeMgr.buildFileScope(doc.uri, sourceFile);
 
         // Run metadata-based validations if metadata is available
         if (metadata) {
-            diagnostics.push(...validateSourceFile(sourceFile, doc, metadata, this.symbolTable, this.scopeManager, this.resolveIncludePath));
+            diagnostics.push(...validateSourceFile(sourceFile, doc, metadata, symTable, scopeMgr, this.resolveIncludePath));
         }
 
         // Store document state and send diagnostics

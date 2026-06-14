@@ -54,14 +54,17 @@ describe('XML Schema Completion', () => {
         };
 
         const dummyDocs = { get: () => dummyDoc };
-        const dummyManager = { get: () => ({ sourceFile: { definitions: [] } }) };
+        const dummyManager = { 
+            get: () => ({ sourceFile: { definitions: [] } }),
+            getSymbolTable: () => symbolTable
+        };
         
         const dummyConnection = {
             onCompletion: (cb: any) => {
                 onCompletionCallback = cb;
             }
         };
-        registerCompletion(dummyConnection as any, dummyDocs as any, dummyManager as any, symbolTable);
+        registerCompletion(dummyConnection as any, dummyDocs as any, dummyManager as any);
 
         const list = onCompletionCallback({ textDocument: { uri: 'test.xml' }, position: { line: 0, character: offset } });
         return list.items;

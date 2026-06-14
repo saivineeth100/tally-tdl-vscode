@@ -36,10 +36,11 @@ describe('XML Suggestions Tests', () => {
         };
         
         mockManager = {
-            get: () => ({ sourceFile: { definitions: [], errors: [] } })
+            get: () => ({ sourceFile: { definitions: [], errors: [] } }),
+            getSymbolTable: () => new SymbolTable()
         };
         
-        registerCompletion(mockConnection, mockDocuments as any, mockManager as any, new SymbolTable());
+        registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
         
         const result = await completionCallback({
             textDocument: { uri: 'untitled:Untitled-1' },
@@ -81,10 +82,11 @@ describe('XML Suggestions Tests', () => {
                     ],
                     errors: []
                 }
-            })
+            }),
+            getSymbolTable: () => new SymbolTable()
         };
         
-        registerCompletion(mockConnection, mockDocuments as any, mockManager as any, new SymbolTable());
+        registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
         
         const result = await completionCallback({
             textDocument: { uri: 'untitled:Untitled-1' },
@@ -114,6 +116,16 @@ describe('XML Suggestions Tests', () => {
             get: () => doc
         };
         
+        const symbolTable = new SymbolTable();
+        symbolTable.addSymbol({
+            name: 'Simple Trial Balance',
+            kind: SymbolKind.Form,
+            uri: 'test',
+            start: 0,
+            end: 0,
+            definitionType: 'Form'
+        });
+
         mockManager = {
             get: () => ({
                 sourceFile: {
@@ -126,20 +138,11 @@ describe('XML Suggestions Tests', () => {
                     ],
                     errors: []
                 }
-            })
+            }),
+            getSymbolTable: () => symbolTable
         };
         
-        const symbolTable = new SymbolTable();
-        symbolTable.addSymbol({
-            name: 'Simple Trial Balance',
-            kind: SymbolKind.Form,
-            uri: 'test',
-            start: 0,
-            end: 0,
-            definitionType: 'Form'
-        });
-        
-        registerCompletion(mockConnection, mockDocuments as any, mockManager as any, symbolTable);
+        registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
         
         const result = await completionCallback({
             textDocument: { uri: 'untitled:Untitled-1' },
@@ -175,7 +178,7 @@ describe('XML Suggestions Tests', () => {
         const docManager = new DocManager(mockConnection, mockDocuments as any);
         await docManager.rebuild(doc);
         
-        const symbolTable = docManager.symbolTable;
+        const symbolTable = docManager.getSymbolTable(doc.uri);
         // Add existing form
         symbolTable.addSymbol({
             name: 'Simple Trial Balance',
@@ -188,9 +191,12 @@ describe('XML Suggestions Tests', () => {
 
         // Mocking direct call to completion provider
         mockDocuments = { get: () => doc };
-        mockManager = { get: () => docManager.get(doc.uri) };
+        mockManager = { 
+            get: () => docManager.get(doc.uri),
+            getSymbolTable: () => docManager.getSymbolTable(doc.uri)
+        };
         
-        registerCompletion(mockConnection, mockDocuments, mockManager, symbolTable);
+        registerCompletion(mockConnection, mockDocuments, mockManager);
         
         const result = await completionCallback({
             textDocument: { uri: doc.uri },

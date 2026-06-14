@@ -90,7 +90,7 @@ export function prepareRename(
         offset,
         doc.getText(),
         metadata,
-        docManager.scopeManager,
+        docManager.getScopeManager(uri),
         uri
     );
 

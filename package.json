@@ -90,6 +90,11 @@
                 "command": "tally-tdl.viewXmlAsTable",
                 "title": "Tally: View XML as Table",
                 "icon": "$(layout-sidebar-right)"
+            },
+            {
+                "command": "tally-tdl.restartServer",
+                "title": "Tally TDL: Restart Language Server",
+                "icon": "$(refresh)"
             }
         ],
         "menus": {

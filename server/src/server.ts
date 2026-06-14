@@ -41,8 +41,9 @@ async function loadMetadata(version: string) {
     await md.load();
     (globalThis as any).TDL_METADATA = md;
 
-    // Initialize Global Scope in ScopeManager
-    docManager.scopeManager.initializeGlobalScope(md);
+    // Initialize Global Scope in ScopeManagers
+    docManager.tdlScopeManager.initializeGlobalScope(md);
+    docManager.xmlScopeManager.initializeGlobalScope(md);
 }
 
 /**
@@ -55,6 +56,7 @@ function offsetToPosition(doc: TextDocument, offset: number) {
 // Store initialization params for fallback
 let initParams: InitializeParams;
 let globalWorkspaceFolders: string[] = [];
+let hasWorkspaceFolderCapability: boolean = false;
 
 // Handle initialization
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
@@ -63,6 +65,11 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     if (params.workspaceFolders) {
         globalWorkspaceFolders = params.workspaceFolders.map(f => URI.parse(f.uri).fsPath);
     }
+
+    const capabilities = params.capabilities;
+    hasWorkspaceFolderCapability = !!(
+        capabilities.workspace && !!capabilities.workspace.workspaceFolders
+    );
 
     // Block initialization until metadata is loaded to ensure handlers don't fail
     await loadMetadata("7.0");
@@ -104,26 +111,64 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
 // After initialization, scan workspace for TDL files
 connection.onInitialized(async () => {
-    try {
-        // Try to get workspace folders (may not be supported by client)
-        const folders = await connection.workspace.getWorkspaceFolders();
-        if (folders && folders.length > 0) {
-            globalWorkspaceFolders = folders.map(f => URI.parse(f.uri).fsPath);
-            const folderUris = folders.map(f => f.uri);
-            docManager.scanWorkspaceFolders(folderUris);
-            return;
+    // Try to get workspace folders (may not be supported by client)
+    if (hasWorkspaceFolderCapability) {
+        try {
+            const folders = await connection.workspace.getWorkspaceFolders();
+            if (folders && folders.length > 0) {
+                globalWorkspaceFolders = folders.map(f => URI.parse(f.uri).fsPath);
+                const folderUris = folders.map(f => f.uri);
+                docManager.scanWorkspaceFolders(folderUris);
+            }
+        } catch {
+            // Workspace folders not supported, fall through to rootUri
         }
-    } catch {
-        // Workspace folders not supported, fall through to rootUri
+
+        // Handle Workspace folder changes
+        connection.workspace.onDidChangeWorkspaceFolders((event) => {
+            // Remove folders
+            for (const folder of event.removed) {
+                const folderPath = URI.parse(folder.uri).fsPath;
+                globalWorkspaceFolders = globalWorkspaceFolders.filter(f => f !== folderPath);
+                docManager.clearFolderSymbols(folderPath);
+            }
+
+            // Add folders
+            const addedUris: string[] = [];
+            for (const folder of event.added) {
+                const folderPath = URI.parse(folder.uri).fsPath;
+                if (!globalWorkspaceFolders.includes(folderPath)) {
+                    globalWorkspaceFolders.push(folderPath);
+                    addedUris.push(folder.uri);
+                }
+            }
+            
+            if (addedUris.length > 0) {
+                docManager.scanWorkspaceFolders(addedUris);
+            }
+        });
     }
 
-    // Fallback to rootUri from initialization params
-    if (initParams?.rootUri) {
-        docManager.scanWorkspaceFolders([initParams.rootUri]);
-    } else if (initParams?.rootPath) {
-        // Legacy fallback
-        const { URI } = await import('vscode-uri');
-        docManager.scanWorkspaceFolders([URI.file(initParams.rootPath).toString()]);
+    // Fallback to rootUri from initialization params if workspace folders not found
+    if (globalWorkspaceFolders.length === 0) {
+        if (initParams?.rootUri) {
+            docManager.scanWorkspaceFolders([initParams.rootUri]);
+        } else if (initParams?.rootPath) {
+            // Legacy fallback
+            const { URI } = await import('vscode-uri');
+            docManager.scanWorkspaceFolders([URI.file(initParams.rootPath).toString()]);
+        }
+    }
+});
+
+// Handle file watcher events
+import { FileChangeType } from "vscode-languageserver/node";
+connection.onDidChangeWatchedFiles((change) => {
+    for (const changeEvent of change.changes) {
+        if (changeEvent.type === FileChangeType.Deleted) {
+            docManager.getSymbolTable(changeEvent.uri).clearDocument(changeEvent.uri);
+            docManager.getScopeManager(changeEvent.uri).removeFileScope(changeEvent.uri);
+        }
     }
 });
 
@@ -150,7 +195,7 @@ connection.onHover((params: HoverParams): Hover | null => {
     const metadata = (globalThis as any).TDL_METADATA;
 
     // Use enhanced hover with AST-based detection
-    const hoverResult = getHoverInfo(docState.sourceFile, offset, metadata, docManager.scopeManager, params.textDocument.uri);
+    const hoverResult = getHoverInfo(docState.sourceFile, offset, metadata, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri);
     if (!hoverResult) return null;
 
     return {
@@ -193,7 +238,7 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
 
     // Find if we're on a reference
     const metadata = (globalThis as any).TDL_METADATA;
-    const ref = findReferenceAtOffset(docState.sourceFile, offset, text, metadata, docManager.scopeManager, params.textDocument.uri);
+    const ref = findReferenceAtOffset(docState.sourceFile, offset, text, metadata, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri);
     // connection.console.log(`  Reference found: ${ref ? `${ref.name} (${ref.expectedType})` : 'none'}`);
     if (!ref) return null;
 
@@ -212,9 +257,10 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
     }
 
     // Use ScopeManager to resolve first (this handles local variables, iterators, and global symbols)
-    const scope = docManager.scopeManager.getScopeAt(params.textDocument.uri, offset);
+    const scopeMgr = docManager.getScopeManager(params.textDocument.uri);
+    const scope = scopeMgr.getScopeAt(params.textDocument.uri, offset);
     if (scope) {
-        const resolved = docManager.scopeManager.resolve(ref.name, scope);
+        const resolved = scopeMgr.resolve(ref.name, scope);
         if (resolved) {
             // Found via ScopeManager!
             const targetDoc = docs.get(resolved.uri);
@@ -256,7 +302,7 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
 
     // If not found in current file, look in symbol table (cross-file)
     if (!targetDef) {
-        const symbols = docManager.symbolTable.findAllByName(ref.name);
+        const symbols = docManager.getSymbolTable(params.textDocument.uri).findAllByName(ref.name);
         // connection.console.log(`  Symbol table lookup: found ${symbols?.length || 0} symbols`);
 
         if (symbols && symbols.length > 0) {
@@ -382,12 +428,12 @@ connection.languages.semanticTokens.on((params) => {
     if (!docState || !docState.sourceFile) return { data: [] };
 
     const metadata = (globalThis as any).TDL_METADATA;
-    return provideSemanticTokens(docState.sourceFile, doc, docManager.scopeManager, metadata);
+    return provideSemanticTokens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri), metadata);
 });
 
 // Handlers registered below
 // Register completion handler with symbol table for definition name suggestions
-registerCompletion(connection, docs, docManager, docManager.symbolTable);
+registerCompletion(connection, docs, docManager);
 
 // Handle document formatting
 import { formatDocument } from "./services/formatting";

@@ -18,6 +18,7 @@ import { sendXmlRequest, checkTallyRunning, launchTallyAndWait, fetchActiveCompa
 
 let defaultClient: LanguageClient;
 const clients = new Map<string, LanguageClient>();
+let nextDebugPort = 6009;
 
 let _sortedWorkspaceFolders: string[] | undefined;
 function sortedWorkspaceFolders(): string[] {
@@ -73,7 +74,7 @@ export function activate(context: ExtensionContext) {
                 debug: { 
                     module, 
                     transport: TransportKind.ipc,
-                    options: { execArgv: ['--nolazy', '--inspect=6009'] }
+                    options: { execArgv: ['--nolazy', `--inspect=${nextDebugPort++}`] }
                 }
             };
             const clientOptions: LanguageClientOptions = {
@@ -108,7 +109,7 @@ export function activate(context: ExtensionContext) {
                 debug: { 
                     module, 
                     transport: TransportKind.ipc,
-                    options: { execArgv: ['--nolazy', '--inspect=6009'] }
+                    options: { execArgv: ['--nolazy', `--inspect=${nextDebugPort++}`] }
                 }
             };
             const clientOptions: LanguageClientOptions = {
@@ -454,7 +455,24 @@ export function activate(context: ExtensionContext) {
             }
         }),
         commands.registerCommand('tally-tdl.setupTallyPath', setupTallyPath),
-        commands.registerCommand('tally-tdl.setupOdbcPort', setupOdbcPort)
+        commands.registerCommand('tally-tdl.setupOdbcPort', setupOdbcPort),
+        commands.registerCommand('tally-tdl.restartServer', async () => {
+            const promises: Thenable<void>[] = [];
+            if (defaultClient) {
+                promises.push(defaultClient.stop());
+                (defaultClient as any) = undefined;
+            }
+            for (const client of clients.values()) {
+                promises.push(client.stop());
+            }
+            clients.clear();
+            await Promise.all(promises);
+            
+            window.showInformationMessage('Tally TDL Language Server restarted.');
+            
+            // Re-trigger for all open text documents
+            workspace.textDocuments.forEach(didOpenTextDocument);
+        })
     );
 }
 

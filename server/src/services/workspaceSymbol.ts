@@ -34,7 +34,9 @@ export function getWorkspaceSymbols(
     const result: SymbolInformation[] = [];
     const MAX_RESULTS = 100;
     
-    const matchedSymbols = docManager.symbolTable.searchSymbols(query, typeFilter, MAX_RESULTS);
+    const tdlSymbols = docManager.tdlSymbolTable.searchSymbols(query, typeFilter, MAX_RESULTS);
+    const xmlSymbols = docManager.xmlSymbolTable.searchSymbols(query, typeFilter, MAX_RESULTS);
+    const matchedSymbols = [...tdlSymbols, ...xmlSymbols].slice(0, MAX_RESULTS);
 
     for (const sym of matchedSymbols) {
         let range = {

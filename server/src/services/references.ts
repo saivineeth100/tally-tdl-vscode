@@ -28,7 +28,7 @@ export function findReferences(
         offset,
         sourceDoc.getText(),
         metadata,
-        docManager.scopeManager,
+        docManager.getScopeManager(uri),
         uri
     );
 
@@ -84,7 +84,7 @@ export function findReferences(
                 matchOffset,
                 text,
                 metadata,
-                docManager.scopeManager,
+                docManager.getScopeManager(docUri),
                 docUri
             );
 

@@ -167,6 +167,29 @@ export class SymbolTable {
     }
 
     /**
+     * Clear all symbols for all documents in a specific folder path
+     * @param folderPath Folder path to clear (absolute path)
+     */
+    clearFolder(folderPath: string): void {
+        const normalizedFolder = folderPath.toLowerCase().replace(/\\/g, '/');
+        const urisToDelete: string[] = [];
+
+        // Find all URIs that start with the folder path
+        for (const uri of this.documentSymbols.keys()) {
+            // Convert file URI to path-like structure for comparison, or just check if it starts with the folder path
+            // e.g. file:///c:/folder/file.tdl
+            const decodedUri = decodeURIComponent(uri).toLowerCase();
+            if (decodedUri.includes(normalizedFolder)) {
+                urisToDelete.push(uri);
+            }
+        }
+
+        for (const uri of urisToDelete) {
+            this.clearDocument(uri);
+        }
+    }
+
+    /**
      * Find all symbols of a specific kind
      * @param kind Symbol kind to search for
      * @returns Array of matching symbols
