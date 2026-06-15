@@ -1,3 +1,4 @@
+import { getMetadata, setMetadata } from '../metadataService';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { findReferences } from '../references';
 import { DocManager } from '../../docManager';
@@ -83,7 +84,7 @@ function setupMocks(files: Record<string, string>) {
 
 describe('References Service', () => {
     beforeEach(() => {
-        (globalThis as any).TDL_METADATA = mockMetadata;
+        setMetadata(mockMetadata as any);
     });
 
     it('should find references within same file', () => {

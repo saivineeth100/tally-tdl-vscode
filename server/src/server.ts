@@ -19,7 +19,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { URI } from 'vscode-uri';
 import { TdlMetadata } from "./tdlMetaData";
-import { registerCompletion } from "./features/completion";
+import { getMetadata, setMetadata, requireMetadata } from './services/metadataService';
+import { registerCompletion, buildFunctionDocumentation, buildAttributeDocumentation } from "./features/completion";
 import { createDocumentSymbols } from "./services/documentSymbol";
 import { getHoverInfo } from "./services/hover";
 import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from "./services/definition";
@@ -39,7 +40,7 @@ async function loadMetadata(version: string) {
     const dataDir = path.resolve(__dirname, '../data');
     const md = new TdlMetadata(dataDir, version);
     await md.load();
-    (globalThis as any).TDL_METADATA = md;
+    setMetadata(md);
 
     // Initialize Global Scope in ScopeManagers
     docManager.tdlScopeManager.initializeGlobalScope(md);
@@ -192,7 +193,7 @@ connection.onHover((params: HoverParams): Hover | null => {
     if (!docState || !docState.sourceFile) return null;
 
     const offset = doc.offsetAt(params.position);
-    const metadata = (globalThis as any).TDL_METADATA;
+    const metadata = requireMetadata();
 
     // Use enhanced hover with AST-based detection
     const hoverResult = getHoverInfo(docState.sourceFile, offset, metadata, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri);
@@ -236,8 +237,11 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
     const text = doc.getText();
     const offset = doc.offsetAt(params.position);
 
+    // Load metadata only when specifically requested
+    const metadata = getMetadata();
+    if (!metadata) return null;
+    
     // Find if we're on a reference
-    const metadata = (globalThis as any).TDL_METADATA;
     const ref = findReferenceAtOffset(docState.sourceFile, offset, text, metadata, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri);
     // connection.console.log(`  Reference found: ${ref ? `${ref.name} (${ref.expectedType})` : 'none'}`);
     if (!ref) return null;
@@ -390,7 +394,7 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
         }
 
         // Check Default TDL
-        const md = (globalThis as any).TDL_METADATA as TdlMetadata;
+        const md = getMetadata();
         if (md && ref.expectedType) {
             // Find matching key case-insensitively
             const defTypeKey = Array.from(md.existingDefinitions.keys()).find(k => k.toLowerCase() === ref.expectedType.toLowerCase());
@@ -415,12 +419,12 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
             end: offsetToPosition(doc, loc.end)
         }
     };
-});
+    });
 
 // Handle semantic tokens request
 import { provideSemanticTokens, TDL_SEMANTIC_TOKENS_LEGEND } from "./services/semanticTokens/semanticTokens";
 
-connection.languages.semanticTokens.on((params) => {
+connection.languages.semanticTokens.on((params, token) => {
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return { data: [] };
 
@@ -428,17 +432,16 @@ connection.languages.semanticTokens.on((params) => {
     if (!docState || !docState.sourceFile) return { data: [] };
 
     const metadata = (globalThis as any).TDL_METADATA;
-    return provideSemanticTokens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri), metadata);
+    return provideSemanticTokens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri), metadata, token);
 });
 
 // Handlers registered below
 // Register completion handler with symbol table for definition name suggestions
 registerCompletion(connection, docs, docManager);
-
 // Handle document formatting
 import { formatDocument } from "./services/formatting";
 
-connection.onDocumentFormatting((params) => {
+connection.onDocumentFormatting((params, token) => {
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return [];
 
@@ -451,7 +454,7 @@ connection.onDocumentFormatting((params) => {
 // Handle On-Type Formatting (Procedural labels and Auto-closing blocks)
 import { provideOnTypeFormatting } from "./services/onTypeFormatting";
 
-connection.onDocumentOnTypeFormatting((params) => {
+connection.onDocumentOnTypeFormatting((params, token) => {
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return [];
 
@@ -508,8 +511,8 @@ connection.onDocumentLinks((params: DocumentLinkParams): DocumentLink[] => {
 
 // Handle Workspace Symbols Request
 import { getWorkspaceSymbols } from "./services/workspaceSymbol";
-connection.onWorkspaceSymbol((params) => {
-    return getWorkspaceSymbols(params, docManager, docs);
+connection.onWorkspaceSymbol(async (params, token) => {
+    return await getWorkspaceSymbols(params, docManager, docs, token);
 });
 
 // Handle Document Highlight Request
@@ -536,3 +539,39 @@ connection.onRequest("tdl/convertToXml", async (params: { uri: string }) => {
 // Start listening (Must be at the very end after all handlers are registered)
 docs.listen(connection);
 connection.listen();
+
+
+connection.onCompletionResolve((item) => {
+    if (!item.data) return item;
+    const md = getMetadata();
+    if (!md) return item;
+
+    if (item.data.type === 'function') {
+        const func = md.functions.find(f => f.Name === item.data.name);
+        if (func) {
+            item.documentation = {
+                kind: 'markdown',
+                value: buildFunctionDocumentation(func)
+            };
+        }
+    } else if (item.data.type === 'attribute') {
+        const targetDef = item.data.defType;
+        let attrs;
+        for (const [name, defAttrs] of md.definitions.entries()) {
+            if (name.toLowerCase().replace(/\s+/g, '') === targetDef.toLowerCase().replace(/\s+/g, '')) {
+                attrs = defAttrs;
+                break;
+            }
+        }
+        if (attrs) {
+            const attr = attrs.find(a => a.Name === item.data.name);
+            if (attr) {
+                item.documentation = {
+                    kind: 'markdown',
+                    value: buildAttributeDocumentation(attr)
+                };
+            }
+        }
+    }
+    return item;
+});

@@ -1,3 +1,4 @@
+import { getMetadata } from './metadataService';
 import { Location } from 'vscode-languageserver';
 import { DocManager } from '../docManager';
 import { TextDocuments } from 'vscode-languageserver';
@@ -19,7 +20,7 @@ export function findReferences(
     
     if (!sourceDoc || !sourceDocState) return locations;
 
-    const metadata = (globalThis as any).TDL_METADATA;
+    const metadata = getMetadata();
 
     // Determine what we are trying to find references for.
     // It could be a reference or a definition where the cursor currently is.

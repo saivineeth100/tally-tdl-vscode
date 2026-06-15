@@ -49,7 +49,7 @@ describe('XML Schema Validation', () => {
         lineCount: 1
     } as any);
 
-    it('reports no errors for valid properties and nested objects', () => {
+    it('reports no errors for valid properties and nested objects', async () => {
         const sourceFile = new SourceFile(0, 100);
         
         const def = new DefinitionNode(0, 50, new Token(TokenKind.OpenSquareBracketToken, 0, 0, 1), new IdentifierNode([], 'VOUCHER'), new Token(TokenKind.CloseSquareBracketToken, 10, 10, 1));
@@ -68,11 +68,11 @@ describe('XML Schema Validation', () => {
         def.complexObjects = [complexObj];
         sourceFile.definitions.push(def);
 
-        const diagnostics = validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
         expect(diagnostics.length).toBe(0);
     });
 
-    it('reports errors for unknown properties', () => {
+    it('reports errors for unknown properties', async () => {
         const sourceFile = new SourceFile(0, 100);
         
         const def = new DefinitionNode(0, 50, new Token(TokenKind.OpenSquareBracketToken, 0, 0, 1), new IdentifierNode([], 'VOUCHER'), new Token(TokenKind.CloseSquareBracketToken, 10, 10, 1));
@@ -82,12 +82,12 @@ describe('XML Schema Validation', () => {
         
         sourceFile.definitions.push(def);
 
-        const diagnostics = validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
         expect(diagnostics.length).toBe(1);
         expect(diagnostics[0].message).toContain("Unknown property 'UNKNOWNPROP'");
     });
 
-    it('reports errors for invalid logical values', () => {
+    it('reports errors for invalid logical values', async () => {
         const sourceFile = new SourceFile(0, 100);
         
         const def = new DefinitionNode(0, 50, new Token(TokenKind.OpenSquareBracketToken, 0, 0, 1), new IdentifierNode([], 'VOUCHER'), new Token(TokenKind.CloseSquareBracketToken, 10, 10, 1));
@@ -97,7 +97,7 @@ describe('XML Schema Validation', () => {
         
         sourceFile.definitions.push(def);
 
-        const diagnostics = validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
         expect(diagnostics.length).toBe(1);
         expect(diagnostics[0].message).toContain("Invalid logical value");
     });

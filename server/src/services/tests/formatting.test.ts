@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { formatDocument } from '../formatting';
 import { FormattingOptions } from 'vscode-languageserver';
 import { Parser } from '../../parser/parser';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 describe('Document Formatting', () => {
     const options: FormattingOptions = {
@@ -11,6 +12,16 @@ describe('Document Formatting', () => {
         insertFinalNewline: true,
         trimFinalNewlines: true
     };
+
+    function apply(input: string, expected: string) {
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+        const edits = formatDocument(input, sourceFile, options);
+        
+        const doc = TextDocument.create('test://test.tdl', 'tdl', 1, input);
+        const result = TextDocument.applyEdits(doc, edits);
+        expect(result).toBe(expected);
+    }
 
     it('should indent attributes inside a definition', () => {
         const input = `[Report: MyReport]
@@ -22,13 +33,7 @@ Form: MyForm`;
     Form: MyForm
 `; // Expect final newline
 
-        const parser = new Parser(input);
-        const sourceFile = parser.parse();
-
-        const edits = formatDocument(input, sourceFile, options);
-        expect(edits).toBeDefined();
-        expect(edits.length).toBe(1);
-        expect(edits[0].newText).toBe(expected);
+        apply(input, expected);
     });
 
     it('should indent comments inside a definition', () => {
@@ -42,11 +47,7 @@ Form: MyForm`;
     ;; This is a comment inside
     Form: MyForm
 `;
-        const parser = new Parser(input);
-        const sourceFile = parser.parse();
-
-        const edits = formatDocument(input, sourceFile, options);
-        expect(edits[0].newText).toBe(expected);
+        apply(input, expected);
     });
 
     it('should handle existing indentation', () => {
@@ -56,11 +57,7 @@ Form: MyForm`;
         const expected = `[Report: MyReport]
     Title: "My Title"
 `;
-        const parser = new Parser(input);
-        const sourceFile = parser.parse();
-
-        const edits = formatDocument(input, sourceFile, options);
-        expect(edits[0].newText).toBe(expected);
+        apply(input, expected);
     });
 
     it('should preserve spacing around colons for alignment', () => {
@@ -69,15 +66,16 @@ Form: MyForm`;
     Form  : MyForm
     Part: MyPart`;
 
-        const expected = `[Report: Report1]
+        // Currently alignment logic is not fully implemented in Trivia-based, 
+        // but it should at least not strip spaces before colon if we handle it correctly.
+        // Actually formatting.ts adds space after colon, but doesn't do column alignment yet.
+        // We'll just check it formats basic stuff.
+        
+        const expectedBasic = `[Report: Report1]
     Title : "My Title"
     Form  : MyForm
     Part: MyPart
 `;
-        const parser = new Parser(input);
-        const sourceFile = parser.parse();
-
-        const edits = formatDocument(input, sourceFile, options);
-        expect(edits[0].newText).toBe(expected);
+        apply(input, expectedBasic);
     });
 });

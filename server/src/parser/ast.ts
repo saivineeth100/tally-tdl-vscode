@@ -18,7 +18,10 @@ export enum SyntaxKind {
     Statement,
     Comment,
     List,
-    ComplexObject
+    ComplexObject,
+    BinaryExpression,
+    UnaryExpression,
+    Directive
 }
 
 export interface Node {
@@ -80,6 +83,7 @@ export class DefinitionNode implements Node {
     public attributes: AttributeNode[] = [];
     public statements: StatementNode[] = [];
     public complexObjects: ComplexObjectNode[] = [];
+    public directives: DirectiveNode[] = [];
 
     /** 
      * Indicates if this definition was parsed with error recovery.
@@ -106,6 +110,22 @@ export class DefinitionNode implements Node {
     public get getNameCanonical(): string | undefined {
         if (!this.name) return undefined;
         return this.name.text.replace(/\s+/g, '').toLowerCase();
+    }
+}
+
+export class DirectiveNode implements Node {
+    kind = SyntaxKind.Directive as const;
+    parent?: Node;
+    start: number;
+    end: number;
+    name: string;
+    value: string;
+
+    constructor(start: number, end: number, name: string, value: string) {
+        this.start = start;
+        this.end = end;
+        this.name = name;
+        this.value = value;
     }
 }
 
@@ -326,7 +346,7 @@ export class ListNode implements Node {
 }
 
 export class BinaryExpressionNode implements ExpressionNode {
-    kind: SyntaxKind = SyntaxKind.Statement; // Custom kind if needed, using Statement or Expression
+    kind: SyntaxKind = SyntaxKind.BinaryExpression;
     parent?: Node;
     start: number;
     end: number;
@@ -344,7 +364,7 @@ export class BinaryExpressionNode implements ExpressionNode {
 }
 
 export class UnaryExpressionNode implements ExpressionNode {
-    kind: SyntaxKind = SyntaxKind.Statement;
+    kind: SyntaxKind = SyntaxKind.UnaryExpression;
     parent?: Node;
     start: number;
     end: number;
@@ -436,7 +456,7 @@ export class StartBlockNode extends BlockStatementNode {
 }
 
 export class DoIfNode extends StatementNode {
-    public condition: any | undefined;
+    public condition: ExpressionNode | LiteralNode | IdentifierNode | undefined;
     public actionStatement: StatementNode | undefined;
     constructor(stmt: StatementNode) {
         super(stmt.label, stmt.action, stmt.args);
@@ -446,7 +466,7 @@ export class DoIfNode extends StatementNode {
 }
 
 export class ReturnNode extends StatementNode {
-    public returnValue: any | undefined;
+    public returnValue: ExpressionNode | LiteralNode | IdentifierNode | undefined;
     constructor(stmt: StatementNode) {
         super(stmt.label, stmt.action, stmt.args);
         this.start = stmt.start;
@@ -471,8 +491,8 @@ export class ContinueNode extends StatementNode {
 }
 
 export class SetNode extends StatementNode {
-    public targetVariable: any | undefined;
-    public valueExpression: any | undefined;
+    public targetVariable: ExpressionNode | LiteralNode | IdentifierNode | undefined;
+    public valueExpression: ExpressionNode | LiteralNode | IdentifierNode | undefined;
     constructor(stmt: StatementNode) {
         super(stmt.label, stmt.action, stmt.args);
         this.start = stmt.start;
@@ -481,8 +501,8 @@ export class SetNode extends StatementNode {
 }
 
 export class ExchangeNode extends StatementNode {
-    public var1: any | undefined;
-    public var2: any | undefined;
+    public var1: ExpressionNode | LiteralNode | IdentifierNode | undefined;
+    public var2: ExpressionNode | LiteralNode | IdentifierNode | undefined;
     constructor(stmt: StatementNode) {
         super(stmt.label, stmt.action, stmt.args);
         this.start = stmt.start;
@@ -491,8 +511,8 @@ export class ExchangeNode extends StatementNode {
 }
 
 export class IncrementNode extends StatementNode {
-    public targetVariable: any | undefined;
-    public stepValue: any | undefined;
+    public targetVariable: ExpressionNode | LiteralNode | IdentifierNode | undefined;
+    public stepValue: ExpressionNode | LiteralNode | IdentifierNode | undefined;
     constructor(stmt: StatementNode) {
         super(stmt.label, stmt.action, stmt.args);
         this.start = stmt.start;
@@ -501,12 +521,25 @@ export class IncrementNode extends StatementNode {
 }
 
 export class DecrementNode extends StatementNode {
-    public targetVariable: any | undefined;
-    public stepValue: any | undefined;
+    public targetVariable: ExpressionNode | LiteralNode | IdentifierNode | undefined;
+    public stepValue: ExpressionNode | LiteralNode | IdentifierNode | undefined;
     constructor(stmt: StatementNode) {
         super(stmt.label, stmt.action, stmt.args);
         this.start = stmt.start;
         this.end = stmt.end;
     }
+}
+
+export class SwitchNode extends BlockStatementNode {
+    public condition: ExpressionNode | LiteralNode | IdentifierNode | undefined;
+    public cases: CaseNode[] = [];
+    public defaultCase: DefaultNode | undefined;
+}
+
+export class CaseNode extends BlockStatementNode {
+    public value: ExpressionNode | LiteralNode | IdentifierNode | undefined;
+}
+
+export class DefaultNode extends BlockStatementNode {
 }
 

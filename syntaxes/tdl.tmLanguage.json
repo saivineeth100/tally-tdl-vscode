@@ -1,6 +1,48 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "Tally TDL",
-	"scopeName": "source.tdl",
-	"patterns": []
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Tally TDL",
+    "scopeName": "source.tdl",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#definition-block" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#keywords" },
+        { "include": "#functions" },
+        { "include": "#variables" }
+    ],
+    "repository": {
+        "comments": {
+            "match": ";;.*$",
+            "name": "comment.line.semicolon.tdl"
+        },
+        "definition-block": {
+            "match": "\\[(#|!|\\*)?\\s*(Report|Form|Part|Line|Field|Collection|Menu|Button|Key|Variable|Function|Object|Rule|EventHandler)\\s*:\\s*([^\\]]+)\\]",
+            "captures": {
+                "1": { "name": "keyword.operator.modifier.tdl" },
+                "2": { "name": "keyword.other.definition-type.tdl" },
+                "3": { "name": "entity.name.type.tdl" }
+            }
+        },
+        "strings": {
+            "match": "\"[^\"]*\"",
+            "name": "string.quoted.double.tdl"
+        },
+        "numbers": {
+            "match": "\\b\\d+(\\.\\d+)?\\b",
+            "name": "constant.numeric.tdl"
+        },
+        "keywords": {
+            "match": "\\b(If|Then|Else|EndIf|While|EndWhile|Walk|EndWalk|For|EndFor|Switch|Case|Break|Continue|Return|Use|Set|Local|Add|Delete|Replace|Option)\\b",
+            "name": "keyword.control.tdl"
+        },
+        "functions": {
+            "match": "\\$\\$[A-Za-z_][A-Za-z0-9_]*",
+            "name": "entity.name.function.tdl"
+        },
+        "variables": {
+            "match": "##[A-Za-z_][A-Za-z0-9_]*",
+            "name": "variable.other.tdl"
+        }
+    }
 }

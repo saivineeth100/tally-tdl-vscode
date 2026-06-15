@@ -1,4 +1,4 @@
-import { SymbolInformation, SymbolKind as LSPSymbolKind, WorkspaceSymbolParams, TextDocuments } from 'vscode-languageserver';
+import { SymbolInformation, SymbolKind as LSPSymbolKind, WorkspaceSymbolParams, TextDocuments, CancellationToken } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DocManager } from '../docManager';
 import { SymbolKind } from './symbolTable';
@@ -6,11 +6,12 @@ import { SymbolKind } from './symbolTable';
 import * as fs from 'fs';
 import { URI } from 'vscode-uri';
 
-export function getWorkspaceSymbols(
+export async function getWorkspaceSymbols(
     params: WorkspaceSymbolParams, 
     docManager: DocManager,
-    docs: TextDocuments<TextDocument>
-): SymbolInformation[] {
+    docs: TextDocuments<TextDocument>,
+    token?: CancellationToken
+): Promise<SymbolInformation[]> {
     let query = params.query.trim();
     let typeFilter: string | undefined;
 
@@ -39,6 +40,7 @@ export function getWorkspaceSymbols(
     const matchedSymbols = [...tdlSymbols, ...xmlSymbols].slice(0, MAX_RESULTS);
 
     for (const sym of matchedSymbols) {
+        if (token?.isCancellationRequested) return [];
         let range = {
             start: { line: 0, character: 0 },
             end: { line: 0, character: 0 }
@@ -54,7 +56,7 @@ export function getWorkspaceSymbols(
             // Document not open, read from disk to compute position
             try {
                 const filePath = URI.parse(sym.uri).fsPath;
-                const content = fs.readFileSync(filePath, 'utf-8');
+                const content = await fs.promises.readFile(filePath, "utf-8");
                 range = {
                     start: getPositionAt(content, sym.start),
                     end: getPositionAt(content, sym.end)

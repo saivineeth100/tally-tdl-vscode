@@ -4,7 +4,8 @@ import { DocManager } from '../docManager';
 import { TdlMetadata, TDLDefinition } from '../tdlMetaData';
 import { TDLFunction } from '../models/tdlFunction';
 import { DefinitionNode, SourceFile } from '../parser/ast';
-import { SymbolTable, definitionTypeToSymbolKind } from '../services/symbolTable';
+import { SymbolTable, SymbolKind, definitionTypeToSymbolKind } from '../services/symbolTable';
+import { getMetadata } from '../services/metadataService';
 import { normalizeTypeName } from '../services/utils';
 import { getDefinitionAtOffset } from '../services/hover';
 import { TokenKind } from '../parser/tokenKind';
@@ -12,7 +13,7 @@ import { TokenKind } from '../parser/tokenKind';
 /**
  * Build markdown documentation for an attribute
  */
-function buildAttributeDocumentation(attr: TDLDefinition): string {
+export function buildAttributeDocumentation(attr: TDLDefinition): string {
     let doc = attr.Description || '';
 
     if (attr.Parameters && attr.Parameters.length > 0) {
@@ -44,7 +45,7 @@ function buildAttributeDocumentation(attr: TDLDefinition): string {
  * @param func Function metadata
  * @returns Markdown documentation string
  */
-function buildFunctionDocumentation(func: TDLFunction): string {
+export function buildFunctionDocumentation(func: TDLFunction): string {
     let doc = func.Description || '';
 
     const mandatory = func.TotalMandatoryParameters;
@@ -110,10 +111,7 @@ function getFunctionSuggestions(
             detail: func.ReturnType ? `Returns: ${func.ReturnType}${returnTypeMatches ? ' ✓' : ''}` : 'TDL Function',
             insertText: func.TotalParameters > 0 ? `$$${func.Name}($0)` : `$$${func.Name}`,
             insertTextFormat: 2, // Snippet
-            documentation: {
-                kind: MarkupKind.Markdown,
-                value: buildFunctionDocumentation(func)
-            },
+            data: { type: 'function', name: func.Name },
             sortText: sortPrefix + func.Name.toLowerCase(),
         });
     }
@@ -535,10 +533,10 @@ export function registerCompletion(
 ) {
     connection.onCompletion((params: CompletionParams): CompletionList => {
         const items: CompletionItem[] = [];
-        const md = (globalThis as any).TDL_METADATA as TdlMetadata;
+        const md = getMetadata() as TdlMetadata;
         const doc = documents.get(params.textDocument.uri);
         if (!doc || !md) {
-            return { items, isIncomplete: true };
+            return { items, isIncomplete: false };
         }
 
         const offset = doc.offsetAt(params.position);
@@ -883,7 +881,7 @@ export function registerCompletion(
                                                 detail: `${targetDefType} attribute`,
                                                 insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr} : `,
                                                 insertTextFormat: isXml ? 2 : undefined,
-                                                documentation: { kind: MarkupKind.Markdown, value: buildAttributeDocumentation(attr) },
+                                                data: { type: 'attribute', defType: targetDefType, name: attr.Name },
                                                 sortText: attr.Name.toLowerCase(),
                                             });
                                         }
@@ -916,7 +914,7 @@ export function registerCompletion(
                                             detail: `${defTypeName} attribute`,
                                             insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr} : `,
                                             insertTextFormat: isXml ? 2 : undefined,
-                                            documentation: { kind: MarkupKind.Markdown, value: buildAttributeDocumentation(attr) },
+                                            data: { type: 'attribute', defType: defTypeName, name: attr.Name },
                                             sortText: attr.Name.toLowerCase(),
                                         });
                                     }
@@ -1058,10 +1056,7 @@ export function registerCompletion(
                                     detail: `${defTypeName} attribute`,
                                     insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr} : `,
                                     insertTextFormat: isXml ? 2 : undefined,
-                                    documentation: {
-                                        kind: MarkupKind.Markdown,
-                                        value: buildAttributeDocumentation(attr)
-                                    },
+                                    data: { type: 'attribute', defType: defTypeName, name: attr.Name },
                                     sortText: '1_' + attr.Name.toLowerCase(),
                                 });
                             }
@@ -1241,6 +1236,6 @@ export function registerCompletion(
                 break;
         }
 
-        return { items, isIncomplete: true };
+        return { items, isIncomplete: false };
     });
 }

@@ -1,4 +1,4 @@
-import { TextEdit, FormattingOptions, Range, Position } from 'vscode-languageserver';
+import { TextEdit, FormattingOptions, Range, Position, CancellationToken } from 'vscode-languageserver';
 import { SourceFile } from '../parser/ast';
 import { TokenKind } from '../parser/tokenKind';
 import { Token } from '../parser/token';
@@ -7,7 +7,7 @@ import { Token } from '../parser/token';
  * Format the whole document using Trivia-Based Formatting (Token Stream Reconstruction)
  * This ensures structure-aware formatting and avoids regex risks (e.g. inside strings).
  */
-export function formatDocument(text: string, sourceFile: SourceFile, options: FormattingOptions): TextEdit[] {
+export function formatDocument(text: string, sourceFile: SourceFile, options: FormattingOptions, cancelToken?: CancellationToken): TextEdit[] {
     // 1. Calculate Target Indentation Map (Context-based)
     // We still use the AST definitions to decide *what level* a line should be indented to.
     const lineIndents = new Array(sourceFile.lineOffsets.length).fill(0);
@@ -93,6 +93,7 @@ export function formatDocument(text: string, sourceFile: SourceFile, options: Fo
     }
 
     for (const token of sourceFile.tokens) {
+        if (cancelToken?.isCancellationRequested) return [];
         // A. Leading Trivia
         const tokenLine = getLineFromOffset(token.Start);
         processTrivia(token.Leading, tokenLine);
@@ -126,13 +127,30 @@ export function formatDocument(text: string, sourceFile: SourceFile, options: Fo
         formattedText += '\n';
     }
 
-    // Calculate last line length using offsets
-    const lastLineStart = sourceFile.lineOffsets.length > 0 ? sourceFile.lineOffsets[sourceFile.lineOffsets.length - 1] : 0;
-    const lastLineLength = text.length - lastLineStart;
-    const lastLineIndex = Math.max(0, sourceFile.lineOffsets.length - 1);
+    const oldLines = text.split('\n');
+    const newLines = formattedText.split('\n');
+    const edits: TextEdit[] = [];
 
-    return [TextEdit.replace(
-        Range.create(Position.create(0, 0), Position.create(lastLineIndex, lastLineLength)),
-        formattedText
-    )];
+    const maxLines = Math.max(oldLines.length, newLines.length);
+
+    for (let i = 0; i < maxLines; i++) {
+        const oldLine = oldLines[i];
+        const newLine = newLines[i];
+
+        if (oldLine === undefined) {
+            // New line added
+            edits.push(TextEdit.insert(Position.create(i, 0), newLine + '\n'));
+        } else if (newLine === undefined) {
+            // Old line deleted
+            edits.push(TextEdit.del(Range.create(Position.create(i, 0), Position.create(i + 1, 0))));
+        } else if (oldLine !== newLine) {
+            // Line changed
+            edits.push(TextEdit.replace(
+                Range.create(Position.create(i, 0), Position.create(i, oldLine.length)),
+                newLine
+            ));
+        }
+    }
+
+    return edits;
 }

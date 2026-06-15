@@ -153,7 +153,9 @@ export class Lexer {
                 const startQuote = this._pos;
                 this._pos++;
                 this.ScanText(char); // Advance past content
-                this._pos++; // Advance past closing quote
+                if (this._pos < this._endOfFilePos && this.Peek() === char) {
+                    this._pos++; // Advance past closing quote
+                }
                 token.Kind = TokenKind.StringLiteralToken;
                 token.Text = this.GetText(startQuote);
                 break;
@@ -220,14 +222,17 @@ export class Lexer {
     }
     ScanDigits(): string {
         let start_pos = this._pos;
-        while (this._pos < this._endOfFilePos) {
-            if (this.IsDigitChar(this.Peek())) {
-                this._pos++;
-                continue;
-            }
-            return this.GetText(start_pos);
+        while (this._pos < this._endOfFilePos && this.IsDigitChar(this.Peek())) {
+            this._pos++;
         }
-        return "";
+        if (this._pos < this._endOfFilePos && this.Peek() === '.' &&
+            this._pos + 1 < this._endOfFilePos && this.IsDigitChar(this._contents[this._pos + 1])) {
+            this._pos++; // consume '.'
+            while (this._pos < this._endOfFilePos && this.IsDigitChar(this.Peek())) {
+                this._pos++;
+            }
+        }
+        return this.GetText(start_pos);
     }
     private GetText(start: number): string {
         return this._contents.substring(start, this._pos);
@@ -317,7 +322,9 @@ export class Lexer {
             }
 
         }
-        return new Token(TokenKind.Unknown, start, start, this._pos - start);
+        const token = new Token(TokenKind.SingleLineComment, start, start, this._pos - start);
+        token.Text = this.GetText(start);
+        return token;
     }
     ScanEndOfLine(): Token {
         let start = this._pos;

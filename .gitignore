@@ -6,3 +6,4 @@ out
 .DS_Store
 coverage/
 server/coverage/
+*.tsbuildinfo

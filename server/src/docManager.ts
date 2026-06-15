@@ -4,6 +4,7 @@ import { Parser } from "./parser/parser";
 import { parseXmlToAst } from "./parser/xmlAdapter";
 import { SourceFile } from "./parser/ast";
 import { TdlMetadata } from "./tdlMetaData";
+import { getMetadata } from "./services/metadataService";
 import { validateSourceFile } from "./services/validation";
 import { SymbolTable, SymbolInfo, definitionTypeToSymbolKind } from "./services/symbolTable";
 import { ScopeManager } from "./services/scopeManager";
@@ -43,13 +44,24 @@ export class DocManager {
     /** Queue for workspace scan requests */
     private scanQueue: string[][] = [];
 
+    private rebuildTimers = new Map<string, NodeJS.Timeout>();
+    private readonly REBUILD_DELAY = 200; // ms
+
     constructor(
         private connection: Connection, 
         private documents: TextDocuments<TextDocument>,
         public resolveIncludePath?: (currentPath: string, name: string) => string | null
     ) {
         documents.onDidOpen(e => this.rebuild(e.document));
-        documents.onDidChangeContent(e => this.rebuild(e.document));
+        documents.onDidChangeContent(e => {
+            const uri = e.document.uri;
+            const existing = this.rebuildTimers.get(uri);
+            if (existing) clearTimeout(existing);
+            this.rebuildTimers.set(uri, setTimeout(() => {
+                this.rebuildTimers.delete(uri);
+                this.rebuild(e.document);
+            }, this.REBUILD_DELAY));
+        });
         documents.onDidClose(e => {
             this.docs.delete(e.document.uri);
             this.getSymbolTable(e.document.uri).clearDocument(e.document.uri);
@@ -199,7 +211,7 @@ export class DocManager {
         const text = doc.getText();
         const isXml = doc.languageId === 'xml';
 
-        const metadata = (globalThis as any).TDL_METADATA as TdlMetadata | undefined;
+        const metadata = getMetadata();
 
         if (isXml) {
             sourceFile = parseXmlToAst(text, metadata);
@@ -244,7 +256,7 @@ export class DocManager {
 
         // Run metadata-based validations if metadata is available
         if (metadata) {
-            diagnostics.push(...validateSourceFile(sourceFile, doc, metadata, symTable, scopeMgr, this.resolveIncludePath));
+            diagnostics.push(...(await validateSourceFile(sourceFile, doc, metadata, symTable, scopeMgr, this.resolveIncludePath)));
         }
 
         // Store document state and send diagnostics

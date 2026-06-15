@@ -1,3 +1,4 @@
+import { getMetadata, setMetadata } from '../../../services/metadataService';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { registerCompletion } from '../../../features/completion';
 import { TdlMetadata, TDLSchema, TDLSchemaProperty } from '../../../tdlMetaData';
@@ -42,7 +43,7 @@ describe('XML Schema Completion', () => {
         ledgerSchema.Properties.set('Ledger Name', lprop);
         mockMetadata.schemas.set('Ledger Entry', ledgerSchema);
 
-        (globalThis as any).TDL_METADATA = mockMetadata;
+        setMetadata(mockMetadata as any);
     });
 
     const getItems = (xmlText: string, offset: number): CompletionItem[] => {

@@ -1,5 +1,5 @@
 
-import { AttributeNode, DefinitionNode, DiagnosticError, IdentifierNode, LiteralNode, SourceFile, StatementNode, SyntaxKind, EmptyNode, FunctionCallNode, CommentNode, ListNode, BlockStatementNode, IfNode, WhileNode, ForNode, WalkNode, BinaryExpressionNode, UnaryExpressionNode, ComplexMethodReferenceNode, BatchPostNode, MsgBoxNode, ZipNode, UnzipNode, PathSpec, StartBlockNode, DoIfNode, ReturnNode, BreakNode, ContinueNode, SetNode, ExchangeNode, IncrementNode, DecrementNode } from "./ast";
+import { AttributeNode, DefinitionNode, DiagnosticError, IdentifierNode, LiteralNode, SourceFile, StatementNode, SyntaxKind, EmptyNode, FunctionCallNode, CommentNode, ListNode, BlockStatementNode, IfNode, WhileNode, ForNode, WalkNode, BinaryExpressionNode, UnaryExpressionNode, ComplexMethodReferenceNode, BatchPostNode, MsgBoxNode, ZipNode, UnzipNode, PathSpec, StartBlockNode, DoIfNode, ReturnNode, BreakNode, ContinueNode, SetNode, ExchangeNode, IncrementNode, DecrementNode, DirectiveNode, SwitchNode, CaseNode, DefaultNode, VariableReferenceNode, FieldReferenceNode, MethodReferenceNode, FormulaReferenceNode, Node } from "./ast";
 import { Lexer } from "./lexer";
 import { Token } from "./token";
 import { TokenKind } from "./tokenKind";
@@ -182,7 +182,34 @@ export class Parser {
             }
         }
         sourceFile.errors = this.errors;
+        this.setParentReferences(sourceFile);
         return sourceFile;
+    }
+
+    private setParentReferences(node: Node): void {
+        const children = this.getChildren(node);
+        for (const child of children) {
+            child.parent = node;
+            this.setParentReferences(child);
+        }
+    }
+
+    private getChildren(node: Node): Node[] {
+        const children: Node[] = [];
+        for (const key of Object.keys(node)) {
+            if (key === 'parent') continue;
+            const value = (node as any)[key];
+            if (Array.isArray(value)) {
+                for (const item of value) {
+                    if (item && typeof item === 'object' && 'kind' in item) {
+                        children.push(item);
+                    }
+                }
+            } else if (value && typeof value === 'object' && 'kind' in value) {
+                children.push(value);
+            }
+        }
+        return children;
     }
 
     /**
@@ -304,7 +331,7 @@ export class Parser {
 
             // Handle Inline Directives
             if (this.CurrentToken.Kind === TokenKind.LessThanToken) {
-                this.ConsumeDirective();
+                this.ConsumeDirective(defNode);
                 continue;
             }
 
@@ -332,15 +359,26 @@ export class Parser {
         }
     }
 
-    private ConsumeDirective() {
+    private ConsumeDirective(defNode?: DefinitionNode) {
+        const start = this.CurrentToken.Start;
         // Consume <
         this.EatToken();
         // Consume until > or EOF
+        let directiveContent = "";
         while (!this.isAtEnd()) {
             if (this.CurrentToken.Kind === TokenKind.GreaterThanToken) {
+                const end = this.CurrentToken.Start + 1;
                 this.EatToken();
+                if (defNode) {
+                    const contentTrimmed = directiveContent.trim();
+                    const firstSpace = contentTrimmed.indexOf(' ');
+                    const name = firstSpace !== -1 ? contentTrimmed.substring(0, firstSpace) : contentTrimmed;
+                    const value = firstSpace !== -1 ? contentTrimmed.substring(firstSpace + 1).trim() : "";
+                    defNode.directives.push(new DirectiveNode(start, end, name, value));
+                }
                 break;
             }
+            directiveContent += this.CurrentToken.Text;
             this.MoveToNextToken();
         }
     }
@@ -560,7 +598,20 @@ export class Parser {
     private ParseStringExpression(): any | undefined {
         let left = this.ParseComparisonExpression();
         while (left && this.IsStringOperator(this.CurrentToken.Kind)) {
-            const op = this.EatToken();
+            let op = this.CurrentToken;
+            if (op.Kind === TokenKind.StartingToken || op.Kind === TokenKind.EndingToken) {
+                const next = this.PeekNextToken();
+                if (next && next.Text.toUpperCase() === "WITH") {
+                    this.EatToken(); // Eat Starting/Ending
+                    const withOp = this.EatToken(); // Eat With
+                    op = new Token(op.Kind === TokenKind.StartingToken ? TokenKind.StartingWithToken : TokenKind.EndingWithToken, op.Start, op.Start, op.Length + withOp.Length + (withOp.Start - (op.Start + op.Length)));
+                    op.Text = op.Text + " " + withOp.Text;
+                } else {
+                    this.EatToken(); // Eat Starting/Ending
+                }
+            } else {
+                this.EatToken();
+            }
             const right = this.ParseComparisonExpression();
             if (!right) break;
             left = new BinaryExpressionNode(left.start, right.end, left, op, right);
@@ -745,6 +796,32 @@ export class Parser {
                 setNode.targetVariable = stmt.args.length > 0 ? stmt.args[0] : undefined;
                 setNode.valueExpression = stmt.args.length > 1 ? stmt.args[1] : undefined;
                 targetArray.push(setNode);
+            } else if (actionText === "SWITCH") {
+                const switchNode = new SwitchNode(stmt);
+                switchNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
+                targetArray.push(switchNode);
+                stack.push({ node: switchNode, targetArray: switchNode.statements });
+            } else if (actionText === "CASE") {
+                const caseNode = new CaseNode(stmt);
+                caseNode.value = stmt.args.length > 0 ? stmt.args[0] : undefined;
+                
+                if (stack.length > 0 && stack[stack.length - 1].node instanceof SwitchNode) {
+                    const parentSwitch = stack[stack.length - 1].node as SwitchNode;
+                    parentSwitch.cases.push(caseNode);
+                    stack[stack.length - 1].targetArray = caseNode.statements;
+                } else {
+                    targetArray.push(caseNode);
+                }
+            } else if (actionText === "DEFAULT") {
+                const defaultNode = new DefaultNode(stmt);
+                
+                if (stack.length > 0 && stack[stack.length - 1].node instanceof SwitchNode) {
+                    const parentSwitch = stack[stack.length - 1].node as SwitchNode;
+                    parentSwitch.defaultCase = defaultNode;
+                    stack[stack.length - 1].targetArray = defaultNode.statements;
+                } else {
+                    targetArray.push(defaultNode);
+                }
             } else if (actionText === "EXCHANGE") {
                 const exNode = new ExchangeNode(stmt);
                 exNode.var1 = stmt.args.length > 0 ? stmt.args[0] : undefined;
@@ -789,6 +866,8 @@ export class Parser {
                             } else if (actionText === "ENDUNZIP" && poppedActionText === "STARTUNZIP") {
                                 isMatch = true;
                             } else if (actionText === "ENDBLOCK" && poppedActionText === "STARTBLOCK") {
+                                isMatch = true;
+                            } else if (actionText === "ENDSWITCH" && poppedActionText === "SWITCH") {
                                 isMatch = true;
                             }
                         }
@@ -903,7 +982,7 @@ export class Parser {
                 this.EatToken();
                 const varName = this.ParseIdentifierWithSpaces();
                 if (varName) {
-                    return { kind: SyntaxKind.VariableReference, start, end: varName.end, variableName: varName };
+                    return new VariableReferenceNode(start, varName.end, varName);
                 }
             }
         }
@@ -915,7 +994,7 @@ export class Parser {
                 this.EatToken();
                 const fieldName = this.ParseIdentifierWithSpaces();
                 if (fieldName) {
-                    return { kind: SyntaxKind.FieldReference, start, end: fieldName.end, fieldName: fieldName };
+                    return new FieldReferenceNode(start, fieldName.end, fieldName);
                 }
             }
         }
@@ -985,7 +1064,7 @@ export class Parser {
                 this.EatToken();
                 const methodName = this.ParseIdentifierWithSpaces();
                 if (methodName) {
-                    return { kind: SyntaxKind.MethodReference, start, end: methodName.end, methodName: methodName };
+                    return new MethodReferenceNode(start, methodName.end, methodName);
                 }
             }
         }
@@ -998,7 +1077,7 @@ export class Parser {
                 this.EatToken();
                 const formulaName = this.ParseIdentifierWithSpaces();
                 if (formulaName) {
-                    return { kind: SyntaxKind.FormulaReference, start, end: formulaName.end, formulaName: formulaName, isGlobal };
+                    return new FormulaReferenceNode(start, formulaName.end, formulaName, isGlobal);
                 }
             }
         }

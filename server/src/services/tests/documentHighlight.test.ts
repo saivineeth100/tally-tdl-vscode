@@ -1,3 +1,4 @@
+import { getMetadata, setMetadata } from '../metadataService';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { getDocumentHighlights } from '../documentHighlight';
 import { DocumentHighlightParams } from 'vscode-languageserver';
@@ -20,7 +21,7 @@ describe('Document Highlights', () => {
         
         docManager = new DocManager(mockConnection, mockDocuments);
 
-        (globalThis as any).TDL_METADATA = {
+        setMetadata({
             definitions: new Map([
                 ['Report', [{ Name: 'Form' }]],
                 ['Form', [{ Name: 'Parts' }, { Name: 'Part' }]]
@@ -33,7 +34,7 @@ describe('Document Highlights', () => {
                 }
                 return undefined;
             })
-        } as unknown as TdlMetadata;
+        } as unknown as TdlMetadata);
     });
 
     async function setup(tdl: string) {

@@ -1,3 +1,4 @@
+import { getMetadata } from './metadataService';
 import { CodeActionParams, CodeAction, CodeActionKind, TextEdit } from "vscode-languageserver";
 import { DocManager } from "../docManager";
 import { BROKEN_SEQUENCE_DIAGNOSTIC_CODE } from "./sequenceValidator";
@@ -23,7 +24,7 @@ export function provideCodeActions(
     const actions: CodeAction[] = [];
     const doc = docs.get(params.textDocument.uri);
     const docState = docManager.get(params.textDocument.uri);
-    const md = (globalThis as any).TDL_METADATA as TdlMetadata;
+    const md = getMetadata() as TdlMetadata;
 
     if (!doc || !docState) return actions;
 

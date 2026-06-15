@@ -616,17 +616,17 @@ function validateSchemaObject(
  * Validate an entire source file
  * Runs all metadata-based validations
  */
-export function validateSourceFile(
+export async function validateSourceFile(
     sourceFile: SourceFile,
     doc: TextDocument,
     metadata: TdlMetadata,
     symbolTable?: SymbolTable,
     scopeManager?: ScopeManager,
     resolveIncludePath?: (currentPath: string, name: string) => string | null
-): Diagnostic[] {
+): Promise<Diagnostic[]> {
     const diagnostics: Diagnostic[] = [];
 
-    const checkCircularIncludes = (currentFsPath: string, includeName: string, visitedPaths: Set<string>): boolean => {
+    const checkCircularIncludes = async (currentFsPath: string, includeName: string, visitedPaths: Set<string>): Promise<boolean> => {
         if (!resolveIncludePath) return false;
         const targetPath = resolveIncludePath(currentFsPath, includeName);
         if (!targetPath) return false;
@@ -634,7 +634,7 @@ export function validateSourceFile(
         if (visitedPaths.has(targetPath)) return true;
 
         try {
-            const content = fs.readFileSync(targetPath, 'utf8');
+            const content = await fs.promises.readFile(targetPath, 'utf8');
             const includeRegex = /\[\s*(?:Include|Import)\s*:\s*([^\]]+)\]/gi;
             let match;
             visitedPaths.add(targetPath);
@@ -644,7 +644,7 @@ export function validateSourceFile(
                 if (nextInclude.startsWith('"') && nextInclude.endsWith('"')) {
                     nextInclude = nextInclude.slice(1, -1);
                 }
-                if (checkCircularIncludes(targetPath, nextInclude, visitedPaths)) {
+                if (await checkCircularIncludes(targetPath, nextInclude, visitedPaths)) {
                     visitedPaths.delete(targetPath);
                     return true;
                 }
@@ -676,7 +676,7 @@ export function validateSourceFile(
                     }
                     const currentFsPath = URI.parse(doc.uri).fsPath;
                     const visited = new Set<string>([currentFsPath]);
-                    if (checkCircularIncludes(currentFsPath, includeName, visited)) {
+                    if (await checkCircularIncludes(currentFsPath, includeName, visited)) {
                         diagnostics.push({
                             severity: DiagnosticSeverity.Error,
                             range: { start: doc.positionAt(def.name.start), end: doc.positionAt(def.name.end) },

@@ -2,7 +2,8 @@ import {
     SemanticTokenTypes,
     SemanticTokensBuilder,
     SemanticTokensLegend,
-    SemanticTokens
+    SemanticTokens,
+    CancellationToken
 } from 'vscode-languageserver';
 import {
     SourceFile,
@@ -170,8 +171,8 @@ const FUNCTION_PARAMETER_CONTEXT: Record<string, string[]> = {
 /**
  * Provide semantic tokens for LSP request
  */
-export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeManager?: ScopeManager, metadata?: TdlMetadataContext): SemanticTokens {
-    const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, metadata); // Assuming Doc has URI, or pass explicitly
+export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeManager?: ScopeManager, metadata?: TdlMetadataContext, token?: CancellationToken): SemanticTokens {
+    const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, metadata, token); // Assuming Doc has URI, or pass explicitly
     const builder = new SemanticTokensBuilder();
 
     tokens.sort((a, b) => a.startChar - b.startChar);
@@ -255,7 +256,7 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
 /**
  * Generates semantic tokens from a parsed TDL source file
  */
-export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeManager, uri?: string, metadata?: TdlMetadataContext): SemanticToken[] {
+export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeManager, uri?: string, metadata?: TdlMetadataContext, token?: CancellationToken): SemanticToken[] {
     const tokens: SemanticToken[] = [];
 
     // 1. Tokenize Comments (Global)
@@ -271,6 +272,7 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
 
     // 2. Tokenize Definitions
     for (const def of sourceFile.definitions) {
+        if (token?.isCancellationRequested) return [];
         if (def.type) {
             tokens.push({
                 line: 0,

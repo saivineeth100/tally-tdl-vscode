@@ -15,41 +15,41 @@ import { testMetadata } from '../../test-setup';
 describe('Attribute Validation', () => {
 
     describe('normalizeTypeName', () => {
-        it('should convert to lowercase', () => {
+        it('should convert to lowercase', async () => {
             expect(normalizeTypeName('Report')).toBe('report');
             expect(normalizeTypeName('FIELD')).toBe('field');
         });
 
-        it('should remove spaces', () => {
+        it('should remove spaces', async () => {
             expect(normalizeTypeName('Stock Item')).toBe('stockitem');
             expect(normalizeTypeName('Key Value Map')).toBe('keyvaluemap');
         });
 
-        it('should handle combined cases', () => {
+        it('should handle combined cases', async () => {
             expect(normalizeTypeName('Import Object')).toBe('importobject');
         });
     });
 
     describe('testMetadata! Loading', () => {
-        it('should load Report definition attributes', () => {
+        it('should load Report definition attributes', async () => {
             const attrs = getAllowedAttributes('Report', testMetadata!);
             expect(attrs).toBeDefined();
             expect(attrs!.length).toBeGreaterThan(0);
         });
 
-        it('should load Field definition attributes', () => {
+        it('should load Field definition attributes', async () => {
             const attrs = getAllowedAttributes('Field', testMetadata!);
             expect(attrs).toBeDefined();
             expect(attrs!.length).toBeGreaterThan(0);
         });
 
-        it('should load Form definition attributes', () => {
+        it('should load Form definition attributes', async () => {
             const attrs = getAllowedAttributes('Form', testMetadata!);
             expect(attrs).toBeDefined();
             expect(attrs!.length).toBeGreaterThan(0);
         });
 
-        it('should load Collection definition attributes', () => {
+        it('should load Collection definition attributes', async () => {
             const attrs = getAllowedAttributes('Collection', testMetadata!);
             expect(attrs).toBeDefined();
             expect(attrs!.length).toBeGreaterThan(0);
@@ -57,7 +57,7 @@ describe('Attribute Validation', () => {
     });
 
     describe('attributeMatches', () => {
-        it('should match by exact name', () => {
+        it('should match by exact name', async () => {
             const attrs = getAllowedAttributes('Report', testMetadata!);
             const formAttr = attrs?.find(a => a.Name === 'Form');
             expect(formAttr).toBeDefined();
@@ -67,7 +67,7 @@ describe('Attribute Validation', () => {
             expect(attributeMatches('FORM', formAttr!)).toBe(true);
         });
 
-        it('should match by alias', () => {
+        it('should match by alias', async () => {
             const attrs = getAllowedAttributes('Report', testMetadata!);
             // Find an attribute with aliases
             const attrWithAlias = attrs?.find(a => a.Aliases && a.Aliases.includes(','));
@@ -80,7 +80,7 @@ describe('Attribute Validation', () => {
             }
         });
 
-        it('should not match non-existent attribute name', () => {
+        it('should not match non-existent attribute name', async () => {
             const attrs = getAllowedAttributes('Report', testMetadata!);
             const formAttr = attrs?.find(a => a.Name === 'Form');
             expect(formAttr).toBeDefined();
@@ -90,7 +90,7 @@ describe('Attribute Validation', () => {
     });
 
     describe('getAllowedAttributes', () => {
-        it('should get attributes case-insensitively', () => {
+        it('should get attributes case-insensitively', async () => {
             const attrs1 = getAllowedAttributes('Report', testMetadata!);
             const attrs2 = getAllowedAttributes('report', testMetadata!);
             const attrs3 = getAllowedAttributes('REPORT', testMetadata!);
@@ -102,42 +102,42 @@ describe('Attribute Validation', () => {
             expect(attrs2?.length).toBe(attrs3?.length);
         });
 
-        it('should return undefined for unknown definition type', () => {
+        it('should return undefined for unknown definition type', async () => {
             const attrs = getAllowedAttributes('NonExistentDefinition', testMetadata!);
             expect(attrs).toBeUndefined();
         });
     });
 
     describe('isValidAttribute', () => {
-        it('should validate known Report attributes', () => {
+        it('should validate known Report attributes', async () => {
             expect(isValidAttribute('Form', 'Report', testMetadata!)).toBe(true);
             expect(isValidAttribute('Title', 'Report', testMetadata!)).toBe(true);
             expect(isValidAttribute('Object', 'Report', testMetadata!)).toBe(true);
         });
 
-        it('should reject invalid Report attributes', () => {
+        it('should reject invalid Report attributes', async () => {
             expect(isValidAttribute('InvalidAttribute', 'Report', testMetadata!)).toBe(false);
             expect(isValidAttribute('FooBar', 'Report', testMetadata!)).toBe(false);
             expect(isValidAttribute('RandomName', 'Report', testMetadata!)).toBe(false);
         });
 
-        it('should validate known Field attributes', () => {
+        it('should validate known Field attributes', async () => {
             expect(isValidAttribute('Set As', 'Field', testMetadata!)).toBe(true);
             expect(isValidAttribute('Width', 'Field', testMetadata!)).toBe(true);
         });
 
-        it('should validate known Collection attributes', () => {
+        it('should validate known Collection attributes', async () => {
             expect(isValidAttribute('Type', 'Collection', testMetadata!)).toBe(true);
             expect(isValidAttribute('Filter', 'Collection', testMetadata!)).toBe(true);
         });
 
-        it('should allow any attribute for unknown definition types', () => {
+        it('should allow any attribute for unknown definition types', async () => {
             expect(isValidAttribute('AnyAttr', 'UnknownType', testMetadata!)).toBe(true);
         });
     });
 
     describe('Integration with Parser', () => {
-        it('should parse a Report with valid attributes', () => {
+        it('should parse a Report with valid attributes', async () => {
             const tdl = `[Report: MyReport]
                 Form: MainForm
                 Title: My Title
@@ -157,7 +157,7 @@ describe('Attribute Validation', () => {
             }
         });
 
-        it('should detect invalid attributes in Report', () => {
+        it('should detect invalid attributes in Report', async () => {
             const tdl = `[Report: MyReport]
                 Form: MainForm
                 InvalidAttr: Something
@@ -174,7 +174,7 @@ describe('Attribute Validation', () => {
             expect(invalidAttrs[0].name.text).toBe('InvalidAttr');
         });
 
-        it('should validate Field definition attributes', () => {
+        it('should validate Field definition attributes', async () => {
             const tdl = `[Field: AmountField]
                 Set As: $Amount
                 ZzzInvalidField123: BadValue
@@ -198,7 +198,7 @@ describe('Attribute Validation', () => {
             expect(invalidAttrs.length).toBe(1); // ZzzInvalidField123
         });
 
-        it('should validate Collection definition', () => {
+        it('should validate Collection definition', async () => {
             const tdl = `[Collection: MyCollection]
                 Type: Ledger
                 Filter: $Name != ""
@@ -221,7 +221,7 @@ describe('Attribute Validation', () => {
     });
 
     describe('Mandatory Parameter Validation', () => {
-        it('should detect missing mandatory parameters in Report', () => {
+        it('should detect missing mandatory parameters in Report', async () => {
             const tdl = `[Report: MyReport]
                 Form:
                 Title: "My Title"
@@ -241,7 +241,7 @@ describe('Attribute Validation', () => {
             expect(formDiag).toBeDefined();
         });
 
-        it('should accept valid mandatory parameters', () => {
+        it('should accept valid mandatory parameters', async () => {
             const tdl = `[Report: ValidReport]
                 Form: MyForm
             `;
@@ -271,7 +271,7 @@ describe('Attribute Validation', () => {
         });
 
 
-        it('should validate reference to existing form', () => {
+        it('should validate reference to existing form', async () => {
             const tdl = `[Report: RefReport]
                 Form: ExistingForm
             `;
@@ -284,7 +284,7 @@ describe('Attribute Validation', () => {
             expect(refError).toBeUndefined();
         });
 
-        it('should report error for non-existent form', () => {
+        it('should report error for non-existent form', async () => {
             const tdl = `[Report: BadRefReport]
                 Form: NonExistentForm
             `;
@@ -304,25 +304,25 @@ describe('Attribute Validation', () => {
         // They inherit the original definition's parameters (1 mandatory param).
         // This test verifies that each split part is recognized as a valid attribute.
 
-        it('should recognize Add as a valid attribute after transformation', () => {
+        it('should recognize Add as a valid attribute after transformation', async () => {
             const addDef = testMetadata!.findDefinition('Add', 'Report');
             expect(addDef).toBeDefined();
             expect(addDef?.Name).toBe('Add');
         });
 
-        it('should recognize Delete as a valid attribute after transformation', () => {
+        it('should recognize Delete as a valid attribute after transformation', async () => {
             const delDef = testMetadata!.findDefinition('Delete', 'Report');
             expect(delDef).toBeDefined();
             expect(delDef?.Name).toBe('Delete');
         });
 
-        it('should recognize Replace as a valid attribute after transformation', () => {
+        it('should recognize Replace as a valid attribute after transformation', async () => {
             const repDef = testMetadata!.findDefinition('Replace', 'Report');
             expect(repDef).toBeDefined();
             expect(repDef?.Name).toBe('Replace');
         });
 
-        it('should validate Add attribute with correct parameters', () => {
+        it('should validate Add attribute with correct parameters', async () => {
             // Original Add/Replace/Delete has 1 mandatory param
             const tdl = `[Report: TestReport]
                 Add: Form: NewForm
@@ -337,7 +337,7 @@ describe('Attribute Validation', () => {
             expect(diag).toBeUndefined();
         });
 
-        it('should replace Description with part-specific text for Add', () => {
+        it('should replace Description with part-specific text for Add', async () => {
             const addDef = testMetadata!.findDefinition('Add', 'Report');
             expect(addDef).toBeDefined();
             // Description should NOT contain "Add/Replace/Delete" or similar combined patterns
@@ -347,7 +347,7 @@ describe('Attribute Validation', () => {
             expect(addDef?.Description).toMatch(/Add/i);
         });
 
-        it('should replace Description with part-specific text for Delete', () => {
+        it('should replace Description with part-specific text for Delete', async () => {
             const delDef = testMetadata!.findDefinition('Delete', 'Report');
             expect(delDef).toBeDefined();
             expect(delDef?.Description).not.toMatch(/Add\/Replace\/Delete/i);
@@ -355,7 +355,7 @@ describe('Attribute Validation', () => {
             expect(delDef?.Description).toMatch(/Delete/i);
         });
 
-        it('should replace Description with part-specific text for Replace', () => {
+        it('should replace Description with part-specific text for Replace', async () => {
             const repDef = testMetadata!.findDefinition('Replace', 'Report');
             expect(repDef).toBeDefined();
             expect(repDef?.Description).not.toMatch(/Add\/Replace\/Delete/i);
@@ -365,7 +365,7 @@ describe('Attribute Validation', () => {
     });
 
     describe('Datatype Validation', () => {
-        it('should validate Logical datatype with invalid value', () => {
+        it('should validate Logical datatype with invalid value', async () => {
             // Part has Balance attribute with Logical datatype
             const tdl = `[Part: TestPart]
                 Balance: Maybe
@@ -379,7 +379,7 @@ describe('Attribute Validation', () => {
             expect(diag).toBeDefined();
         });
 
-        it('should accept valid Logical values', () => {
+        it('should accept valid Logical values', async () => {
             const tdl = `[Part: TestPart]
                 Balance: Yes
             `;
@@ -392,7 +392,7 @@ describe('Attribute Validation', () => {
             expect(diag).toBeUndefined();
         });
 
-        it('should validate Keyword parameter with invalid value', () => {
+        it('should validate Keyword parameter with invalid value', async () => {
             // Part has Horizontal Align attribute with Keyword type
             const tdl = `[Part: TestPart]
                 Horizontal Align: Invalid
@@ -406,7 +406,7 @@ describe('Attribute Validation', () => {
             expect(diag).toBeDefined();
         });
 
-        it('should accept valid Keyword values', () => {
+        it('should accept valid Keyword values', async () => {
             const tdl = `[Part: TestPart]
                 Horizontal Align: Center
             `;
@@ -419,7 +419,7 @@ describe('Attribute Validation', () => {
             expect(diag).toBeUndefined();
         });
 
-        it('should cache keywordSets during testMetadata! loading', () => {
+        it('should cache keywordSets during testMetadata! loading', async () => {
             // Check if keywordSets is populated
             expect(testMetadata!.keywordSets.size).toBeGreaterThan(0);
             // Align Type should be cached
@@ -431,24 +431,24 @@ describe('Attribute Validation', () => {
     });
 
     describe('Function Return Type Validation', () => {
-        it('should have functions loaded in testMetadata!', () => {
+        it('should have functions loaded in testMetadata!', async () => {
             expect(testMetadata!.functions.length).toBeGreaterThan(0);
         });
 
-        it('should have function with ReturnType', () => {
+        it('should have function with ReturnType', async () => {
             const printDate = testMetadata!.functions.find((f: TDLFunction) => f.Name === 'PrintDate');
             expect(printDate).toBeDefined();
             expect(printDate?.ReturnType).toBe('Date');
         });
 
-        it('should have function parameters with DataType', () => {
+        it('should have function parameters with DataType', async () => {
             const dateFunc = testMetadata!.functions.find((f: TDLFunction) => f.Name === 'Date');
             expect(dateFunc).toBeDefined();
             expect(dateFunc?.Parameters?.length).toBeGreaterThan(0);
             expect(dateFunc?.Parameters?.[0].DataType).toBe('Date');
         });
 
-        it('should check type compatibility for compatible types', () => {
+        it('should check type compatibility for compatible types', async () => {
             // String accepts number, date, etc.
             // This test validates the areTypesCompatible logic indirectly
             const stringFuncs = testMetadata!.functions.filter((f: TDLFunction) => f.ReturnType === 'String');

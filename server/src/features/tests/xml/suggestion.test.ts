@@ -1,3 +1,4 @@
+import { getMetadata, setMetadata } from '../../../services/metadataService';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { detectXmlCompletionContext, registerCompletion } from '../../../features/completion';
 import { DocManager } from '../../../docManager';
@@ -19,7 +20,7 @@ describe('XML Suggestions Tests', () => {
 
     beforeAll(async () => {
         md = testMetadata!;
-        (globalThis as any).TDL_METADATA = md;
+        setMetadata(md as any);
     });
 
     it('returns correct XML definition_type suggestion', async () => {
@@ -49,7 +50,8 @@ describe('XML Suggestions Tests', () => {
         
 
         
-        const reportItem = result.items.find((i: any) => i.label === 'REPORT');
+        
+    const reportItem = result.items.find((i: any) => i.label === 'REPORT');
 
         expect(reportItem).toBeDefined();
         expect(reportItem.insertTextFormat).toBe(2); // Snippet

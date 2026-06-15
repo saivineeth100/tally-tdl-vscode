@@ -1,3 +1,4 @@
+import { getMetadata, setMetadata } from '../metadataService';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { renameSymbol, prepareRename } from '../rename';
 import { DocManager } from '../../docManager';
@@ -95,7 +96,7 @@ function setupMocks(files: Record<string, string>) {
 
 describe('Rename Service', () => {
     beforeEach(() => {
-        (globalThis as any).TDL_METADATA = mockMetadata;
+        setMetadata(mockMetadata as any);
     });
 
     it('should rename definition and update all references', () => {

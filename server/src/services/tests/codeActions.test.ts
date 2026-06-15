@@ -1,3 +1,4 @@
+import { getMetadata, setMetadata } from '../metadataService';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { provideCodeActions } from '../codeActions';
 import { CodeActionParams, Diagnostic, CodeActionKind, Range, DiagnosticSeverity } from 'vscode-languageserver';
@@ -12,12 +13,12 @@ describe('Code Actions', () => {
     
     beforeEach(() => {
         // Setup mock metadata
-        (globalThis as any).TDL_METADATA = {
+        setMetadata({
             definitions: new Map([
                 ['Report', [{ Name: 'Form' }, { Name: 'Title' }]]
             ]),
             schemas: new Map()
-        };
+        } as any);
     });
 
     function setup(tdl: string) {

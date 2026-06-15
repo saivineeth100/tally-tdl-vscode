@@ -200,9 +200,14 @@ export function activate(context: ExtensionContext) {
         }
     };
 
+    let xmlUpdateTimeout: NodeJS.Timeout | undefined;
+
     workspace.onDidChangeTextDocument(e => {
-        if (window.activeTextEditor && e.document === window.activeTextEditor.document) {
-            updatePanelVariables(e.document);
+        if (window.activeTextEditor && e.document === window.activeTextEditor.document && e.document.languageId === 'xml') {
+            if (xmlUpdateTimeout) clearTimeout(xmlUpdateTimeout);
+            xmlUpdateTimeout = setTimeout(() => {
+                updatePanelVariables(e.document);
+            }, 300);
         }
     });
 

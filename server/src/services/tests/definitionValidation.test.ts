@@ -21,40 +21,40 @@ describe('Definition Validation (Mocked)', () => {
         actions: [] // Add empty actions array to fix tests
     } as unknown as TdlMetadata;
 
-    it('should detect duplicate Report definition', () => {
+    it('should detect duplicate Report definition', async () => {
         const tdl = `[Report: Balance Sheet]`;
         const parser = new Parser(tdl);
         const sourceFile = parser.parse();
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
-        const diagnostics = validateSourceFile(sourceFile, doc, mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
 
         const error = diagnostics.find(d => d.message.includes('exists in default TDL'));
         expect(error).toBeDefined();
         expect(error?.severity).toBe(DiagnosticSeverity.Error);
     });
 
-    it('should allow modified definition (#)', () => {
+    it('should allow modified definition (#)', async () => {
         const tdl = `[#Report: Balance Sheet]`;
         const parser = new Parser(tdl);
         const sourceFile = parser.parse();
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
-        const diagnostics = validateSourceFile(sourceFile, doc, mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
         expect(diagnostics.length).toBe(0);
     });
 
-    it('should allow new definition', () => {
+    it('should allow new definition', async () => {
         const tdl = `[Report: My New Report]`;
         const parser = new Parser(tdl);
         const sourceFile = parser.parse();
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
-        const diagnostics = validateSourceFile(sourceFile, doc, mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
         expect(diagnostics.length).toBe(0);
     });
 
-    it('should detect duplicate Menu definition', () => {
+    it('should detect duplicate Menu definition', async () => {
         const tdl = `[Menu: Gateway of Tally]`;
         const parser = new Parser(tdl);
         const sourceFile = parser.parse();
@@ -63,12 +63,12 @@ describe('Definition Validation (Mocked)', () => {
         // Add Menu to mock metadata
         mockMetadata.existingDefinitions.set('Menu', ['Gateway of Tally']);
 
-        const diagnostics = validateSourceFile(sourceFile, doc, mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
         const error = diagnostics.find(d => d.message.includes('exists in default TDL'));
         expect(error).toBeDefined();
     });
 
-    it('should detect duplicate labels within a function', () => {
+    it('should detect duplicate labels within a function', async () => {
         const tdl = `[Function: MyFunction]
         01 : LOG : "Hello"
         01 : LOG : "World"
@@ -82,7 +82,7 @@ describe('Definition Validation (Mocked)', () => {
             resolve: () => undefined
         } as any;
 
-        const diagnostics = validateSourceFile(sourceFile, doc, mockMetadata, undefined, mockScopeManager);
+        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata, undefined, mockScopeManager);
         const error = diagnostics.find(d => d.message.includes("Duplicate label '01' in function"));
         expect(error).toBeDefined();
     });
