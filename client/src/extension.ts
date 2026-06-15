@@ -15,6 +15,7 @@ import { setupTallyPath, setupOdbcPort } from './onboarding';
 import { ResponsePanel } from './responsePanel';
 import { extractVariables, extractVariableTags, substituteVariables } from './templateEngine';
 import { sendXmlRequest, checkTallyRunning, launchTallyAndWait, fetchActiveCompanies, cleanupTempFiles } from './tallyClient';
+import { ScopeExplorer } from './scopeExplorer';
 
 let defaultClient: LanguageClient;
 const clients = new Map<string, LanguageClient>();
@@ -256,6 +257,25 @@ export function activate(context: ExtensionContext) {
                 window.showErrorMessage(`Failed to launch Tally: ${err.message}`);
             });
         }),
+        commands.registerCommand('tally-tdl.showScopeTree', async () => {
+            const editor = window.activeTextEditor;
+            if (!editor) {
+                window.showErrorMessage('No active editor found.');
+                return;
+            }
+            
+            const uri = editor.document.uri.toString();
+            let client = defaultClient;
+            const folder = workspace.getWorkspaceFolder(editor.document.uri);
+            if (folder) {
+                client = clients.get(folder.uri.toString()) || defaultClient;
+            }
+            
+            if (client) {
+                await ScopeExplorer.show(client, uri, context);
+            }
+        }),
+
         commands.registerCommand('tally-tdl.convertToXml', async () => {
             const editor = window.activeTextEditor;
             if (!editor) {

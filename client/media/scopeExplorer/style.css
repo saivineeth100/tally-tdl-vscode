@@ -1,0 +1,48 @@
+body {
+    font-family: var(--vscode-editor-font-family);
+    color: var(--vscode-editor-foreground);
+    padding: 10px;
+}
+
+details {
+    margin-left: 20px;
+}
+
+summary {
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--vscode-textLink-foreground);
+    user-select: none;
+}
+
+summary:hover {
+    color: var(--vscode-textLink-activeForeground);
+}
+
+.symbol {
+    margin-left: 20px;
+    color: var(--vscode-symbolIcon-variableForeground);
+    font-size: 0.9em;
+    margin-bottom: 2px;
+}
+
+.symbol-kind {
+    color: var(--vscode-symbolIcon-classForeground);
+    margin-left: 5px;
+    opacity: 0.7;
+    font-size: 0.8em;
+}
+
+.symbol-def {
+    color: var(--vscode-symbolIcon-functionForeground);
+    margin-left: 5px;
+    font-style: italic;
+}
+
+.node-kind {
+    color: var(--vscode-editorLineNumber-activeForeground);
+    font-size: 0.8em;
+    margin-left: 5px;
+    font-weight: normal;
+}

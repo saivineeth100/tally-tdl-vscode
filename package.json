@@ -95,6 +95,10 @@
                 "command": "tally-tdl.restartServer",
                 "title": "Tally TDL: Restart Language Server",
                 "icon": "$(refresh)"
+            },
+            {
+                "command": "tally-tdl.showScopeTree",
+                "title": "Tally TDL: Show Scope Tree"
             }
         ],
         "menus": {

@@ -3,6 +3,7 @@ import {
     SemanticTokensBuilder,
     SemanticTokensLegend,
     SemanticTokens,
+    SemanticTokensDelta,
     CancellationToken
 } from 'vscode-languageserver';
 import {
@@ -171,9 +172,16 @@ const FUNCTION_PARAMETER_CONTEXT: Record<string, string[]> = {
 /**
  * Provide semantic tokens for LSP request
  */
+const tokenBuilders = new Map<string, SemanticTokensBuilder>();
+
+/**
+ * Provide semantic tokens for LSP request
+ */
 export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeManager?: ScopeManager, metadata?: TdlMetadataContext, token?: CancellationToken): SemanticTokens {
     const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, metadata, token); // Assuming Doc has URI, or pass explicitly
-    const builder = new SemanticTokensBuilder();
+    
+    let builder = new SemanticTokensBuilder();
+    tokenBuilders.set(doc.uri, builder);
 
     tokens.sort((a, b) => a.startChar - b.startChar);
 
@@ -250,7 +258,62 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
         }
     }
 
-    return builder.build();
+    const result = builder.build();
+    if (result.resultId) {
+        builder.previousResult(result.resultId);
+    }
+    return result;
+}
+
+/**
+ * Provide semantic token deltas for LSP request
+ */
+export function provideSemanticTokensEdits(sourceFile: SourceFile, doc: any, previousResultId: string, scopeManager?: ScopeManager, metadata?: TdlMetadataContext, token?: CancellationToken): SemanticTokens | SemanticTokensDelta {
+    let builder = tokenBuilders.get(doc.uri);
+    if (!builder) {
+        return provideSemanticTokens(sourceFile, doc, scopeManager, metadata, token);
+    }
+
+    builder.previousResult(previousResultId);
+
+    const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, metadata, token);
+    tokens.sort((a, b) => a.startChar - b.startChar);
+
+    for (const t of tokens) {
+        const startPos = doc.positionAt(t.startChar);
+        const endPos = doc.positionAt(t.startChar + t.length);
+        const typeIdx = TOKEN_TYPE_MAP[t.type] ?? 0;
+
+        if (startPos.line === endPos.line) {
+            builder.push(startPos.line, startPos.character, t.length, typeIdx, 0);
+        } else {
+            for (let line = startPos.line; line <= endPos.line; line++) {
+                const lineOffsets = (sourceFile as any).lineOffsets;
+                let lineStartOffset = 0, lineEndOffset = 0;
+                if (lineOffsets && line < lineOffsets.length) {
+                    lineStartOffset = lineOffsets[line];
+                    if (line < lineOffsets.length - 1) {
+                        lineEndOffset = lineOffsets[line + 1] - 1;
+                    } else {
+                        lineEndOffset = (sourceFile as any).end || (t.startChar + t.length + 100);
+                    }
+                } else continue;
+
+                const intersectionStart = Math.max(t.startChar, lineStartOffset);
+                const nextLineStart = (lineOffsets && line < lineOffsets.length - 1) ? lineOffsets[line + 1] : ((sourceFile as any).end || t.startChar + t.length) + 1;
+                const effectiveTokenEnd = Math.min(t.startChar + t.length, nextLineStart);
+                const pos = doc.positionAt(intersectionStart);
+                const len = effectiveTokenEnd - intersectionStart;
+                if (len > 0) builder.push(pos.line, pos.character, len, typeIdx, 0);
+            }
+        }
+    }
+
+    const result = builder.buildEdits();
+    if (result.resultId) {
+        builder.previousResult(result.resultId);
+    }
+    return result;
 }
 
 /**

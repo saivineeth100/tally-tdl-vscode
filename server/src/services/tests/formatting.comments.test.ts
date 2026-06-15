@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { formatDocument } from '../formatting';
 import { FormattingOptions } from 'vscode-languageserver';
 import { Parser } from '../../parser/parser';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 describe('Formatting - User Snippets', () => {
     const options: FormattingOptions = {
@@ -22,7 +23,8 @@ describe('Formatting - User Snippets', () => {
         const sourceFile = parser.parse();
         const edits = formatDocument(input, sourceFile, options);
 
-        const output = edits[0].newText;
+        const doc = TextDocument.create('file://test', 'tdl', 1, input);
+        const output = TextDocument.applyEdits(doc, edits);
 
         // Expect exact preservation (maybe with final newline adjustment if configured)
         // options has trimFinalNewlines: true

@@ -140,4 +140,82 @@ describe('ScopeManager', () => {
         expect(parentSymbol).toBeDefined();
         expect(parentSymbol?.name).toBe('$Parent');
     });
+
+    it('should parse [System: Formula] and add to global project scope', () => {
+        const symbolTable = new SymbolTable();
+        const manager = new ScopeManager(symbolTable);
+
+        const mockSourceFile = {
+            definitions: [
+                {
+                    name: { text: 'Formula', start: 9, end: 16 },
+                    type: { text: 'System', start: 1, end: 7 },
+                    start: 0,
+                    end: 100,
+                    attributes: [
+                        {
+                            name: { text: 'MyURL', start: 20, end: 25 },
+                            value: [
+                                { kind: SyntaxKind.Literal, text: '"http://Localhost"', start: 28, end: 46 }
+                            ],
+                            start: 20,
+                            end: 46
+                        }
+                    ],
+                    statements: []
+                }
+            ],
+            start: 0,
+            end: 100
+        } as unknown as SourceFile;
+
+        manager.buildFileScope('file://test.tdl', mockSourceFile);
+        
+        // Build another file scope to test global resolution
+        const scope = manager.buildFileScope('file://test2.tdl', { definitions: [], start: 0, end: 10 } as unknown as SourceFile);
+        
+        const resolved = manager.resolve('MyURL', scope);
+        expect(resolved).toBeDefined();
+        expect(resolved?.name).toBe('MyURL');
+        expect(resolved?.definitionType).toBe('Formula');
+        expect(resolved?.kind).toBe(SymbolKind.Variable);
+    });
+
+    it('should parse [System: Formulae] and add to global project scope', () => {
+        const symbolTable = new SymbolTable();
+        const manager = new ScopeManager(symbolTable);
+
+        const mockSourceFile = {
+            definitions: [
+                {
+                    name: { text: 'Formulae', start: 9, end: 17 },
+                    type: { text: 'System', start: 1, end: 7 },
+                    start: 0,
+                    end: 100,
+                    attributes: [
+                        {
+                            name: { text: 'MyVarFormula', start: 20, end: 32 },
+                            value: [
+                                { kind: SyntaxKind.Literal, text: '""', start: 35, end: 37 }
+                            ],
+                            start: 20,
+                            end: 37
+                        }
+                    ],
+                    statements: []
+                }
+            ],
+            start: 0,
+            end: 100
+        } as unknown as SourceFile;
+
+        manager.buildFileScope('file://test.tdl', mockSourceFile);
+        
+        const scope = manager.buildFileScope('file://test2.tdl', { definitions: [], start: 0, end: 10 } as unknown as SourceFile);
+        
+        const resolved = manager.resolve('MyVarFormula', scope);
+        expect(resolved).toBeDefined();
+        expect(resolved?.name).toBe('MyVarFormula');
+        expect(resolved?.definitionType).toBe('Formula');
+    });
 });

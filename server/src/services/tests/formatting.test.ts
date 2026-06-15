@@ -24,57 +24,57 @@ describe('Document Formatting', () => {
     }
 
     it('should indent attributes inside a definition', () => {
-        const input = `[Report: MyReport]
-Title: "My Title"
-Form: MyForm`;
+        const input = `[Report : MyReport]
+Title : "My Title"
+Form : MyForm`;
 
-        const expected = `[Report: MyReport]
-    Title: "My Title"
-    Form: MyForm
+        const expected = `[Report : MyReport]
+    Title : "My Title"
+    Form : MyForm
 `; // Expect final newline
 
         apply(input, expected);
     });
 
     it('should indent comments inside a definition', () => {
-        const input = `[Report: MyReport]
-Title: "My Title"
+        const input = `[Report : MyReport]
+Title : "My Title"
 ;; This is a comment inside
-Form: MyForm`;
+Form : MyForm`;
 
-        const expected = `[Report: MyReport]
-    Title: "My Title"
+        const expected = `[Report : MyReport]
+    Title : "My Title"
     ;; This is a comment inside
-    Form: MyForm
+    Form : MyForm
 `;
         apply(input, expected);
     });
 
     it('should handle existing indentation', () => {
-        const input = `[Report: MyReport]
-        Title: "My Title"`;
+        const input = `[Report : MyReport]
+        Title : "My Title"`;
 
-        const expected = `[Report: MyReport]
-    Title: "My Title"
+        const expected = `[Report : MyReport]
+    Title : "My Title"
 `;
         apply(input, expected);
     });
 
     it('should preserve spacing around colons for alignment', () => {
-        const input = `[Report: Report1]
+        const input = `[Report : Report1]
     Title : "My Title"
     Form  : MyForm
-    Part: MyPart`;
+    Part : MyPart`;
 
         // Currently alignment logic is not fully implemented in Trivia-based, 
         // but it should at least not strip spaces before colon if we handle it correctly.
         // Actually formatting.ts adds space after colon, but doesn't do column alignment yet.
         // We'll just check it formats basic stuff.
         
-        const expectedBasic = `[Report: Report1]
+        const expectedBasic = `[Report : Report1]
     Title : "My Title"
     Form  : MyForm
-    Part: MyPart
+    Part : MyPart
 `;
         apply(input, expectedBasic);
     });

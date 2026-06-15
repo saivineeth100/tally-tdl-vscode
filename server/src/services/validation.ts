@@ -70,6 +70,8 @@ function areTypesCompatible(expected: string, actual: string): boolean {
         'long': ['number'],
         'amount': ['number'],
         'quantity': ['number'],
+        'button': ['key'],
+        'key': ['button'],
     };
 
     const allowed = compatibleTypes[expected];
@@ -257,7 +259,7 @@ export function validateDefinitionAttributes(
     doc: TextDocument,
     metadata: TdlMetadata,
     symbolTable?: SymbolTable,
-    scopeManager?: ScopeManager
+    projectNodes?: Set<string>
 ): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
     const defTypeName = def.type.text;
@@ -265,19 +267,33 @@ export function validateDefinitionAttributes(
 
     // Skip validation if we don't have metadata for this definition type
     if (!allowedAttrs) {
-        // diagnostics.push({
-        //     severity: DiagnosticSeverity.Warning,
-        //     range: { start: doc.positionAt(def.type.start), end: doc.positionAt(def.type.end) },
-        //     message: `Unknown definition type '${defTypeName}'`,
-        //     code: UNKNOWN_DEFINITION_TYPE_DIAGNOSTIC_CODE,
-        //     data: { defTypeName },
-        //     source: 'tdl'
-        // });
         return diagnostics;
     }
 
+    const declaredVariables = new Set<string>();
+
     for (const attr of def.attributes) {
         const attrName = attr.name.text;
+        const attrNameLower = attrName.toLowerCase().replace(/\s+/g, '');
+
+        // Check for duplicate variables
+        if (attrNameLower === 'variable' || attrNameLower === 'listvariable') {
+            if (attr.value.length > 0 && attr.value[0].kind === 3 /* SyntaxKind.Identifier */) {
+                const identifierNode = attr.value[0] as any;
+                const varName = identifierNode.text || '';
+                const lowerVarName = varName.toLowerCase();
+                if (declaredVariables.has(lowerVarName)) {
+                    diagnostics.push({
+                        severity: DiagnosticSeverity.Error,
+                        range: { start: doc.positionAt(attr.value[0].start), end: doc.positionAt(attr.value[0].end) },
+                        message: `Duplicate variable declaration: '${varName}' is already declared in this definition.`,
+                        source: 'tdl'
+                    });
+                } else {
+                    declaredVariables.add(lowerVarName);
+                }
+            }
+        }
 
         // Check if this attribute is allowed for the definition type
         const attrDef = allowedAttrs.find(allowed => attributeMatches(attrName, allowed));
@@ -436,28 +452,29 @@ export function validateDefinitionAttributes(
                     }
 
                     const refersToType = paramDef.RefersTo.trim();
-                    const refersToNormalized = normalizeTypeName(refersToType);
+                    const startPos = doc.positionAt(paramNode.start);
+                    const endPos = doc.positionAt(paramNode.end);
 
-                    const kind = definitionTypeToSymbolKind(refersToType);
-                    const userDefs = symbolTable.getNamesByKind(kind);
-                    const isUserDef = userDefs.some(n => normalizeTypeName(n) === normalizeTypeName(cleanValue));
+                    const existingSymbols = symbolTable.findAllByName(cleanValue);
+                    const hasDefinition = existingSymbols.some(s => s.kind === definitionTypeToSymbolKind(refersToType));
 
-                    if (!isUserDef) {
-                        let isRefFound = false;
-                        const defTypeKey = Array.from(metadata.existingDefinitions.keys()).find(k => normalizeTypeName(k) === refersToNormalized);
-                        if (defTypeKey) {
-                            const defaultNames = metadata.existingDefinitions.get(defTypeKey) || [];
-                            isRefFound = defaultNames.some(n => normalizeTypeName(n) === normalizeTypeName(cleanValue));
-                        }
-
-                        if (!isRefFound) {
-                            const startPos = doc.positionAt(paramNode.start);
-                            const endPos = doc.positionAt(paramNode.end);
-
+                    if (!hasDefinition) {
+                        diagnostics.push({
+                            severity: DiagnosticSeverity.Warning,
+                            range: { start: startPos, end: endPos },
+                            message: `Definition '${cleanValue}' of type '${refersToType}' not found`,
+                            source: 'tdl',
+                            code: MISSING_DEFINITION_DIAGNOSTIC_CODE,
+                            data: { name: cleanValue, type: refersToType }
+                        });
+                    } else if (projectNodes) {
+                        // Check if the definition is reachable from the project root
+                        const validProjectSymbol = existingSymbols.find(s => s.kind === definitionTypeToSymbolKind(refersToType) && projectNodes.has(s.uri));
+                        if (!validProjectSymbol) {
                             diagnostics.push({
-                                severity: DiagnosticSeverity.Error,
+                                severity: DiagnosticSeverity.Warning,
                                 range: { start: startPos, end: endPos },
-                                message: `Definition '${cleanValue}' of type '${refersToType}' not found`,
+                                message: `Definition '${cleanValue}' is used from a file that is not included in the project`,
                                 source: 'tdl',
                                 code: MISSING_DEFINITION_DIAGNOSTIC_CODE,
                                 data: { name: cleanValue, type: refersToType }
@@ -622,40 +639,16 @@ export async function validateSourceFile(
     metadata: TdlMetadata,
     symbolTable?: SymbolTable,
     scopeManager?: ScopeManager,
-    resolveIncludePath?: (currentPath: string, name: string) => string | null
+    resolveIncludePath?: (currentPath: string, name: string) => string | null,
+    docManager?: import('../docManager').DocManager
 ): Promise<Diagnostic[]> {
     const diagnostics: Diagnostic[] = [];
+    const isXml = doc.languageId === 'xml' || doc.languageId === 'tdlxml' || doc.uri.toLowerCase().endsWith('.xml') || doc.uri.toLowerCase().endsWith('.tdlxml');
 
-    const checkCircularIncludes = async (currentFsPath: string, includeName: string, visitedPaths: Set<string>): Promise<boolean> => {
-        if (!resolveIncludePath) return false;
-        const targetPath = resolveIncludePath(currentFsPath, includeName);
-        if (!targetPath) return false;
-
-        if (visitedPaths.has(targetPath)) return true;
-
-        try {
-            const content = await fs.promises.readFile(targetPath, 'utf8');
-            const includeRegex = /\[\s*(?:Include|Import)\s*:\s*([^\]]+)\]/gi;
-            let match;
-            visitedPaths.add(targetPath);
-            
-            while ((match = includeRegex.exec(content)) !== null) {
-                let nextInclude = match[1].trim();
-                if (nextInclude.startsWith('"') && nextInclude.endsWith('"')) {
-                    nextInclude = nextInclude.slice(1, -1);
-                }
-                if (await checkCircularIncludes(targetPath, nextInclude, visitedPaths)) {
-                    visitedPaths.delete(targetPath);
-                    return true;
-                }
-            }
-            visitedPaths.delete(targetPath);
-        } catch (e) {
-            visitedPaths.delete(targetPath);
-        }
-        
-        return false;
-    };
+    let projectNodes: Set<string> | undefined;
+    if (docManager) {
+        projectNodes = docManager.getProjectNodes(doc.uri);
+    }
 
     for (const def of sourceFile.definitions) {
         if (def.type) {
@@ -669,18 +662,12 @@ export async function validateSourceFile(
             
             // Check for circular includes
             if (normalizedType === 'include' || normalizedType === 'import') {
-                if (def.name) {
-                    let includeName = def.name.text;
-                    if (includeName.startsWith('"') && includeName.endsWith('"')) {
-                        includeName = includeName.slice(1, -1);
-                    }
-                    const currentFsPath = URI.parse(doc.uri).fsPath;
-                    const visited = new Set<string>([currentFsPath]);
-                    if (await checkCircularIncludes(currentFsPath, includeName, visited)) {
+                if (def.name && docManager) {
+                    if (docManager.hasCircularIncludes(doc.uri)) {
                         diagnostics.push({
                             severity: DiagnosticSeverity.Error,
                             range: { start: doc.positionAt(def.name.start), end: doc.positionAt(def.name.end) },
-                            message: `Circular include detected: '${includeName}' creates an infinite loop`,
+                            message: `Circular include detected: '${def.name.text}' creates an infinite loop`,
                             source: 'tdl'
                         });
                     }
@@ -694,10 +681,10 @@ export async function validateSourceFile(
         }
 
         // Validate attributes
-        diagnostics.push(...validateDefinitionAttributes(def, doc, metadata, symbolTable));
+        diagnostics.push(...validateDefinitionAttributes(def, doc, metadata, symbolTable, projectNodes));
 
         // Validate duplicate definitions and modifiers
-        if (!def.isIncomplete && def.name && def.type) {
+        if (!isXml && !def.isIncomplete && def.name && def.type) {
             const defType = def.type.text;
             const defName = def.name.text;
             const kind = definitionTypeToSymbolKind(defType);

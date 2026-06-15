@@ -9,6 +9,7 @@ import { getMetadata } from '../services/metadataService';
 import { normalizeTypeName } from '../services/utils';
 import { getDefinitionAtOffset } from '../services/hover';
 import { TokenKind } from '../parser/tokenKind';
+import { Scope } from '../services/scopeManager';
 
 /**
  * Build markdown documentation for an attribute
@@ -46,33 +47,51 @@ export function buildAttributeDocumentation(attr: TDLDefinition): string {
  * @returns Markdown documentation string
  */
 export function buildFunctionDocumentation(func: TDLFunction): string {
-    let doc = func.Description || '';
+    const lines: string[] = [];
 
-    const mandatory = func.TotalMandatoryParameters;
-    const optional = func.TotalParameters - mandatory;
-    doc += `\n\n**Parameters:** ${mandatory} mandatory${optional > 0 ? `, ${optional} optional` : ''}`;
+    const paramStrings = func.Parameters.map((p, index) => {
+        let pName = p.ParameterType || 'param' + index;
+        let pStr = `${pName}: ${p.DataType || 'Any'}`;
+        if (!p.IsMandatory) pStr = `[${pStr}]`;
+        return pStr;
+    });
+    
+    const sig = `$$${func.Name}(${paramStrings.join(', ')})${func.ReturnType ? ': ' + func.ReturnType : ''}`;
+    
+    lines.push('```tdl');
+    lines.push(sig);
+    lines.push('```');
 
-    if (func.ReturnType) {
-        doc += `\n**Returns:** ${func.ReturnType}`;
-    }
-
-    if (func.Category) {
-        doc += `\n**Category:** ${func.Category}`;
+    if (func.Description) {
+        lines.push('___');
+        lines.push(func.Description);
     }
 
     if (func.Parameters && func.Parameters.length > 0) {
-        doc += '\n\n**Parameter Details:**\n';
+        lines.push('___');
+        lines.push('**Parameters:**');
         func.Parameters.forEach((param, idx) => {
             const parts: string[] = [];
-            if (param.IsMandatory) parts.push('Required');
-            else parts.push('Optional');
-            if (param.DataType) parts.push(`Type: ${param.DataType}`);
-            if (param.RefersTo) parts.push(`Refers to: ${param.RefersTo.trim()}`);
-            doc += `- Param ${idx + 1}: ${parts.join(', ')}\n`;
+            if (param.IsMandatory) parts.push('**Required**');
+            else parts.push('*Optional*');
+            if (param.DataType) parts.push(`Type: \`${param.DataType}\``);
+            if (param.RefersTo) parts.push(`Refers to: \`${param.RefersTo.trim()}\``);
+            if (param.Keywords) parts.push(`Keywords: \`${param.Keywords}\``);
+            
+            lines.push(`- \`${param.ParameterType || 'param' + (idx+1)}\` &mdash; ${parts.join(', ')}`);
         });
     }
 
-    return doc;
+    const metaParts = [];
+    if (func.Category) metaParts.push(`Category: **${func.Category}**`);
+    if (func.Mode) metaParts.push(`Mode: **${func.Mode}**`);
+    
+    if (metaParts.length > 0) {
+        lines.push('___');
+        lines.push(metaParts.join(' | '));
+    }
+
+    return lines.join('\n');
 }
 
 /**
@@ -123,7 +142,7 @@ function getFunctionSuggestions(
  * Context for completion
  */
 export interface CompletionContext {
-    type: 'schema_type' | 'definition_type' | 'definition_name' | 'attribute' | 'attribute_value' | 'function' | 'variable' | 'field' | 'function_action' | 'function_action_parameter' | 'modifier_value' | 'xml_schema_attribute' | 'unknown';
+    type: 'schema_type' | 'definition_type' | 'definition_name' | 'attribute' | 'attribute_value' | 'function' | 'variable' | 'formula' | 'field' | 'function_action' | 'function_action_parameter' | 'modifier_value' | 'xml_schema_attribute' | 'unknown';
     partial: string;
     hasModifier: boolean;
     modifier?: string;
@@ -148,41 +167,58 @@ function getSuggestionsForDefinitionType(
     const items: CompletionItem[] = [];
     const normalizedPartial = normalizeTypeName(partial);
 
-    // 1. Check Symbol Table (user code)
-    if (symbolTable) {
-        const kind = definitionTypeToSymbolKind(defType);
-        const existingNames = symbolTable.getNamesByKind(kind);
+    // Button and Key are used interchangeably in TDL
+    const typesToSearch = [defType];
+    const lowerDefType = defType.toLowerCase();
+    if (lowerDefType === 'button') typesToSearch.push('Key');
+    if (lowerDefType === 'key') typesToSearch.push('Button');
 
-        for (const name of existingNames) {
-            if (normalizedPartial === '' || normalizeTypeName(name).includes(normalizedPartial)) {
-                items.push({
-                    label: name,
-                    kind: CompletionItemKind.Reference,
-                    detail: `Existing ${defType} definition`,
-                    insertText: name,
-                    sortText: '0_' + name.toLowerCase(), // Prioritize user symbols
-                });
+    // Keep track of added names to avoid duplicates if they exist in both
+    const addedNames = new Set<string>();
+
+    for (const type of typesToSearch) {
+        // 1. Check Symbol Table (user code)
+        if (symbolTable) {
+            const kind = definitionTypeToSymbolKind(type);
+            const existingNames = symbolTable.getNamesByKind(kind);
+
+            for (const name of existingNames) {
+                if (normalizedPartial === '' || normalizeTypeName(name).includes(normalizedPartial)) {
+                    if (!addedNames.has(name.toLowerCase())) {
+                        addedNames.add(name.toLowerCase());
+                        items.push({
+                            label: name,
+                            kind: CompletionItemKind.Reference,
+                            detail: `Existing ${type} definition`,
+                            insertText: name,
+                            sortText: '0_' + name.toLowerCase(), // Prioritize user symbols
+                        });
+                    }
+                }
+            }
+        }
+
+        // 2. Check ExistingDefinitions (default TDL)
+        const defTypeKey = Array.from(md.existingDefinitions.keys()).find(k => k.toLowerCase() === type.toLowerCase());
+        if (defTypeKey) {
+            const defaultNames = md.existingDefinitions.get(defTypeKey) || [];
+            for (const name of defaultNames) {
+                if (normalizedPartial === '' || normalizeTypeName(name).includes(normalizedPartial)) {
+                    if (!addedNames.has(name.toLowerCase())) {
+                        addedNames.add(name.toLowerCase());
+                        items.push({
+                            label: name,
+                            kind: CompletionItemKind.Reference,
+                            detail: `Default TDL ${defTypeKey}`,
+                            insertText: name,
+                            sortText: '1_' + name.toLowerCase(), // Lower priority than user symbols
+                        });
+                    }
+                }
             }
         }
     }
 
-    // 2. Check ExistingDefinitions (default TDL)
-    // Find matching key in metadata (case-insensitive)
-    const defTypeKey = Array.from(md.existingDefinitions.keys()).find(k => k.toLowerCase() === defType.toLowerCase());
-    if (defTypeKey) {
-        const defaultNames = md.existingDefinitions.get(defTypeKey) || [];
-        for (const name of defaultNames) {
-            if (normalizedPartial === '' || normalizeTypeName(name).includes(normalizedPartial)) {
-                items.push({
-                    label: name,
-                    kind: CompletionItemKind.Reference,
-                    detail: `Default TDL ${defTypeKey}`,
-                    insertText: name,
-                    sortText: '1_' + name.toLowerCase(), // Lower priority than user symbols
-                });
-            }
-        }
-    }
     return items;
 }
 
@@ -240,6 +276,15 @@ export function detectCompletionContext(
         const afterHash = trimmed.slice(hashIdx + 2);
         if (!afterHash.includes(':')) {
             return { type: 'variable', partial: afterHash.trim(), hasModifier: false };
+        }
+    }
+
+    // 3. Check for @@ (formula context)
+    const atIdx = trimmed.lastIndexOf('@@');
+    if (atIdx !== -1 && (dollarIdx === -1 || atIdx > dollarIdx) && (hashIdx === -1 || atIdx > hashIdx)) {
+        const afterAt = trimmed.slice(atIdx + 2);
+        if (!afterAt.includes(':')) {
+            return { type: 'formula', partial: afterAt.trim(), hasModifier: false };
         }
     }
 
@@ -717,18 +762,23 @@ export function registerCompletion(
                 break;
 
             case 'variable':
-                // 1. Local variables from scope
-                const scope = manager.getScopeManager(params.textDocument.uri).getScopeAt(params.textDocument.uri, offset);
-                if (scope && scope.symbols) {
-                    for (const [varName, varInfo] of scope.symbols.entries()) {
-                        if (context.partial === '' || varName.toLowerCase().includes(context.partial.toLowerCase())) {
-                            items.push({
-                                label: varName,
-                                kind: CompletionItemKind.Variable,
-                                detail: `Local Variable`,
-                                insertText: varName,
-                                sortText: '0_' + varName.toLowerCase()
-                            });
+                // 1. All reachable variables from scope (Lexical + Structural + Use)
+                const scopeManager = manager.getScopeManager(params.textDocument.uri);
+                const scope = scopeManager.getScopeAt(params.textDocument.uri, offset);
+                
+                if (scope) {
+                    const reachableVars = scopeManager.getAllVariablesInScope(scope);
+                    for (const [varName, varInfo] of reachableVars.entries()) {
+                        if (varInfo.definitionType !== 'Formula' && varInfo.definitionType !== 'System Formula') {
+                            if (context.partial === '' || varName.toLowerCase().includes(context.partial.toLowerCase())) {
+                                items.push({
+                                    label: varInfo.name || varName, // Use original casing if available
+                                    kind: CompletionItemKind.Variable,
+                                    detail: `Scoped Variable`,
+                                    insertText: varInfo.name || varName,
+                                    sortText: '0_' + varName.toLowerCase()
+                                });
+                            }
                         }
                     }
                 }
@@ -736,6 +786,35 @@ export function registerCompletion(
                 // 2. Global definitions
                 items.push(...getSuggestionsForDefinitionType('Variable', context.partial, md, symbolTable));
                 items.push(...getSuggestionsForDefinitionType('System Variable', context.partial, md, symbolTable));
+                break;
+
+            case 'formula':
+                const scopeMgr = manager.getScopeManager(params.textDocument.uri);
+                const currentScope = scopeMgr.getScopeAt(params.textDocument.uri, offset);
+                
+                if (currentScope) {
+                    const reachableVars = scopeMgr.getAllVariablesInScope(currentScope);
+                    for (const [varName, varInfo] of reachableVars.entries()) {
+                        if (varInfo.definitionType === 'Formula' || varInfo.definitionType === 'System Formula') {
+                            if (context.partial === '' || varName.toLowerCase().includes(context.partial.toLowerCase())) {
+                                items.push({
+                                    label: varInfo.name || varName, // Use original casing if available
+                                    kind: CompletionItemKind.Value,
+                                    detail: `Formula`,
+                                    insertText: varInfo.name || varName,
+                                    sortText: '0_' + varName.toLowerCase()
+                                });
+                            }
+                        }
+                    }
+                }
+                
+                items.push(...getSuggestionsForDefinitionType('Formula', context.partial, md, symbolTable));
+                items.push(...getSuggestionsForDefinitionType('Formulae', context.partial, md, symbolTable));
+                items.push(...getSuggestionsForDefinitionType('Formulas', context.partial, md, symbolTable));
+                items.push(...getSuggestionsForDefinitionType('System Formula', context.partial, md, symbolTable));
+                items.push(...getSuggestionsForDefinitionType('System Formulae', context.partial, md, symbolTable));
+                items.push(...getSuggestionsForDefinitionType('System Formulas', context.partial, md, symbolTable));
                 break;
                 
 
@@ -834,9 +913,64 @@ export function registerCompletion(
                     const partial = context.partial.toLowerCase();
                     
                     if (modName === 'local') {
-                        // Local : <Definition Type> : <Definition Name> : <Attribute> : <Value>
-                        if (context.paramIndex === 0) {
-                            // Typing <Definition Type>
+                        let state = 0; // 0: Type, 1: Name, 2: Attribute, 3: Value
+                        let currentMod = 'local';
+                        let targetDefType = '';
+                        let targetDefName = '';
+                        let effectiveDefType: string | undefined = currentDef.type?.text;
+                        
+                        const scopeManager = manager.getScopeManager(params.textDocument.uri);
+                        let effectiveScope: Scope | undefined = scopeManager.getScopeAt(params.textDocument.uri, offset);
+                        
+                        const parts = context.modifierParts || [];
+                        let lastAttribute = '';
+                        
+                        // Parse all parts except the very last one (which is what we are currently typing)
+                        for (let i = 0; i < parts.length - 1; i++) {
+                            const p = parts[i].trim();
+                            
+                            if (state === 0) {
+                                targetDefType = p;
+                                state = 1;
+                            } else if (state === 1) {
+                                targetDefName = p;
+                                // We resolved a definition. Update effective scope!
+                                if (effectiveScope && targetDefType && targetDefName) {
+                                    const exactScope = scopeManager.getScopeById(`${targetDefType}:${targetDefName}`);
+                                    if (exactScope) {
+                                        effectiveScope = exactScope;
+                                        effectiveDefType = targetDefType;
+                                    }
+                                }
+                                state = 2;
+                            } else if (state === 2) {
+                                lastAttribute = p;
+                                const lowerP = p.toLowerCase();
+                                if (lowerP === 'local') {
+                                    // It's a nested Local modifier! Reset state!
+                                    currentMod = lowerP;
+                                    state = 0;
+                                } else if (['add', 'delete', 'replace', 'option'].includes(lowerP)) {
+                                    // It transitioned to Add/Delete/Replace, which takes an Attribute next.
+                                    currentMod = lowerP;
+                                    state = 4; // State 4 expects an Attribute for the nested modifier
+                                } else {
+                                    state = 3; // We are in value state
+                                }
+                            } else if (state === 3) {
+                                // Value can contain colons.
+                            } else if (state === 4) {
+                                // We were expecting an attribute for Add/Delete/Replace
+                                lastAttribute = p;
+                                state = 5; // State 5 is value for Add/Delete/Replace
+                            } else if (state === 5) {
+                                // Value
+                            }
+                        }
+
+                        // Now what are we suggesting?
+                        if (state === 0) {
+                            // Typing <Definition Type> for Local
                             const defTypes = getDefinitionTypes(md);
                             const normalizedPartial = normalizeTypeName(partial);
             
@@ -851,17 +985,30 @@ export function registerCompletion(
                                     });
                                 }
                             }
-                        } else if (context.paramIndex === 1) {
-                            // Typing <Definition Name>
-                            const targetDefType = context.modifierParts?.[0];
-                            if (targetDefType) {
-                                items.push(...getSuggestionsForDefinitionType(targetDefType, context.partial, md, symbolTable));
+                        } else if (state === 1) {
+                            // Typing <Definition Name> for Local
+                            if (targetDefType && effectiveScope) {
+                                const reachable = scopeManager.getReachableChildren(effectiveScope, targetDefType);
+                                for (const sym of reachable) {
+                                    if (partial === '' || sym.name.toLowerCase().includes(partial)) {
+                                        items.push({
+                                            label: sym.name,
+                                            kind: CompletionItemKind.Class,
+                                            detail: `Reachable ${targetDefType}`,
+                                            insertText: `${sym.name} : `
+                                        });
+                                    }
+                                }
+                                
+                                // Fallback to global if nothing found or to complement
+                                if (reachable.length === 0) {
+                                    items.push(...getSuggestionsForDefinitionType(targetDefType, context.partial, md, symbolTable));
+                                }
                             }
-                        } else if (context.paramIndex === 2) {
-                            // Typing <Attribute>
-                            const targetDefType = context.modifierParts?.[0];
-                            if (targetDefType) {
-                                const normalizedTargetType = normalizeTypeName(targetDefType);
+                        } else if (state === 2 || state === 4) {
+                            // Typing <Attribute> for the effective Definition Type
+                            if (effectiveDefType) {
+                                const normalizedTargetType = normalizeTypeName(effectiveDefType);
                                 let matchingDefAttributes: TDLDefinition[] | undefined;
                                 for (const [defType, attributes] of md.definitions) {
                                     if (normalizeTypeName(defType) === normalizedTargetType) {
@@ -878,10 +1025,10 @@ export function registerCompletion(
                                             items.push({
                                                 label: displayAttr,
                                                 kind: CompletionItemKind.Property,
-                                                detail: `${targetDefType} attribute`,
+                                                detail: `${effectiveDefType} attribute`,
                                                 insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr} : `,
                                                 insertTextFormat: isXml ? 2 : undefined,
-                                                data: { type: 'attribute', defType: targetDefType, name: attr.Name },
+                                                data: { type: 'attribute', defType: effectiveDefType, name: attr.Name },
                                                 sortText: attr.Name.toLowerCase(),
                                             });
                                         }

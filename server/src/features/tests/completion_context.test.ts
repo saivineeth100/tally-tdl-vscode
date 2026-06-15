@@ -47,4 +47,18 @@ describe('Completion Attribute Value Context', () => {
         expect(context.paramIndex).toBe(1);
         expect(context.partial).toBe('Sub');
     });
+
+    it('should detect formula context with @@', () => {
+        const input = `[Report: MyReport]\n    Set As : @@My`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+        const cursor = input.length;
+        const currentDef = findDefinitionAtCursor(sourceFile, cursor);
+        const textBefore = '    Set As : @@My';
+
+        const context = detectCompletionContext(textBefore, sourceFile, cursor, currentDef);
+
+        expect(context.type).toBe('formula');
+        expect(context.partial).toBe('My');
+    });
 });

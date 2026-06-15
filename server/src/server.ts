@@ -24,6 +24,7 @@ import { registerCompletion, buildFunctionDocumentation, buildAttributeDocumenta
 import { createDocumentSymbols } from "./services/documentSymbol";
 import { getHoverInfo } from "./services/hover";
 import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from "./services/definition";
+import { provideFoldingRanges } from "./services/foldingRange";
 
 // Create LSP connection
 const connection = createConnection(ProposedFeatures.all);
@@ -79,13 +80,16 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         capabilities: {
             textDocumentSync: TextDocumentSyncKind.Incremental,
             completionProvider: {
-                resolveProvider: false,
+                resolveProvider: true,
                 triggerCharacters: ['.', ':', '=', '"', ',', '(', '[', '$', '<', '>']
             },
+            foldingRangeProvider: true,
             documentSymbolProvider: true,
             semanticTokensProvider: {
                 legend: TDL_SEMANTIC_TOKENS_LEGEND,
-                full: true
+                full: {
+                    delta: true
+                }
             },
             documentFormattingProvider: true,
             hoverProvider: true,
@@ -93,6 +97,9 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             renameProvider: { prepareProvider: true },
             referencesProvider: true,
             documentLinkProvider: { resolveProvider: false },
+            signatureHelpProvider: { triggerCharacters: [':'] },
+            inlayHintProvider: { resolveProvider: false },
+            codeLensProvider: { resolveProvider: true },
             workspaceSymbolProvider: true,
             documentHighlightProvider: true,
             codeActionProvider: true,
@@ -205,6 +212,53 @@ connection.onHover((params: HoverParams): Hover | null => {
             value: hoverResult.content
         }
     };
+});
+
+// Handle folding ranges
+connection.onFoldingRanges((params) => {
+    const doc = docs.get(params.textDocument.uri);
+    if (!doc) return null;
+
+    const docState = docManager.get(params.textDocument.uri);
+    if (!docState || !docState.sourceFile) return null;
+
+    return provideFoldingRanges(docState.sourceFile, doc);
+});
+
+// Handle Signature Help
+import { provideSignatureHelp } from "./services/signatureHelp";
+connection.onSignatureHelp((params) => {
+    const doc = docs.get(params.textDocument.uri);
+    if (!doc) return null;
+    return provideSignatureHelp(doc, params.position, requireMetadata());
+});
+
+// Handle Inlay Hints
+import { provideInlayHints } from "./services/inlayHints";
+connection.languages.inlayHint.on((params) => {
+    const doc = docs.get(params.textDocument.uri);
+    if (!doc) return null;
+
+    const docState = docManager.get(params.textDocument.uri);
+    if (!docState || !docState.sourceFile) return null;
+
+    return provideInlayHints(docState.sourceFile, doc, params.range, requireMetadata());
+});
+
+// Handle Code Lens
+import { provideCodeLens, resolveCodeLens } from "./services/codeLens";
+connection.onCodeLens((params) => {
+    const doc = docs.get(params.textDocument.uri);
+    if (!doc) return null;
+
+    const docState = docManager.get(params.textDocument.uri);
+    if (!docState || !docState.sourceFile) return null;
+
+    return provideCodeLens(docState.sourceFile, doc);
+});
+
+connection.onCodeLensResolve((lens) => {
+    return resolveCodeLens(lens, docManager, docs);
 });
 
 export function resolveIncludePath(currentPath: string, includeName: string): string | null {
@@ -422,7 +476,7 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
     });
 
 // Handle semantic tokens request
-import { provideSemanticTokens, TDL_SEMANTIC_TOKENS_LEGEND } from "./services/semanticTokens/semanticTokens";
+import { provideSemanticTokens, provideSemanticTokensEdits, TDL_SEMANTIC_TOKENS_LEGEND } from "./services/semanticTokens/semanticTokens";
 
 connection.languages.semanticTokens.on((params, token) => {
     const doc = docs.get(params.textDocument.uri);
@@ -431,8 +485,19 @@ connection.languages.semanticTokens.on((params, token) => {
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return { data: [] };
 
-    const metadata = (globalThis as any).TDL_METADATA;
+    const metadata = requireMetadata();
     return provideSemanticTokens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri), metadata, token);
+});
+
+connection.languages.semanticTokens.onDelta((params, token) => {
+    const doc = docs.get(params.textDocument.uri);
+    if (!doc) return { edits: [] };
+
+    const docState = docManager.get(params.textDocument.uri);
+    if (!docState || !docState.sourceFile) return { edits: [] };
+
+    const metadata = requireMetadata();
+    return provideSemanticTokensEdits(docState.sourceFile, doc, params.previousResultId, docManager.getScopeManager(params.textDocument.uri), metadata, token);
 });
 
 // Handlers registered below
@@ -481,32 +546,16 @@ connection.onReferences((params) => {
 
 // Handle Document Links (for Include statements across the whole document)
 import { DocumentLinkParams, DocumentLink } from "vscode-languageserver";
+import { provideDocumentLinks } from "./services/documentLinks";
+
 connection.onDocumentLinks((params: DocumentLinkParams): DocumentLink[] => {
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return [];
     
-    const links: DocumentLink[] = [];
-    const currentPath = URI.parse(params.textDocument.uri).fsPath;
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return [];
 
-    for (const def of docState.sourceFile.definitions) {
-        if ((def.type.text.trim().toLowerCase() === 'include' || def.type.text.trim().toLowerCase() === 'import') && def.name) {
-            let name = def.name.text;
-            name = name.replace(/^"|"$|^'|'$/g, '');
-            const targetPath = resolveIncludePath(currentPath, name);
-            if (targetPath) {
-                links.push({
-                    range: {
-                        start: doc.positionAt(def.name.start),
-                        end: doc.positionAt(def.name.end)
-                    },
-                    target: URI.file(targetPath).toString()
-                });
-            }
-        }
-    }
-    return links;
+    return provideDocumentLinks(docState.sourceFile, doc, resolveIncludePath);
 });
 
 // Handle Workspace Symbols Request
@@ -529,6 +578,12 @@ connection.onCodeAction((params) => {
 
 // Handle TDL to XML Conversion
 import { generateXml } from "./services/xmlGenerator";
+// Handle Scope Tree Debug Request
+connection.onRequest("tdl/getScopeTreeDebug", async (params: { uri: string }) => {
+    const scopeMgr = docManager.getScopeManager(params.uri);
+    return scopeMgr.serializeScopeTree(params.uri);
+});
+
 connection.onRequest("tdl/convertToXml", async (params: { uri: string }) => {
     const doc = docs.get(params.uri);
     const docState = docManager.get(params.uri);

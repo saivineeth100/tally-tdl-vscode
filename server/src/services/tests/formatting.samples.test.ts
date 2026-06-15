@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { formatDocument } from '../formatting';
 import { FormattingOptions } from 'vscode-languageserver';
 import { Parser } from '../../parser/parser';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -34,7 +35,9 @@ describe('Document Formatting - Real Samples', () => {
         // Run Formatter
         const edits = formatDocument(input, sourceFile, options);
         expect(edits).toBeDefined();
-        const output = edits[0].newText;
+        
+        const doc = TextDocument.create('file://test', 'tdl', 1, input);
+        const output = TextDocument.applyEdits(doc, edits);
 
         // Verify Stability: Re-parse the output
         const parser2 = new Parser(output);

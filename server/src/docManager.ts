@@ -44,6 +44,9 @@ export class DocManager {
     /** Queue for workspace scan requests */
     private scanQueue: string[][] = [];
 
+    /** Directed graph of inclusions: URI -> Set of URIs it includes */
+    private includeGraph = new Map<string, Set<string>>();
+
     private rebuildTimers = new Map<string, NodeJS.Timeout>();
     private readonly REBUILD_DELAY = 200; // ms
 
@@ -132,6 +135,13 @@ export class DocManager {
     clearFolderSymbols(folderPath: string): void {
         this.tdlSymbolTable.clearFolder(folderPath);
         this.xmlSymbolTable.clearFolder(folderPath);
+        
+        // Also clear include graph entries matching this folder
+        for (const [uri, _] of this.includeGraph.entries()) {
+            if (URI.parse(uri).fsPath.startsWith(folderPath)) {
+                this.includeGraph.delete(uri);
+            }
+        }
     }
 
     /**
@@ -197,10 +207,131 @@ export class DocManager {
                     this.getSymbolTable(uri).addSymbol(symbolInfo);
                 }
             }
+            
+            // Build scope tree to capture global variables and formulas
+            this.getScopeManager(uri).buildFileScope(uri, sourceFile);
+
+            // Update Include Graph
+            this.updateIncludeGraph(uri, sourceFile);
         } catch (err) {
             // Silently skip files that can't be read, but log error
             this.connection.console.warn(`Error indexing file ${filePath}: ${err}`);
         }
+    }
+
+    /**
+     * Updates the include graph for a given document.
+     */
+    private updateIncludeGraph(uri: string, sourceFile: SourceFile) {
+        const includes = new Set<string>();
+        const currentFsPath = URI.parse(uri).fsPath;
+
+        for (const def of sourceFile.definitions) {
+            const normalizedType = def.type?.text?.toLowerCase();
+            if ((normalizedType === 'include' || normalizedType === 'import') && def.name) {
+                let includeName = def.name.text;
+                if (includeName.startsWith('"') && includeName.endsWith('"')) {
+                    includeName = includeName.slice(1, -1);
+                }
+
+                if (this.resolveIncludePath) {
+                    const targetPath = this.resolveIncludePath(currentFsPath, includeName);
+                    if (targetPath) {
+                        includes.add(URI.file(targetPath).toString());
+                    }
+                }
+            }
+        }
+        this.includeGraph.set(uri, includes);
+    }
+
+    /**
+     * Check if there are circular includes starting from the given URI
+     */
+    public hasCircularIncludes(startUri: string): boolean {
+        const visited = new Set<string>();
+        const recursionStack = new Set<string>();
+
+        const dfs = (currentUri: string): boolean => {
+            if (recursionStack.has(currentUri)) return true; // Cycle detected
+            if (visited.has(currentUri)) return false; // Already checked
+
+            visited.add(currentUri);
+            recursionStack.add(currentUri);
+
+            const includes = this.includeGraph.get(currentUri) || new Set<string>();
+            for (const nextUri of includes) {
+                if (dfs(nextUri)) return true;
+            }
+
+            recursionStack.delete(currentUri);
+            return false;
+        };
+
+        return dfs(startUri);
+    }
+
+    /**
+     * Get all URIs that are in the same project as targetUri.
+     * A project is defined as the set of all files reachable from any root that can reach targetUri.
+     */
+    public getProjectNodes(targetUri: string): Set<string> {
+        const inDegrees = new Map<string, number>();
+        const allNodes = new Set<string>();
+        
+        for (const [node, edges] of this.includeGraph.entries()) {
+            allNodes.add(node);
+            if (!inDegrees.has(node)) inDegrees.set(node, 0);
+            for (const edge of edges) {
+                allNodes.add(edge);
+                inDegrees.set(edge, (inDegrees.get(edge) || 0) + 1);
+            }
+        }
+
+        const roots = Array.from(allNodes).filter(node => (inDegrees.get(node) || 0) === 0);
+        
+        // Find which roots can reach targetUri
+        const validRoots = new Set<string>();
+        
+        // Helper to find reachable nodes
+        const getReachable = (start: string) => {
+            const visited = new Set<string>();
+            const queue = [start];
+            while (queue.length > 0) {
+                const curr = queue.shift()!;
+                if (!visited.has(curr)) {
+                    visited.add(curr);
+                    const edges = this.includeGraph.get(curr);
+                    if (edges) {
+                        queue.push(...edges);
+                    }
+                }
+            }
+            return visited;
+        }
+
+        for (const root of roots) {
+            const reachable = getReachable(root);
+            if (reachable.has(targetUri)) {
+                validRoots.add(root);
+            }
+        }
+
+        // If targetUri is not reachable from ANY root, it's an isolated file or part of a disjoint cycle
+        if (validRoots.size === 0) {
+            validRoots.add(targetUri);
+        }
+
+        // Union of all reachable nodes from valid roots
+        const projectNodes = new Set<string>();
+        for (const root of validRoots) {
+            const reachable = getReachable(root);
+            for (const node of reachable) {
+                projectNodes.add(node);
+            }
+        }
+        
+        return projectNodes;
     }
 
     /**
@@ -254,9 +385,12 @@ export class DocManager {
         const scopeMgr = this.getScopeManager(doc.uri);
         scopeMgr.buildFileScope(doc.uri, sourceFile);
 
+        // Update Include Graph
+        this.updateIncludeGraph(doc.uri, sourceFile);
+
         // Run metadata-based validations if metadata is available
         if (metadata) {
-            diagnostics.push(...(await validateSourceFile(sourceFile, doc, metadata, symTable, scopeMgr, this.resolveIncludePath)));
+            diagnostics.push(...(await validateSourceFile(sourceFile, doc, metadata, symTable, scopeMgr, this.resolveIncludePath, this)));
         }
 
         // Store document state and send diagnostics

@@ -176,44 +176,47 @@ function createParameterHover(param: TDLParameter, paramIndex: number): string {
 function createFunctionHover(func: TDLFunction): string {
     const lines: string[] = [];
 
-    lines.push(`**$$${func.Name}**`);
-    lines.push('');
+    // Generate signature for code block
+    const paramStrings = func.Parameters.map((p, index) => {
+        let pName = p.ParameterType || 'param' + index;
+        let pStr = `${pName}: ${p.DataType || 'Any'}`;
+        if (!p.IsMandatory) pStr = `[${pStr}]`;
+        return pStr;
+    });
+    
+    const sig = `$$${func.Name}(${paramStrings.join(', ')})${func.ReturnType ? ': ' + func.ReturnType : ''}`;
+    
+    lines.push('```tdl');
+    lines.push(sig);
+    lines.push('```');
 
     if (func.Description) {
+        lines.push('___');
         lines.push(func.Description);
-        lines.push('');
     }
 
-    // Parameter summary
-    const mandatory = func.TotalMandatoryParameters;
-    const optional = func.TotalParameters - mandatory;
-    lines.push(`*Parameters: ${mandatory} mandatory${optional > 0 ? `, ${optional} optional` : ''}*`);
-
-    if (func.ReturnType) {
-        lines.push(`*Returns: ${func.ReturnType}*`);
-    }
-
-    if (func.Category) {
-        lines.push(`*Category: ${func.Category}*`);
-    }
-
-    if (func.Mode) {
-        lines.push(`*Mode: ${func.Mode}*`);
-    }
-
-    // Parameter details
     if (func.Parameters && func.Parameters.length > 0) {
-        lines.push('');
+        lines.push('___');
         lines.push('**Parameters:**');
         func.Parameters.forEach((param, idx) => {
             const parts: string[] = [];
             if (param.IsMandatory) parts.push('**Required**');
-            else parts.push('Optional');
-            if (param.DataType) parts.push(`Type: ${param.DataType}`);
-            if (param.RefersTo) parts.push(`Refers to: ${param.RefersTo.trim()}`);
-            if (param.Keywords) parts.push(`Keywords: ${param.Keywords}`);
-            lines.push(`${idx + 1}. ${parts.join(', ') || 'Value'}`);
+            else parts.push('*Optional*');
+            if (param.DataType) parts.push(`Type: \`${param.DataType}\``);
+            if (param.RefersTo) parts.push(`Refers to: \`${param.RefersTo.trim()}\``);
+            if (param.Keywords) parts.push(`Keywords: \`${param.Keywords}\``);
+            
+            lines.push(`- \`${param.ParameterType || 'param' + (idx+1)}\` &mdash; ${parts.join(', ')}`);
         });
+    }
+
+    const metaParts = [];
+    if (func.Category) metaParts.push(`Category: **${func.Category}**`);
+    if (func.Mode) metaParts.push(`Mode: **${func.Mode}**`);
+    
+    if (metaParts.length > 0) {
+        lines.push('___');
+        lines.push(metaParts.join(' | '));
     }
 
     return lines.join('\n');

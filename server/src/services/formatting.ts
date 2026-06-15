@@ -110,6 +110,13 @@ export function formatDocument(text: string, sourceFile: SourceFile, options: Fo
             continue;
         }
 
+        // Rule: Space Before Colon
+        if (token.Kind === TokenKind.ColonToken) {
+            if (!formattedText.endsWith(' ') && !formattedText.endsWith('\t') && !formattedText.endsWith('\n') && !atLineStart) {
+                formattedText += " ";
+            }
+        }
+
         formattedText += token.Text;
 
         // Rule: Space After Colon
