@@ -2,33 +2,7 @@ import { TokenKind } from "./tokenKind";
 
 export class TokenStringMaps {
 
-    static KEYWORDS = new Map<string, TokenKind>([
-        ["Border", TokenKind.BorderDefTypeToken],
-        ["Button", TokenKind.ButtonDefTypeToken],
-        ["Collection", TokenKind.CollectionDefTypeToken],
-        ["Color", TokenKind.ColorDefTypeToken],
-        ["Colour", TokenKind.ColourDefTypeToken],
-        ["COMInterface", TokenKind.COMInterfaceDefTypeToken],
-        ["Field", TokenKind.FieldDefTypeToken],
-        ["Form", TokenKind.FormDefTypeToken],
-        ["Function", TokenKind.FunctionDefTypeToken],
-        ["ImportFile", TokenKind.ImportFileDefTypeToken],
-        ["ImportObject", TokenKind.ImportObjectDefTypeToken],
-        ["Key", TokenKind.KeyDefTypeToken],
-        ["Line", TokenKind.LineDefTypeToken],
-        ["Menu", TokenKind.MenuDefTypeToken],
-        ["NameSet", TokenKind.NameSetDefTypeToken],
-        ["Object", TokenKind.ObjectDefTypeToken],
-        ["Part", TokenKind.PartDefTypeToken],
-        ["QueryBox", TokenKind.QueryBoxDefTypeToken],
-        ["Report", TokenKind.ReportDefTypeToken],
-        ["Resource", TokenKind.ResourceDefTypeToken],
-        ["RuleSet", TokenKind.RuleSetDefTypeToken],
-        ["Style", TokenKind.StyleDefTypeToken],
-        ["Table", TokenKind.TableDefTypeToken],
-        ["Variable", TokenKind.VariableDefTypeToken],
-
-    ]);
+    static KEYWORDS = new Map<string, TokenKind>([]);
     static RESERVED_WORDS = new Map<string, TokenKind>([
         ["TRUE", TokenKind.TrueToken],
         ["ON", TokenKind.OnToken],

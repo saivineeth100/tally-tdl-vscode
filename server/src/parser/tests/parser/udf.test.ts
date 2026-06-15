@@ -1,7 +1,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser';
-import { SyntaxKind, DefinitionNode, StatementNode } from '../../ast';
+import { cleanAST } from './utils';
 
 describe('Parser - UDFs', () => {
     it('should parse a simple function definition with statements', () => {
@@ -13,17 +13,7 @@ describe('Parser - UDFs', () => {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
 
-        expect(sourceFile.definitions.length).toBe(1);
-        const def = sourceFile.definitions[0] as DefinitionNode;
-        expect(def.type.text).toBe("Function");
-        expect(def.name?.text).toBe("SimpleFunction");
-
-        expect(def.statements.length).toBe(2);
-
-        const stmt1 = def.statements[0];
-        expect((stmt1.label as any)?.text).toBe("01"); // IdentifierNode or LiteralNode depending on implementation
-        expect(stmt1.action.text).toBe("Log");
-        // Check args
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
     it('should parse function attributes and statements mixed', () => {
@@ -35,14 +25,7 @@ describe('Parser - UDFs', () => {
 `;
         const parser = new Parser(input);
         const sourceFile = parser.parse();
-        const def = sourceFile.definitions[0] as DefinitionNode;
-
-        expect(def.attributes.length).toBe(2);
-        expect(def.attributes[0].name.text).toBe("Parameter");
-        expect(def.attributes[1].name.text).toBe("Returns");
-
-        expect(def.statements.length).toBe(1);
-        expect((def.statements[0].label as any)?.text).toBe("00");
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
     it('should parse function with Start label', () => {
@@ -52,10 +35,6 @@ describe('Parser - UDFs', () => {
 `;
         const parser = new Parser(input);
         const sourceFile = parser.parse();
-        const def = sourceFile.definitions[0] as DefinitionNode;
-
-        expect(def.statements.length).toBe(1);
-        expect((def.statements[0].label as any)?.text).toBe("Start");
-        expect(def.statements[0].action.text).toBe("Log");
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 });

@@ -1,0 +1,768 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Lexer simple tests > Basic TDL report 1`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "length": 1,
+    "start": 0,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 1,
+    "text": "Report",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 7,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 8,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 5,
+    "start": 9,
+    "text": "Trial",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 14,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 7,
+    "start": 15,
+    "text": "Balance",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 22,
+    "text": "]",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 23,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer simple tests > Basic TDL with spaces in Identifier 1`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "length": 1,
+    "start": 0,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 1,
+    "text": "Import",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 7,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 8,
+    "text": "File",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 12,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 13,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 5,
+    "start": 14,
+    "text": "Trial",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 19,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 7,
+    "start": 20,
+    "text": "Balance",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 27,
+    "text": "]",
+    "trailing": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 28,
+        "text": "
+",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "leading": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 29,
+        "text": "
+",
+      },
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 30,
+        "text": "	",
+      },
+    ],
+    "length": 3,
+    "start": 31,
+    "text": "Use",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 3,
+        "start": 34,
+        "text": "			",
+      },
+    ],
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 37,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 38,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 7,
+    "start": 39,
+    "text": "Browser",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 46,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 47,
+    "text": "Common",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 53,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 11,
+    "start": 54,
+    "text": "SysFormulae",
+    "trailing": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 65,
+        "text": "
+",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "leading": [
+      {
+        "kind": "SpaceToken",
+        "length": 4,
+        "start": 66,
+        "text": "    ",
+      },
+    ],
+    "length": 3,
+    "start": 70,
+    "text": "Use",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 9,
+        "start": 73,
+        "text": "         ",
+      },
+    ],
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 82,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 83,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 84,
+    "text": "TBAL",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 88,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 8,
+    "start": 89,
+    "text": "Template",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 97,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer simple tests > InUse Directive 1`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "length": 1,
+    "start": 0,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 1,
+    "text": "System",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 7,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 8,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 7,
+    "start": 9,
+    "text": "Formula",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 16,
+    "text": "]",
+    "trailing": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 17,
+        "text": "
+",
+      },
+    ],
+  },
+  {
+    "kind": "LessThanToken",
+    "leading": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 18,
+        "text": "	",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 19,
+        "text": "
+",
+      },
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 20,
+        "text": "	",
+      },
+    ],
+    "length": 1,
+    "start": 21,
+    "text": "<",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 5,
+    "start": 22,
+    "text": "InUse",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 27,
+    "text": ":",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 3,
+    "start": 28,
+    "text": "Key",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 31,
+    "text": ":",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 20,
+    "start": 32,
+    "text": "LicenseBlockKeyBoard",
+  },
+  {
+    "kind": "GreaterThanToken",
+    "length": 1,
+    "start": 52,
+    "text": ">",
+    "trailing": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 53,
+        "text": "
+",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "leading": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 54,
+        "text": "	",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 55,
+        "text": "
+",
+      },
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 56,
+        "text": "	",
+      },
+    ],
+    "length": 29,
+    "start": 57,
+    "text": "SV_MGR_LICENSE_INFO_PANEL_KEY",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 3,
+        "start": 86,
+        "text": "   ",
+      },
+    ],
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 89,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 90,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "StringLiteralToken",
+    "length": 24,
+    "start": 91,
+    "text": ""License Block KeyBoard"",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 115,
+        "text": "	",
+      },
+    ],
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 116,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer simple tests > Test Multi Line Comment 1`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "leading": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 0,
+        "text": "
+",
+      },
+      {
+        "kind": "MultiLineComment",
+        "length": 323,
+        "start": 1,
+        "text": "/*
+Objective(s) – 
+- 	This TDL File demonstrate the usage and purpose of Compound List Variables with
+	Reports and LOG Files displaying the same
+-	Wherever LOG File opens up on execution of any code, please traverse through
+	the end of the document to find the recent output
+
+Last modification – 
+-	Altered on 05/04/2010
+*/",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 324,
+        "text": "
+",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 325,
+        "text": "
+",
+      },
+      {
+        "kind": "SingleLineComment",
+        "length": 54,
+        "start": 326,
+        "text": ";; Report Definition for Compound List Values with Key",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 380,
+        "text": "
+",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 381,
+        "text": "
+",
+      },
+    ],
+    "length": 1,
+    "start": 382,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 383,
+    "text": "Report",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 389,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 390,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 2,
+    "start": 391,
+    "text": "CV",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 393,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 394,
+    "text": "List",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 398,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 399,
+    "text": "Values",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 405,
+    "text": "]",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 406,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer simple tests > Test Single Line Comment 1`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "leading": [
+      {
+        "kind": "SingleLineComment",
+        "length": 29,
+        "start": 0,
+        "text": ";; fhtr : RfbfdF dtfh : De rg",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 29,
+        "text": "
+",
+      },
+      {
+        "kind": "SpaceToken",
+        "length": 12,
+        "start": 30,
+        "text": "            ",
+      },
+    ],
+    "length": 1,
+    "start": 42,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 43,
+    "text": "Report",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 49,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 50,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 5,
+    "start": 51,
+    "text": "Trial",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 56,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 7,
+    "start": 57,
+    "text": "Balance",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 64,
+    "text": "]",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 65,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer simple tests > Token Start Position after Comment 1`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "leading": [
+      {
+        "kind": "SingleLineComment",
+        "length": 9,
+        "start": 0,
+        "text": "; Comment",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 9,
+        "text": "
+",
+      },
+    ],
+    "length": 1,
+    "start": 10,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 11,
+    "text": "Report",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 17,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 18,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 19,
+    "text": "Test",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 23,
+    "text": "]",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 24,
+    "text": "",
+  },
+]
+`;

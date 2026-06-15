@@ -1,0 +1,427 @@
+import {
+  DefinitionNode,
+  IdentifierNode,
+  StatementNode,
+  SyntaxKind,
+  ListNode,
+  BlockStatementNode,
+  IfNode,
+  WhileNode,
+  ForNode,
+  WalkNode,
+  BatchPostNode,
+  MsgBoxNode,
+  ZipNode,
+  UnzipNode,
+  StartBlockNode,
+  DoIfNode,
+  ReturnNode,
+  BreakNode,
+  ContinueNode,
+  SetNode,
+  ExchangeNode,
+  IncrementNode,
+  DecrementNode,
+  SwitchNode,
+  CaseNode,
+  DefaultNode,
+} from "../ast";
+import { TokenKind } from "../tokenKind";
+
+import { ExpressionsParser } from "./ExpressionsParser";
+
+/**
+ * StatementsParser handles the parsing of procedural statements and control flow blocks
+ * (e.g., IF, WHILE, FOR, WALK) inside TDL definitions.
+ * It extends ExpressionsParser since statements are often composed of expressions.
+ */
+export class StatementsParser extends ExpressionsParser {
+  protected ParseStatement(defNode: DefinitionNode) {
+    const start = this.CurrentToken.Start;
+
+    const label = this.ParseIdentifierWithSpaces(); // Can be "01" or "Start"
+
+    if (!label) {
+      this.MoveToNextToken();
+
+      return;
+    }
+
+    if (this.CurrentToken.Kind === TokenKind.ColonToken) {
+      this.EatToken(); // Consume colon after label
+
+      const action = this.ParseIdentifierWithSpaces();
+
+      if (action) {
+        let rawArgs: any[] = [];
+
+        if (this.CurrentToken.Kind === TokenKind.ColonToken) {
+          this.EatToken(); // Consume colon after action
+
+          rawArgs = this.ParseValues(this.PreviousToken);
+        }
+
+        const args: any[] = [];
+
+        for (const arg of rawArgs) {
+          if (arg.kind === SyntaxKind.List) {
+            args.push(...(arg as ListNode).values);
+          } else {
+            args.push(arg);
+          }
+        }
+
+        const stmt = new StatementNode(label, action, args);
+
+        defNode.statements.push(stmt);
+      }
+    }
+  }
+
+  protected GroupStatements(statements: StatementNode[]): StatementNode[] {
+    const result: StatementNode[] = [];
+
+    const stack: { node: any; targetArray: StatementNode[] }[] = [];
+
+    for (const stmt of statements) {
+      const actionText = ((stmt as any).action?.text || "")
+        .replace(/\s+/g, "")
+        .toUpperCase();
+
+      let targetArray =
+        stack.length > 0 ? stack[stack.length - 1].targetArray : result;
+
+      if (actionText === "IF") {
+        const ifNode = new IfNode(stmt);
+
+        ifNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        targetArray.push(ifNode);
+
+        stack.push({ node: ifNode, targetArray: ifNode.statements });
+      } else if (actionText === "ELSE") {
+        if (
+          stack.length > 0 &&
+          stack[stack.length - 1].node instanceof IfNode
+        ) {
+          const parentIf = stack[stack.length - 1].node as IfNode;
+
+          parentIf.elseStatements.push(stmt);
+
+          stack[stack.length - 1].targetArray = parentIf.elseStatements;
+        } else {
+          targetArray.push(stmt);
+        }
+      } else if (actionText === "DOIF") {
+        const doIfNode = new DoIfNode(stmt);
+
+        doIfNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        if (
+          stmt.args.length > 1 &&
+          stmt.args[1].kind === SyntaxKind.Identifier
+        ) {
+          const nestedAction = stmt.args[1] as IdentifierNode;
+
+          const nestedArgs = stmt.args.slice(2);
+
+          const nestedStmt = new StatementNode(
+            stmt.label,
+            nestedAction,
+            nestedArgs,
+          );
+
+          const groupedNested = this.GroupStatements([nestedStmt]);
+
+          doIfNode.actionStatement =
+            groupedNested.length > 0 ? groupedNested[0] : nestedStmt;
+        }
+
+        targetArray.push(doIfNode);
+      } else if (actionText === "WHILE") {
+        const whileNode = new WhileNode(stmt);
+
+        whileNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        targetArray.push(whileNode);
+
+        stack.push({ node: whileNode, targetArray: whileNode.statements });
+      } else if (
+        actionText === "FORTOKEN" ||
+        actionText === "FORCOLLECTION" ||
+        actionText === "FORRANGE" ||
+        actionText === "FOREACH" ||
+        actionText === "FOR"
+      ) {
+        const forNode = new ForNode(stmt);
+
+        forNode.iteratorVariable =
+          stmt.args.length > 0 && stmt.args[0].kind === SyntaxKind.Identifier
+            ? (stmt.args[0] as IdentifierNode)
+            : undefined;
+
+        forNode.collectionName =
+          stmt.args.length > 1 ? stmt.args[1] : undefined;
+
+        targetArray.push(forNode);
+
+        stack.push({ node: forNode, targetArray: forNode.statements });
+      } else if (actionText === "WALKCOLLECTION" || actionText === "WALK") {
+        const walkNode = new WalkNode(stmt);
+
+        walkNode.collectionName =
+          stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        targetArray.push(walkNode);
+
+        stack.push({ node: walkNode, targetArray: walkNode.statements });
+      } else if (actionText === "STARTBLOCK") {
+        const blockNode = new StartBlockNode(stmt);
+
+        targetArray.push(blockNode);
+
+        stack.push({ node: blockNode, targetArray: blockNode.statements });
+      } else if (actionText === "STARTBATCHPOST") {
+        const batchNode = new BatchPostNode(stmt);
+
+        batchNode.batchSize = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        targetArray.push(batchNode);
+
+        stack.push({ node: batchNode, targetArray: batchNode.statements });
+      } else if (actionText === "STARTMSGBOX") {
+        const msgNode = new MsgBoxNode(stmt);
+
+        msgNode.title = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        msgNode.message = stmt.args.length > 1 ? stmt.args[1] : undefined;
+
+        targetArray.push(msgNode);
+
+        stack.push({ node: msgNode, targetArray: msgNode.statements });
+      } else if (actionText === "STARTPROGRESS") {
+        const progNode = new StartBlockNode(stmt); // reusing startblock since it's just a block
+
+        targetArray.push(progNode);
+
+        stack.push({ node: progNode, targetArray: progNode.statements });
+      } else if (actionText === "STARTZIP") {
+        const zipNode = new ZipNode(stmt);
+
+        zipNode.targetFile = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        zipNode.overwrite = stmt.args.length > 1 ? stmt.args[1] : undefined;
+
+        targetArray.push(zipNode);
+
+        stack.push({ node: zipNode, targetArray: zipNode.statements });
+      } else if (actionText === "STARTUNZIP") {
+        const unzipNode = new UnzipNode(stmt);
+
+        unzipNode.sourceFile = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        unzipNode.password = stmt.args.length > 1 ? stmt.args[1] : undefined;
+
+        targetArray.push(unzipNode);
+
+        stack.push({ node: unzipNode, targetArray: unzipNode.statements });
+      } else if (actionText === "RETURN") {
+        const retNode = new ReturnNode(stmt);
+
+        retNode.returnValue = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        targetArray.push(retNode);
+      } else if (actionText === "BREAK") {
+        targetArray.push(new BreakNode(stmt));
+      } else if (actionText === "CONTINUE") {
+        targetArray.push(new ContinueNode(stmt));
+      } else if (actionText === "SET") {
+        const setNode = new SetNode(stmt);
+
+        setNode.targetVariable =
+          stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        setNode.valueExpression =
+          stmt.args.length > 1 ? stmt.args[1] : undefined;
+
+        targetArray.push(setNode);
+      } else if (actionText === "SWITCH") {
+        const switchNode = new SwitchNode(stmt);
+
+        switchNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        targetArray.push(switchNode);
+
+        stack.push({ node: switchNode, targetArray: switchNode.statements });
+      } else if (actionText === "CASE") {
+        const caseNode = new CaseNode(stmt);
+
+        caseNode.value = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        if (
+          stack.length > 0 &&
+          stack[stack.length - 1].node instanceof SwitchNode
+        ) {
+          const parentSwitch = stack[stack.length - 1].node as SwitchNode;
+
+          parentSwitch.cases.push(caseNode);
+
+          stack[stack.length - 1].targetArray = caseNode.statements;
+        } else {
+          targetArray.push(caseNode);
+        }
+      } else if (actionText === "DEFAULT") {
+        const defaultNode = new DefaultNode(stmt);
+
+        if (
+          stack.length > 0 &&
+          stack[stack.length - 1].node instanceof SwitchNode
+        ) {
+          const parentSwitch = stack[stack.length - 1].node as SwitchNode;
+
+          parentSwitch.defaultCase = defaultNode;
+
+          stack[stack.length - 1].targetArray = defaultNode.statements;
+        } else {
+          targetArray.push(defaultNode);
+        }
+      } else if (actionText === "EXCHANGE") {
+        const exNode = new ExchangeNode(stmt);
+
+        exNode.var1 = stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        exNode.var2 = stmt.args.length > 1 ? stmt.args[1] : undefined;
+
+        targetArray.push(exNode);
+      } else if (actionText === "INCREMENT") {
+        const incNode = new IncrementNode(stmt);
+
+        incNode.targetVariable =
+          stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        incNode.stepValue = stmt.args.length > 1 ? stmt.args[1] : undefined;
+
+        targetArray.push(incNode);
+      } else if (actionText === "DECREMENT") {
+        const decNode = new DecrementNode(stmt);
+
+        decNode.targetVariable =
+          stmt.args.length > 0 ? stmt.args[0] : undefined;
+
+        decNode.stepValue = stmt.args.length > 1 ? stmt.args[1] : undefined;
+
+        targetArray.push(decNode);
+      } else if (actionText.startsWith("END") && actionText.length > 3) {
+        if (stack.length > 0) {
+          const popped = stack.pop();
+
+          if (popped) {
+            popped.node.end = stmt.end;
+
+            if (popped.node instanceof BlockStatementNode) {
+              popped.node.endStatement = stmt;
+            }
+
+            const poppedActionText = ((popped.node as any).action?.text || "")
+              .replace(/\s+/g, "")
+              .toUpperCase();
+
+            const expectedEnd = "END" + poppedActionText;
+
+            let isMatch = actionText === expectedEnd;
+
+            // Handle special cases where block starts with a complex name but ends with a generic name
+
+            if (!isMatch) {
+              if (
+                actionText === "ENDFOR" &&
+                poppedActionText.startsWith("FOR")
+              ) {
+                isMatch = true;
+              } else if (
+                actionText === "ENDWALK" &&
+                poppedActionText.startsWith("WALK")
+              ) {
+                isMatch = true;
+              } else if (
+                actionText === "ENDBATCHPOST" &&
+                poppedActionText === "STARTBATCHPOST"
+              ) {
+                isMatch = true;
+              } else if (
+                actionText === "ENDMSGBOX" &&
+                poppedActionText === "STARTMSGBOX"
+              ) {
+                isMatch = true;
+              } else if (
+                actionText === "ENDPROGRESS" &&
+                poppedActionText === "STARTPROGRESS"
+              ) {
+                isMatch = true;
+              } else if (
+                actionText === "ENDZIP" &&
+                poppedActionText === "STARTZIP"
+              ) {
+                isMatch = true;
+              } else if (
+                actionText === "ENDUNZIP" &&
+                poppedActionText === "STARTUNZIP"
+              ) {
+                isMatch = true;
+              } else if (
+                actionText === "ENDBLOCK" &&
+                poppedActionText === "STARTBLOCK"
+              ) {
+                isMatch = true;
+              } else if (
+                actionText === "ENDSWITCH" &&
+                poppedActionText === "SWITCH"
+              ) {
+                isMatch = true;
+              }
+            }
+
+            // Check for mismatch
+
+            if (!isMatch) {
+              const expectedFriendly =
+                "END " +
+                ((popped.node as any).action?.text || "").toUpperCase();
+
+              const foundFriendly = (stmt.action?.text || "").toUpperCase();
+
+              this.addError(
+                `Mismatched block terminator: Expected ${expectedFriendly}, found ${foundFriendly}`,
+                stmt.start,
+                stmt.end,
+              );
+            }
+          }
+        } else {
+          this.addError(
+            `Unmatched ${(stmt.action?.text || "").toUpperCase()} without opening block`,
+            stmt.start,
+            stmt.end,
+          );
+
+          targetArray.push(stmt);
+        }
+      } else {
+        targetArray.push(stmt);
+      }
+    }
+
+    // Any remaining items in the stack are unclosed blocks
+
+    for (const unclosed of stack) {
+      this.addError(
+        `Unclosed block: Missing END ${((unclosed.node as any).action?.text || "").toUpperCase()}`,
+        unclosed.node.start,
+        unclosed.node.end,
+      );
+    }
+
+    return result;
+  }
+}
+

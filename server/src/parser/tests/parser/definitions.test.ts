@@ -1,7 +1,7 @@
 
 import { describe, expect, test } from 'vitest';
 import { Parser } from '../../parser';
-import { SyntaxKind } from '../../ast';
+import { cleanAST } from './utils';
 
 describe('Parser Definitions Tests', () => {
 
@@ -10,14 +10,7 @@ describe('Parser Definitions Tests', () => {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
 
-        expect(sourceFile).toBeDefined();
-        expect(sourceFile.kind).toBe(SyntaxKind.SourceFile);
-        expect(sourceFile.definitions.length).toBeGreaterThan(0);
-
-        const def = sourceFile.definitions[0];
-        expect(def.kind).toBe(SyntaxKind.Definition);
-        expect(def.type.text).toBe('Report');
-        expect(def.name?.text).toBe('MyReport');
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
     test('Parse Definition with Attributes', () => {
@@ -29,19 +22,7 @@ describe('Parser Definitions Tests', () => {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
 
-        expect(sourceFile).toBeDefined();
-        expect(sourceFile.definitions.length).toBeGreaterThan(0);
-
-        const def = sourceFile.definitions[0];
-        expect(def.attributes.length).toBe(2);
-
-        expect(def.attributes[0].name.text).toBe('Title');
-        expect(def.attributes[0].value.length).toBe(1);
-        expect((def.attributes[0].value[0] as any).value).toBe('"My Tally Report"');
-
-        expect(def.attributes[1].name.text).toBe('Form');
-        expect(def.attributes[1].value.length).toBe(1);
-        expect((def.attributes[1].value[0] as any).text).toBe('MyForm');
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
     test('Parse Definition with Spaces in Name', () => {
@@ -49,8 +30,7 @@ describe('Parser Definitions Tests', () => {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
 
-        const def = sourceFile.definitions[0];
-        expect(def.name?.text).toBe('My Report Name');
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
     test('Parse Definition with Symbols in Name (Include)', () => {
@@ -58,10 +38,7 @@ describe('Parser Definitions Tests', () => {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
 
-        expect(sourceFile.definitions.length).toBeGreaterThan(0);
-        const def = sourceFile.definitions[0];
-        expect(def.type.text).toBe('Include');
-        expect(def.name?.text).toBe('file.txt');
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
     test('Definition Range includes Attributes', () => {
@@ -71,17 +48,7 @@ describe('Parser Definitions Tests', () => {
 `;
         const parser = new Parser(input);
         const sourceFile = parser.parse();
-        const def = sourceFile.definitions[0];
-
-        // Definition should start at [
-        expect(def.start).toBe(input.indexOf('['));
-
-        // Definition should end after "My Tally Report"
-        const lastAttrValue = '"My Tally Report"';
-        const valueStart = input.indexOf(lastAttrValue);
-
-        expect(def.end).toBeGreaterThan(valueStart);
-        expect(def.end).toBeLessThanOrEqual(input.length);
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
     test('Parse Menu Definition with Numbers and Decimals', () => {
@@ -93,10 +60,6 @@ describe('Parser Definitions Tests', () => {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
 
-        expect(sourceFile.definitions.length).toBeGreaterThan(0);
-        const def = sourceFile.definitions[0];
-        expect(def.type.text).toBe('Menu');
-        expect(def.name?.text).toBe('Whats New in Rel 1.52');
-        expect(def.attributes.length).toBe(3);
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 });

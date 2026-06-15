@@ -1,0 +1,137 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Lexer - Line Continuation > should tokenize + and newlines correctly 1`] = `
+[
+  {
+    "kind": "NumberToken",
+    "length": 2,
+    "start": 0,
+    "text": "01",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 2,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 3,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 4,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 5,
+    "text": "Action",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 11,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 12,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 13,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 14,
+    "text": "Arg1",
+  },
+  {
+    "kind": "CommaToken",
+    "length": 1,
+    "start": 18,
+    "text": ",",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 19,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 20,
+    "text": "Arg2",
+  },
+  {
+    "kind": "CommaToken",
+    "length": 1,
+    "start": 24,
+    "text": ",",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 25,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "LineContinuationToken",
+    "length": 1,
+    "start": 26,
+    "text": "+",
+    "trailing": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 27,
+        "text": "
+",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "leading": [
+      {
+        "kind": "SpaceToken",
+        "length": 18,
+        "start": 28,
+        "text": "                  ",
+      },
+    ],
+    "length": 4,
+    "start": 46,
+    "text": "Arg3",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 50,
+    "text": "",
+  },
+]
+`;

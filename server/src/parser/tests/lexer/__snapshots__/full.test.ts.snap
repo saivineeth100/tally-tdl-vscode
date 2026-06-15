@@ -1,0 +1,464 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Lexer Full Tests > Comments 1`] = `
+[
+  {
+    "kind": "EndOfFileToken",
+    "leading": [
+      {
+        "kind": "SingleLineComment",
+        "length": 20,
+        "start": 0,
+        "text": ";; This is a comment",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 20,
+        "text": "
+",
+      },
+      {
+        "kind": "SpaceToken",
+        "length": 8,
+        "start": 21,
+        "text": "        ",
+      },
+      {
+        "kind": "MultiLineComment",
+        "length": 27,
+        "start": 29,
+        "text": "/* Multi
+           Line */",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 56,
+        "text": "
+",
+      },
+      {
+        "kind": "SpaceToken",
+        "length": 8,
+        "start": 57,
+        "text": "        ",
+      },
+    ],
+    "length": 65,
+    "start": 65,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer Full Tests > Complex Definition 1`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "length": 1,
+    "start": 0,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 1,
+    "text": "Report",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 7,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 8,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 8,
+    "start": 9,
+    "text": "MyReport",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 17,
+    "text": "]",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 18,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer Full Tests > Identifiers 1`] = `
+[
+  {
+    "kind": "IdentifierToken",
+    "length": 8,
+    "start": 0,
+    "text": "MyReport",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 8,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 9,
+    "start": 9,
+    "text": "My_Report",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 18,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 9,
+    "start": 19,
+    "text": "report123",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 28,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer Full Tests > Literals 1`] = `
+[
+  {
+    "kind": "StringLiteralToken",
+    "length": 13,
+    "start": 0,
+    "text": ""Hello World"",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 13,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "StringLiteralToken",
+    "length": 18,
+    "start": 14,
+    "text": ""Escaped "" Quote"",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 32,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "NumberToken",
+    "length": 5,
+    "start": 33,
+    "text": "12345",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 38,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer Full Tests > Operators 1`] = `
+[
+  {
+    "kind": "PlusToken",
+    "length": 1,
+    "start": 0,
+    "text": "+",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 1,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "MinusToken",
+    "length": 1,
+    "start": 2,
+    "text": "-",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 3,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "DivisionToken",
+    "length": 1,
+    "start": 4,
+    "text": "/",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 5,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "AsteriskToken",
+    "length": 1,
+    "start": 6,
+    "text": "*",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 7,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "EqualsToken",
+    "length": 1,
+    "start": 8,
+    "text": "=",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 9,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "GreaterThanToken",
+    "length": 1,
+    "start": 10,
+    "text": ">",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 11,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "LessThanToken",
+    "length": 1,
+    "start": 12,
+    "text": "<",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 13,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "GreaterThanEqualsToken",
+    "length": 2,
+    "start": 14,
+    "text": ">=",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 16,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "LessThanEqualsToken",
+    "length": 2,
+    "start": 17,
+    "text": "<=",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 19,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "NotEqualsToken",
+    "length": 2,
+    "start": 20,
+    "text": "!=",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 22,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer Full Tests > Symbols and Prefixes 1`] = `
+[
+  {
+    "kind": "HashToken",
+    "length": 1,
+    "start": 0,
+    "text": "#",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 1,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "DoubleHashToken",
+    "length": 2,
+    "start": 2,
+    "text": "##",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 4,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "DollarToken",
+    "length": 1,
+    "start": 5,
+    "text": "$",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 6,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "DoubleDollarToken",
+    "length": 2,
+    "start": 7,
+    "text": "$$",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 9,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "AtTheRateToken",
+    "length": 1,
+    "start": 10,
+    "text": "@",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 11,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "DoubleAtTheRateToken",
+    "length": 2,
+    "start": 12,
+    "text": "@@",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 14,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "AsteriskToken",
+    "length": 1,
+    "start": 15,
+    "text": "*",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 16,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "ExclamationToken",
+    "length": 1,
+    "start": 17,
+    "text": "!",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 18,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 1,
+    "start": 19,
+    "text": "_",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 20,
+    "text": "",
+  },
+]
+`;

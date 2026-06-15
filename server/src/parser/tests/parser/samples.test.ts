@@ -1,7 +1,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser';
-import { DefinitionNode } from '../../ast';
+import { cleanAST } from './utils';
 
 describe('Parser - Sample Files', () => {
     it('should parse Simple Var.txt structure', () => {
@@ -25,11 +25,7 @@ describe('Parser - Sample Files', () => {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
 
-        expect(sourceFile.definitions.length).toBe(4);
-        expect(sourceFile.definitions[0].type.text).toBe("Function");
-        expect(sourceFile.definitions[1].type.text).toBe("Report");
-        expect(sourceFile.definitions[2].type.text).toBe("Form");
-        expect(sourceFile.definitions[3].type.text).toBe("Part");
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
     it('should parse Collection with Filter attribute', () => {
@@ -47,10 +43,7 @@ describe('Parser - Sample Files', () => {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
 
-        expect(sourceFile.definitions.length).toBe(2);
-        expect(sourceFile.definitions[0].type.text).toBe("Collection");
-        expect(sourceFile.definitions[0].attributes.length).toBeGreaterThan(3);
-        expect(sourceFile.definitions[1].type.text).toBe("System");
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
     it('should parse Variable and Button definitions', () => {
@@ -66,9 +59,7 @@ describe('Parser - Sample Files', () => {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
 
-        expect(sourceFile.definitions.length).toBe(2);
-        expect(sourceFile.definitions[0].type.text).toBe("Variable");
-        expect(sourceFile.definitions[1].type.text).toBe("Button");
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
     it('should parse Switch attribute in Collection', () => {
@@ -80,8 +71,6 @@ describe('Parser - Sample Files', () => {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
 
-        expect(sourceFile.definitions.length).toBe(1);
-        const coll = sourceFile.definitions[0];
-        expect(coll.attributes.some(a => a.name.text === "Switch")).toBe(true);
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 });

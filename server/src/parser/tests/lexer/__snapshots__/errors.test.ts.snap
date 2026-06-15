@@ -1,0 +1,331 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Lexer Error and Edge Cases > Empty File 1`] = `[]`;
+
+exports[`Lexer Error and Edge Cases > Empty File 2`] = `
+[
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 0,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer Error and Edge Cases > Illegal Characters 1`] = `
+[
+  {
+    "length": 1,
+    "message": "Unexpected character: ~",
+    "start": 9,
+  },
+  {
+    "length": 1,
+    "message": "Unexpected character: ^",
+    "start": 14,
+  },
+]
+`;
+
+exports[`Lexer Error and Edge Cases > Illegal Characters 2`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "length": 1,
+    "start": 0,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 1,
+    "text": "Report",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 7,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 8,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "Unknown",
+    "length": 1,
+    "start": 9,
+    "text": "~",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 10,
+    "text": "Test",
+  },
+  {
+    "kind": "Unknown",
+    "length": 1,
+    "start": 14,
+    "text": "^",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 15,
+    "text": "]",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 16,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer Error and Edge Cases > Only Whitespace and Comments 1`] = `[]`;
+
+exports[`Lexer Error and Edge Cases > Only Whitespace and Comments 2`] = `
+[
+  {
+    "kind": "EndOfFileToken",
+    "leading": [
+      {
+        "kind": "SpaceToken",
+        "length": 3,
+        "start": 0,
+        "text": "   ",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 3,
+        "text": "
+",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 4,
+        "text": "
+",
+      },
+      {
+        "kind": "SingleLineComment",
+        "length": 17,
+        "start": 5,
+        "text": ";; Just a comment",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 22,
+        "text": "
+",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 23,
+        "text": "
+",
+      },
+      {
+        "kind": "SpaceToken",
+        "length": 3,
+        "start": 24,
+        "text": "   ",
+      },
+      {
+        "kind": "MultiLineComment",
+        "length": 13,
+        "start": 27,
+        "text": "/* block 
+ */",
+      },
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 40,
+        "text": " ",
+      },
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 41,
+        "text": "
+",
+      },
+    ],
+    "length": 42,
+    "start": 42,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer Error and Edge Cases > Unclosed Multi Line Comment 1`] = `
+[
+  {
+    "length": 65,
+    "message": "Unclosed multi-line comment",
+    "start": 0,
+  },
+]
+`;
+
+exports[`Lexer Error and Edge Cases > Unclosed Multi Line Comment 2`] = `
+[
+  {
+    "kind": "EndOfFileToken",
+    "leading": [
+      {
+        "kind": "Unknown",
+        "length": 65,
+        "start": 0,
+        "text": "/* This comment never ends
+[Report: Trial Balance]
+Title: "Hello"",
+      },
+    ],
+    "length": 65,
+    "start": 65,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer Error and Edge Cases > Unclosed String Literal 1`] = `
+[
+  {
+    "length": 17,
+    "message": "Unclosed string literal",
+    "start": 22,
+  },
+]
+`;
+
+exports[`Lexer Error and Edge Cases > Unclosed String Literal 2`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "length": 1,
+    "start": 0,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 1,
+    "text": "Report",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 7,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 8,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 9,
+    "text": "Test",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 13,
+    "text": "]",
+    "trailing": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 14,
+        "text": "
+",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 5,
+    "start": 15,
+    "text": "Title",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 20,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 21,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "StringLiteralToken",
+    "length": 17,
+    "start": 22,
+    "text": ""Unclosed string ",
+    "trailing": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 39,
+        "text": "
+",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 8,
+    "start": 40,
+    "text": "Variable",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 48,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 49,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 50,
+    "text": "Test",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 54,
+    "text": "",
+  },
+]
+`;

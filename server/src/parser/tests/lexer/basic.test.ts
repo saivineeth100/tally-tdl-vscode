@@ -1,16 +1,23 @@
 import { describe, expect, test } from 'vitest';
 import { Lexer } from '../../lexer';
+import { Token } from '../../token';
+import { TokenKind } from '../../tokenKind';
 
-
+/**
+ * This test suite verifies the fundamental tokenization capabilities of the Lexer.
+ * It ensures that basic TDL syntax elements (Identifiers, Comments, Directives) 
+ * are correctly broken down into sequential structural tokens without losing trivia.
+ */
 describe('Lexer simple tests', () => {
     test('Test Single Line Comment', () => {
-        const lexer = new Lexer(`;; fhtr : RfbfdF dtfh : De rg
-            [Report: Trial Balance]`);
+        const tdl = `;; fhtr : RfbfdF dtfh : De rg
+            [Report: Trial Balance]`;
+        const lexer = new Lexer(tdl);
         var tokens = lexer.Generate();
-        expect(tokens.length).toBe(7);
+        expect(Token.mapTokens(tokens, tdl)).toMatchSnapshot();
     });
     test('Test Multi Line Comment', () => {
-        const lexer = new Lexer(`
+        const tdl = `
 /*
 Objective(s) – 
 - 	This TDL File demonstrate the usage and purpose of Compound List Variables with
@@ -24,39 +31,42 @@ Last modification –
 
 ;; Report Definition for Compound List Values with Key
 
-[Report: CV List Values]`);
+[Report: CV List Values]`;
+        const lexer = new Lexer(tdl);
         var tokens = lexer.Generate();
-        expect(tokens.length).toBe(8);
+        expect(Token.mapTokens(tokens, tdl)).toMatchSnapshot();
     });
     test('Basic TDL report', () => {
-        const lexer = new Lexer(`[Report: Trial Balance]`);
+        const tdl = `[Report: Trial Balance]`;
+        const lexer = new Lexer(tdl);
         var tokens = lexer.Generate();
-        expect(tokens.length).toBe(7);
+        expect(Token.mapTokens(tokens, tdl)).toMatchSnapshot();
     });
     test('Basic TDL with spaces in Identifier', () => {
-        const lexer = new Lexer(`[Import File: Trial Balance]
+        const tdl = `[Import File: Trial Balance]
 
 	Use			: Browser Common SysFormulae
-    Use         : TBAL Template`);
+    Use         : TBAL Template`;
+        const lexer = new Lexer(tdl);
         var tokens = lexer.Generate();
-        expect(tokens.length).toBe(17);
+        expect(Token.mapTokens(tokens, tdl)).toMatchSnapshot();
     });
 
     test('InUse Directive', () => {
-        const lexer = new Lexer(`[System: Formula]
+        const tdl = `[System: Formula]
 	
 	<InUse:Key:LicenseBlockKeyBoard>
 	
-	SV_MGR_LICENSE_INFO_PANEL_KEY   : "License Block KeyBoard"	`);
+	SV_MGR_LICENSE_INFO_PANEL_KEY   : "License Block KeyBoard"	`;
+        const lexer = new Lexer(tdl);
         var tokens = lexer.Generate();
-        expect(tokens.length).toBe(16);
+        expect(Token.mapTokens(tokens, tdl)).toMatchSnapshot();
     });
     test('Token Start Position after Comment', () => {
-        const tdl = `; Comment
-[Report: Test]`;
+        const tdl = `; Comment\n[Report: Test]`;
         const lexer = new Lexer(tdl);
         const tokens = lexer.Generate();
         // [ is at index 10 (length of "; Comment\n")
-        expect(tokens[0].Start).toBe(10);
+        expect(Token.mapTokens(tokens, tdl)).toMatchSnapshot();
     });
 }); 

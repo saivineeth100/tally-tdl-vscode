@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser';
-import { TokenKind } from '../../tokenKind';
+import { cleanAST } from './utils';
 
 describe('Parser Error Recovery', () => {
     describe('Incomplete Definition Parsing', () => {
@@ -8,57 +8,35 @@ describe('Parser Error Recovery', () => {
             const tdl = '[Report:';
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-
-            // Should create a definition even though it's incomplete
-            expect(sourceFile.definitions.length).toBe(1);
-            const def = sourceFile.definitions[0];
-            expect(def.type.text).toBe('Report');
-            expect(def.isIncomplete).toBe(true);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
 
         it('should create DefinitionNode for incomplete input [Field: Name', () => {
             const tdl = '[Field: Name';
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-
-            expect(sourceFile.definitions.length).toBe(1);
-            const def = sourceFile.definitions[0];
-            expect(def.type.text).toBe('Field');
-            expect(def.name?.text).toBe('Name');
-            expect(def.isIncomplete).toBe(true);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
 
         it('should parse modifier in incomplete definition [#Report:', () => {
             const tdl = '[#Report:';
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-
-            expect(sourceFile.definitions.length).toBe(1);
-            const def = sourceFile.definitions[0];
-            expect(def.modifier?.Kind).toBe(TokenKind.HashToken);
-            expect(def.type.text).toBe('Report');
-            expect(def.isIncomplete).toBe(true);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
 
         it('should handle empty brackets []', () => {
             const tdl = '[]';
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-
-            // Should still parse, may create incomplete definition
-            expect(sourceFile.definitions.length).toBeGreaterThanOrEqual(0);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
 
         it('should parse complete definition normally', () => {
             const tdl = '[Report: MyReport]';
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-
-            expect(sourceFile.definitions.length).toBe(1);
-            const def = sourceFile.definitions[0];
-            expect(def.type.text).toBe('Report');
-            expect(def.name?.text).toBe('MyReport');
-            expect(def.isIncomplete).toBe(false);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
 
         it('should continue parsing after incomplete definition', () => {
@@ -66,18 +44,7 @@ describe('Parser Error Recovery', () => {
 [Field: ValidField]`;
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-
-            // Should parse both definitions
-            expect(sourceFile.definitions.length).toBe(2);
-
-            const def1 = sourceFile.definitions[0];
-            expect(def1.type.text).toBe('Report');
-            expect(def1.isIncomplete).toBe(true);
-
-            const def2 = sourceFile.definitions[1];
-            expect(def2.type.text).toBe('Field');
-            expect(def2.name?.text).toBe('ValidField');
-            expect(def2.isIncomplete).toBe(false);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
     });
 
@@ -86,27 +53,21 @@ describe('Parser Error Recovery', () => {
             const tdl = '[#Report: Existing]';
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-
-            const def = sourceFile.definitions[0];
-            expect(def.modifier?.Text).toBe('#');
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
 
         it('should parse ! modifier', () => {
             const tdl = '[!Report: ToDelete]';
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-
-            const def = sourceFile.definitions[0];
-            expect(def.modifier?.Text).toBe('!');
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
 
         it('should parse * modifier', () => {
             const tdl = '[*Report: Optional]';
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-
-            const def = sourceFile.definitions[0];
-            expect(def.modifier?.Text).toBe('*');
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
     });
 
@@ -117,8 +78,7 @@ describe('Parser Error Recovery', () => {
             02 :   LOG : "Hello"`;
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-            const error = sourceFile.errors.find(e => e.message.includes('Unclosed block: Missing END IF'));
-            expect(error).toBeDefined();
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
 
         it('should detect mismatched terminators', () => {
@@ -128,8 +88,72 @@ describe('Parser Error Recovery', () => {
             03 : END WHILE`;
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-            const error = sourceFile.errors.find(e => e.message.includes('Mismatched block terminator: Expected END IF, found END WHILE'));
-            expect(error).toBeDefined();
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
+        it('should detect unclosed FOR block', () => {
+            const tdl = `[Function: UnclosedForTest]
+            01 : FOR : Variable
+            02 :   LOG : "Hello"`;
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
+        it('should detect unclosed FOR RANGE block', () => {
+            const tdl = `[Function: UnclosedForRangeTest]
+            01 : FOR RANGE : Variable : 1 : 10
+            02 :   LOG : "Hello"`;
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
+        it('should detect unclosed WALK COLLECTION block', () => {
+            const tdl = `[Function: UnclosedWalkCollectionTest]
+            01 : WALK COLLECTION : MyColl
+            02 :   LOG : "Hello"`;
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
+        it('should detect mismatched END START MSG BOX', () => {
+            const tdl = `[Function: MismatchMsgBoxTest]
+            01 : START MSG BOX : "Message"
+            02 :   LOG : "Hello"
+            03 : END PROGRESS`;
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
+        it('should detect unmatched END MSG BOX', () => {
+            const tdl = `[Function: UnmatchedMsgBoxTest]
+            01 : LOG : "Hello"
+            02 : END MSG BOX`;
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
+        it('should capture Expected Definition Type when inline directive `<` breaks parsing', () => {
+            const tdl = `[Function: BrokenDirectiveTest]
+            <InUse:Key:License>
+            01 : LOG : "Hello"`;
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
+        it('should fail gracefully when line continuation `+` is treated as operator breaking the block', () => {
+            const tdl = `[Function: BrokenLineContinuationTest]
+            01 : SET OBJECT VALUES : .InventoryEntries[1].StockItemName: "A", +
+                                     .InventoryEntries[2].StockItemName: "B"
+            02 : LOG : "Hello"`;
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
     });
 });

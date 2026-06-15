@@ -57,7 +57,16 @@ describe.skipIf(!hasSamples)('Parser - Full Sample File Validation', () => {
             const parser = new Parser(content);
             const sourceFile = parser.parse();
 
-            // Log summary
+            // We expect the file to parse into at least one definition or have zero tokens if empty
+            if (tokens.length > 0) {
+                expect(sourceFile.definitions).toBeDefined();
+            }
+
+            // We should ideally have 0 parsing errors.
+            // Note: A small number of sample files currently produce errors due to 
+            // outstanding edge cases documented in parser_plan.md (like Inline Directives).
+            // We log them for visibility or assert based on strictness.
+            expect(sourceFile.errors).toEqual([]);
             // console.log(`${relativePath}: ${sourceFile.definitions.length} defs, ${tokens.length} tokens`);
         });
     });
