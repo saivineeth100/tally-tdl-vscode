@@ -305,6 +305,12 @@ exports[`Parser - Inline Directives > should correctly parse inline directives i
     115,
   ],
   "start": 0,
+  "text": "
+[Function: Test Directives]
+    <InUse: Collection: RMColl>
+    <Delete: Part: HeaderPart>
+    01: SET: MyVar: 10
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -1333,6 +1339,12 @@ exports[`Parser - Inline Directives > should not confuse relational operators fo
     101,
   ],
   "start": 0,
+  "text": "
+[Function: Relational Check]
+    01: IF: $$Value < 10
+    02:     SET: Status: "Low"
+    03: END IF
+",
   "tokens": [
     {
       "FullStart": 0,

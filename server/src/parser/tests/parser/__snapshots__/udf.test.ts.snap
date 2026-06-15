@@ -353,6 +353,11 @@ exports[`Parser - UDFs > should parse a simple function definition with statemen
     74,
   ],
   "start": 0,
+  "text": "
+[Function: SimpleFunction]
+    01 : Log : "Hello"
+    02 : Return : True
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -1120,6 +1125,12 @@ exports[`Parser - UDFs > should parse function attributes and statements mixed 1
     99,
   ],
   "start": 0,
+  "text": "
+[Function: MixedFunction]
+    Parameter : P1 : String
+    Returns   : Boolean
+    00 : Log : ##P1
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -1727,6 +1738,10 @@ exports[`Parser - UDFs > should parse function with Start label 1`] = `
     55,
   ],
   "start": 0,
+  "text": "
+[Function: StartFunction]
+    Start : Log : "Started"
+",
   "tokens": [
     {
       "FullStart": 0,

@@ -210,6 +210,8 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should continue
     15,
   ],
   "start": 0,
+  "text": "[Report: First
+[Field: ValidField]",
   "tokens": [
     {
       "FullStart": 0,
@@ -444,6 +446,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should create D
     0,
   ],
   "start": 0,
+  "text": "[Field: Name",
   "tokens": [
     {
       "FullStart": 0,
@@ -585,6 +588,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should create D
     0,
   ],
   "start": 0,
+  "text": "[Report:",
   "tokens": [
     {
       "FullStart": 0,
@@ -699,6 +703,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should handle e
     0,
   ],
   "start": 0,
+  "text": "[]",
   "tokens": [
     {
       "FullStart": 0,
@@ -833,6 +838,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should parse co
     0,
   ],
   "start": 0,
+  "text": "[Report: MyReport]",
   "tokens": [
     {
       "FullStart": 0,
@@ -991,6 +997,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should parse mo
     0,
   ],
   "start": 0,
+  "text": "[#Report:",
   "tokens": [
     {
       "FullStart": 0,
@@ -1151,6 +1158,7 @@ exports[`Parser Error Recovery > Modifier Parsing > should parse ! modifier 1`] 
     0,
   ],
   "start": 0,
+  "text": "[!Report: ToDelete]",
   "tokens": [
     {
       "FullStart": 0,
@@ -1339,6 +1347,7 @@ exports[`Parser Error Recovery > Modifier Parsing > should parse # modifier 1`] 
     0,
   ],
   "start": 0,
+  "text": "[#Report: Existing]",
   "tokens": [
     {
       "FullStart": 0,
@@ -1527,6 +1536,7 @@ exports[`Parser Error Recovery > Modifier Parsing > should parse * modifier 1`] 
     0,
   ],
   "start": 0,
+  "text": "[*Report: Optional]",
   "tokens": [
     {
       "FullStart": 0,
@@ -1817,6 +1827,9 @@ exports[`Parser Error Recovery > Procedural Block Errors > should capture Expect
     64,
   ],
   "start": 0,
+  "text": "[Function: BrokenDirectiveTest]
+            <InUse:Key:License>
+            01 : LOG : "Hello"",
   "tokens": [
     {
       "FullStart": 0,
@@ -2545,6 +2558,10 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect mismatc
     107,
   ],
   "start": 0,
+  "text": "[Function: MismatchMsgBoxTest]
+            01 : START MSG BOX : "Message"
+            02 :   LOG : "Hello"
+            03 : END PROGRESS",
   "tokens": [
     {
       "FullStart": 0,
@@ -3382,6 +3399,10 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect mismatc
     85,
   ],
   "start": 0,
+  "text": "[Function: MismatchTest]
+            01 : IF : True
+            02 :   LOG : "Hello"
+            03 : END WHILE",
   "tokens": [
     {
       "FullStart": 0,
@@ -4187,6 +4208,9 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
     80,
   ],
   "start": 0,
+  "text": "[Function: UnclosedForRangeTest]
+            01 : FOR RANGE : Variable : 1 : 10
+            02 :   LOG : "Hello"",
   "tokens": [
     {
       "FullStart": 0,
@@ -4908,6 +4932,9 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
     60,
   ],
   "start": 0,
+  "text": "[Function: UnclosedForTest]
+            01 : FOR : Variable
+            02 :   LOG : "Hello"",
   "tokens": [
     {
       "FullStart": 0,
@@ -5552,6 +5579,9 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
     81,
   ],
   "start": 0,
+  "text": "[Function: UnclosedWalkCollectionTest]
+            01 : WALK COLLECTION : MyColl
+            02 :   LOG : "Hello"",
   "tokens": [
     {
       "FullStart": 0,
@@ -6191,6 +6221,9 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
     52,
   ],
   "start": 0,
+  "text": "[Function: UnclosedTest]
+            01 : IF : True
+            02 :   LOG : "Hello"",
   "tokens": [
     {
       "FullStart": 0,
@@ -6793,6 +6826,9 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unmatch
     63,
   ],
   "start": 0,
+  "text": "[Function: UnmatchedMsgBoxTest]
+            01 : LOG : "Hello"
+            02 : END MSG BOX",
   "tokens": [
     {
       "FullStart": 0,
@@ -7417,6 +7453,10 @@ exports[`Parser Error Recovery > Procedural Block Errors > should fail gracefull
     196,
   ],
   "start": 0,
+  "text": "[Function: BrokenLineContinuationTest]
+            01 : SET OBJECT VALUES : .InventoryEntries[1].StockItemName: "A", +
+                                     .InventoryEntries[2].StockItemName: "B"
+            02 : LOG : "Hello"",
   "tokens": [
     {
       "FullStart": 0,

@@ -465,6 +465,11 @@ exports[`Parser Complex Attributes Tests > Parse Complex Attributes (Function, v
     102,
   ],
   "start": 0,
+  "text": "[Report: complex]
+        Set As: $$IsEmpty : #FieldName
+        Set By: ##Variable
+        Width: 10
+        ",
   "tokens": [
     {
       "FullStart": 0,

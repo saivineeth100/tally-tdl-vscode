@@ -20,6 +20,13 @@ import { TokenKind } from "./tokenKind";
  * via a linear class inheritance chain.
  */
 export class Parser extends DefinitionsParser {
+  private _oldSourceFile?: SourceFile;
+
+  constructor(text: string, oldSourceFile?: SourceFile) {
+    super(text);
+    this._oldSourceFile = oldSourceFile;
+  }
+
   public parse(): SourceFile {
     const sourceFile = new SourceFile(0, 0);
     this.parseInternal(sourceFile);
@@ -69,6 +76,7 @@ export class Parser extends DefinitionsParser {
     sourceFile.start = start;
     sourceFile.end = end;
     sourceFile.tokens = this._tokens;
+    sourceFile.text = this._text;
 
     // Compute Line Offsets immediately
     sourceFile.lineOffsets = [0];
@@ -118,33 +126,107 @@ export class Parser extends DefinitionsParser {
       }
     }
 
+    let oldDefs = this._oldSourceFile ? this._oldSourceFile.definitions : [];
+    let oldDefIndex = 0;
+
     while (!this.isAtEnd()) {
       // Ignore top level newlines
       if (
         this.CurrentToken.Kind === TokenKind.LineFeed ||
         this.CurrentToken.Kind === TokenKind.CarriageReturn ||
-        this.CurrentToken.Kind === TokenKind.CarriageReturnLineFeed
+        this.CurrentToken.Kind === TokenKind.CarriageReturnLineFeed ||
+        this.CurrentToken.Kind === TokenKind.SpaceToken
       ) {
         this.MoveToNextToken();
         continue;
       }
 
-      const defNode = this.ParseDefinitionStatement();
-      if (defNode) {
-        sourceFile.definitions.push(defNode);
+      // Find chunk boundary
+      let chunkStartTokenIdx = this._currentTokenIndex;
+      let chunkStartOffset = this.CurrentToken.Start;
+      let nextIdx = chunkStartTokenIdx + 1;
+      
+      while (nextIdx < this._tokensLength && this._tokens[nextIdx].Kind !== TokenKind.OpenSquareBracketToken) {
+          nextIdx++;
+      }
+      
+      let chunkEndOffset = nextIdx < this._tokensLength ? this._tokens[nextIdx].Start : this._text.length;
+      let currentChunkText = this._text.substring(chunkStartOffset, chunkEndOffset);
+      
+      let matchedOldDef: DefinitionNode | undefined = undefined;
+      
+      if (oldDefs.length > 0) {
+          // Look ahead to handle insertions without losing sync
+          for (let i = oldDefIndex; i < Math.min(oldDefIndex + 5, oldDefs.length); i++) {
+              let oldDef = oldDefs[i];
+              let nextOldDef = i + 1 < oldDefs.length ? oldDefs[i + 1] : undefined;
+              let oldChunkEnd = nextOldDef ? nextOldDef.start : this._oldSourceFile!.text.length;
+              let oldChunkText = this._oldSourceFile!.text.substring(oldDef.start, oldChunkEnd);
+              
+              if (oldChunkText === currentChunkText) {
+                  matchedOldDef = oldDef;
+                  oldDefIndex = i + 1;
+                  break;
+              }
+          }
+      }
+
+      if (matchedOldDef) {
+          // Chunk is identical! Reuse AST node and shift offsets
+          let delta = chunkStartOffset - matchedOldDef.start;
+          if (delta !== 0) {
+              this.applyOffsetDelta(matchedOldDef, delta);
+          }
+          sourceFile.definitions.push(matchedOldDef);
+          
+          // Advance lexer to the end of this chunk
+          while (this._currentTokenIndex < nextIdx) {
+              this.MoveToNextToken();
+          }
       } else {
-        // To avoid infinite loops, move to next token if it's an unrecognized top level token.
-        const token = this.CurrentToken;
-        this.addError(
-          `Unexpected top level token: ${token.Text}`,
-          token.Start,
-          token.Start + token.Length,
-        );
-        this.MoveToNextToken();
+        const defNode = this.ParseDefinitionStatement();
+        if (defNode) {
+          sourceFile.definitions.push(defNode);
+        } else {
+          // To avoid infinite loops, move to next token if it's an unrecognized top level token.
+          const token = this.CurrentToken;
+          this.addError(
+            `Unexpected top level token: ${token.Text}`,
+            token.Start,
+            token.Start + token.Length,
+          );
+          this.MoveToNextToken();
+        }
       }
     }
     sourceFile.errors = this.errors;
     this.setParentReferences(sourceFile);
+  }
+
+  private applyOffsetDelta(node: Node, delta: number) {
+    if (!node) return;
+    if (node.start !== undefined) node.start += delta;
+    if (node.end !== undefined) node.end += delta;
+    
+    // Shift embedded tokens if any
+    if ((node as any).tokens) {
+       for (const t of (node as any).tokens) {
+           t.Start += delta;
+       }
+    }
+    if ((node as any).token) {
+       (node as any).token.Start += delta;
+    }
+    if ((node as any).openBracket) (node as any).openBracket.Start += delta;
+    if ((node as any).closeBracket) (node as any).closeBracket.Start += delta;
+    if ((node as any).colon) (node as any).colon.Start += delta;
+    if ((node as any).modifier) (node as any).modifier.Start += delta;
+
+    for (const child of this.getChildren(node)) {
+        if (child) {
+            this.applyOffsetDelta(child, delta);
+        }
+    }
   }
 
   private setParentReferences(node: Node, parent?: Node) {
@@ -174,3 +256,4 @@ export class Parser extends DefinitionsParser {
     return children;
   }
 }
+

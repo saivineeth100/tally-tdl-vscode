@@ -110,6 +110,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
     0,
   ],
   "start": 0,
+  "text": "[#Report: MyReport]",
   "tokens": [
     {
       "FullStart": 0,
@@ -298,6 +299,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
     0,
   ],
   "start": 0,
+  "text": "[!Field: MyField]",
   "tokens": [
     {
       "FullStart": 0,

@@ -328,6 +328,11 @@ exports[`Advanced UDF Features > should parse Object attribute in function 1`] =
     65,
   ],
   "start": 0,
+  "text": "
+[Function: WithObject]
+    Object : MyObj
+    01 : Log : "Test"
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -1324,6 +1329,13 @@ exports[`Advanced UDF Features > should parse advanced procedural blocks 1`] = `
     142,
   ],
   "start": 0,
+  "text": "
+[Function: TestBlocks]
+    01 : START BATCH POST : 100
+    02 : END BATCH POST
+    03 : Start MSG BOX : "Title" : "Msg"
+    04 : End MSG BOX
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -2270,6 +2282,10 @@ exports[`Advanced UDF Features > should parse complex dotted method references 1
     86,
   ],
   "start": 0,
+  "text": "
+[Function: Test]
+    01 : Log : $(Ledger, @@Party).BillAllocations[1].OpeningBalance
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -2830,6 +2846,11 @@ exports[`Advanced UDF Features > should parse inline directives 1`] = `
     81,
   ],
   "start": 0,
+  "text": "
+[Function: WithDirective]
+    <InUse: Collection: MyColl>
+    00 : Log : "Test"
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -3408,6 +3429,11 @@ exports[`Advanced UDF Features > should parse multi-line statements with + conti
     78,
   ],
   "start": 0,
+  "text": "
+[Function: MultiLine]
+    01 : Action : Arg1, Arg2, +
+                  Arg3
+",
   "tokens": [
     {
       "FullStart": 0,

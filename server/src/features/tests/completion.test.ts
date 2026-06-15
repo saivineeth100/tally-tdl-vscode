@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { Parser } from '../../parser/parser';
-import { detectCompletionContext, findDefinitionAtCursor } from '../completion';
+import { detectCompletionContext, findDefinitionAtCursor, registerCompletion } from '../completion';
+import { setMetadata } from '../../services/metadataService';
 
 describe('Completion Context Detection', () => {
 
@@ -95,15 +96,14 @@ describe('TDL Suggestions Tests', () => {
     let completionCallback: Function;
 
     beforeAll(async () => {
-        md = (await import('../../test-setup')).testMetadata;
-        const { setMetadata } = await import('../../services/metadataService');
+        const { TdlMetadata } = await import('../../tdlMetaData');
+        md = new TdlMetadata('');
         setMetadata(md as any);
     });
 
     it('returns formula names for @@ context', async () => {
         const { TextDocument } = await import('vscode-languageserver-textdocument');
         const { SymbolTable, SymbolKind } = await import('../../services/symbolTable');
-        const { registerCompletion } = await import('../completion');
         const { ScopeManager } = await import('../../services/scopeManager');
 
         const tdlContent = '[Report: MyReport]\n    Set As: @@';

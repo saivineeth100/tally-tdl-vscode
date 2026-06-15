@@ -52,6 +52,7 @@ export class CommentNode implements Node {
 
 
 export class SourceFile implements Node {
+    public text: string = '';
     kind = SyntaxKind.SourceFile as const;
     parent = undefined;
     start: number;

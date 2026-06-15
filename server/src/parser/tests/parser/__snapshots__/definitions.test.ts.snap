@@ -214,6 +214,10 @@ exports[`Parser Definitions Tests > Definition Range includes Attributes 1`] = `
     49,
   ],
   "start": 0,
+  "text": "
+[Report: MyReport]
+    Title: "My Tally Report"
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -465,6 +469,7 @@ exports[`Parser Definitions Tests > Parse Basic Definition 1`] = `
     0,
   ],
   "start": 0,
+  "text": "[Report: MyReport]",
   "tokens": [
     {
       "FullStart": 0,
@@ -838,6 +843,11 @@ exports[`Parser Definitions Tests > Parse Definition with Attributes 1`] = `
     66,
   ],
   "start": 0,
+  "text": "
+[Report: MyReport]
+    Title: "My Tally Report"
+    Form: MyForm
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -1185,6 +1195,7 @@ exports[`Parser Definitions Tests > Parse Definition with Spaces in Name 1`] = `
     0,
   ],
   "start": 0,
+  "text": "[Report: My Report Name]",
   "tokens": [
     {
       "FullStart": 0,
@@ -1412,6 +1423,7 @@ exports[`Parser Definitions Tests > Parse Definition with Symbols in Name (Inclu
     0,
   ],
   "start": 0,
+  "text": "[Include: file.txt]",
   "tokens": [
     {
       "FullStart": 0,
@@ -2012,6 +2024,11 @@ exports[`Parser Definitions Tests > Parse Menu Definition with Numbers and Decim
     91,
   ],
   "start": 0,
+  "text": "[Menu: Whats New in Rel 1.52]
+
+	Indent		: "Dynamic Evaluation in Functions"
+	Item		: Blank
+	Key Item	: "Dynamic Action" 		",
   "tokens": [
     {
       "FullStart": 0,

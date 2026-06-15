@@ -1087,6 +1087,17 @@ exports[`Parser - Sample Files > should parse Collection with Filter attribute 1
     266,
   ],
   "start": 0,
+  "text": "
+[Collection: CAF My Ledgers]
+    Type        : Ledger
+    Child of    : $$GroupSundryDebtors
+    Belongs to  : Yes
+    Filter      : CAF Ledger Filter
+    Fetch       : Name, STPartyFullAdd, StateName
+
+[System: Formula]
+    CAF Ledger Filter : $Name CONTAINS "Ltd"
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -3576,6 +3587,23 @@ exports[`Parser - Sample Files > should parse Simple Var.txt structure 1`] = `
     383,
   ],
   "start": 0,
+  "text": "
+[Function: Simple Var in Func]
+    Variable    : Simple Var : String
+    01: SET     : Simple Var : "Variable value set within Function"
+    02: DISPLAY : SimpleReport
+
+[Report: Simple Report]
+    Form    : Simple Report
+    Title   : "Function Scope"
+
+[Form: Simple Report]
+    Parts   : Simple Report
+
+[Part: Simple Report]
+    Lines   : Simple Report Info
+    Width   : 60% Page
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -5324,6 +5352,11 @@ exports[`Parser - Sample Files > should parse Switch attribute in Collection 1`]
     119,
   ],
   "start": 0,
+  "text": "
+[Collection: My Coll]
+    Use     : Alias Collection
+    Switch  : OptCase : MyLed Coll : ##SmpShowMaster = "Ledgers"
+",
   "tokens": [
     {
       "FullStart": 0,
@@ -6570,6 +6603,15 @@ exports[`Parser - Sample Files > should parse Variable and Button definitions 1`
     173,
   ],
   "start": 0,
+  "text": "
+[Variable: Smp Show Master]
+    Type    : String
+
+[Button: Smp Show Group]
+    Key     : Ctrl + R
+    Action  : Set : Smp ShowMaster : "Groups"
+    Title   : "Show Groups"
+",
   "tokens": [
     {
       "FullStart": 0,

@@ -343,11 +343,14 @@ export class DocManager {
         const isXml = doc.languageId === 'xml';
 
         const metadata = getMetadata();
+        
+        const oldDocState = this.docs.get(doc.uri);
+        const oldSourceFile = oldDocState?.sourceFile;
 
         if (isXml) {
             sourceFile = parseXmlToAst(text, metadata);
         } else {
-            const parser = new Parser(text);
+            const parser = new Parser(text, oldSourceFile);
             sourceFile = parser.parse();
         }
 
