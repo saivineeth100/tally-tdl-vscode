@@ -1,5 +1,5 @@
-import { DefinitionNode, SourceFile, AttributeNode, SyntaxKind, IdentifierNode, FunctionCallNode, LiteralNode } from '../parser/ast';
-import { ScopeManager } from './scopeManager';
+import { SourceFile, SyntaxKind, IdentifierNode, LiteralNode } from '../../parser/ast';
+import { ScopeManager } from '../scopeManager';
 
 /**
  * Information about a reference to a definition
@@ -18,7 +18,7 @@ export interface ReferenceInfo {
 /**
  * Map of attribute names to the type of definition they reference
  */
-const ATTRIBUTE_REFERENCE_MAP: Record<string, string> = {
+export const ATTRIBUTE_REFERENCE_MAP: Record<string, string> = {
     'form': 'Form',
     'forms': 'Form',
     'part': 'Part',
@@ -49,70 +49,11 @@ const ATTRIBUTE_REFERENCE_MAP: Record<string, string> = {
 };
 
 /**
- * Find a definition by name and optionally type
- * @param sourceFile Parsed source file
- * @param name Definition name to find (case-insensitive)
- * @param type Optional definition type to filter by
- * @param skipModifiers If true, skip definitions with modifiers (#, !, *)
- * @returns DefinitionNode if found, undefined otherwise
- */
-export function findDefinitionByName(
-    sourceFile: SourceFile,
-    name: string,
-    type?: string,
-    skipModifiers: boolean = false
-): DefinitionNode | undefined {
-    const lowerName = name.toLowerCase().replace(/\s+/g, '');
-
-    for (const def of sourceFile.definitions) {
-        // Skip modifier definitions if requested
-        if (skipModifiers && def.modifier) {
-            continue;
-        }
-
-        const defName = def.name?.text?.toLowerCase().replace(/\s+/g, '');
-        if (defName === lowerName) {
-            // If type specified, check it matches
-            if (type) {
-                if (def.type.text.toLowerCase() === type.toLowerCase()) {
-                    return def;
-                }
-            } else {
-                return def;
-            }
-        }
-    }
-    return undefined;
-}
-
-/**
- * Find all definitions matching a name across multiple source files
- * @param sourceFiles Array of parsed source files
- * @param name Definition name to find
- * @param type Optional definition type to filter by
- * @returns Array of matching definitions
- */
-export function findAllDefinitionsByName(
-    sourceFiles: SourceFile[],
-    name: string,
-    type?: string
-): DefinitionNode[] {
-    const results: DefinitionNode[] = [];
-    for (const sf of sourceFiles) {
-        const def = findDefinitionByName(sf, name, type);
-        if (def) {
-            results.push(def);
-        }
-    }
-    return results;
-}
-
-/**
  * Determine if an attribute references a definition
  * @param attrName Attribute name
  * @returns Expected definition type or undefined
  */
-function getExpectedTypeForAttribute(attrName: string): string | undefined {
+export function getExpectedTypeForAttribute(attrName: string): string | undefined {
     return ATTRIBUTE_REFERENCE_MAP[attrName.toLowerCase()];
 }
 
@@ -123,6 +64,7 @@ function getExpectedTypeForAttribute(attrName: string): string | undefined {
  * @param offset Character offset
  * @param text Full document text
  * @param metadata Optional TDL metadata for dynamic RefersTo resolution
+ * @param scopeManager Scope manager for variable resolution
  * @param uri Document URI
  * @returns ReferenceInfo if a reference is found, undefined otherwise
  */
@@ -142,7 +84,6 @@ export function findReferenceAtOffset(
             const nameEnd = def.name.end;
 
             if (offset >= nameStart && offset <= nameEnd) {
-                // This is a modifier definition - return reference to find original
                 return {
                     name: def.name.text,
                     expectedType: def.type.text,
@@ -159,7 +100,6 @@ export function findReferenceAtOffset(
                     for (let i = 0; i < stmt.args.length; i++) {
                         const arg = stmt.args[i];
                         if (offset >= arg.start && offset <= arg.end) {
-                            // First check if it's a variable reference (## or #)
                             if (arg.kind === SyntaxKind.Identifier) {
                                 const foundText = (arg as IdentifierNode).text;
                                 if ((foundText.startsWith('##') || foundText.startsWith('#')) && scopeManager) {
@@ -170,16 +110,17 @@ export function findReferenceAtOffset(
                                         if (resolved) {
                                             return {
                                                 name: varName,
-                                                expectedType: resolved.definitionType,
+                                                expectedType: resolved.definitionType || 'Variable',
                                                 start: arg.start,
                                                 end: arg.end
+                                                // Note: definition.ts had expectedType: resolved.definitionType
+                                                // which is a string. If it's undefined, fallback to 'Variable'
                                             };
                                         }
                                     }
                                 }
                             }
 
-                            // If not a variable, check if it's a definition reference based on action metadata
                             if (metadata && stmt.action) {
                                 const actionName = stmt.action.text;
                                 const actionDef = metadata.actions.find((a: any) => 
@@ -199,7 +140,7 @@ export function findReferenceAtOffset(
                                             name = String((arg as any).value);
                                         }
 
-                                        name = name.replace(/^"|"$|^'|'$/g, ''); // strip quotes
+                                        name = name.replace(/^"|"$|^'|'$/g, '');
                                         if (name) {
                                             return {
                                                 name,
@@ -219,18 +160,13 @@ export function findReferenceAtOffset(
 
         // Check attribute value references
         for (const attr of def.attributes) {
-            // Check if we're in the value portion of the attribute
             if (offset >= attr.colon.Start && offset <= attr.end) {
                 let expectedType: string | undefined;
                 let paramIndex = -1;
-
-                // Find parameter index and specific value node
                 let foundValueNode: any = undefined;
 
                 for (let i = 0; i < attr.value.length; i++) {
                     const val = attr.value[i];
-
-                    // Treat ListNode as a single value (which represents a space-separated identifier)
                     if (offset >= val.start && offset <= val.end) {
                         paramIndex = i;
                         foundValueNode = val;
@@ -239,16 +175,11 @@ export function findReferenceAtOffset(
                 }
 
                 if (paramIndex >= 0 && metadata) {
-                    // Use metadata to find RefersTo for this parameter
                     const defTypeName = def.type.text;
                     const attrDef = metadata.findDefinition(attr.name.text, defTypeName);
 
                     if (attrDef && attrDef.Parameters && attrDef.Parameters.length > 0) {
-                        // Handle standard parameters
                         let param = attrDef.Parameters[paramIndex];
-
-                        // Handle Variable Arguments / Lists
-                        // If index is out of bounds, check if the last parameter is a list/variable arg
                         if (!param) {
                             const lastParam = attrDef.Parameters[attrDef.Parameters.length - 1];
                             if (lastParam.IsList || lastParam.IsVariableArgument) {
@@ -264,20 +195,15 @@ export function findReferenceAtOffset(
                         }
                     }
 
-                    // Fallback: If metadata didn't provide RefersTo (e.g. no params defined),
-                    // use the resolved Canonical Name from metadata to check the hardcoded map.
-                    // This handles Aliases (e.g. "Parts" -> "Part")
                     if (!expectedType && attrDef) {
                         expectedType = getExpectedTypeForAttribute(attrDef.Name);
                     }
                 }
 
-                // Fallback to hardcoded map using raw name if metadata lookup failed completely
                 if (!expectedType) {
                     expectedType = getExpectedTypeForAttribute(attr.name.text);
                 }
 
-                // Return reference info if we found a specific value node
                 if (foundValueNode) {
                     let name: string = '';
                     if (foundValueNode.kind === SyntaxKind.List) {
@@ -290,7 +216,7 @@ export function findReferenceAtOffset(
                         name = String((foundValueNode as LiteralNode).value);
                     }
 
-                    name = name.replace(/^"|"$|^'|'$/g, ''); // strip quotes
+                    name = name.replace(/^"|"$|^'|'$/g, '');
                     if (!name) continue;
 
                     if (name.startsWith('##') || name.startsWith('#')) {
@@ -302,7 +228,7 @@ export function findReferenceAtOffset(
                                 if (resolved) {
                                     return {
                                         name: varName,
-                                        expectedType: resolved.definitionType,
+                                        expectedType: resolved.definitionType || 'Variable',
                                         start: foundValueNode.start,
                                         end: foundValueNode.end
                                     };
@@ -368,16 +294,4 @@ export function findReferenceAtOffset(
     }
 
     return undefined;
-}
-
-/**
- * Get the location (start, end) of a definition for jump-to-definition
- * @param def Definition node
- * @returns Object with start and end offsets
- */
-export function getDefinitionLocation(def: DefinitionNode): { start: number; end: number } {
-    return {
-        start: def.openBracket.Start,
-        end: def.closeBracket.Start + def.closeBracket.Length
-    };
 }

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser/parser';
-import { createHoverContent, getDefinitionAtOffset, getHoverInfo } from '../hover';
+import { createHoverContent, getHoverInfo } from '../hover';
+import { getDefinitionAtOffset } from '../definition';
 import { testMetadata } from '../../test-setup';
 import { TDLFunction } from '../../models/tdlFunction';
 

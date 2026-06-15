@@ -129,6 +129,10 @@ describe('Definition Validation (Mocked)', () => {
                     }];
                 }
                 return [];
+            },
+            getNamesByKind: (kind: any) => {
+                if (kind === 'Report') return ['OtherReport'];
+                return [];
             }
         } as any;
 
