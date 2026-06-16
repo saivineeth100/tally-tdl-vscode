@@ -4,19 +4,11 @@ import { DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNo
 import { TdlMetadata } from "../../tdlMetaData";
 import { SymbolTable, definitionTypeToSymbolKind } from "../symbolTable";
 import { normalizeTypeName } from "../utils";
-import { attributeMatches, getAllowedAttributes, areTypesCompatible, inferExpressionType } from "./validationUtils";
+import {  areTypesCompatible, inferExpressionType } from "./validationUtils";
 import { validateFunctionCall, validateBinaryExpression } from "./expressionValidation";
 import { UNKNOWN_ATTRIBUTE_DIAGNOSTIC_CODE, MISSING_DEFINITION_DIAGNOSTIC_CODE, UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE } from "./validationConstants";
 
-/**
- * Validate a single attribute against allowed attributes
- * @returns true if the attribute is valid (allowed or no metadata available)
- */
-export function isValidAttribute(attrName: string, defTypeName: string, metadata: TdlMetadata): boolean {
-    const allowedAttrs = getAllowedAttributes(defTypeName, metadata);
-    if (!allowedAttrs) return true; // No metadata = assume valid
-    return allowedAttrs.some(allowed => attributeMatches(attrName, allowed));
-}
+
 
 export function validateDefinitionAttributes(
     def: DefinitionNode,
@@ -27,7 +19,7 @@ export function validateDefinitionAttributes(
 ): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
     const defTypeName = def.type.text;
-    const allowedAttrs = getAllowedAttributes(defTypeName, metadata);
+    const allowedAttrs = metadata.getDefinitionsForType(defTypeName);
 
     // Skip validation if we don't have metadata for this definition type
     if (!allowedAttrs) {
@@ -38,7 +30,7 @@ export function validateDefinitionAttributes(
 
     for (const attr of def.attributes) {
         const attrName = attr.name.text;
-        const attrNameLower = attrName.toLowerCase().replace(/\s+/g, '');
+        const attrNameLower = normalizeTypeName(attrName);
 
         // Check for duplicate variables
         if (attrNameLower === 'variable' || attrNameLower === 'listvariable') {
@@ -60,7 +52,7 @@ export function validateDefinitionAttributes(
         }
 
         // Check if this attribute is allowed for the definition type
-        const attrDef = allowedAttrs.find(allowed => attributeMatches(attrName, allowed));
+        const attrDef = allowedAttrs.get(attrNameLower);
 
         if (!attrDef) {
             const startPos = doc.positionAt(attr.name.start);
@@ -257,10 +249,10 @@ export function validateDefinitionAttributes(
  * Recursively validate schema object nodes and their properties
  */
 export function validateSchemaObject(
-    node: DefinitionNode | import('../../parser/ast').ComplexObjectNode, 
-    schemaName: string, 
-    doc: TextDocument, 
-    metadata: TdlMetadata, 
+    node: DefinitionNode | import('../../parser/ast').ComplexObjectNode,
+    schemaName: string,
+    doc: TextDocument,
+    metadata: TdlMetadata,
     diagnostics: Diagnostic[]
 ) {
     const schemaKey = Array.from(metadata.schemas.keys()).find(k => k.toUpperCase() === schemaName.toUpperCase());
@@ -273,18 +265,18 @@ export function validateSchemaObject(
         if (!attr.name) continue;
         const attrName = attr.name.text;
         const normalizedAttrName = attrName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
-        
+
         // System attributes allowed on schemas in XML payloads
         const systemAttributes = ['ACTION', 'VCHTYPE', 'OBJVIEW', 'NAME'];
         if (systemAttributes.includes(normalizedAttrName)) {
             // For VCHTYPE and OBJVIEW, these are typically only valid on VOUCHER.
             if ((normalizedAttrName === 'VCHTYPE' || normalizedAttrName === 'OBJVIEW') && schemaName.toUpperCase() !== 'VOUCHER') {
-                 diagnostics.push({
-                     severity: DiagnosticSeverity.Warning,
-                     range: { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
-                     message: `Property '${attrName}' is only valid on VOUCHER schema`,
-                     source: 'tdl'
-                 });
+                diagnostics.push({
+                    severity: DiagnosticSeverity.Warning,
+                    range: { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
+                    message: `Property '${attrName}' is only valid on VOUCHER schema`,
+                    source: 'tdl'
+                });
             }
             // Skip further property validation for system attributes
             continue;
@@ -360,7 +352,7 @@ export function validateSchemaObject(
                         }
                     }
                 }
-                
+
                 for (const innerObj of complexObj.complexObjects || []) {
                     if (!innerObj.name) continue;
                     const innerName = innerObj.name.text;

@@ -150,7 +150,7 @@ connection.onInitialized(async () => {
                     addedUris.push(folder.uri);
                 }
             }
-            
+
             if (addedUris.length > 0) {
                 docManager.scanWorkspaceFolders(addedUris);
             }
@@ -267,7 +267,7 @@ export function resolveIncludePath(currentPath: string, includeName: string): st
     if (fs.existsSync(relativePath)) {
         return relativePath;
     }
-    
+
     // 2. Try relative to each workspace folder root
     for (const folder of globalWorkspaceFolders) {
         const rootPath = path.resolve(folder, includeName);
@@ -275,7 +275,7 @@ export function resolveIncludePath(currentPath: string, includeName: string): st
             return rootPath;
         }
     }
-    
+
     // File not found
     return null;
 }
@@ -294,7 +294,7 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
     // Load metadata only when specifically requested
     const metadata = getMetadata();
     if (!metadata) return null;
-    
+
     // Find if we're on a reference
     const ref = findReferenceAtOffset(docState.sourceFile, offset, text, metadata, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri);
     // connection.console.log(`  Reference found: ${ref ? `${ref.name} (${ref.expectedType})` : 'none'}`);
@@ -349,8 +349,8 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
                     connection.console.error(`Error reading file for definition: ${e}`);
                 }
             } else if (resolved.uri === 'global:metadata') {
-                 connection.window.showInformationMessage(`Definition '${ref.name}' is part of default TDL source.`);
-                 return null;
+                connection.window.showInformationMessage(`Definition '${ref.name}' is part of default TDL source.`);
+                return null;
             }
         }
     }
@@ -473,7 +473,7 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
             end: offsetToPosition(doc, loc.end)
         }
     };
-    });
+});
 
 // Handle semantic tokens request
 import { provideSemanticTokens, provideSemanticTokensEdits, TDL_SEMANTIC_TOKENS_LEGEND } from "./services/semanticTokens/semanticTokens";
@@ -551,7 +551,7 @@ import { provideDocumentLinks } from "./services/documentLinks";
 connection.onDocumentLinks((params: DocumentLinkParams): DocumentLink[] => {
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return [];
-    
+
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return [];
 
@@ -611,22 +611,14 @@ connection.onCompletionResolve((item) => {
         }
     } else if (item.data.type === 'attribute') {
         const targetDef = item.data.defType;
-        let attrs;
-        for (const [name, defAttrs] of md.definitions.entries()) {
-            if (name.toLowerCase().replace(/\s+/g, '') === targetDef.toLowerCase().replace(/\s+/g, '')) {
-                attrs = defAttrs;
-                break;
-            }
+        const attr = md.findDefinitionAttribute(item.data.name, targetDef);
+        if (attr) {
+            item.documentation = {
+                kind: 'markdown',
+                value: buildAttributeDocumentation(attr)
+            };
         }
-        if (attrs) {
-            const attr = attrs.find(a => a.Name === item.data.name);
-            if (attr) {
-                item.documentation = {
-                    kind: 'markdown',
-                    value: buildAttributeDocumentation(attr)
-                };
-            }
-        }
+
     }
     return item;
 });

@@ -6,6 +6,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DocManager } from '../../docManager';
 import { TextDocuments } from 'vscode-languageserver';
 import { TdlMetadata } from '../../tdlMetaData';
+import { normalizeTypeName } from '../utils';
 
 describe('Document Highlights', () => {
     let mockConnection: any;
@@ -22,9 +23,9 @@ describe('Document Highlights', () => {
         docManager = new DocManager(mockConnection, mockDocuments);
 
         setMetadata({
-            definitions: new Map([
-                ['Report', [{ Name: 'Form' }]],
-                ['Form', [{ Name: 'Parts' }, { Name: 'Part' }]]
+            definitions: new Map<string, any>([
+                ['Report', new Map([['form', { Name: 'Form' }]])],
+                ['Form', new Map([['parts', { Name: 'Parts' }], ['part', { Name: 'Part' }]])]
             ]),
             schemas: new Map(),
             existingDefinitions: new Map(),
@@ -33,7 +34,8 @@ describe('Document Highlights', () => {
                     return { Name: 'Form', Parameters: [{ RefersTo: 'Form' }] };
                 }
                 return undefined;
-            })
+            }),
+            getDefinitionsForType: function(this: any, type: string) { return this.definitions?.get(type) || this.definitions?.get(normalizeTypeName(type)); }
         } as unknown as TdlMetadata);
     });
 

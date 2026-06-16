@@ -2,6 +2,7 @@ import * as fsasync from 'fs/promises';
 import * as fs from 'fs';
 import * as path from 'path';
 import { TDLFunction, TDLFunctionParameter } from './models/tdlFunction';
+import { normalizeTypeName } from './services/utils';
 
 async function loadJsonSafe<T>(filePath: string): Promise<T | null> {
     return fs.existsSync(filePath) ? JSON.parse(await fsasync.readFile(filePath, 'utf-8')) : null;
@@ -51,9 +52,9 @@ export class TDLAction {
 }
 
 /** TDL Definition attribute metadata */
-export class TDLDefinition {
-    static FromJSON(json: any): TDLDefinition {
-        const def = new TDLDefinition();
+export class TDLDefinitionAttribute {
+    static FromJSON(json: any): TDLDefinitionAttribute {
+        const def = new TDLDefinitionAttribute();
         def.Name = json.Name;
         def.Description = json.Description;
         def.Parameters = (json.Parameters || []).map((p: any) => TDLParameter.FromJSON(p));
@@ -157,7 +158,7 @@ export interface AppInfo {
 export class TdlMetadata {
     functions: TDLFunction[] = [];
     actions: TDLAction[] = [];
-    definitions: Map<string, TDLDefinition[]> = new Map(); // Grouped by definition type (Collection, Field, etc.)
+    definitions: Map<string, Map<string, TDLDefinitionAttribute>> = new Map(); // Grouped by definition type (Collection, Field, etc.)
     schemas: Map<string, TDLSchema> = new Map();
     existingDefinitions: Map<string, string[]> = new Map();
     keywordSets: Map<string, string[]> = new Map(); // Cache keywords by Keyword Set name
@@ -171,7 +172,6 @@ export class TdlMetadata {
     // Fast lookup maps (populated during load)
     private _functionsByName: Map<string, TDLFunction> = new Map();
     private _actionsByName: Map<string, TDLAction> = new Map();
-    private _definitionsByName: Map<string, TDLDefinition> = new Map(); // all definitions
     private _schemasByName: Map<string, TDLSchema> = new Map();
 
     constructor(private basePath: string, private version: string = "7.0") { }
@@ -189,7 +189,7 @@ export class TdlMetadata {
         await this.loadActions(versionPath);
 
         // Load definitions
-        await this.loadDefinitions(versionPath);
+        await this.loadDefinitionAttributes(versionPath);
 
         // Load schemas
         await this.loadSchemas(versionPath);
@@ -224,18 +224,6 @@ export class TdlMetadata {
             }
         }
 
-        // Definitions
-        for (const [_, defs] of this.definitions) {
-            for (const def of defs) {
-                this._definitionsByName.set(def.Name.toLowerCase(), def);
-                if (def.Aliases) {
-                    const aliases = def.Aliases.split(',').map(a => a.trim().toLowerCase());
-                    for (const alias of aliases) {
-                        if (alias) this._definitionsByName.set(alias, def);
-                    }
-                }
-            }
-        }
 
         // Schemas
         for (const [_, schema] of this.schemas) {
@@ -291,7 +279,7 @@ export class TdlMetadata {
         }
     }
 
-    private async loadDefinitions(versionPath: string) {
+    private async loadDefinitionAttributes(versionPath: string) {
         const definitionsPath = path.join(versionPath, "Definition");
         if (!fs.existsSync(definitionsPath)) return;
 
@@ -342,11 +330,16 @@ export class TdlMetadata {
                     }
                 }
 
-                const defs: TDLDefinition[] = [];
+                const defsMap = new Map<string, TDLDefinitionAttribute>();
                 for (const defName of Object.keys(definitionsData)) {
-                    const def = TDLDefinition.FromJSON(definitionsData[defName]);
-                    defs.push(def);
+                    const def = TDLDefinitionAttribute.FromJSON(definitionsData[defName]);
 
+                    defsMap.set(normalizeTypeName(def.Name), def);
+                    if (def.Aliases && def.Aliases.length > 0) {
+                        for (const alias of def.Aliases) {
+                            defsMap.set(normalizeTypeName(alias), def);
+                        }
+                    }
                     // Extract and cache keywords from parameters
                     for (const param of def.Parameters) {
                         if (param.KeywordSet && param.Keywords) {
@@ -357,7 +350,7 @@ export class TdlMetadata {
                         }
                     }
                 }
-                this.definitions.set(defType, defs);
+                this.definitions.set(normalizeTypeName(defType), defsMap);
             }
         }
     }
@@ -416,27 +409,16 @@ export class TdlMetadata {
         return this._actionsByName.get(name.toLowerCase());
     }
 
-    findDefinition(name: string, defType?: string): TDLDefinition | undefined {
-        if (!name) return undefined;
+    findDefinitionAttribute(name: string, defType: string): TDLDefinitionAttribute | undefined {
+        if (!name || !defType) return undefined;
 
-        // If defType is provided, we still check the fast map, 
-        // but we verify the found definition actually belongs to that type.
-        const found = this._definitionsByName.get(name.toLowerCase());
+        const defAttributes = this.getDefinitionsForType(defType);
 
-        if (found && defType) {
-            // Verify it belongs to the requested defType
-            const defsForType = this.definitions.get(defType);
-            if (defsForType && defsForType.includes(found)) {
-                return found;
-            }
-            // Edge case: Multiple types might have same alias, fallback to original logic for safety
-            return defsForType?.find(d =>
-                d.Name.toLowerCase() === name.toLowerCase() ||
-                d.Aliases?.toLowerCase().split(',').map(a => a.trim()).includes(name.toLowerCase())
-            );
+        if (defAttributes) {
+            return defAttributes.get(normalizeTypeName(name));
+
         }
-
-        return found;
+        return undefined;
     }
 
     findSchema(name: string): TDLSchema | undefined {
@@ -444,7 +426,8 @@ export class TdlMetadata {
         return this._schemasByName.get(name.toLowerCase());
     }
 
-    getDefinitionsForType(defType: string): TDLDefinition[] {
-        return this.definitions.get(defType) || [];
+    getDefinitionsForType(defType: string): Map<string, TDLDefinitionAttribute> | undefined {
+        if (!defType) return undefined;
+        return this.definitions.get(normalizeTypeName(defType));
     }
 }

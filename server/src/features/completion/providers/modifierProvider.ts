@@ -1,6 +1,6 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
 import { DocManager } from '../../../docManager';
-import { TdlMetadata, TDLDefinition } from '../../../tdlMetaData';
+import { TdlMetadata, TDLDefinitionAttribute } from '../../../tdlMetaData';
 import { Scope } from '../../../services/scopeManager';
 import { CompletionContext } from '../contextAnalyzer';
 import { getDefinitionTypes } from '../utils';
@@ -121,16 +121,11 @@ export function provideModifierValueCompletions(
         } else if (state === 2 || state === 4) {
             // Typing <Attribute> for the effective Definition Type
             if (effectiveDefType) {
-                const normalizedTargetType = normalizeTypeName(effectiveDefType);
-                let matchingDefAttributes: TDLDefinition[] | undefined;
-                for (const [defType, attributes] of md.definitions) {
-                    if (normalizeTypeName(defType) === normalizedTargetType) {
-                        matchingDefAttributes = attributes;
-                        break;
-                    }
-                }
+              
+                let matchingDefAttributes: Map<string, TDLDefinitionAttribute> | undefined = md.getDefinitionsForType(effectiveDefType);
+
                 if (matchingDefAttributes) {
-                    for (const attr of matchingDefAttributes) {
+                    for (const [_,attr] of matchingDefAttributes) {
                         const names = [attr.Name];
                         if (attr.Aliases) names.push(...attr.Aliases.split(',').map(a => a.trim()));
                         if (partial === '' || names.some(n => n.toLowerCase().includes(partial))) {
@@ -153,17 +148,11 @@ export function provideModifierValueCompletions(
         if (context.paramIndex === 0) {
             // Suggest attributes of the current definition
             const defTypeName = currentDef.type.text;
-            const normalizedDefType = normalizeTypeName(defTypeName);
+           
+            let matchingDefAttributes: Map<string, TDLDefinitionAttribute> | undefined = md.getDefinitionsForType(defTypeName);
 
-            let matchingDefAttributes: TDLDefinition[] | undefined;
-            for (const [defType, attributes] of md.definitions) {
-                if (normalizeTypeName(defType) === normalizedDefType) {
-                    matchingDefAttributes = attributes;
-                    break;
-                }
-            }
             if (matchingDefAttributes) {
-                for (const attr of matchingDefAttributes) {
+                for (const [_,attr] of matchingDefAttributes) {
                     const names = [attr.Name];
                     if (attr.Aliases) names.push(...attr.Aliases.split(',').map(a => a.trim()));
                     if (partial === '' || names.some(n => n.toLowerCase().includes(partial))) {

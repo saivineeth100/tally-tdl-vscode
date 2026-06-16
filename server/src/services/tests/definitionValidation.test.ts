@@ -4,6 +4,7 @@ import { validateSourceFile } from '../validation';
 import { TdlMetadata } from '../../tdlMetaData';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DiagnosticSeverity } from 'vscode-languageserver';
+import { normalizeTypeName } from '../utils';
 
 describe('Definition Validation (Mocked)', () => {
     // Mock metadata
@@ -18,7 +19,8 @@ describe('Definition Validation (Mocked)', () => {
             ['Function', []],
             ['Field', []]
         ]), // For attributes
-        actions: [] // Add empty actions array to fix tests
+        actions: [], // Add empty actions array to fix tests
+        getDefinitionsForType: function(this: any, type: string) { return this.definitions?.get(type) || this.definitions?.get(normalizeTypeName(type)); }
     } as unknown as TdlMetadata;
 
     it('should detect duplicate Report definition', async () => {
@@ -137,12 +139,12 @@ describe('Definition Validation (Mocked)', () => {
         } as any;
 
         // Mock definitions array to include 'Use' attribute so reference validation runs
-        mockMetadata.definitions.set('Report', [
-            { 
-                Name: 'Use', 
-                Parameters: [{ RefersTo: 'Report' } as any] 
-            } as any
-        ]);
+        const reportDefs = new Map<string, any>();
+        reportDefs.set('use', { 
+            Name: 'Use', 
+            Parameters: [{ RefersTo: 'Report' } as any] 
+        } as any);
+        mockMetadata.definitions.set('Report', reportDefs);
 
         const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata, mockSymbolTable, undefined, undefined, mockDocManager);
         const warning = diagnostics.find(d => d.message.includes('not included in the project'));

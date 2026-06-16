@@ -1,43 +1,7 @@
-import { TdlMetadata, TDLDefinition } from "../../tdlMetaData";
+import { TdlMetadata, TDLDefinitionAttribute } from "../../tdlMetaData";
 import { normalizeTypeName } from "../utils";
 import { SyntaxKind, LiteralNode, FunctionCallNode, BinaryExpressionNode, UnaryExpressionNode, Node } from "../../parser/ast";
 import { TokenKind } from "../../parser/tokenKind";
-
-/**
- * Check if an attribute name matches a definition (by name or alias)
- */
-export function attributeMatches(attrName: string, def: TDLDefinition): boolean {
-    const normalizedAttr = normalizeTypeName(attrName);
-
-    // Check primary name
-    if (normalizeTypeName(def.Name) === normalizedAttr) {
-        return true;
-    }
-
-    // Check aliases
-    if (def.Aliases) {
-        const aliases = def.Aliases.split(',').map(a => normalizeTypeName(a.trim()));
-        if (aliases.includes(normalizedAttr)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/**
- * Get allowed attributes for a definition type from metadata
- */
-export function getAllowedAttributes(defTypeName: string, metadata: TdlMetadata): TDLDefinition[] | undefined {
-    const normalizedDefType = normalizeTypeName(defTypeName);
-
-    for (const [defType, attributes] of metadata.definitions) {
-        if (normalizeTypeName(defType) === normalizedDefType) {
-            return attributes;
-        }
-    }
-    return undefined;
-}
 
 /**
  * Check if two TDL datatypes are compatible
@@ -75,13 +39,13 @@ export function inferExpressionType(exprNode: Node, metadata: TdlMetadata): stri
     if (exprNode.kind === SyntaxKind.Literal) {
         const lit = exprNode as LiteralNode;
         const tk = lit.token?.Kind;
-        if (tk === TokenKind.YesToken || tk === TokenKind.NoToken || tk === TokenKind.TrueToken || 
+        if (tk === TokenKind.YesToken || tk === TokenKind.NoToken || tk === TokenKind.TrueToken ||
             tk === TokenKind.FalseToken || tk === TokenKind.OnToken || tk === TokenKind.OffToken) {
             return 'Logical';
         }
         return typeof lit.value === 'number' ? 'Number' : 'String';
     }
-    
+
     if (exprNode.kind === SyntaxKind.FunctionCall) {
         const funcNode = exprNode as FunctionCallNode;
         const funcName = funcNode.functionName?.text;
@@ -93,7 +57,7 @@ export function inferExpressionType(exprNode: Node, metadata: TdlMetadata): stri
         }
         return undefined;
     }
-    
+
     // BinaryExpressionNode
     if ('operator' in exprNode && 'left' in exprNode) {
         const binExpr = exprNode as BinaryExpressionNode;
@@ -103,11 +67,11 @@ export function inferExpressionType(exprNode: Node, metadata: TdlMetadata): stri
             return 'Number';
         }
         // Comparison & Logical & String operators
-        if (opKind === TokenKind.EqualsToken || opKind === TokenKind.NotEqualsToken || 
-            opKind === TokenKind.LessThanToken || opKind === TokenKind.GreaterThanToken || 
+        if (opKind === TokenKind.EqualsToken || opKind === TokenKind.NotEqualsToken ||
+            opKind === TokenKind.LessThanToken || opKind === TokenKind.GreaterThanToken ||
             opKind === TokenKind.LessThanEqualsToken || opKind === TokenKind.GreaterThanEqualsToken ||
             opKind === TokenKind.InToken || opKind === TokenKind.BetweenToken || opKind === TokenKind.NullToken ||
-            opKind === TokenKind.AndToken || opKind === TokenKind.OrToken || 
+            opKind === TokenKind.AndToken || opKind === TokenKind.OrToken ||
             opKind === TokenKind.ContainsToken || opKind === TokenKind.ContainingToken ||
             opKind === TokenKind.StartingToken || opKind === TokenKind.StartingWithToken ||
             opKind === TokenKind.EndingToken || opKind === TokenKind.EndingWithToken ||
@@ -115,7 +79,7 @@ export function inferExpressionType(exprNode: Node, metadata: TdlMetadata): stri
             return 'Logical';
         }
     }
-    
+
     // UnaryExpressionNode
     if ('operator' in exprNode && !('left' in exprNode)) {
         const unExpr = exprNode as UnaryExpressionNode;
@@ -127,6 +91,6 @@ export function inferExpressionType(exprNode: Node, metadata: TdlMetadata): stri
             return 'Number';
         }
     }
-    
+
     return undefined;
 }

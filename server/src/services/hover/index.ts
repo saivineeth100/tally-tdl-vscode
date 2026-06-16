@@ -152,7 +152,7 @@ export function getHoverInfo(
             if (offset < attr.colon.Start) {
                 // On attribute name - show attribute info
                 if (metadata) {
-                    const attrDef = metadata.findDefinition(attr.name.text, def.type.text);
+                    const attrDef = metadata.findDefinitionAttribute(attr.name.text, def.type.text);
                     if (attrDef) {
                         return {
                             type: 'attribute',
@@ -173,7 +173,7 @@ export function getHoverInfo(
                 if (offset >= value.start && offset <= value.end) {
                     // On parameter value - show parameter info
                     if (metadata) {
-                        const attrDef = metadata.findDefinition(attr.name.text, def.type.text);
+                        const attrDef = metadata.findDefinitionAttribute(attr.name.text, def.type.text);
                         if (attrDef && attrDef.Parameters && attrDef.Parameters[i]) {
                             const paramDef = attrDef.Parameters[i];
                             return {

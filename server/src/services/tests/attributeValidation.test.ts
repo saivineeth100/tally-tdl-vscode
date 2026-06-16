@@ -1,11 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { Parser } from '../../parser/parser';
-import { TDLDefinition } from '../../tdlMetaData';
 import { TDLFunction } from '../../models/tdlFunction';
 import {
-    attributeMatches,
-    getAllowedAttributes,
-    isValidAttribute,
     validateDefinitionAttributes
 } from '../validation';
 import { normalizeTypeName } from '../utils';
@@ -30,195 +26,7 @@ describe('Attribute Validation', () => {
         });
     });
 
-    describe('testMetadata! Loading', () => {
-        it('should load Report definition attributes', async () => {
-            const attrs = getAllowedAttributes('Report', testMetadata!);
-            expect(attrs).toBeDefined();
-            expect(attrs!.length).toBeGreaterThan(0);
-        });
 
-        it('should load Field definition attributes', async () => {
-            const attrs = getAllowedAttributes('Field', testMetadata!);
-            expect(attrs).toBeDefined();
-            expect(attrs!.length).toBeGreaterThan(0);
-        });
-
-        it('should load Form definition attributes', async () => {
-            const attrs = getAllowedAttributes('Form', testMetadata!);
-            expect(attrs).toBeDefined();
-            expect(attrs!.length).toBeGreaterThan(0);
-        });
-
-        it('should load Collection definition attributes', async () => {
-            const attrs = getAllowedAttributes('Collection', testMetadata!);
-            expect(attrs).toBeDefined();
-            expect(attrs!.length).toBeGreaterThan(0);
-        });
-    });
-
-    describe('attributeMatches', () => {
-        it('should match by exact name', async () => {
-            const attrs = getAllowedAttributes('Report', testMetadata!);
-            const formAttr = attrs?.find(a => a.Name === 'Form');
-            expect(formAttr).toBeDefined();
-
-            expect(attributeMatches('Form', formAttr!)).toBe(true);
-            expect(attributeMatches('form', formAttr!)).toBe(true);
-            expect(attributeMatches('FORM', formAttr!)).toBe(true);
-        });
-
-        it('should match by alias', async () => {
-            const attrs = getAllowedAttributes('Report', testMetadata!);
-            // Find an attribute with aliases
-            const attrWithAlias = attrs?.find(a => a.Aliases && a.Aliases.includes(','));
-
-            if (attrWithAlias) {
-                const aliases = attrWithAlias.Aliases!.split(',').map(a => a.trim());
-                for (const alias of aliases) {
-                    expect(attributeMatches(alias, attrWithAlias)).toBe(true);
-                }
-            }
-        });
-
-        it('should not match non-existent attribute name', async () => {
-            const attrs = getAllowedAttributes('Report', testMetadata!);
-            const formAttr = attrs?.find(a => a.Name === 'Form');
-            expect(formAttr).toBeDefined();
-
-            expect(attributeMatches('InvalidAttr', formAttr!)).toBe(false);
-        });
-    });
-
-    describe('getAllowedAttributes', () => {
-        it('should get attributes case-insensitively', async () => {
-            const attrs1 = getAllowedAttributes('Report', testMetadata!);
-            const attrs2 = getAllowedAttributes('report', testMetadata!);
-            const attrs3 = getAllowedAttributes('REPORT', testMetadata!);
-
-            expect(attrs1).toBeDefined();
-            expect(attrs2).toBeDefined();
-            expect(attrs3).toBeDefined();
-            expect(attrs1?.length).toBe(attrs2?.length);
-            expect(attrs2?.length).toBe(attrs3?.length);
-        });
-
-        it('should return undefined for unknown definition type', async () => {
-            const attrs = getAllowedAttributes('NonExistentDefinition', testMetadata!);
-            expect(attrs).toBeUndefined();
-        });
-    });
-
-    describe('isValidAttribute', () => {
-        it('should validate known Report attributes', async () => {
-            expect(isValidAttribute('Form', 'Report', testMetadata!)).toBe(true);
-            expect(isValidAttribute('Title', 'Report', testMetadata!)).toBe(true);
-            expect(isValidAttribute('Object', 'Report', testMetadata!)).toBe(true);
-        });
-
-        it('should reject invalid Report attributes', async () => {
-            expect(isValidAttribute('InvalidAttribute', 'Report', testMetadata!)).toBe(false);
-            expect(isValidAttribute('FooBar', 'Report', testMetadata!)).toBe(false);
-            expect(isValidAttribute('RandomName', 'Report', testMetadata!)).toBe(false);
-        });
-
-        it('should validate known Field attributes', async () => {
-            expect(isValidAttribute('Set As', 'Field', testMetadata!)).toBe(true);
-            expect(isValidAttribute('Width', 'Field', testMetadata!)).toBe(true);
-        });
-
-        it('should validate known Collection attributes', async () => {
-            expect(isValidAttribute('Type', 'Collection', testMetadata!)).toBe(true);
-            expect(isValidAttribute('Filter', 'Collection', testMetadata!)).toBe(true);
-        });
-
-        it('should allow any attribute for unknown definition types', async () => {
-            expect(isValidAttribute('AnyAttr', 'UnknownType', testMetadata!)).toBe(true);
-        });
-    });
-
-    describe('Integration with Parser', () => {
-        it('should parse a Report with valid attributes', async () => {
-            const tdl = `[Report: MyReport]
-                Form: MainForm
-                Title: My Title
-            `;
-            const parser = new Parser(tdl);
-            const sourceFile = parser.parse();
-
-            expect(sourceFile.definitions.length).toBe(1);
-            const def = sourceFile.definitions[0];
-            expect(def.type.text).toBe('Report');
-            expect(def.attributes.length).toBe(2);
-
-            // Validate each attribute
-            for (const attr of def.attributes) {
-                const isValid = isValidAttribute(attr.name.text, def.type.text, testMetadata!);
-                expect(isValid).toBe(true);
-            }
-        });
-
-        it('should detect invalid attributes in Report', async () => {
-            const tdl = `[Report: MyReport]
-                Form: MainForm
-                InvalidAttr: Something
-            `;
-            const parser = new Parser(tdl);
-            const sourceFile = parser.parse();
-
-            const def = sourceFile.definitions[0];
-            const invalidAttrs = def.attributes.filter(attr =>
-                !isValidAttribute(attr.name.text, def.type.text, testMetadata!)
-            );
-
-            expect(invalidAttrs.length).toBe(1);
-            expect(invalidAttrs[0].name.text).toBe('InvalidAttr');
-        });
-
-        it('should validate Field definition attributes', async () => {
-            const tdl = `[Field: AmountField]
-                Set As: $Amount
-                ZzzInvalidField123: BadValue
-            `;
-            const parser = new Parser(tdl);
-            const sourceFile = parser.parse();
-
-            expect(sourceFile.definitions.length).toBe(1);
-            const def = sourceFile.definitions[0];
-            expect(def.type.text).toBe('Field');
-
-            // Filter valid and invalid attrs
-            const validAttrs = def.attributes.filter(attr =>
-                isValidAttribute(attr.name.text, def.type.text, testMetadata!)
-            );
-            const invalidAttrs = def.attributes.filter(attr =>
-                !isValidAttribute(attr.name.text, def.type.text, testMetadata!)
-            );
-
-            expect(validAttrs.length).toBe(1); // Set As
-            expect(invalidAttrs.length).toBe(1); // ZzzInvalidField123
-        });
-
-        it('should validate Collection definition', async () => {
-            const tdl = `[Collection: MyCollection]
-                Type: Ledger
-                Filter: $Name != ""
-                BadAttribute: Value
-            `;
-            const parser = new Parser(tdl);
-            const sourceFile = parser.parse();
-
-            const def = sourceFile.definitions[0];
-            const validAttrs = def.attributes.filter(attr =>
-                isValidAttribute(attr.name.text, def.type.text, testMetadata!)
-            );
-            const invalidAttrs = def.attributes.filter(attr =>
-                !isValidAttribute(attr.name.text, def.type.text, testMetadata!)
-            );
-
-            expect(validAttrs.length).toBe(2); // Type, Filter
-            expect(invalidAttrs.length).toBe(1); // BadAttribute
-        });
-    });
 
     describe('Mandatory Parameter Validation', () => {
         it('should detect missing mandatory parameters in Report', async () => {
@@ -305,19 +113,19 @@ describe('Attribute Validation', () => {
         // This test verifies that each split part is recognized as a valid attribute.
 
         it('should recognize Add as a valid attribute after transformation', async () => {
-            const addDef = testMetadata!.findDefinition('Add', 'Report');
+            const addDef = testMetadata!.findDefinitionAttribute('Add', 'Report');
             expect(addDef).toBeDefined();
             expect(addDef?.Name).toBe('Add');
         });
 
         it('should recognize Delete as a valid attribute after transformation', async () => {
-            const delDef = testMetadata!.findDefinition('Delete', 'Report');
+            const delDef = testMetadata!.findDefinitionAttribute('Delete', 'Report');
             expect(delDef).toBeDefined();
             expect(delDef?.Name).toBe('Delete');
         });
 
         it('should recognize Replace as a valid attribute after transformation', async () => {
-            const repDef = testMetadata!.findDefinition('Replace', 'Report');
+            const repDef = testMetadata!.findDefinitionAttribute('Replace', 'Report');
             expect(repDef).toBeDefined();
             expect(repDef?.Name).toBe('Replace');
         });
@@ -338,7 +146,7 @@ describe('Attribute Validation', () => {
         });
 
         it('should replace Description with part-specific text for Add', async () => {
-            const addDef = testMetadata!.findDefinition('Add', 'Report');
+            const addDef = testMetadata!.findDefinitionAttribute('Add', 'Report');
             expect(addDef).toBeDefined();
             // Description should NOT contain "Add/Replace/Delete" or similar combined patterns
             expect(addDef?.Description).not.toMatch(/Add\/Replace\/Delete/i);
@@ -348,7 +156,7 @@ describe('Attribute Validation', () => {
         });
 
         it('should replace Description with part-specific text for Delete', async () => {
-            const delDef = testMetadata!.findDefinition('Delete', 'Report');
+            const delDef = testMetadata!.findDefinitionAttribute('Delete', 'Report');
             expect(delDef).toBeDefined();
             expect(delDef?.Description).not.toMatch(/Add\/Replace\/Delete/i);
             expect(delDef?.Description).not.toMatch(/ADD\/Delete\/Replace/i);
@@ -356,7 +164,7 @@ describe('Attribute Validation', () => {
         });
 
         it('should replace Description with part-specific text for Replace', async () => {
-            const repDef = testMetadata!.findDefinition('Replace', 'Report');
+            const repDef = testMetadata!.findDefinitionAttribute('Replace', 'Report');
             expect(repDef).toBeDefined();
             expect(repDef?.Description).not.toMatch(/Add\/Replace\/Delete/i);
             expect(repDef?.Description).not.toMatch(/ADD\/Delete\/Replace/i);

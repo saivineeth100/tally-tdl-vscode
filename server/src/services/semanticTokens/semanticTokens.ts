@@ -14,12 +14,15 @@ import {
     FormulaReferenceNode,
     ListNode,
     LiteralNode,
-    SyntaxKind
+    SyntaxKind,
+    AttributeNode,
+    DefinitionNode
 } from '../../parser/ast';
 import { TokenKind } from '../../parser/tokenKind';
 import { ScopeManager, getSemanticTypeFromSymbol } from '../scopeManager';
 import { normalizeTypeName } from '../utils';
 import { SymbolKind, SymbolTable } from '../symbolTable';
+import { TDLDefinitionAttribute } from '../../tdlMetaData';
 
 export interface SemanticToken {
     line: number;
@@ -93,10 +96,10 @@ function symbolKindToTokenType(kind: SymbolKind): string {
 
 // Define local interface for Metadata Context
 export interface TdlMetadataContext {
-    findDefinition(name: string): { Name: string; Parameters?: { RefersTo?: string; DataType?: string; IsList?: boolean }[] } | undefined;
+    findDefinitionAttribute(name: string, defType: string): TDLDefinitionAttribute | undefined;
     findFunction(name: string): { Name: string; Parameters?: { RefersTo?: string; DataType?: string; IsList?: boolean }[] } | undefined;
     existingDefinitions?: Map<string, string[]>;
-    definitions?: Map<string, any[]>;
+    definitions?: Map<string, Map<String, TDLDefinitionAttribute>>;
 }
 
 
@@ -179,7 +182,7 @@ const tokenBuilders = new Map<string, SemanticTokensBuilder>();
  */
 export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeManager?: ScopeManager, metadata?: TdlMetadataContext, token?: CancellationToken): SemanticTokens {
     const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, metadata, token); // Assuming Doc has URI, or pass explicitly
-    
+
     let builder = new SemanticTokensBuilder();
     tokenBuilders.set(doc.uri, builder);
 
@@ -359,7 +362,7 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
             if (def.type && (def.type.text.trim().toLowerCase() === 'include' || def.type.text.trim().toLowerCase() === 'import')) {
                 tokenType = SemanticTokenTypes.string;
             }
-            
+
             tokens.push({
                 line: 0,
                 startChar: def.name.start,
@@ -368,9 +371,9 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 text: def.name.text
             });
         }
-        traverseAttributes(def.attributes, tokens, scopeManager, uri, metadata);
+        traverseAttributes(def.attributes, tokens, def.name!.text, scopeManager, uri, metadata);
         if (def.complexObjects) {
-            traverseComplexObjects(def.complexObjects, tokens, scopeManager, uri, metadata);
+            traverseComplexObjects(def.complexObjects, tokens, def.name!.text, scopeManager, uri, metadata);
         }
 
         if (def.statements) {
@@ -382,10 +385,11 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
     return tokens;
 }
 
-function traverseAttributes(attributes: any[], tokens: SemanticToken[], scopeManager?: ScopeManager, uri?: string, metadata?: TdlMetadataContext) {
+function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[], defName: string, scopeManager?: ScopeManager, uri?: string, metadata?: TdlMetadataContext) {
+
     for (const attr of attributes) {
         let expectedType: string | undefined;
-
+        let defMeta: TDLDefinitionAttribute | undefined
         if (attr.name) {
             tokens.push({
                 line: 0,
@@ -397,19 +401,22 @@ function traverseAttributes(attributes: any[], tokens: SemanticToken[], scopeMan
 
             // Determine context for values
             if (metadata) {
-                const defMeta = metadata.findDefinition(attr.name.text);
+
+                defMeta = metadata.findDefinitionAttribute(attr.name.text, defName);
                 if (defMeta && defMeta.Parameters && defMeta.Parameters.length > 0) {
                     const param = defMeta.Parameters[0];
                     expectedType = mapMetaTypeToToken(param.RefersTo, param.DataType, metadata);
                 }
             }
 
+
+
             if (!expectedType) {
                 const key = Object.keys(ATTRIBUTE_CONTEXT).find(k => k.toLowerCase() === attr.name.text.toLowerCase());
                 if (key) expectedType = ATTRIBUTE_CONTEXT[key];
             }
         }
-        
+
         if (attr.closeName) {
             tokens.push({
                 line: 0,
@@ -423,25 +430,23 @@ function traverseAttributes(attributes: any[], tokens: SemanticToken[], scopeMan
         if (attr.value) {
             for (let i = 0; i < attr.value.length; i++) {
                 let argExpectedType = expectedType;
-                if (metadata && attr.name) {
-                    const defMeta = metadata.findDefinition(attr.name.text);
-                    if (defMeta && defMeta.Parameters) {
-                        if (i < defMeta.Parameters.length) {
-                            const p = defMeta.Parameters[i];
-                            argExpectedType = mapMetaTypeToToken(p.RefersTo, p.DataType, metadata);
-                        } else if (defMeta.Parameters.length > 0 && defMeta.Parameters[defMeta.Parameters.length - 1].IsList) {
-                            const p = defMeta.Parameters[defMeta.Parameters.length - 1];
-                            argExpectedType = mapMetaTypeToToken(p.RefersTo, p.DataType, metadata);
-                        }
+                if (defMeta && defMeta.Parameters) {
+                    if (i < defMeta.Parameters.length) {
+                        const p = defMeta.Parameters[i];
+                        argExpectedType = mapMetaTypeToToken(p.RefersTo, p.DataType, metadata);
+                    } else if (defMeta.Parameters.length > 0 && defMeta.Parameters[defMeta.Parameters.length - 1].IsList) {
+                        const p = defMeta.Parameters[defMeta.Parameters.length - 1];
+                        argExpectedType = mapMetaTypeToToken(p.RefersTo, p.DataType, metadata);
                     }
                 }
+
                 traverseNode(attr.value[i], tokens, scopeManager, uri, argExpectedType, metadata);
             }
         }
     }
 }
 
-function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], scopeManager?: ScopeManager, uri?: string, metadata?: TdlMetadataContext) {
+function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], defName: string, scopeManager?: ScopeManager, uri?: string, metadata?: TdlMetadataContext) {
     if (!complexObjects) return;
     for (const obj of complexObjects) {
         if (obj.name) {
@@ -462,13 +467,13 @@ function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], 
                 text: obj.closeName.text
             });
         }
-        
+
         if (obj.attributes) {
-            traverseAttributes(obj.attributes, tokens, scopeManager, uri, metadata);
+            traverseAttributes(obj.attributes, tokens, defName, scopeManager, uri, metadata);
         }
-        
+
         if (obj.complexObjects) {
-            traverseComplexObjects(obj.complexObjects, tokens, scopeManager, uri, metadata);
+            traverseComplexObjects(obj.complexObjects, tokens, defName, scopeManager, uri, metadata);
         }
     }
 }

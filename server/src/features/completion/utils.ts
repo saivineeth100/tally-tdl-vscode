@@ -1,11 +1,11 @@
-import { TDLDefinition, TdlMetadata } from '../../tdlMetaData';
+import { TDLDefinitionAttribute, TdlMetadata } from '../../tdlMetaData';
 import { TDLFunction } from '../../models/tdlFunction';
 import { CompletionItem, CompletionItemKind, MarkupKind } from 'vscode-languageserver/node';
 
 /**
  * Build markdown documentation for an attribute
  */
-export function buildAttributeDocumentation(attr: TDLDefinition): string {
+export function buildAttributeDocumentation(attr: TDLDefinitionAttribute): string {
     let doc = attr.Description || '';
 
     if (attr.Parameters && attr.Parameters.length > 0) {
