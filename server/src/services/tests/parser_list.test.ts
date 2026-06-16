@@ -5,7 +5,7 @@ import { findReferenceAtOffset } from '../definition';
 import { SyntaxKind } from '../../parser/ast';
 
 const mockMetadata = {
-    findDefinition: (name: string, type?: string) => {
+    findDefinitionAttribute: (name: string, type?: string) => {
         if (name.toLowerCase() === 'parts') {
             return {
                 Name: 'Part',

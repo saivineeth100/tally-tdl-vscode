@@ -19,12 +19,15 @@ export function provideAttributeCompletions(
 
     if (matchingDefAttributes) {
         const lowerPartial = normalizeTypeName(partial);
-        for (const [_, attr] of matchingDefAttributes) {
-            const names = [...matchingDefAttributes.keys()];
-
-            const nameMatches = lowerPartial === '' || names.includes(lowerPartial);
+        const addedAttrs = new Set<string>();
+        
+        for (const [key, attr] of matchingDefAttributes) {
+            if (addedAttrs.has(attr.Name)) continue;
+            
+            const nameMatches = lowerPartial === '' || key.includes(lowerPartial);
 
             if (nameMatches) {
+                addedAttrs.add(attr.Name);
                 const displayAttr = isXml ? normalizeXMLTypeName(attr.Name) : attr.Name;
                 items.push({
                     label: displayAttr,

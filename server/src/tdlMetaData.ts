@@ -8,21 +8,6 @@ async function loadJsonSafe<T>(filePath: string): Promise<T | null> {
     return fs.existsSync(filePath) ? JSON.parse(await fsasync.readFile(filePath, 'utf-8')) : null;
 }
 
-async function loadAllJsonFromDirectory<T>(dirPath: string, excludeFiles: string[] = []): Promise<Map<string, T>> {
-    const result = new Map<string, T>();
-    if (!fs.existsSync(dirPath)) return result;
-
-    const files = await fsasync.readdir(dirPath);
-    for (const file of files) {
-        if (excludeFiles.includes(file) || !file.endsWith('.json')) continue;
-        const data = await loadJsonSafe<T>(path.join(dirPath, file));
-        if (data !== null) {
-            result.set(file.replace('.json', ''), data);
-        }
-    }
-    return result;
-}
-
 /** TDL Action metadata */
 export class TDLAction {
     static FromJSON(json: any): TDLAction {
@@ -160,12 +145,8 @@ export class TdlMetadata {
     actions: TDLAction[] = [];
     definitions: Map<string, Map<string, TDLDefinitionAttribute>> = new Map(); // Grouped by definition type (Collection, Field, etc.)
     schemas: Map<string, TDLSchema> = new Map();
-    existingDefinitions: Map<string, string[]> = new Map();
+    existingDefinitions: Map<string, Set<string>> = new Map();
     keywordSets: Map<string, string[]> = new Map(); // Cache keywords by Keyword Set name
-    allActions: string[] = [];
-    allDefinitions: string[] = [];
-    allFunctions: string[] = [];
-    allSchemas: string[] = [];
     primarySchemaNames: string[] = [];
     appInfo?: AppInfo;
 
@@ -204,22 +185,24 @@ export class TdlMetadata {
     private buildLookupMaps() {
         // Functions
         for (const func of this.functions) {
-            this._functionsByName.set(func.Name.toLowerCase(), func);
+            this._functionsByName.set(normalizeTypeName(func.Name), func);
             if (func.Aliases) {
-                const aliases = func.Aliases.split(',').map(a => a.trim().toLowerCase());
+                const aliases = func.Aliases.split(',');
                 for (const alias of aliases) {
-                    if (alias) this._functionsByName.set(alias, func);
+                    const normalized = normalizeTypeName(alias);
+                    if (normalized) this._functionsByName.set(normalized, func);
                 }
             }
         }
 
         // Actions
         for (const action of this.actions) {
-            this._actionsByName.set(action.Name.toLowerCase(), action);
+            this._actionsByName.set(normalizeTypeName(action.Name), action);
             if (action.Aliases) {
-                const aliases = action.Aliases.split(',').map(a => a.trim().toLowerCase());
+                const aliases = action.Aliases.split(',');
                 for (const alias of aliases) {
-                    if (alias) this._actionsByName.set(alias, action);
+                    const normalized = normalizeTypeName(alias);
+                    if (normalized) this._actionsByName.set(normalized, action);
                 }
             }
         }
@@ -227,7 +210,7 @@ export class TdlMetadata {
 
         // Schemas
         for (const [_, schema] of this.schemas) {
-            this._schemasByName.set(schema.Name.toLowerCase(), schema);
+            this._schemasByName.set(normalizeTypeName(schema.Name), schema);
         }
     }
 
@@ -238,12 +221,7 @@ export class TdlMetadata {
         const functionFiles = await fsasync.readdir(functionsPath);
         for (const functionFile of functionFiles) {
             if (functionFile == "index.json") continue;
-            if (functionFile === "AllFunctions.json") {
-                // Load all function names
-                const allFuncs = await loadJsonSafe<string[]>(path.join(functionsPath, functionFile));
-                if (allFuncs) this.allFunctions = allFuncs;
-                continue;
-            }
+            if (functionFile === "AllFunctions.json") continue;
             if (!functionFile.endsWith('.json')) continue;
 
             const functions = await loadJsonSafe<any>(path.join(functionsPath, functionFile));
@@ -262,12 +240,7 @@ export class TdlMetadata {
         const actionFiles = await fsasync.readdir(actionsPath);
         for (const actionFile of actionFiles) {
             if (actionFile == "index.json") continue;
-            if (actionFile === "AllActions.json") {
-                // Load all action names
-                const allActs = await loadJsonSafe<string[]>(path.join(actionsPath, actionFile));
-                if (allActs) this.allActions = allActs;
-                continue;
-            }
+            if (actionFile === "AllActions.json") continue;
             if (!actionFile.endsWith('.json')) continue;
 
             const actions = await loadJsonSafe<any>(path.join(actionsPath, actionFile));
@@ -286,12 +259,7 @@ export class TdlMetadata {
         const definitionFiles = await fsasync.readdir(definitionsPath);
         for (const definitionFile of definitionFiles) {
             if (definitionFile == "index.json") continue;
-            if (definitionFile === "AllDefinitions.json") {
-                // Load all definition names
-                const allDefs = await loadJsonSafe<string[]>(path.join(definitionsPath, definitionFile));
-                if (allDefs) this.allDefinitions = allDefs;
-                continue;
-            }
+            if (definitionFile === "AllDefinitions.json") continue;
             if (!definitionFile.endsWith('.json')) continue;
 
             const defType = definitionFile.replace('.json', '');
@@ -307,16 +275,18 @@ export class TdlMetadata {
                         // Remove the generic combined key
                         delete definitionsData[key];
 
+                        // Build regex to match any permutation of parts joined by / (case-insensitive)
+                        // e.g., matches "ADD/Delete/Replace", "Add/Replace/Delete", etc.
+                        // Pattern: (part1|part2|part3)/(part1|part2|part3)/(part1|part2|part3) 
+                        const escapedParts = parts.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+                        const anyPart = `(?:${escapedParts.join('|')})`;
+                        const regexPattern = Array(parts.length).fill(anyPart).join('[/]');
+                        const sharedRegex = new RegExp(regexPattern, 'gi');
+
                         for (const part of parts) {
                             // Clone original definition, replace Name and Description with part-specific values
                             let newDesc = originalDef.Description || '';
-                            // Build regex to match any permutation of parts joined by / (case-insensitive)
-                            // e.g., matches "ADD/Delete/Replace", "Add/Replace/Delete", etc.
-                            // Pattern: (part1|part2|part3)/(part1|part2|part3)/(part1|part2|part3) 
-                            const escapedParts = parts.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-                            const anyPart = `(?:${escapedParts.join('|')})`;
-                            const regexPattern = Array(parts.length).fill(anyPart).join('[/]');
-                            newDesc = newDesc.replace(new RegExp(regexPattern, 'gi'), part);
+                            newDesc = newDesc.replace(sharedRegex, part);
 
                             const newDef = {
                                 ...originalDef,
@@ -335,8 +305,9 @@ export class TdlMetadata {
                     const def = TDLDefinitionAttribute.FromJSON(definitionsData[defName]);
 
                     defsMap.set(normalizeTypeName(def.Name), def);
-                    if (def.Aliases && def.Aliases.length > 0) {
-                        for (const alias of def.Aliases) {
+                    const aliases = def.Aliases?.split(',');
+                    if (aliases && aliases.length > 0) {
+                        for (const alias of aliases) {
                             defsMap.set(normalizeTypeName(alias), def);
                         }
                     }
@@ -362,11 +333,7 @@ export class TdlMetadata {
         const schemaFiles = await fsasync.readdir(schemasPath);
         for (const schemaFile of schemaFiles) {
             if (schemaFile == "index.json") continue;
-            if (schemaFile === "AllSchemas.json") {
-                const allSchs = await loadJsonSafe<string[]>(path.join(schemasPath, schemaFile));
-                if (allSchs) this.allSchemas = allSchs;
-                continue;
-            }
+            if (schemaFile === "AllSchemas.json") continue;
             if (!schemaFile.endsWith('.json')) continue;
 
             const schemaName = schemaFile.replace('.json', '');
@@ -389,24 +356,41 @@ export class TdlMetadata {
         for (const existingFile of existingFiles) {
             if (!existingFile.endsWith('.json')) continue;
 
-            const defName = existingFile.replace('.json', '');
+            const defType = existingFile.replace('.json', '');
             const defData = await loadJsonSafe<string[]>(path.join(existingPath, existingFile));
             if (defData && Array.isArray(defData)) {
-                this.existingDefinitions.set(defName, defData);
+                const defSet = new Set<string>();
+                for (const defName of defData) {
+                    if (defName.includes(',')) {
+                        const parts = defName.split(',');
+                        for (const part of parts) {
+                            defSet.add(normalizeTypeName(part.trim()));
+                        }
+                    } else {
+                        defSet.add(normalizeTypeName(defName));
+                    }
+                }
+                this.existingDefinitions.set(normalizeTypeName(defType), defSet);
             }
         }
     }
 
     // Helper methods to find metadata - O(1) Lookups
 
+    isExistingDefinition(defType: string, defName: string): boolean {
+        if (!defType || !defName) return false;
+        const typeSet = this.existingDefinitions.get(normalizeTypeName(defType));
+        return typeSet ? typeSet.has(normalizeTypeName(defName)) : false;
+    }
+
     findFunction(name: string): TDLFunction | undefined {
         if (!name) return undefined;
-        return this._functionsByName.get(name.toLowerCase());
+        return this._functionsByName.get(normalizeTypeName(name));
     }
 
     findAction(name: string): TDLAction | undefined {
         if (!name) return undefined;
-        return this._actionsByName.get(name.toLowerCase());
+        return this._actionsByName.get(normalizeTypeName(name));
     }
 
     findDefinitionAttribute(name: string, defType: string): TDLDefinitionAttribute | undefined {
@@ -423,7 +407,7 @@ export class TdlMetadata {
 
     findSchema(name: string): TDLSchema | undefined {
         if (!name) return undefined;
-        return this._schemasByName.get(name.toLowerCase());
+        return this._schemasByName.get(normalizeTypeName(name));
     }
 
     getDefinitionsForType(defType: string): Map<string, TDLDefinitionAttribute> | undefined {

@@ -29,13 +29,16 @@ describe('Document Highlights', () => {
             ]),
             schemas: new Map(),
             existingDefinitions: new Map(),
-            findDefinition: vi.fn((name: string) => {
+            findDefinitionAttribute: vi.fn((name: string) => {
                 if (name.toLowerCase() === 'form') {
                     return { Name: 'Form', Parameters: [{ RefersTo: 'Form' }] };
                 }
                 return undefined;
             }),
-            getDefinitionsForType: function(this: any, type: string) { return this.definitions?.get(type) || this.definitions?.get(normalizeTypeName(type)); }
+            getDefinitionsForType: function(this: any, type: string) { return this.definitions?.get(type) || this.definitions?.get(normalizeTypeName(type)); },
+            isExistingDefinition: function(this: any, defType: string, defName: string): boolean {
+                return false;
+            }
         } as unknown as TdlMetadata);
     });
 

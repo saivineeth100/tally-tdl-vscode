@@ -9,9 +9,9 @@ import { normalizeTypeName } from '../utils';
 describe('Definition Validation (Mocked)', () => {
     // Mock metadata
     const mockMetadata = {
-        existingDefinitions: new Map<string, string[]>([
-            ['Report', ['Balance Sheet', 'Trial Balance']],
-            ['Field', ['Name', 'Amount']]
+        existingDefinitions: new Map<string, Set<string>>([
+            ['report', new Set(['balancesheet', 'trialbalance'])],
+            ['field', new Set(['name', 'amount'])]
         ]),
         definitions: new Map<string, any>([
             ['Report', []],
@@ -20,7 +20,11 @@ describe('Definition Validation (Mocked)', () => {
             ['Field', []]
         ]), // For attributes
         actions: [], // Add empty actions array to fix tests
-        getDefinitionsForType: function(this: any, type: string) { return this.definitions?.get(type) || this.definitions?.get(normalizeTypeName(type)); }
+        getDefinitionsForType: function(this: any, type: string) { return this.definitions?.get(type) || this.definitions?.get(normalizeTypeName(type)); },
+        isExistingDefinition: function(this: any, defType: string, defName: string): boolean {
+            const typeSet = this.existingDefinitions.get(normalizeTypeName(defType));
+            return typeSet ? typeSet.has(normalizeTypeName(defName)) : false;
+        }
     } as unknown as TdlMetadata;
 
     it('should detect duplicate Report definition', async () => {
@@ -63,7 +67,7 @@ describe('Definition Validation (Mocked)', () => {
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
         // Add Menu to mock metadata
-        mockMetadata.existingDefinitions.set('Menu', ['Gateway of Tally']);
+        mockMetadata.existingDefinitions.set('menu', new Set(['gatewayoftally']));
 
         const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
         const error = diagnostics.find(d => d.message.includes('exists in default TDL'));

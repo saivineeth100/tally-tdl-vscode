@@ -176,7 +176,7 @@ export function findReferenceAtOffset(
 
                 if (paramIndex >= 0 && metadata) {
                     const defTypeName = def.type.text;
-                    const attrDef = metadata.findDefinition(attr.name.text, defTypeName);
+                    const attrDef = metadata.findDefinitionAttribute(attr.name.text, defTypeName);
 
                     if (attrDef && attrDef.Parameters && attrDef.Parameters.length > 0) {
                         let param = attrDef.Parameters[paramIndex];

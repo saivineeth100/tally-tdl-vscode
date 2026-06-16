@@ -450,14 +450,8 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
         // Check Default TDL
         const md = getMetadata();
         if (md && ref.expectedType) {
-            // Find matching key case-insensitively
-            const defTypeKey = Array.from(md.existingDefinitions.keys()).find(k => k.toLowerCase() === ref.expectedType.toLowerCase());
-            if (defTypeKey) {
-                const defaultNames = md.existingDefinitions.get(defTypeKey) || [];
-                // Check if name exists incase-insensitively
-                if (defaultNames.some(n => n.toLowerCase() === ref.name.toLowerCase())) {
-                    connection.window.showInformationMessage(`Definition '${ref.name}' is part of default TDL source.`);
-                }
+            if (md.isExistingDefinition(ref.expectedType, ref.name)) {
+                connection.window.showInformationMessage(`Definition '${ref.name}' is part of default TDL source.`);
             }
         }
 

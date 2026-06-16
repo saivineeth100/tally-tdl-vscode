@@ -1,5 +1,6 @@
 import { SymbolInfo, SymbolKind } from '../symbolTable';
 import { Scope, ScopeKind, definitionTypeToSymbolKind } from './types';
+import { normalizeTypeName } from '../utils';
 
 export interface IScopeResolverState {
     useInheritance: Map<string, Set<string>>;
@@ -73,8 +74,9 @@ export function resolveSymbol(state: IScopeResolverState, name: string, initialS
 
     // Check Metadata Definitions if not found
     if (state.metadata && state.metadata.existingDefinitions) {
+        const normalizedName = normalizeTypeName(name);
         for (const [defType, names] of state.metadata.existingDefinitions) {
-            if (names.some((n: string) => n.toLowerCase() === lowerName)) {
+            if (names.has(normalizedName)) {
                 return {
                     name: name,
                     kind: definitionTypeToSymbolKind(defType),

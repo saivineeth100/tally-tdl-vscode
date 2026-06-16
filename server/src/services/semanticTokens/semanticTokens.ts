@@ -98,7 +98,7 @@ function symbolKindToTokenType(kind: SymbolKind): string {
 export interface TdlMetadataContext {
     findDefinitionAttribute(name: string, defType: string): TDLDefinitionAttribute | undefined;
     findFunction(name: string): { Name: string; Parameters?: { RefersTo?: string; DataType?: string; IsList?: boolean }[] } | undefined;
-    existingDefinitions?: Map<string, string[]>;
+    existingDefinitions?: Map<string, Set<string>>;
     definitions?: Map<string, Map<String, TDLDefinitionAttribute>>;
 }
 

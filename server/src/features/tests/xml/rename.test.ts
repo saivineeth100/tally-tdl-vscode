@@ -4,7 +4,7 @@ import { parseXmlToAst } from '../../../parser/xmlAdapter';
 
 // Mock Metadata
 const mockMetadata = {
-    findDefinition: (name: string, type?: string) => {
+    findDefinitionAttribute: (name: string, type?: string) => {
         if (name.toLowerCase() === 'use') {
             return {
                 Name: 'Use',
@@ -45,7 +45,7 @@ describe('XML Rename Tests', () => {
 
     it('Finds exact rename range for list items in XML', () => {
         // Expand mock metadata to handle PARTS
-        mockMetadata.findDefinition = (name: string) => {
+        mockMetadata.findDefinitionAttribute = (name: string) => {
             if (name.toLowerCase() === 'parts') {
                 return { Name: 'Parts', Parameters: [{ IsList: true, RefersTo: 'Part' }] };
             }

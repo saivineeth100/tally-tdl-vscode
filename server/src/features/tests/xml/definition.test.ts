@@ -4,7 +4,7 @@ import { parseXmlToAst } from '../../../parser/xmlAdapter';
 
 // Mock Metadata
 const mockMetadata = {
-    findDefinition: (name: string, type?: string) => {
+    findDefinitionAttribute: (name: string, type?: string) => {
         if (name.toLowerCase() === 'use') {
             return {
                 Name: 'Use',

@@ -15,7 +15,7 @@ describe('Statement Definition Range', () => {
         
         // Mock metadata with Alter action
         const mockMetadata: any = {
-            findDefinition: () => undefined,
+            findDefinitionAttribute: () => undefined,
             actions: [
                 {
                     Name: 'Alter',

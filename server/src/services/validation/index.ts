@@ -75,13 +75,7 @@ export async function validateSourceFile(
             const kind = definitionTypeToSymbolKind(defType);
 
             // Find matching definition type in metadata (case-insensitive)
-            const defTypeKey = Array.from(metadata.existingDefinitions.keys()).find(k => normalizeTypeName(k) === normalizeTypeName(defType));
-            
-            let existsInMetadata = false;
-            if (defTypeKey) {
-                const existingNames = metadata.existingDefinitions.get(defTypeKey) || [];
-                existsInMetadata = existingNames.some(n => normalizeTypeName(n) === normalizeTypeName(defName));
-            }
+            let existsInMetadata = metadata.isExistingDefinition(defType, defName);
 
             if (!def.modifier || def.modifier.Text === '!') {
                 // Rule 1: No duplicate new definitions allowed

@@ -47,9 +47,8 @@ export function getSuggestionsForDefinitionType(
         }
 
         // 2. Check ExistingDefinitions (default TDL)
-        const defTypeKey = Array.from(md.existingDefinitions.keys()).find(k => k.toLowerCase() === type.toLowerCase());
-        if (defTypeKey) {
-            const defaultNames = md.existingDefinitions.get(defTypeKey) || [];
+        const defaultNames = md.existingDefinitions.get(normalizeTypeName(type));
+        if (defaultNames) {
             for (const name of defaultNames) {
                 if (normalizedPartial === '' || normalizeTypeName(name).includes(normalizedPartial)) {
                     if (!addedNames.has(name.toLowerCase())) {
@@ -57,7 +56,7 @@ export function getSuggestionsForDefinitionType(
                         items.push({
                             label: name,
                             kind: CompletionItemKind.Reference,
-                            detail: `Default TDL ${defTypeKey}`,
+                            detail: `Default TDL ${type}`,
                             insertText: name,
                             sortText: '1_' + name.toLowerCase(), // Lower priority than user symbols
                         });

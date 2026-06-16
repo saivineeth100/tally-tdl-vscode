@@ -8,7 +8,7 @@ import { Parser } from '../../parser/parser';
 
 // Mock Metadata
 const mockMetadata = {
-    findDefinition: (name: string, type?: string) => {
+    findDefinitionAttribute: (name: string, type?: string) => {
         if (name.toLowerCase() === 'parts') {
             return {
                 Name: 'Part',

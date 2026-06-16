@@ -7,7 +7,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Parser } from '../../parser/parser';
 
 const mockMetadata = {
-    findDefinition: (name: string, type?: string) => {
+    findDefinitionAttribute: (name: string, type?: string) => {
         if (name.toLowerCase() === 'parts') {
             return {
                 Name: 'Part',
