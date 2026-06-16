@@ -155,7 +155,7 @@ export class Parser extends DefinitionsParser {
       
       let matchedOldDef: DefinitionNode | undefined = undefined;
       
-      if (oldDefs.length > 0) {
+      if (oldDefs && oldDefs.length > 0) {
           // Look ahead to handle insertions without losing sync
           for (let i = oldDefIndex; i < Math.min(oldDefIndex + 5, oldDefs.length); i++) {
               let oldDef = oldDefs[i];

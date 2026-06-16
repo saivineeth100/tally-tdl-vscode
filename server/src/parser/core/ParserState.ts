@@ -127,6 +127,12 @@ export class ParserState {
     return false;
   }
 
+  public IsKeywordToken(kind: TokenKind): boolean {
+    if (kind >= 503 && kind <= 505) return true; // Keywords like In, Null, Between
+    if (kind >= 550 && kind <= 556) return true; // Keywords like Contains, Starting, Like
+    return false;
+  }
+
   /**
    * Checks whether a specific Token has a line break in its Leading or Trailing trivia.
    * @param token The Token to inspect.
@@ -134,6 +140,9 @@ export class ParserState {
    */
   public HasNewLine(token: Token, trailing: boolean): boolean {
     if (!token) return false;
+    // Line continuations absorb newlines logically, so we act as if there is no newline
+    if (token.Kind === TokenKind.LineContinuationToken) return false;
+
     // Checking for new lines in "Leading" and "Trailing" trivia
     const trivia = trailing ? token.Trailing : token.Leading;
     if (trivia) {
@@ -149,6 +158,57 @@ export class ParserState {
       }
     }
     return false;
+  }
+
+  /**
+   * Peeks ahead in the token stream by the specified offset.
+   * @param offset The number of tokens to look ahead (default is 1 for the next token).
+   */
+  public peek(offset: number = 1): Token {
+    const peekIndex = this._currentTokenIndex + offset;
+    if (peekIndex >= this._tokensLength) {
+      return this._tokens[this._tokensLength - 1];
+    }
+    return this._tokens[peekIndex];
+  }
+
+  /**
+   * Recovers from a parse error by consuming tokens until a synchronization boundary is reached.
+   * Synchronization tokens include EOF, Start/End of Definition, and NewLines.
+   */
+  public sync(): void {
+    if (this.isAtEnd()) return;
+
+    const isSyncPoint = (token: Token) => {
+      // If the token is the first token on a new line, it's a sync point
+      // (Unless it's the very first token we are evaluating and we haven't moved yet... wait!
+      // If the current token has a newline before it, it IS the start of a new line.)
+      const prevHasNL = this.HasNewLine(this.PreviousToken, true);
+      const currHasNL = this.HasNewLine(token, false);
+      if (prevHasNL || currHasNL || this.PreviousToken?.Kind === TokenKind.Unknown) {
+        return true;
+      }
+      if (token.Kind === TokenKind.OpenSquareBracketToken) {
+        return true;
+      }
+      if (token.Kind === TokenKind.EndOfFileToken) {
+        return true;
+      }
+      return false;
+    };
+
+    if (isSyncPoint(this.CurrentToken)) {
+      return;
+    }
+
+    this.MoveToNextToken();
+
+    while (!this.isAtEnd()) {
+      if (isSyncPoint(this.CurrentToken)) {
+        return;
+      }
+      this.MoveToNextToken();
+    }
   }
 
   public createMissingToken(kind: TokenKind): Token {

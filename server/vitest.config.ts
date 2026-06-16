@@ -8,6 +8,7 @@ export default defineConfig({
         globalSetup: './src/global-setup.ts',
         setupFiles: ['./src/test-setup.ts'], // Load metadata once before all tests
         include: ['src/**/*.test.ts'],
+        exclude: ['out/**', 'node_modules/**', 'dist/**'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'lcov'],

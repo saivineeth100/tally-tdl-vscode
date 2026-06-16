@@ -39,18 +39,31 @@ export class StatementsParser extends ExpressionsParser {
   protected ParseStatement(defNode: DefinitionNode) {
     const start = this.CurrentToken.Start;
 
-    const label = this.ParseIdentifierWithSpaces(); // Can be "01" or "Start"
+    const label = this.ParseIdentifierWithSpaces(false, true); // Can be "01" or "Start"
 
     if (!label) {
-      this.MoveToNextToken();
-
+      this.addError("Expected Statement Label", this.CurrentToken.Start, this.CurrentToken.Start);
+      if (this.CurrentToken.Kind !== TokenKind.EndOfFileToken) {
+          this.MoveToNextToken();
+      }
+      this.sync();
       return;
     }
 
     if (this.CurrentToken.Kind === TokenKind.ColonToken) {
       this.EatToken(); // Consume colon after label
 
-      const action = this.ParseIdentifierWithSpaces();
+      let action = this.ParseIdentifierWithSpaces(false, true);
+
+      if (!action) {
+        this.addError("Expected Action Name", this.CurrentToken.Start, this.CurrentToken.Start);
+        action = this.createMissingIdentifier();
+        if (!this.isAtEnd()) {
+            this.MoveToNextToken();
+        }
+        this.sync();
+      }
+
 
       if (action) {
         let rawArgs: any[] = [];
@@ -85,8 +98,9 @@ export class StatementsParser extends ExpressionsParser {
 
     for (const stmt of statements) {
       const actionText = ((stmt as any).action?.text || "")
-        .replace(/\s+/g, "")
-        .toUpperCase();
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g, "");
 
       let targetArray =
         stack.length > 0 ? stack[stack.length - 1].targetArray : result;
@@ -151,6 +165,7 @@ export class StatementsParser extends ExpressionsParser {
         actionText === "FORCOLLECTION" ||
         actionText === "FORRANGE" ||
         actionText === "FOREACH" ||
+        actionText === "FORIN" ||
         actionText === "FOR"
       ) {
         const forNode = new ForNode(stmt);

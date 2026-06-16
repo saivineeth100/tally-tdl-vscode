@@ -245,7 +245,7 @@
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -b",
-        "watch": "tsc -b -w",
+        "watch": "tsc -b -w", 
         "lint": "eslint .",
         "test": "npm run test -w server"
     },

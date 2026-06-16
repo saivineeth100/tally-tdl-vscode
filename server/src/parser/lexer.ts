@@ -139,19 +139,23 @@ export class Lexer {
                 break;
             case "+":
                 this.state._pos++;
-                let lookaheadPos = this.state._pos;
                 let isLineContinuation = false;
+                
+                // Check if it's the LAST on the line
+                let lookaheadPos = this.state._pos;
                 while (lookaheadPos < this.state._endOfFilePos) {
                     const nextChar = this.state._contents[lookaheadPos];
                     if (nextChar === ' ' || nextChar === '\t') {
                         lookaheadPos++;
-                    } else if (nextChar === '\r' || nextChar === '\n' || nextChar === ';') {
+                    } else if (nextChar === '\n' || nextChar === '\r' || nextChar === ';') {
                         isLineContinuation = true;
                         break;
                     } else {
                         break;
                     }
                 }
+                
+                // Removed incorrect 'FIRST on the line' check.
                 if (isLineContinuation || lookaheadPos === this.state._endOfFilePos) {
                     token.Kind = TokenKind.LineContinuationToken;
                 } else {
@@ -205,6 +209,7 @@ export class Lexer {
                 token.Kind = TokenKind.EqualsToken;
                 break;
             case "\"":
+            case "'":
                 // Includes quotes in token.Text
                 const startQuote = this.state._pos;
                 this.state._pos++;

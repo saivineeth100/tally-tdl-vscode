@@ -66,7 +66,8 @@ describe.skipIf(!hasSamples)('Parser - Full Sample File Validation', () => {
             // Note: A small number of sample files currently produce errors due to 
             // outstanding edge cases documented in parser_plan.md (like Inline Directives).
             // We log them for visibility or assert based on strictness.
-            expect(sourceFile.errors).toEqual([]);
+            const formattedErrors = sourceFile.errors.map(e => `[${relativePath}] ${e.message} at index ${e.start}`);
+            expect(formattedErrors).toEqual([]);
             // console.log(`${relativePath}: ${sourceFile.definitions.length} defs, ${tokens.length} tokens`);
         });
     });

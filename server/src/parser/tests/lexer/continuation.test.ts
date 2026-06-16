@@ -13,4 +13,14 @@ describe('Lexer - Line Continuation', () => {
 
         expect(Token.mapTokens(tokens, input)).toMatchSnapshot();
     });
+
+    it('should handle + as line continuation and + as unary string concatenation correctly', () => {
+        const input = `Local : Field : Purpose : Info : "Line 1 " +
+            + "Line 2 " +
+            + "Line 3"`;
+        const lexer = new Lexer(input);
+        const tokens = lexer.Generate();
+
+        expect(Token.mapTokens(tokens, input)).toMatchSnapshot();
+    });
 });

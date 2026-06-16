@@ -36,7 +36,7 @@ export class ExpressionsParser extends ParserState {
   }
 
   protected ParseExpressionIdentifier(): IdentifierNode | undefined {
-    return this.ParseIdentifierWithSpaces();
+    return this.ParseIdentifierWithSpaces(true);
   }
 
   protected ParseExpression(): any | undefined {
@@ -246,24 +246,100 @@ export class ExpressionsParser extends ParserState {
       return undefined;
     }
 
-    // Parenthesized Expression
+    // Unary Plus
 
+    if (this.CurrentToken.Kind === TokenKind.PlusToken) {
+      const op = this.EatToken();
+
+      const right = this.ParsePrimaryExpression();
+
+      if (right) {
+        return new UnaryExpressionNode(op.Start, right.end, op, right);
+      }
+
+      return undefined;
+    }
+
+    // Parenthesized Expression or Object Context
     if (this.CurrentToken.Kind === TokenKind.OpenParenToken) {
-      this.EatToken(); // Eat (
+      const openParenToken = this.EatToken(); // Eat (
 
-      const expr =
+      const expr1 =
         this.ParseExpression() ||
         this.ParseLiteral() ||
         this.ParseExpressionIdentifier();
 
-      if (
-        (this.CurrentToken.Kind as unknown as TokenKind) ===
-        TokenKind.CloseParenToken
-      ) {
-        this.EatToken(); // Eat )
-      }
+      if ((this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.CommaToken) {
+        // It's an Object Context: (Type, Id).Path
+        this.EatToken(); // Eat ,
 
-      return expr;
+        const expr2 =
+          this.ParseExpression() ||
+          this.ParseLiteral() ||
+          this.ParseExpressionIdentifier();
+
+        if (
+          (this.CurrentToken.Kind as unknown as TokenKind) ===
+          TokenKind.CloseParenToken
+        ) {
+          this.EatToken(); // Eat )
+        }
+
+        // Now we might have a path like .Address[Last].Address
+        let pathText = "";
+        const pathTokens: any[] = [];
+        while (
+          this.IsIdentifierToken((this.CurrentToken.Kind as unknown as TokenKind)) ||
+          (this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.DotToken ||
+          (this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.OpenSquareBracketToken ||
+          (this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.CloseSquareBracketToken ||
+          (this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.SpaceToken
+        ) {
+          pathText += this.CurrentToken.Text;
+          pathTokens.push(this.EatToken());
+        }
+
+        // Create an identifier representing the whole context object
+        // For AST simplicity, we can wrap it as an IdentifierNode for now
+        // since TDL often treats these paths as identifiers when there's no $
+        return new IdentifierNode(
+          [openParenToken, ...pathTokens],
+          `(${expr1 ? expr1.text || 'Type' : ''}, ${expr2 ? expr2.text || 'Id' : ''})${pathText}`
+        );
+      } else {
+        // Just a math expression
+        if (
+          (this.CurrentToken.Kind as unknown as TokenKind) ===
+          TokenKind.CloseParenToken
+        ) {
+          this.EatToken(); // Eat )
+        }
+
+        // Wait, what if it's (Ledger).Address ?
+        if (
+          (this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.DotToken ||
+          (this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.OpenSquareBracketToken
+        ) {
+           let pathText = "";
+           const pathTokens: any[] = [];
+           while (
+             this.IsIdentifierToken((this.CurrentToken.Kind as unknown as TokenKind)) ||
+             (this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.DotToken ||
+             (this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.OpenSquareBracketToken ||
+             (this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.CloseSquareBracketToken ||
+             (this.CurrentToken.Kind as unknown as TokenKind) === TokenKind.SpaceToken
+           ) {
+             pathText += this.CurrentToken.Text;
+             pathTokens.push(this.EatToken());
+           }
+           return new IdentifierNode(
+             [openParenToken, ...pathTokens],
+             `(${expr1 ? expr1.text || 'Type' : ''})${pathText}`
+           );
+        }
+
+        return expr1;
+      }
     }
 
     // Function Call $$Func:Arg:Arg
@@ -376,7 +452,7 @@ export class ExpressionsParser extends ParserState {
       ) {
         this.EatToken();
 
-        const varName = this.ParseIdentifierWithSpaces();
+        const varName = this.ParseIdentifierWithSpaces(true);
 
         if (varName) {
           return new VariableReferenceNode(start, varName.end, varName);
@@ -395,7 +471,7 @@ export class ExpressionsParser extends ParserState {
       ) {
         this.EatToken();
 
-        const fieldName = this.ParseIdentifierWithSpaces();
+        const fieldName = this.ParseIdentifierWithSpaces(true);
 
         if (fieldName) {
           return new FieldReferenceNode(start, fieldName.end, fieldName);
@@ -532,7 +608,7 @@ export class ExpressionsParser extends ParserState {
       ) {
         this.EatToken();
 
-        const methodName = this.ParseIdentifierWithSpaces();
+        const methodName = this.ParseIdentifierWithSpaces(true);
 
         if (methodName) {
           return new MethodReferenceNode(start, methodName.end, methodName);
@@ -553,7 +629,7 @@ export class ExpressionsParser extends ParserState {
         (this.IsIdentifierToken(next.Kind) || next.Kind === TokenKind.DotToken)
       ) {
         this.EatToken();
-        const formulaName = this.ParseIdentifierWithSpaces();
+        const formulaName = this.ParseIdentifierWithSpaces(true);
         if (formulaName) {
           return new FormulaReferenceNode(
             start,
@@ -595,82 +671,94 @@ export class ExpressionsParser extends ParserState {
       this.IsIdentifierToken(this.CurrentToken.Kind) ||
       this.CurrentToken.Kind === TokenKind.DotToken
     ) {
-      return this.ParseIdentifierWithSpaces();
+      return this.ParseIdentifierWithSpaces(true);
     }
 
     return undefined;
   }
 
-  protected ParseIdentifierWithSpaces(): IdentifierNode | undefined {
+  protected ParseIdentifierWithSpaces(allowBrackets: boolean = false, allowKeywords: boolean = false): IdentifierNode | undefined {
     const identifierTokens: Token[] = [];
-
     let text = "";
+    let bracketDepth = 0;
 
     while (!this.isAtEnd()) {
+      // Don't break on newline if we are inside brackets
       if (
         this.HasNewLine(this.PreviousToken, true) ||
         this.HasNewLine(this.CurrentToken, false)
       ) {
-        if (identifierTokens.length > 0) break;
+        if (identifierTokens.length > 0 && bracketDepth === 0) break;
       }
 
       if (this.CurrentToken.Kind === TokenKind.SpaceToken) {
-        if (identifierTokens.length > 0) text += " ";
-
-        this.MoveToNextToken();
-
-        continue;
-      }
-
-      if (this.IsIdentifierToken(this.CurrentToken.Kind)) {
         if (identifierTokens.length > 0) {
-          const hasSpace =
-            this.HasSpace(this.PreviousToken, true) ||
-            this.HasSpace(this.CurrentToken, false);
-
-          if (hasSpace) {
-            text += " ";
-          }
-        }
-
-        identifierTokens.push(this.CurrentToken);
-
-        text += this.CurrentToken.Text;
-
-        this.MoveToNextToken();
-      } else if (this.CurrentToken.Kind === TokenKind.DotToken) {
-        if (identifierTokens.length > 0) {
-          // Check leading trivia? Usually dot doesn't have space before it in file.txt
-
-          // But if it did "file . txt", HasSpace checks below would handle?
-
-          // No, "HasSpace" is only called if NEXT token is Identifier.
-
-          // Here current is Dot.
-
-          // We should check space BEFORE dot?
-
           const hasSpace =
             this.HasSpace(this.PreviousToken, true) ||
             this.HasSpace(this.CurrentToken, false);
 
           if (hasSpace) text += " ";
         }
+        this.MoveToNextToken();
+        continue;
+      }
+
+      let isBracket = false;
+      if (allowBrackets) {
+        if (
+          this.CurrentToken.Kind === TokenKind.OpenSquareBracketToken ||
+          this.CurrentToken.Kind === TokenKind.OpenParenToken
+        ) {
+          bracketDepth++;
+          isBracket = true;
+        } else if (
+          this.CurrentToken.Kind === TokenKind.CloseSquareBracketToken ||
+          this.CurrentToken.Kind === TokenKind.CloseParenToken
+        ) {
+          if (bracketDepth > 0) {
+            bracketDepth--;
+            isBracket = true;
+          } else {
+            break;
+          }
+        }
+      }
+
+      // If we are inside brackets, or we just processed a closing bracket, consume the token
+      if (bracketDepth > 0 || isBracket) {
+        if (identifierTokens.length > 0 && !isBracket && bracketDepth > 0) {
+          const hasSpace =
+            this.HasSpace(this.PreviousToken, true) ||
+            this.HasSpace(this.CurrentToken, false);
+          if (hasSpace && text[text.length - 1] !== " ") text += " ";
+        }
 
         identifierTokens.push(this.CurrentToken);
-
         text += this.CurrentToken.Text;
-
         this.MoveToNextToken();
-      } else {
-        // If not an identifier token (e.g. symbol), check if we can continue?
-
-        // TDL Identifiers can include some symbols? No, strict Lexer.
-
-        // But spaces handling is done above.
-
-        break;
+        continue;
       }
+
+      if (
+        this.IsIdentifierToken(this.CurrentToken.Kind) ||
+        this.CurrentToken.Kind === TokenKind.DotToken ||
+        (allowKeywords && this.IsKeywordToken(this.CurrentToken.Kind))
+      ) {
+        if (identifierTokens.length > 0) {
+          const hasSpace =
+            this.HasSpace(this.PreviousToken, true) ||
+            this.HasSpace(this.CurrentToken, false);
+
+          if (hasSpace && text[text.length - 1] !== " ") text += " ";
+        }
+
+        identifierTokens.push(this.CurrentToken);
+        text += this.CurrentToken.Text;
+        this.MoveToNextToken();
+        continue;
+      }
+
+      break;
     }
 
     if (identifierTokens.length > 0) {
@@ -790,18 +878,41 @@ export class ExpressionsParser extends ParserState {
     // Or Line Breaks/Ends.
 
     while (!this.isAtEnd()) {
-      if (this.CurrentToken.Kind === TokenKind.OpenSquareBracketToken) {
-        break;
+      // 1. Check for Line Ends/Breaks BEFORE skipping spaces!
+      // This is crucial because SpaceToken might have the newline in its trivia!
+      if (
+        this.CurrentToken.Kind === TokenKind.LineFeed ||
+        this.CurrentToken.Kind === TokenKind.CarriageReturn ||
+        this.CurrentToken.Kind === TokenKind.CarriageReturnLineFeed ||
+        this.HasNewLine(this.PreviousToken, true) ||
+        this.HasNewLine(this.CurrentToken, false)
+      ) {
+        // If previous was separator, check continuation
+        if (
+          lastSignificantToken.Kind === TokenKind.CommaToken ||
+          lastSignificantToken.Kind === TokenKind.LineContinuationToken
+        ) {
+          // Implicit continuation only works if explicit separator was present
+          if (
+            this.CurrentToken.Kind === TokenKind.LineFeed ||
+            this.CurrentToken.Kind === TokenKind.CarriageReturn ||
+            this.CurrentToken.Kind === TokenKind.CarriageReturnLineFeed
+          ) {
+            this.MoveToNextToken();
+            continue;
+          }
+          // Fall through for implicit/trivia newline
+        } else {
+          break; // End of line, end of values
+        }
       }
 
       if (this.CurrentToken.Kind === TokenKind.SpaceToken) {
         this.MoveToNextToken();
-
         continue;
       }
 
-      // 1. Line Continuation (+)
-
+      // 2. Line Continuation (+)
       if (this.CurrentToken.Kind === TokenKind.LineContinuationToken) {
         this.EatToken();
 
@@ -822,41 +933,6 @@ export class ExpressionsParser extends ParserState {
         }
 
         continue;
-      }
-
-      // 2. Check for Line Ends/Breaks
-
-      // Check explicit NewLine tokens OR Implicit NewLines in Trivia
-
-      if (
-        this.CurrentToken.Kind === TokenKind.LineFeed ||
-        this.CurrentToken.Kind === TokenKind.CarriageReturn ||
-        this.CurrentToken.Kind === TokenKind.CarriageReturnLineFeed ||
-        this.HasNewLine(this.PreviousToken, true) ||
-        this.HasNewLine(this.CurrentToken, false)
-      ) {
-        // If previous was separator, check continuation
-
-        if (
-          lastSignificantToken.Kind === TokenKind.CommaToken ||
-          lastSignificantToken.Kind === TokenKind.LineContinuationToken
-        ) {
-          // Implicit continuation only works if explicit separator was present
-
-          if (
-            this.CurrentToken.Kind === TokenKind.LineFeed ||
-            this.CurrentToken.Kind === TokenKind.CarriageReturn ||
-            this.CurrentToken.Kind === TokenKind.CarriageReturnLineFeed
-          ) {
-            this.MoveToNextToken();
-
-            continue;
-          }
-
-          // Fall through for implicit/trivia newline
-        } else {
-          break; // End of line, end of attributes
-        }
       }
 
       // 3. Separators
@@ -927,18 +1003,10 @@ export class ExpressionsParser extends ParserState {
         expectValue = false;
       } else {
         // Fallback identifier - consume token if it's not a separator
-
-        if (this.IsIdentifierToken(this.CurrentToken.Kind)) {
-          const token = this.EatToken();
-
-          currentList.push(new IdentifierNode([token], token.Text));
-
-          lastSignificantToken = token;
-
-          expectValue = false;
-        } else {
-          break; // Should not happen if logic is correct
-        }
+        const token = this.EatToken();
+        currentList.push(new IdentifierNode([token], token.Text));
+        lastSignificantToken = token;
+        expectValue = false;
       }
     }
 

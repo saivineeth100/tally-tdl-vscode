@@ -97,6 +97,35 @@ describe('Parser - Procedural Block Success Cases', () => {
             expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
 
+        it('should parse FOR IN block', () => {
+            const tdl = `
+[Function: ForInTest]
+10 : FOR IN : KeyVar : CVEmp
+20 :   IF : ($$IsSysName:##KeyVar)
+30 :     CONTINUE
+40 :   END IF
+50 : END FOR
+`;
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(sourceFile.errors).toEqual([]);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
+        it('should parse FOR RANGE block', () => {
+            const tdl = `
+[Function: ForRangeTest]
+10 : FOR RANGE : IteratorVar : Number : 1 : ##CompVarCount : 1
+20 :   LOG : ##IteratorVar
+30 :   BREAK
+40 : END FOR
+`;
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(sourceFile.errors).toEqual([]);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
         it('should parse FOR TOKEN block', () => {
             const tdl = `
 [Function: ForTokenTest]
@@ -116,6 +145,24 @@ describe('Parser - Procedural Block Success Cases', () => {
 01 : FOR RANGE : IteratorVar : Number : 2 : 10 : 2
 02 :   LOG : ##IteratorVar
 03 : END FOR
+`;
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(sourceFile.errors).toEqual([]);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
+        it('should parse complex nested block structure', () => {
+            const tdl = `
+[Function: ComplexNestedTest]
+01 : FOR COLLECTION : i : Group
+02 :   IF : ##i > 10
+03 :     WHILE : ##i < 20
+04 :       LOG : ##i
+05 :       INCREMENT : i
+06 :     END WHILE
+07 :   END IF
+08 : END FOR
 `;
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
@@ -162,6 +209,22 @@ describe('Parser - Procedural Block Success Cases', () => {
 04 : DECREMENT : MyVar : 5
 `;
             const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            expect(sourceFile.errors).toEqual([]);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
+
+        it('should parse WHILE Loop with LessThan operator and Progress blocks', () => {
+            const input = `[Function: TSPL Smp Async MsgBox Actions]
+        10: Start Msg Box : "Status" : "Message"
+        20:   Start Progress : 300 : "Company" : "Creating Ledgers" : "Please wait"
+        30:     While : ##Counter < 300
+        40:       Log : "Doing work"
+        50:     End While
+        60:   End Progress
+        70: End Msg Box
+        `;
+            const parser = new Parser(input);
             const sourceFile = parser.parse();
             expect(sourceFile.errors).toEqual([]);
             expect(cleanAST(sourceFile)).toMatchSnapshot();

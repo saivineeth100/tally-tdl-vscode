@@ -37,6 +37,14 @@ describe('Plan 4 Verification Tests', () => {
             expect(commentTrivia).toBeDefined();
             expect(commentTrivia?.Text).toBe(';; comment at EOF');
         });
+
+        test('Single quotes for StringLiterals', () => {
+            const lexer = new Lexer(`'Echo "Completed Successfully"'`);
+            const tokens = lexer.Generate();
+            const stringToken = tokens.find(t => t.Kind === TokenKind.StringLiteralToken);
+            expect(stringToken).toBeDefined();
+            expect(stringToken?.Text).toBe(`'Echo "Completed Successfully"'`);
+        });
     });
 
     describe('Parser', () => {
@@ -86,6 +94,35 @@ describe('Plan 4 Verification Tests', () => {
             const parser = new Parser('[Function: TestFunc]\n01: If: ##Var Starting With "A"\n02: End If');
             const file = parser.parse();
             expect(file.definitions.length).toBe(1);
+        });
+
+        test('Object Context in expressions', () => {
+            const parser = new Parser(`[Report: Test]
+            Form : (Ledger, ##LedName).Address[Last].Address`);
+            const file = parser.parse();
+            expect(file.errors.length).toBe(0);
+        });
+
+        test('Complex Array Index inside identifiers', () => {
+            const parser = new Parser(`[Function: TSPL Smp NLQ CreateLedger]
+            010 : New Object : Ledger : ##TSPLSmpNLQSMSStrings[##Counter]`);
+            const file = parser.parse();
+            expect(file.errors.length).toBe(0);
+        });
+
+        test('Unknown tokens inside unquoted attribute values', () => {
+            const parser = new Parser(`[Menu: TSPL Smp Dimensions and Formatting]
+            Key Item : Form Height & Width : E : Display : Form Height Width`);
+            const file = parser.parse();
+            expect(file.errors.length).toBe(0);
+        });
+
+        test('Logical operators as identifiers in actions (e.g., FOR IN)', () => {
+            const parser = new Parser(`[Function: TSPL Smp NLQ CreateLedger]
+            20 : FOR IN : KeyVar : CVEmp
+            30  : END FOR`);
+            const file = parser.parse();
+            expect(file.errors.length).toBe(0);
         });
     });
 });

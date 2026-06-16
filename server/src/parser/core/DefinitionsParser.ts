@@ -47,7 +47,7 @@ export class DefinitionsParser extends StatementsParser {
 
         // Parse definition type (required, but use recovery if missing)
 
-        let defType = this.ParseIdentifierWithSpaces();
+        let defType = this.ParseIdentifierWithSpaces(false, true);
 
         if (!defType) {
             this.addError(
@@ -133,33 +133,28 @@ export class DefinitionsParser extends StatementsParser {
 
         defNode.isIncomplete = isIncomplete;
 
-        // Only parse body if definition header is complete
+        // Always attempt to parse body for error recovery
+        if (defType.text === "Function") {
+            this.ParseFunctionBody(defNode);
+        } else {
+            this.ParseAttributes(defNode);
+        }
 
-        if (!isIncomplete) {
-            if (defType.text === "Function") {
-                this.ParseFunctionBody(defNode);
-            } else {
-                this.ParseAttributes(defNode);
-            }
+        // Apply Block Grouping to statements
+        if (defNode.statements.length > 0) {
+            defNode.statements = this.GroupStatements(defNode.statements);
+        }
 
-            // Apply Block Grouping to statements
+        // Update definition end to include body
+        if (defNode.attributes.length > 0) {
+            defNode.end = defNode.attributes[defNode.attributes.length - 1].end;
+        }
 
-            if (defNode.statements.length > 0) {
-                defNode.statements = this.GroupStatements(defNode.statements);
-            }
+        if (defNode.statements.length > 0) {
+            const lastStmt = defNode.statements[defNode.statements.length - 1];
 
-            // Update definition end to include body
-
-            if (defNode.attributes.length > 0) {
-                defNode.end = defNode.attributes[defNode.attributes.length - 1].end;
-            }
-
-            if (defNode.statements.length > 0) {
-                const lastStmt = defNode.statements[defNode.statements.length - 1];
-
-                if (lastStmt.end > defNode.end) {
-                    defNode.end = lastStmt.end;
-                }
+            if (lastStmt.end > defNode.end) {
+                defNode.end = lastStmt.end;
             }
         }
 
@@ -182,6 +177,12 @@ export class DefinitionsParser extends StatementsParser {
                 break;
             }
 
+            const k = this.CurrentToken.Kind;
+            if (k === TokenKind.LineFeed || k === TokenKind.CarriageReturn || k === TokenKind.CarriageReturnLineFeed || k === TokenKind.SpaceToken) {
+                this.MoveToNextToken();
+                continue;
+            }
+
             // Handle Inline Directives
 
             if (this.CurrentToken.Kind === TokenKind.LessThanToken) {
@@ -192,37 +193,57 @@ export class DefinitionsParser extends StatementsParser {
 
             const start = this.CurrentToken.Start;
 
-            // Check if it's an Attribute (Parameter, Variable, Returns, Object)
+            // Check if it's an Attribute (Parameter, Variable, Returns, Object, List Variable, Local Formula)
+            
+            const savedIndex = this._currentTokenIndex;
+            const attrName = this.ParseIdentifierWithSpaces(true, true);
+            const text = attrName ? attrName.text.replace(/\s+/g, "").toUpperCase() : "";
 
-            const text = this.CurrentToken.Text;
-
-            const isAttribute =
-                text === "Parameter" ||
-                text === "Variable" ||
-                text === "Returns" ||
-                text === "Object";
+            const isAttribute = [
+                "ACTION",
+                "FETCHOBJECT",
+                "LISTVAR",
+                "LISTVARIABLE",
+                "LOCALFORMULA",
+                "OBJECT",
+                "OBJECTS",
+                "PARAMETER",
+                "PARAMETERS",
+                "RETURN",
+                "RETURNS",
+                "STATICVARIABLE",
+                "VARIABLE",
+                "VARIABLES"
+            ].includes(text);
 
             if (isAttribute) {
-                const attrName = this.ParseIdentifierWithSpaces();
+                // Skip spaces before checking for colon
+                while (!this.isAtEnd() && this.CurrentToken.Kind === TokenKind.SpaceToken) {
+                    this.MoveToNextToken();
+                }
 
-                if (attrName && this.CurrentToken.Kind === TokenKind.ColonToken) {
+                if (this.CurrentToken.Kind === TokenKind.ColonToken) {
                     const colon = this.EatToken();
-
                     const values = this.ParseValues(colon);
-
+                    
+                    let end = colon.Start + 1;
                     if (values.length > 0) {
-                        const end = values[values.length - 1].end;
-
-                        defNode.attributes.push(
-                            new AttributeNode(start, end, attrName, colon, values),
-                        );
+                        end = values[values.length - 1].end;
                     }
+
+                    defNode.attributes.push(
+                        new AttributeNode(start, end, attrName!, colon, values),
+                    );
                 } else {
-                    this.MoveToNextToken(); // Skip invalid
+                    this.addError("Expected Attribute Name and :", this.CurrentToken.Start, this.CurrentToken.Start);
+                    this.sync(); // Panic mode recovery
                 }
             } else {
-                // Parse Statement
+                // Backtrack
+                this._currentTokenIndex = savedIndex;
+                this._currentToken = null;
 
+                // Parse Statement
                 this.ParseStatement(defNode);
             }
         }
@@ -288,14 +309,33 @@ export class DefinitionsParser extends StatementsParser {
                 break;
             }
 
+            const k = this.CurrentToken.Kind;
+            if (k === TokenKind.LineFeed || k === TokenKind.CarriageReturn || k === TokenKind.CarriageReturnLineFeed || k === TokenKind.SpaceToken) {
+                this.MoveToNextToken();
+                continue;
+            }
+
+            if (k === TokenKind.LessThanToken) {
+                this.ConsumeDirective(defNode);
+                continue;
+            }
+
             const start = this.CurrentToken.Start;
 
-            const attrName = this.ParseIdentifierWithSpaces();
+            const attrName = this.ParseIdentifierWithSpaces(true, true);
 
             if (!attrName) {
-                this.MoveToNextToken();
-
+                this.addError("Expected Attribute Name", this.CurrentToken.Start, this.CurrentToken.Start);
+                if (!this.isAtEnd()) {
+                    this.MoveToNextToken();
+                }
+                this.sync(); // Panic mode recovery
                 continue;
+            }
+
+            // Skip spaces before checking for colon
+            while (this.CurrentToken.Kind === TokenKind.SpaceToken) {
+                this.MoveToNextToken();
             }
 
             if (this.CurrentToken.Kind === TokenKind.ColonToken) {
@@ -313,7 +353,8 @@ export class DefinitionsParser extends StatementsParser {
 
                 defNode.attributes.push(attrNode);
             } else {
-                this.MoveToNextToken();
+                this.addError("Expected : after Attribute Name", this.CurrentToken.Start, this.CurrentToken.Start);
+                this.sync(); // Panic mode recovery
             }
         }
     }
