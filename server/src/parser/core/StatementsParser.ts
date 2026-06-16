@@ -53,11 +53,8 @@ export class StatementsParser extends ExpressionsParser {
     if (this.CurrentToken.Kind === TokenKind.ColonToken) {
       this.EatToken(); // Consume colon after label
 
-      let action = this.ParseIdentifierWithSpaces(false, true);
-
-      if (!action) {
-        this.addError("Expected Action Name", this.CurrentToken.Start, this.CurrentToken.Start);
-        action = this.createMissingIdentifier();
+      let action = this.ExpectIdentifierAndRecover(false, true, "Expected Action Name");
+      if (action.isIncomplete) {
         if (!this.isAtEnd()) {
             this.MoveToNextToken();
         }
@@ -105,324 +102,246 @@ export class StatementsParser extends ExpressionsParser {
       let targetArray =
         stack.length > 0 ? stack[stack.length - 1].targetArray : result;
 
-      if (actionText === "IF") {
-        const ifNode = new IfNode(stmt);
+      let handled = true;
 
-        ifNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        targetArray.push(ifNode);
-
-        stack.push({ node: ifNode, targetArray: ifNode.statements });
-      } else if (actionText === "ELSE") {
-        if (
-          stack.length > 0 &&
-          stack[stack.length - 1].node instanceof IfNode
-        ) {
-          const parentIf = stack[stack.length - 1].node as IfNode;
-
-          parentIf.elseStatements.push(stmt);
-
-          stack[stack.length - 1].targetArray = parentIf.elseStatements;
-        } else {
-          targetArray.push(stmt);
+      switch (actionText) {
+        case "IF": {
+          const ifNode = new IfNode(stmt);
+          ifNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          targetArray.push(ifNode);
+          stack.push({ node: ifNode, targetArray: ifNode.statements });
+          break;
         }
-      } else if (actionText === "DOIF") {
-        const doIfNode = new DoIfNode(stmt);
-
-        doIfNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        if (
-          stmt.args.length > 1 &&
-          stmt.args[1].kind === SyntaxKind.Identifier
-        ) {
-          const nestedAction = stmt.args[1] as IdentifierNode;
-
-          const nestedArgs = stmt.args.slice(2);
-
-          const nestedStmt = new StatementNode(
-            stmt.label,
-            nestedAction,
-            nestedArgs,
-          );
-
-          const groupedNested = this.GroupStatements([nestedStmt]);
-
-          doIfNode.actionStatement =
-            groupedNested.length > 0 ? groupedNested[0] : nestedStmt;
+        case "ELSE": {
+          if (stack.length > 0 && stack[stack.length - 1].node instanceof IfNode) {
+            const parentIf = stack[stack.length - 1].node as IfNode;
+            parentIf.elseStatements.push(stmt);
+            stack[stack.length - 1].targetArray = parentIf.elseStatements;
+          } else {
+            targetArray.push(stmt);
+          }
+          break;
         }
-
-        targetArray.push(doIfNode);
-      } else if (actionText === "WHILE") {
-        const whileNode = new WhileNode(stmt);
-
-        whileNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        targetArray.push(whileNode);
-
-        stack.push({ node: whileNode, targetArray: whileNode.statements });
-      } else if (
-        actionText === "FORTOKEN" ||
-        actionText === "FORCOLLECTION" ||
-        actionText === "FORRANGE" ||
-        actionText === "FOREACH" ||
-        actionText === "FORIN" ||
-        actionText === "FOR"
-      ) {
-        const forNode = new ForNode(stmt);
-
-        forNode.iteratorVariable =
-          stmt.args.length > 0 && stmt.args[0].kind === SyntaxKind.Identifier
-            ? (stmt.args[0] as IdentifierNode)
-            : undefined;
-
-        forNode.collectionName =
-          stmt.args.length > 1 ? stmt.args[1] : undefined;
-
-        targetArray.push(forNode);
-
-        stack.push({ node: forNode, targetArray: forNode.statements });
-      } else if (actionText === "WALKCOLLECTION" || actionText === "WALK") {
-        const walkNode = new WalkNode(stmt);
-
-        walkNode.collectionName =
-          stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        targetArray.push(walkNode);
-
-        stack.push({ node: walkNode, targetArray: walkNode.statements });
-      } else if (actionText === "STARTBLOCK") {
-        const blockNode = new StartBlockNode(stmt);
-
-        targetArray.push(blockNode);
-
-        stack.push({ node: blockNode, targetArray: blockNode.statements });
-      } else if (actionText === "STARTBATCHPOST") {
-        const batchNode = new BatchPostNode(stmt);
-
-        batchNode.batchSize = stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        targetArray.push(batchNode);
-
-        stack.push({ node: batchNode, targetArray: batchNode.statements });
-      } else if (actionText === "STARTMSGBOX") {
-        const msgNode = new MsgBoxNode(stmt);
-
-        msgNode.title = stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        msgNode.message = stmt.args.length > 1 ? stmt.args[1] : undefined;
-
-        targetArray.push(msgNode);
-
-        stack.push({ node: msgNode, targetArray: msgNode.statements });
-      } else if (actionText === "STARTPROGRESS") {
-        const progNode = new StartBlockNode(stmt); // reusing startblock since it's just a block
-
-        targetArray.push(progNode);
-
-        stack.push({ node: progNode, targetArray: progNode.statements });
-      } else if (actionText === "STARTZIP") {
-        const zipNode = new ZipNode(stmt);
-
-        zipNode.targetFile = stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        zipNode.overwrite = stmt.args.length > 1 ? stmt.args[1] : undefined;
-
-        targetArray.push(zipNode);
-
-        stack.push({ node: zipNode, targetArray: zipNode.statements });
-      } else if (actionText === "STARTUNZIP") {
-        const unzipNode = new UnzipNode(stmt);
-
-        unzipNode.sourceFile = stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        unzipNode.password = stmt.args.length > 1 ? stmt.args[1] : undefined;
-
-        targetArray.push(unzipNode);
-
-        stack.push({ node: unzipNode, targetArray: unzipNode.statements });
-      } else if (actionText === "RETURN") {
-        const retNode = new ReturnNode(stmt);
-
-        retNode.returnValue = stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        targetArray.push(retNode);
-      } else if (actionText === "BREAK") {
-        targetArray.push(new BreakNode(stmt));
-      } else if (actionText === "CONTINUE") {
-        targetArray.push(new ContinueNode(stmt));
-      } else if (actionText === "SET") {
-        const setNode = new SetNode(stmt);
-
-        setNode.targetVariable =
-          stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        setNode.valueExpression =
-          stmt.args.length > 1 ? stmt.args[1] : undefined;
-
-        targetArray.push(setNode);
-      } else if (actionText === "SWITCH") {
-        const switchNode = new SwitchNode(stmt);
-
-        switchNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        targetArray.push(switchNode);
-
-        stack.push({ node: switchNode, targetArray: switchNode.statements });
-      } else if (actionText === "CASE") {
-        const caseNode = new CaseNode(stmt);
-
-        caseNode.value = stmt.args.length > 0 ? stmt.args[0] : undefined;
-
-        if (
-          stack.length > 0 &&
-          stack[stack.length - 1].node instanceof SwitchNode
-        ) {
-          const parentSwitch = stack[stack.length - 1].node as SwitchNode;
-
-          parentSwitch.cases.push(caseNode);
-
-          stack[stack.length - 1].targetArray = caseNode.statements;
-        } else {
-          targetArray.push(caseNode);
+        case "DOIF": {
+          const doIfNode = new DoIfNode(stmt);
+          doIfNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          if (stmt.args.length > 1 && stmt.args[1].kind === SyntaxKind.Identifier) {
+            const nestedAction = stmt.args[1] as IdentifierNode;
+            const nestedArgs = stmt.args.slice(2);
+            const nestedStmt = new StatementNode(stmt.label, nestedAction, nestedArgs);
+            const groupedNested = this.GroupStatements([nestedStmt]);
+            doIfNode.actionStatement = groupedNested.length > 0 ? groupedNested[0] : nestedStmt;
+          }
+          targetArray.push(doIfNode);
+          break;
         }
-      } else if (actionText === "DEFAULT") {
-        const defaultNode = new DefaultNode(stmt);
-
-        if (
-          stack.length > 0 &&
-          stack[stack.length - 1].node instanceof SwitchNode
-        ) {
-          const parentSwitch = stack[stack.length - 1].node as SwitchNode;
-
-          parentSwitch.defaultCase = defaultNode;
-
-          stack[stack.length - 1].targetArray = defaultNode.statements;
-        } else {
-          targetArray.push(defaultNode);
+        case "WHILE": {
+          const whileNode = new WhileNode(stmt);
+          whileNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          targetArray.push(whileNode);
+          stack.push({ node: whileNode, targetArray: whileNode.statements });
+          break;
         }
-      } else if (actionText === "EXCHANGE") {
-        const exNode = new ExchangeNode(stmt);
+        case "FORTOKEN":
+        case "FORCOLLECTION":
+        case "FORRANGE":
+        case "FOREACH":
+        case "FORIN":
+        case "FOR": {
+          const forNode = new ForNode(stmt);
+          forNode.iteratorVariable =
+            stmt.args.length > 0 && stmt.args[0].kind === SyntaxKind.Identifier
+              ? (stmt.args[0] as IdentifierNode)
+              : undefined;
+          forNode.collectionName = stmt.args.length > 1 ? stmt.args[1] : undefined;
+          targetArray.push(forNode);
+          stack.push({ node: forNode, targetArray: forNode.statements });
+          break;
+        }
+        case "WALKCOLLECTION":
+        case "WALK": {
+          const walkNode = new WalkNode(stmt);
+          walkNode.collectionName = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          targetArray.push(walkNode);
+          stack.push({ node: walkNode, targetArray: walkNode.statements });
+          break;
+        }
+        case "STARTBLOCK": {
+          const blockNode = new StartBlockNode(stmt);
+          targetArray.push(blockNode);
+          stack.push({ node: blockNode, targetArray: blockNode.statements });
+          break;
+        }
+        case "STARTBATCHPOST": {
+          const batchNode = new BatchPostNode(stmt);
+          batchNode.batchSize = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          targetArray.push(batchNode);
+          stack.push({ node: batchNode, targetArray: batchNode.statements });
+          break;
+        }
+        case "STARTMSGBOX": {
+          const msgNode = new MsgBoxNode(stmt);
+          msgNode.title = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          msgNode.message = stmt.args.length > 1 ? stmt.args[1] : undefined;
+          targetArray.push(msgNode);
+          stack.push({ node: msgNode, targetArray: msgNode.statements });
+          break;
+        }
+        case "STARTPROGRESS": {
+          const progNode = new StartBlockNode(stmt);
+          targetArray.push(progNode);
+          stack.push({ node: progNode, targetArray: progNode.statements });
+          break;
+        }
+        case "STARTZIP": {
+          const zipNode = new ZipNode(stmt);
+          zipNode.targetFile = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          zipNode.overwrite = stmt.args.length > 1 ? stmt.args[1] : undefined;
+          targetArray.push(zipNode);
+          stack.push({ node: zipNode, targetArray: zipNode.statements });
+          break;
+        }
+        case "STARTUNZIP": {
+          const unzipNode = new UnzipNode(stmt);
+          unzipNode.sourceFile = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          unzipNode.password = stmt.args.length > 1 ? stmt.args[1] : undefined;
+          targetArray.push(unzipNode);
+          stack.push({ node: unzipNode, targetArray: unzipNode.statements });
+          break;
+        }
+        case "RETURN": {
+          const retNode = new ReturnNode(stmt);
+          retNode.returnValue = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          targetArray.push(retNode);
+          break;
+        }
+        case "BREAK": {
+          targetArray.push(new BreakNode(stmt));
+          break;
+        }
+        case "CONTINUE": {
+          targetArray.push(new ContinueNode(stmt));
+          break;
+        }
+        case "SET": {
+          const setNode = new SetNode(stmt);
+          setNode.targetVariable = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          setNode.valueExpression = stmt.args.length > 1 ? stmt.args[1] : undefined;
+          targetArray.push(setNode);
+          break;
+        }
+        case "SWITCH": {
+          const switchNode = new SwitchNode(stmt);
+          switchNode.condition = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          targetArray.push(switchNode);
+          stack.push({ node: switchNode, targetArray: switchNode.statements });
+          break;
+        }
+        case "CASE": {
+          const caseNode = new CaseNode(stmt);
+          caseNode.value = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          if (stack.length > 0 && stack[stack.length - 1].node instanceof SwitchNode) {
+            const parentSwitch = stack[stack.length - 1].node as SwitchNode;
+            parentSwitch.cases.push(caseNode);
+            stack[stack.length - 1].targetArray = caseNode.statements;
+          } else {
+            targetArray.push(caseNode);
+          }
+          break;
+        }
+        case "DEFAULT": {
+          const defaultNode = new DefaultNode(stmt);
+          if (stack.length > 0 && stack[stack.length - 1].node instanceof SwitchNode) {
+            const parentSwitch = stack[stack.length - 1].node as SwitchNode;
+            parentSwitch.defaultCase = defaultNode;
+            stack[stack.length - 1].targetArray = defaultNode.statements;
+          } else {
+            targetArray.push(defaultNode);
+          }
+          break;
+        }
+        case "EXCHANGE": {
+          const exNode = new ExchangeNode(stmt);
+          exNode.var1 = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          exNode.var2 = stmt.args.length > 1 ? stmt.args[1] : undefined;
+          targetArray.push(exNode);
+          break;
+        }
+        case "INCREMENT": {
+          const incNode = new IncrementNode(stmt);
+          incNode.targetVariable = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          incNode.stepValue = stmt.args.length > 1 ? stmt.args[1] : undefined;
+          targetArray.push(incNode);
+          break;
+        }
+        case "DECREMENT": {
+          const decNode = new DecrementNode(stmt);
+          decNode.targetVariable = stmt.args.length > 0 ? stmt.args[0] : undefined;
+          decNode.stepValue = stmt.args.length > 1 ? stmt.args[1] : undefined;
+          targetArray.push(decNode);
+          break;
+        }
+        default:
+          handled = false;
+          break;
+      }
 
-        exNode.var1 = stmt.args.length > 0 ? stmt.args[0] : undefined;
+      if (!handled) {
+        if (actionText.startsWith("END") && actionText.length > 3) {
+          if (stack.length > 0) {
+            const popped = stack.pop();
 
-        exNode.var2 = stmt.args.length > 1 ? stmt.args[1] : undefined;
+            if (popped) {
+              popped.node.end = stmt.end;
 
-        targetArray.push(exNode);
-      } else if (actionText === "INCREMENT") {
-        const incNode = new IncrementNode(stmt);
+              if (popped.node instanceof BlockStatementNode) {
+                popped.node.endStatement = stmt;
+              }
 
-        incNode.targetVariable =
-          stmt.args.length > 0 ? stmt.args[0] : undefined;
+              const poppedActionText = ((popped.node as any).action?.text || "")
+                .replace(/\s+/g, "")
+                .toUpperCase();
 
-        incNode.stepValue = stmt.args.length > 1 ? stmt.args[1] : undefined;
+              const expectedEnd = "END" + poppedActionText;
 
-        targetArray.push(incNode);
-      } else if (actionText === "DECREMENT") {
-        const decNode = new DecrementNode(stmt);
+              let isMatch = actionText === expectedEnd;
 
-        decNode.targetVariable =
-          stmt.args.length > 0 ? stmt.args[0] : undefined;
+              // Handle special cases where block starts with a complex name but ends with a generic name
+              if (!isMatch) {
+                if (
+                  (actionText === "ENDFOR" && poppedActionText.startsWith("FOR")) ||
+                  (actionText === "ENDWALK" && poppedActionText.startsWith("WALK")) ||
+                  (actionText.startsWith("END") && poppedActionText === "START" + actionText.substring(3))
+                ) {
+                  isMatch = true;
+                }
+              }
 
-        decNode.stepValue = stmt.args.length > 1 ? stmt.args[1] : undefined;
+              // Check for mismatch
+              if (!isMatch) {
+                const expectedFriendly =
+                  "END " + ((popped.node as any).action?.text || "").toUpperCase();
 
-        targetArray.push(decNode);
-      } else if (actionText.startsWith("END") && actionText.length > 3) {
-        if (stack.length > 0) {
-          const popped = stack.pop();
+                const foundFriendly = (stmt.action?.text || "").toUpperCase();
 
-          if (popped) {
-            popped.node.end = stmt.end;
-
-            if (popped.node instanceof BlockStatementNode) {
-              popped.node.endStatement = stmt;
-            }
-
-            const poppedActionText = ((popped.node as any).action?.text || "")
-              .replace(/\s+/g, "")
-              .toUpperCase();
-
-            const expectedEnd = "END" + poppedActionText;
-
-            let isMatch = actionText === expectedEnd;
-
-            // Handle special cases where block starts with a complex name but ends with a generic name
-
-            if (!isMatch) {
-              if (
-                actionText === "ENDFOR" &&
-                poppedActionText.startsWith("FOR")
-              ) {
-                isMatch = true;
-              } else if (
-                actionText === "ENDWALK" &&
-                poppedActionText.startsWith("WALK")
-              ) {
-                isMatch = true;
-              } else if (
-                actionText === "ENDBATCHPOST" &&
-                poppedActionText === "STARTBATCHPOST"
-              ) {
-                isMatch = true;
-              } else if (
-                actionText === "ENDMSGBOX" &&
-                poppedActionText === "STARTMSGBOX"
-              ) {
-                isMatch = true;
-              } else if (
-                actionText === "ENDPROGRESS" &&
-                poppedActionText === "STARTPROGRESS"
-              ) {
-                isMatch = true;
-              } else if (
-                actionText === "ENDZIP" &&
-                poppedActionText === "STARTZIP"
-              ) {
-                isMatch = true;
-              } else if (
-                actionText === "ENDUNZIP" &&
-                poppedActionText === "STARTUNZIP"
-              ) {
-                isMatch = true;
-              } else if (
-                actionText === "ENDBLOCK" &&
-                poppedActionText === "STARTBLOCK"
-              ) {
-                isMatch = true;
-              } else if (
-                actionText === "ENDSWITCH" &&
-                poppedActionText === "SWITCH"
-              ) {
-                isMatch = true;
+                this.addError(
+                  `Mismatched block terminator: Expected ${expectedFriendly}, found ${foundFriendly}`,
+                  stmt.start,
+                  stmt.end,
+                );
               }
             }
-
-            // Check for mismatch
-
-            if (!isMatch) {
-              const expectedFriendly =
-                "END " +
-                ((popped.node as any).action?.text || "").toUpperCase();
-
-              const foundFriendly = (stmt.action?.text || "").toUpperCase();
-
-              this.addError(
-                `Mismatched block terminator: Expected ${expectedFriendly}, found ${foundFriendly}`,
-                stmt.start,
-                stmt.end,
-              );
-            }
+          } else {
+            this.addError(
+              `Unmatched ${(stmt.action?.text || "").toUpperCase()} without opening block`,
+              stmt.start,
+              stmt.end,
+            );
+            targetArray.push(stmt);
           }
         } else {
-          this.addError(
-            `Unmatched ${(stmt.action?.text || "").toUpperCase()} without opening block`,
-            stmt.start,
-            stmt.end,
-          );
-
           targetArray.push(stmt);
         }
-      } else {
-        targetArray.push(stmt);
       }
     }
 

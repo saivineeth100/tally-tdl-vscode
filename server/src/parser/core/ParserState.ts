@@ -69,14 +69,29 @@ export class ParserState {
    * @param message The error message to report on failure.
    * @returns The consumed Token, or undefined if it did not match.
    */
-  public Expect(kind: TokenKind, message: string): Token | undefined {
+  public Expect(kind: TokenKind, message: string, errorPos?: number): Token | undefined {
     if (this.match(kind)) {
       this.MoveToNextToken();
       return this.PreviousToken;
     }
-    const token = this.CurrentToken;
-    this.addError(message, token.Start, token.Start + token.Length);
+    const fallbackStart = this.PreviousToken ? this.PreviousToken.Start + this.PreviousToken.Length : this.CurrentToken.Start;
+    const start = errorPos !== undefined ? errorPos : fallbackStart;
+    const end = errorPos !== undefined ? errorPos : fallbackStart;
+    this.addError(message, start, end);
     return undefined;
+  }
+
+  /**
+   * Asserts that the current token matches the expected kind, and consumes it.
+   * If it does not match, records a diagnostic error and returns a missing token.
+   * @param kind The expected TokenKind.
+   * @param message The error message to report on failure.
+   * @returns The consumed Token, or a MissingToken if it did not match.
+   */
+  public ExpectAndRecover(kind: TokenKind, message: string, errorPos?: number): Token {
+    const token = this.Expect(kind, message, errorPos);
+    if (token) return token;
+    return this.createMissingToken(kind);
   }
 
   /**

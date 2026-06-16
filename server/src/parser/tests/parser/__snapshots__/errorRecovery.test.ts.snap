@@ -199,9 +199,9 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should continue
   "end": 34,
   "errors": [
     {
-      "end": 15,
+      "end": 14,
       "message": "Expected ] after Definition name",
-      "start": 15,
+      "start": 14,
     },
   ],
   "kind": 0,

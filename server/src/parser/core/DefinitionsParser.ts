@@ -47,17 +47,9 @@ export class DefinitionsParser extends StatementsParser {
 
         // Parse definition type (required, but use recovery if missing)
 
-        let defType = this.ParseIdentifierWithSpaces(false, true);
+        let defType = this.ExpectIdentifierAndRecover(false, true, "Expected Definition Type");
 
-        if (!defType) {
-            this.addError(
-                "Expected Definition Type",
-                this.CurrentToken.Start,
-                this.CurrentToken.Start,
-            );
-
-            defType = this.createMissingIdentifier();
-
+        if (defType.isIncomplete) {
             isIncomplete = true;
         }
 
@@ -92,21 +84,12 @@ export class DefinitionsParser extends StatementsParser {
 
         let closeBracketToken: Token;
 
-        if (this.match(TokenKind.CloseSquareBracketToken)) {
-            closeBracketToken = this.EatToken();
-        } else {
-            // Missing close bracket - use synthetic token and mark incomplete
+        closeBracketToken = this.ExpectAndRecover(
+            TokenKind.CloseSquareBracketToken,
+            "Expected ] after Definition name"
+        );
 
-            this.addError(
-                "Expected ] after Definition name",
-                this.CurrentToken.Start,
-                this.CurrentToken.Start,
-            );
-
-            closeBracketToken = this.createMissingToken(
-                TokenKind.CloseSquareBracketToken,
-            );
-
+        if (closeBracketToken.Length === 0) {
             isIncomplete = true;
         }
 

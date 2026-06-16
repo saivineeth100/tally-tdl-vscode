@@ -229,5 +229,23 @@ describe('Parser - Procedural Block Success Cases', () => {
             expect(sourceFile.errors).toEqual([]);
             expect(cleanAST(sourceFile)).toMatchSnapshot();
         });
+
+        it('should parse all START/END block pairs correctly', () => {
+            const input = `[Function: StartEndBlocksTest]
+        01: Start Batch Post
+        02:   Start Zip : "test.zip"
+        03:     Start Unzip : "test.zip"
+        04:       Start Block
+        05:         Log : "Doing work"
+        06:       End Block
+        07:     End Unzip
+        08:   End Zip
+        09: End Batch Post
+        `;
+            const parser = new Parser(input);
+            const sourceFile = parser.parse();
+            expect(sourceFile.errors).toEqual([]);
+            expect(cleanAST(sourceFile)).toMatchSnapshot();
+        });
     });
 });

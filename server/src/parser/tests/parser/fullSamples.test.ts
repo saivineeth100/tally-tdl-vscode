@@ -5,7 +5,8 @@ import { Lexer } from '../../lexer';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const SAMPLES_DIR = process.env.TDL_SAMPLES_DIR || 'c:/Program Files/TallyPrimeDeveloper_6/Samples';
+const samplesPath = 'c:/Program Files/TallyPrimeDeveloper_7/Samples';
+const SAMPLES_DIR = process.env.TDL_SAMPLES_DIR || samplesPath
 const hasSamples = fs.existsSync(SAMPLES_DIR);
 
 /**
