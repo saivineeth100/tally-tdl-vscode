@@ -4,6 +4,7 @@ import { FunctionCallNode, BinaryExpressionNode, Node, SyntaxKind } from "../../
 import { TdlMetadata } from "../../tdlMetaData";
 import { normalizeTypeName } from "../utils";
 import { areTypesCompatible, inferExpressionType } from "./validationUtils";
+import { DiagnosticRules, createDiagnostic } from "../../diagnostics";
 
 /**
  * Recursively validate function calls - checks return type and validates nested function arguments
@@ -32,14 +33,13 @@ export function validateFunctionCall(
         const normalizedReturn = normalizeTypeName(func.ReturnType);
 
         if (normalizedExpected !== normalizedReturn && !areTypesCompatible(normalizedExpected, normalizedReturn)) {
-            const startPos = doc.positionAt(funcNode.start);
-            const endPos = doc.positionAt(funcNode.end);
-            diagnostics.push({
-                severity: DiagnosticSeverity.Warning,
-                range: { start: startPos, end: endPos },
-                message: `Function '$$${funcName}' returns '${func.ReturnType}' but expected '${expectedType}'`,
-                source: 'tdl'
-            });
+            const diag = createDiagnostic(
+                DiagnosticRules.TypeMismatch,
+                { start: doc.positionAt(funcNode.start), end: doc.positionAt(funcNode.end) },
+                expectedType, func.ReturnType
+            );
+            diag.message = `Function '$$${funcName}' returns '${func.ReturnType}' but expected '${expectedType}'`;
+            diagnostics.push(diag);
         }
     }
 
@@ -83,12 +83,13 @@ export function validateBinaryExpression(
             const normalizedLeft = normalizeTypeName(leftType);
             const normalizedRight = normalizeTypeName(rightType);
             if (normalizedLeft !== normalizedRight && !areTypesCompatible(normalizedLeft, normalizedRight) && !areTypesCompatible(normalizedRight, normalizedLeft)) {
-                diagnostics.push({
-                    severity: DiagnosticSeverity.Warning,
-                    range: { start: doc.positionAt(exprNode.start), end: doc.positionAt(exprNode.end) },
-                    message: `Type mismatch in binary expression: Cannot combine '${leftType}' and '${rightType}'`,
-                    source: 'tdl'
-                });
+                const diag = createDiagnostic(
+                    DiagnosticRules.TypeMismatch,
+                    { start: doc.positionAt(exprNode.start), end: doc.positionAt(exprNode.end) },
+                    leftType, rightType
+                );
+                diag.message = `Type mismatch in binary expression: Cannot combine '${leftType}' and '${rightType}'`;
+                diagnostics.push(diag);
             }
         }
         

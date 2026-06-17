@@ -2,8 +2,9 @@ import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { SourceFile, StatementNode, BlockStatementNode, SyntaxKind, IdentifierNode, LiteralNode } from "../parser/ast";
 import { incrementLabel, matchesSequencePattern } from "../utils/labelUtils";
+import { createDiagnostic, DiagnosticRules } from "../diagnostics";
 
-export const BROKEN_SEQUENCE_DIAGNOSTIC_CODE = 'tally-tdl-broken-sequence';
+
 
 export function validateLabelSequences(sourceFile: SourceFile, doc: TextDocument): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
@@ -45,17 +46,11 @@ export function validateLabelSequences(sourceFile: SourceFile, doc: TextDocument
                 if (matchesSequencePattern(currentLabel, previousLabel)) {
                     const expectedLabel = incrementLabel(previousLabel);
                     if (currentLabel !== expectedLabel) {
-                        diagnostics.push({
-                            severity: DiagnosticSeverity.Warning,
-                            range: {
-                                start: doc.positionAt(stmt.label.start),
-                                end: doc.positionAt(stmt.label.end)
-                            },
-                            message: `Broken procedural sequence detected. Expected: ${expectedLabel}`,
-                            source: 'tdl',
-                            code: BROKEN_SEQUENCE_DIAGNOSTIC_CODE,
-                            data: { expectedLabel } // Passing data for the Code Action
-                        });
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.BrokenLabelSeqence,
+                            { start: doc.positionAt(stmt.label.start), end: doc.positionAt(stmt.label.end) },
+                            expectedLabel
+                        ))
                         // Once we detect a broken sequence, we don't want to cascade warnings 
                         // for every subsequent statement. We reset the "previousLabel" to the expected one?
                         // Or we just flag every statement? 

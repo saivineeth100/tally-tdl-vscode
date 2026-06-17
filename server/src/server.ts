@@ -25,6 +25,7 @@ import { createDocumentSymbols } from "./services/documentSymbol";
 import { getHoverInfo } from "./services/hover";
 import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from "./services/definition";
 import { provideFoldingRanges } from "./services/foldingRange";
+import { updateSettings } from "./services/settingsManager";
 
 // Create LSP connection
 const connection = createConnection(ProposedFeatures.all);
@@ -588,6 +589,15 @@ connection.onRequest("tdl/convertToXml", async (params: { uri: string }) => {
 
 // Start listening (Must be at the very end after all handlers are registered)
 docs.listen(connection);
+
+connection.onDidChangeConfiguration(change => {
+    if (change.settings && change.settings.tallyTDL) {
+        updateSettings(change.settings.tallyTDL);
+        // Re-validate all documents (open and indexed)
+        docManager.revalidateAll(docs.all());
+    }
+});
+
 connection.listen();
 
 

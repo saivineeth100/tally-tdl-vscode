@@ -5,6 +5,7 @@ import { parseXmlToAst } from "./parser/xmlAdapter";
 import { SourceFile } from "./parser/ast";
 import { TdlMetadata } from "./tdlMetaData";
 import { getMetadata } from "./services/metadataService";
+import { getDiagnosticSeverity, isDiagnosticsEnabled, shouldTreatWarningsAsErrors, shouldHideWarnings } from './services/settingsManager';
 import { validateSourceFile } from "./services/validation";
 import { SymbolTable, SymbolInfo, definitionTypeToSymbolKind } from "./services/symbolTable";
 import { ScopeManager } from "./services/scopeManager";
@@ -109,6 +110,55 @@ export class DocManager {
      */
     getAllDocs(): IterableIterator<[string, DocState]> {
         return this.docs.entries();
+    }
+
+    /**
+     * Re-validate all documents (both open and closed but indexed)
+     * Useful when global settings change.
+     */
+    public async revalidateAll(openDocsIter: Iterable<any>): Promise<void> {
+        const openDocs = Array.from(openDocsIter);
+        const allKnownUris = new Set<string>();
+
+        // 1. Gather all related project nodes (tpj files, included files, parent files)
+        for (const doc of openDocs) {
+            const projectNodes = this.getProjectNodes(doc.uri);
+            for (const node of projectNodes) {
+                allKnownUris.add(node);
+            }
+        }
+
+        // If no open documents, fall back to re-indexing all currently tracked/indexed files in the graph
+        if (openDocs.length === 0) {
+            const allTrackedUris = new Set<string>([...this.includeGraph.keys(), ...this.parentGraph.keys()]);
+            for (const uriStr of allTrackedUris) {
+                const fsPath = URI.parse(uriStr).fsPath;
+                if (fs.existsSync(fsPath)) {
+                    this.indexFile(fsPath, new Set()).catch(err => {
+                        this.connection.console.error(`Error indexing file ${fsPath}: ${err}`);
+                    });
+                }
+            }
+            return;
+        }
+
+        // 2. Rebuild open documents
+        for (const doc of openDocs) {
+            this.rebuild(doc).catch(err => {
+                this.connection.console.error(`Error rebuilding doc ${doc.uri}: ${err}`);
+            });
+        }
+
+        // 3. Re-index closed but related files to update their diagnostics
+        for (const uriStr of allKnownUris) {
+            // indexFile internally skips if this.docs.has(uriStr)
+            const fsPath = URI.parse(uriStr).fsPath;
+            if (fs.existsSync(fsPath)) {
+                this.indexFile(fsPath, new Set()).catch(err => {
+                    this.connection.console.error(`Error indexing file ${fsPath}: ${err}`);
+                });
+            }
+        }
     }
 
     /**
@@ -238,7 +288,7 @@ export class DocManager {
     /**
      * Index a single file for symbols (without storing full doc state)
      */
-    private async indexFile(filePath: string, visited: Set<string> = new Set()): Promise<void> {
+    public async indexFile(filePath: string, visited: Set<string> = new Set()): Promise<void> {
         try {
             const uri = URI.file(filePath).toString();
             
@@ -303,12 +353,37 @@ export class DocManager {
                     severity: DiagnosticSeverity.Error,
                     range: { start: doc.positionAt(error.start), end: doc.positionAt(error.end) },
                     message: error.message,
+                    code: error.code,
                     source: 'tdl'
                 }));
-                
                 diagnostics.push(...(await validateSourceFile(sourceFile, doc, metadata, symTable, scopeMgr, this.resolveIncludePath, this)));
                 
-                this.connection.sendDiagnostics({ uri, diagnostics });
+                const treatAsError = shouldTreatWarningsAsErrors();
+                const hideWarnings = shouldHideWarnings();
+
+                const finalDiagnostics = isDiagnosticsEnabled() ? diagnostics.filter(d => {
+                    // Check individual overrides first
+                    if (d.code && typeof d.code === 'string') {
+                        const setting = getDiagnosticSeverity(d.code);
+                        if (setting === 'none') return false;
+                        if (setting === 'error') d.severity = DiagnosticSeverity.Error;
+                        if (setting === 'warning') d.severity = DiagnosticSeverity.Warning;
+                        if (setting === 'information') d.severity = DiagnosticSeverity.Information;
+                        if (setting === 'hint') d.severity = DiagnosticSeverity.Hint;
+                    }
+
+                    // Apply global warning settings
+                    if (d.severity === DiagnosticSeverity.Warning) {
+                        if (treatAsError) {
+                            d.severity = DiagnosticSeverity.Error;
+                        } else if (hideWarnings) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }) : [];
+
+                this.connection.sendDiagnostics({ uri, diagnostics: finalDiagnostics });
             }
         } catch (err) {
             // Silently skip files that can't be read, but log error
@@ -460,6 +535,7 @@ export class DocManager {
                 severity: DiagnosticSeverity.Error,
                 range: { start: startPos, end: endPos },
                 message: error.message,
+                code: error.code,
                 source: 'tdl'
             };
         });
@@ -504,8 +580,35 @@ export class DocManager {
             diagnostics.push(...(await validateSourceFile(sourceFile, doc, metadata, symTable, scopeMgr, this.resolveIncludePath, this)));
         }
 
-        // Store document state and send diagnostics
+        // Store document state
         this.docs.set(doc.uri, { sourceFile, diagnostics });
-        this.connection.sendDiagnostics({ uri: doc.uri, diagnostics });
+
+        const treatAsError = shouldTreatWarningsAsErrors();
+        const hideWarnings = shouldHideWarnings();
+
+        // Apply user settings for diagnostic severity
+        const finalDiagnostics = isDiagnosticsEnabled() ? diagnostics.filter(d => {
+            // Check individual overrides first
+            if (d.code && typeof d.code === 'string') {
+                const setting = getDiagnosticSeverity(d.code);
+                if (setting === 'none') return false;
+                if (setting === 'error') d.severity = DiagnosticSeverity.Error;
+                if (setting === 'warning') d.severity = DiagnosticSeverity.Warning;
+                if (setting === 'information') d.severity = DiagnosticSeverity.Information;
+                if (setting === 'hint') d.severity = DiagnosticSeverity.Hint;
+            }
+
+            // Apply global warning settings
+            if (d.severity === DiagnosticSeverity.Warning) {
+                if (treatAsError) {
+                    d.severity = DiagnosticSeverity.Error;
+                } else if (hideWarnings) {
+                    return false;
+                }
+            }
+            return true;
+        }) : [];
+
+        this.connection.sendDiagnostics({ uri: doc.uri, diagnostics: finalDiagnostics });
     }
 }

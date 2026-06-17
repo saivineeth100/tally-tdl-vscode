@@ -251,6 +251,7 @@ export class EmptyNode implements Node {
 }
 
 export interface DiagnosticError {
+    code?: string;
     message: string;
     start: number;
     end: number;

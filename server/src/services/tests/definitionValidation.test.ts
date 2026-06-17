@@ -5,6 +5,7 @@ import { TdlMetadata } from '../../tdlMetaData';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DiagnosticSeverity } from 'vscode-languageserver';
 import { normalizeTypeName } from '../utils';
+import { DiagnosticRules } from '../../diagnostics';
 
 describe('Definition Validation (Mocked)', () => {
     // Mock metadata
@@ -35,7 +36,7 @@ describe('Definition Validation (Mocked)', () => {
 
         const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
 
-        const error = diagnostics.find(d => d.message.includes('exists in default TDL'));
+        const error = diagnostics.find(d => d.code === DiagnosticRules.DuplicateDefinition.code);
         expect(error).toBeDefined();
         expect(error?.severity).toBe(DiagnosticSeverity.Error);
     });
@@ -70,7 +71,7 @@ describe('Definition Validation (Mocked)', () => {
         mockMetadata.existingDefinitions.set('menu', new Set(['gatewayoftally']));
 
         const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
-        const error = diagnostics.find(d => d.message.includes('exists in default TDL'));
+        const error = diagnostics.find(d => d.code === DiagnosticRules.DuplicateDefinition.code);
         expect(error).toBeDefined();
     });
 
@@ -89,7 +90,7 @@ describe('Definition Validation (Mocked)', () => {
         } as any;
 
         const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata, undefined, mockScopeManager);
-        const error = diagnostics.find(d => d.message.includes("Duplicate label '01' in function"));
+        const error = diagnostics.find(d => d.code === DiagnosticRules.DuplicateLabel.code);
         expect(error).toBeDefined();
     });
 
@@ -105,7 +106,7 @@ describe('Definition Validation (Mocked)', () => {
         } as any;
 
         const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata, undefined, undefined, undefined, mockDocManager);
-        const error = diagnostics.find(d => d.message.includes('creates an infinite loop'));
+        const error = diagnostics.find(d => d.code === DiagnosticRules.CircularInclude.code);
         expect(error).toBeDefined();
         expect(error?.severity).toBe(DiagnosticSeverity.Error);
     });

@@ -76,7 +76,10 @@ export function activate(context: ExtensionContext) {
                     { scheme: 'untitled', language: 'xml' }
                 ],
                 diagnosticCollectionName: 'tally-tdl-server',
-                outputChannel: outputChannel
+                outputChannel: outputChannel,
+                synchronize: {
+                    configurationSection: 'tallyTDL'
+                }
             };
             defaultClient = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
             defaultClient.start();
@@ -111,7 +114,10 @@ export function activate(context: ExtensionContext) {
                 ],
                 diagnosticCollectionName: 'tally-tdl-server',
                 workspaceFolder: folder,
-                outputChannel: outputChannel
+                outputChannel: outputChannel,
+                synchronize: {
+                    configurationSection: 'tallyTDL'
+                }
             };
             const client = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
             client.start();
@@ -143,7 +149,10 @@ export function activate(context: ExtensionContext) {
                     ],
                     diagnosticCollectionName: 'tally-tdl-server',
                     workspaceFolder: outerFolder,
-                    outputChannel: outputChannel
+                    outputChannel: outputChannel,
+                    synchronize: {
+                        configurationSection: 'tallyTDL'
+                    }
                 };
                 const client = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
                 client.start();

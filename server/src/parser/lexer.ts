@@ -251,7 +251,7 @@ export class Lexer {
                     token.Value = token.Text; // Ensure Value is populated
                     break;
                 }
-                this.state.diagnostics.push({ message: `Unexpected character: ${char}`, start: this.state._pos, length: 1 });
+                this.state.diagnostics.push({ message: `Unexpected character: ${char}`, start: this.state._pos, length: 1, code: 'TDL1000' });
                 this.state._pos++;
                 break;
         }

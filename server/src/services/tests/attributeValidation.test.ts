@@ -4,6 +4,7 @@ import { TDLFunction } from '../../models/tdlFunction';
 import {
     validateDefinitionAttributes
 } from '../validation';
+import { DiagnosticRules } from '../../diagnostics';
 import { normalizeTypeName } from '../utils';
 import { SymbolTable, definitionTypeToSymbolKind } from '../symbolTable';
 import { testMetadata } from '../../test-setup';
@@ -43,8 +44,8 @@ describe('Attribute Validation', () => {
             const diagnostics = validateDefinitionAttributes(def, docReal, testMetadata!);
 
             const formDiag = diagnostics.find(d =>
-                d.message.includes('expects at least') ||
-                d.message.includes('Missing mandatory parameter')
+                d.code === DiagnosticRules.MissingParameters.code ||
+                d.code === DiagnosticRules.MissingMandatoryParameter.code
             );
             expect(formDiag).toBeDefined();
         });
@@ -58,7 +59,7 @@ describe('Attribute Validation', () => {
             const sourceFile = parser.parse();
 
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
-            const formDiag = diagnostics.find(d => d.message.includes('expects at least'));
+            const formDiag = diagnostics.find(d => d.code === DiagnosticRules.MissingParameters.code);
             expect(formDiag).toBeUndefined();
         });
     });
@@ -88,7 +89,7 @@ describe('Attribute Validation', () => {
             const sourceFile = parser.parse();
 
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!, symbolTable);
-            const refError = diagnostics.find(d => d.message.includes('not found'));
+            const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeUndefined();
         });
 
@@ -102,7 +103,7 @@ describe('Attribute Validation', () => {
 
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!, symbolTable);
 
-            const refError = diagnostics.find(d => d.message.includes("'NonExistentForm' of type 'Form' not found"));
+            const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeDefined();
         });
     });
@@ -141,7 +142,7 @@ describe('Attribute Validation', () => {
 
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
             // No missing mandatory param errors expected, as original has 1 mandatory and we provided 2
-            const diag = diagnostics.find(d => d.message.includes('expects at least'));
+            const diag = diagnostics.find(d => d.code === DiagnosticRules.MissingParameters.code);
             expect(diag).toBeUndefined();
         });
 
@@ -183,7 +184,7 @@ describe('Attribute Validation', () => {
             const sourceFile = parser.parse();
 
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
-            const diag = diagnostics.find(d => d.message.includes("Invalid logical value 'Maybe'"));
+            const diag = diagnostics.find(d => d.code === DiagnosticRules.InvalidLogicalValue.code);
             expect(diag).toBeDefined();
         });
 
@@ -196,7 +197,7 @@ describe('Attribute Validation', () => {
             const sourceFile = parser.parse();
 
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
-            const diag = diagnostics.find(d => d.message.includes('Invalid logical value'));
+            const diag = diagnostics.find(d => d.code === DiagnosticRules.InvalidLogicalValue.code);
             expect(diag).toBeUndefined();
         });
 
@@ -210,7 +211,7 @@ describe('Attribute Validation', () => {
             const sourceFile = parser.parse();
 
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
-            const diag = diagnostics.find(d => d.message.includes("Invalid keyword 'Invalid'"));
+            const diag = diagnostics.find(d => d.code === DiagnosticRules.InvalidKeyword.code);
             expect(diag).toBeDefined();
         });
 
@@ -223,7 +224,7 @@ describe('Attribute Validation', () => {
             const sourceFile = parser.parse();
 
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
-            const diag = diagnostics.find(d => d.message.includes('Invalid keyword'));
+            const diag = diagnostics.find(d => d.code === DiagnosticRules.InvalidKeyword.code);
             expect(diag).toBeUndefined();
         });
 

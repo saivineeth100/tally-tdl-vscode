@@ -212,6 +212,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should continue
   "end": 34,
   "errors": [
     {
+      "code": "TDL1003",
       "end": 14,
       "message": "Expected ] after Definition name",
       "start": 14,
@@ -468,6 +469,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should create D
   "end": 12,
   "errors": [
     {
+      "code": "TDL1003",
       "end": 12,
       "message": "Expected ] after Definition name",
       "start": 12,
@@ -620,6 +622,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should create D
   "end": 8,
   "errors": [
     {
+      "code": "TDL1003",
       "end": 8,
       "message": "Expected ] after Definition name",
       "start": 8,
@@ -742,6 +745,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should handle e
   "end": 2,
   "errors": [
     {
+      "code": "TDL1001",
       "end": 1,
       "message": "Expected Definition Type",
       "start": 1,
@@ -1057,6 +1061,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should parse mo
   "end": 9,
   "errors": [
     {
+      "code": "TDL1003",
       "end": 9,
       "message": "Expected ] after Definition name",
       "start": 9,
@@ -2738,6 +2743,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect mismatc
   "end": 136,
   "errors": [
     {
+      "code": "TDL1001",
       "end": 136,
       "message": "Mismatched block terminator: Expected END START MSG BOX, found END PROGRESS",
       "start": 119,
@@ -3650,6 +3656,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect mismatc
   "end": 111,
   "errors": [
     {
+      "code": "TDL1001",
       "end": 111,
       "message": "Mismatched block terminator: Expected END IF, found END WHILE",
       "start": 97,
@@ -4528,6 +4535,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
   "end": 112,
   "errors": [
     {
+      "code": "TDL1001",
       "end": 79,
       "message": "Unclosed block: Missing END FOR RANGE",
       "start": 45,
@@ -5313,6 +5321,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
   "end": 92,
   "errors": [
     {
+      "code": "TDL1001",
       "end": 59,
       "message": "Unclosed block: Missing END FOR",
       "start": 40,
@@ -6013,6 +6022,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
   "end": 113,
   "errors": [
     {
+      "code": "TDL1001",
       "end": 80,
       "message": "Unclosed block: Missing END WALK COLLECTION",
       "start": 51,
@@ -6708,6 +6718,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
   "end": 84,
   "errors": [
     {
+      "code": "TDL1001",
       "end": 51,
       "message": "Unclosed block: Missing END IF",
       "start": 37,
@@ -7364,6 +7375,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unmatch
   "end": 91,
   "errors": [
     {
+      "code": "TDL1001",
       "end": 91,
       "message": "Unmatched END MSG BOX without opening block",
       "start": 75,

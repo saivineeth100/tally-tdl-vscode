@@ -13,6 +13,7 @@ export class ScopeExplorer {
             vscode.ViewColumn.Two,
             { 
                 enableScripts: true,
+                retainContextWhenHidden: true,
                 localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'client', 'media'))]
             }
         );

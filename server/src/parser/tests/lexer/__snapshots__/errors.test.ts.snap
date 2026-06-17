@@ -16,11 +16,13 @@ exports[`Lexer Error and Edge Cases > Empty File 2`] = `
 exports[`Lexer Error and Edge Cases > Illegal Characters 1`] = `
 [
   {
+    "code": "TDL1000",
     "length": 1,
     "message": "Unexpected character: ~",
     "start": 9,
   },
   {
+    "code": "TDL1000",
     "length": 1,
     "message": "Unexpected character: ^",
     "start": 14,
@@ -175,6 +177,7 @@ exports[`Lexer Error and Edge Cases > Only Whitespace and Comments 2`] = `
 exports[`Lexer Error and Edge Cases > Unclosed Multi Line Comment 1`] = `
 [
   {
+    "code": "TDL1000",
     "length": 65,
     "message": "Unclosed multi-line comment",
     "start": 0,
@@ -206,6 +209,7 @@ Title: "Hello"",
 exports[`Lexer Error and Edge Cases > Unclosed Multi Line String Literal 1`] = `
 [
   {
+    "code": "TDL1000",
     "length": 58,
     "message": "Unclosed string literal",
     "start": 22,
@@ -343,6 +347,7 @@ that stops here",
 exports[`Lexer Error and Edge Cases > Unclosed String Literal 1`] = `
 [
   {
+    "code": "TDL1000",
     "length": 17,
     "message": "Unclosed string literal",
     "start": 22,
@@ -478,6 +483,7 @@ exports[`Lexer Error and Edge Cases > Unclosed String Literal 2`] = `
 exports[`Lexer Error and Edge Cases > Unclosed String Literal at EOF 1`] = `
 [
   {
+    "code": "TDL1000",
     "length": 23,
     "message": "Unclosed string literal",
     "start": 22,

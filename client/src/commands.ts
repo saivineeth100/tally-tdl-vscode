@@ -283,6 +283,13 @@ export function registerCommands(
                 );
             });
             commands.executeCommand('editor.action.showReferences', uri, pos, locs);
+        }),
+        commands.registerCommand('tally-tdl.disableDiagnostic', async (code: string) => {
+            const config = workspace.getConfiguration('tallyTDL');
+            const severityConfig = { ...(config.get<Record<string, string>>('diagnostics.severity') || {}) };
+            severityConfig[code] = 'none';
+            await config.update('diagnostics.severity', severityConfig, workspace.workspaceFolders ? 2 : 1); // ConfigurationTarget.Workspace = 2, Global = 1
+            window.showInformationMessage(`Diagnostic ${code} has been disabled for this project.`);
         })
     );
 }

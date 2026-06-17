@@ -7,9 +7,9 @@ import { normalizeTypeName } from "../utils";
 import { ScopeManager } from "../scopeManager";
 import { validateLabelSequences } from "../sequenceValidator";
 import { validateDefinitionAttributes, validateSchemaObject } from "./attributeValidation";
-import { MISSING_END_STATEMENT_DIAGNOSTIC_CODE } from "./validationConstants";
+import { DiagnosticRules, createDiagnostic } from "../../diagnostics";
 
-export * from './validationConstants';
+export * from '../../diagnostics';
 export * from './validationUtils';
 export * from './attributeValidation';
 export * from './expressionValidation';
@@ -49,12 +49,11 @@ export async function validateSourceFile(
             if (normalizedType === 'include' || normalizedType === 'import') {
                 if (def.name && docManager) {
                     if (docManager.hasCircularIncludes(doc.uri)) {
-                        diagnostics.push({
-                            severity: DiagnosticSeverity.Error,
-                            range: { start: doc.positionAt(def.name.start), end: doc.positionAt(def.name.end) },
-                            message: `Circular include detected: '${def.name.text}' creates an infinite loop`,
-                            source: 'tdl'
-                        });
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.CircularInclude,
+                            { start: doc.positionAt(def.name.start), end: doc.positionAt(def.name.end) },
+                            def.name.text
+                        ));
                     }
                 }
             }
@@ -87,12 +86,11 @@ export async function validateSourceFile(
                     const startPos = doc.positionAt(def.name.start);
                     const endPos = doc.positionAt(def.name.end);
 
-                    diagnostics.push({
-                        severity: DiagnosticSeverity.Error,
-                        range: { start: startPos, end: endPos },
-                        message: `Definition '${defName}' already exists in default TDL`,
-                        source: 'tdl'
-                    });
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.DuplicateDefinition,
+                        { start: startPos, end: endPos },
+                        defName
+                    ));
                 } else if (symbolTable) {
                     // Check against Workspace (excluding modifiers)
                     const allSymbols = symbolTable.findAllByName(defName, projectNodes);
@@ -107,12 +105,11 @@ export async function validateSourceFile(
                         const startPos = doc.positionAt(def.name.start);
                         const endPos = doc.positionAt(def.name.end);
 
-                        diagnostics.push({
-                            severity: DiagnosticSeverity.Error,
-                            range: { start: startPos, end: endPos },
-                            message: `Duplicate definition: '${defName}' is already defined in the workspace`,
-                            source: 'tdl'
-                        });
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.DuplicateDefinition,
+                            { start: startPos, end: endPos },
+                            defName
+                        ));
                     }
                 }
             } else {
@@ -122,12 +119,11 @@ export async function validateSourceFile(
                     const existsInWorkspace = allSymbols.some(s => s.kind === kind && !s.isModifier);
                     
                     if (!existsInMetadata && !existsInWorkspace) {
-                        diagnostics.push({
-                            severity: DiagnosticSeverity.Error,
-                            range: { start: doc.positionAt(def.name.start), end: doc.positionAt(def.name.end) },
-                            message: `Modified definition '${defName}' does not exist. You must define it before modifying it.`,
-                            source: 'tdl'
-                        });
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.ModifierMissingTarget,
+                            { start: doc.positionAt(def.name.start), end: doc.positionAt(def.name.end) },
+                            defName
+                        ));
                     }
                 }
             }
@@ -145,12 +141,11 @@ export async function validateSourceFile(
                             const varName = ident.text.replace(/^##?/, '');
                             const resolved = scopeManager.resolve(varName, scope);
                             if (!resolved) {
-                                diagnostics.push({
-                                    severity: DiagnosticSeverity.Warning,
-                                    range: { start: doc.positionAt(node.start), end: doc.positionAt(node.end) },
-                                    message: `Undefined variable or field: '${ident.text}'`,
-                                    source: 'tdl'
-                                });
+                                diagnostics.push(createDiagnostic(
+                                    DiagnosticRules.UndefinedVariable,
+                                    { start: doc.positionAt(node.start), end: doc.positionAt(node.end) },
+                                    ident.text
+                                ));
                             }
                         }
                     } else if (node.kind === SyntaxKind.FunctionCall) {
@@ -174,64 +169,57 @@ export async function validateSourceFile(
                 const checkStatement = (stmt: any, inLoop: boolean = false) => {
                     if (stmt instanceof BreakNode || stmt instanceof ContinueNode) {
                         if (!inLoop) {
-                            diagnostics.push({
-                                severity: DiagnosticSeverity.Error,
-                                range: { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
-                                message: `'${stmt.action?.text}' statement can only be used inside a loop (While, Walk, For)`,
-                                source: 'tdl'
-                            });
+                            diagnostics.push(createDiagnostic(
+                                DiagnosticRules.InvalidLoopStatement,
+                                { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
+                                stmt.action?.text
+                            ));
                         }
                     }
 
                     if (stmt instanceof ReturnNode) {
                         if (def.type.text.toUpperCase() !== "FUNCTION") {
-                            diagnostics.push({
-                                severity: DiagnosticSeverity.Error,
-                                range: { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
-                                message: `'Return' statement can only be used inside a Function definition`,
-                                source: 'tdl'
-                            });
+                            diagnostics.push(createDiagnostic(
+                                DiagnosticRules.InvalidReturn,
+                                { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) }
+                            ));
                         }
                     }
 
                     if (stmt instanceof SetNode || stmt instanceof ExchangeNode || stmt instanceof IncrementNode || stmt instanceof DecrementNode) {
                         if (stmt.args.length < 1) {
-                            diagnostics.push({
-                                severity: DiagnosticSeverity.Error,
-                                range: { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
-                                message: `'${stmt.action?.text}' statement requires at least a target variable`,
-                                source: 'tdl'
-                            });
+                            diagnostics.push(createDiagnostic(
+                                DiagnosticRules.MissingTargetVariable,
+                                { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
+                                stmt.action?.text
+                            ));
                         } else {
                             const arg1 = stmt.args[0];
                             if (arg1.kind !== SyntaxKind.VariableReference && arg1.kind !== SyntaxKind.Identifier && arg1.kind !== SyntaxKind.FieldReference) {
-                                diagnostics.push({
-                                    severity: DiagnosticSeverity.Error,
-                                    range: { start: doc.positionAt(arg1.start || stmt.start), end: doc.positionAt(arg1.end || stmt.end) },
-                                    message: `First argument of '${stmt.action?.text}' must be a variable or field reference`,
-                                    source: 'tdl'
-                                });
+                                diagnostics.push(createDiagnostic(
+                                    DiagnosticRules.InvalidTargetVariable,
+                                    { start: doc.positionAt(arg1.start || stmt.start), end: doc.positionAt(arg1.end || stmt.end) },
+                                    stmt.action?.text
+                                ));
                             }
                         }
 
                         if (stmt instanceof SetNode || stmt instanceof ExchangeNode) {
                             if (stmt.args.length < 2) {
-                                diagnostics.push({
-                                    severity: DiagnosticSeverity.Error,
-                                    range: { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
-                                    message: `'${stmt.action?.text}' statement requires 2 arguments`,
-                                    source: 'tdl'
-                                });
+                                diagnostics.push(createDiagnostic(
+                                    DiagnosticRules.MissingArgument,
+                                    { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
+                                    stmt.action?.text,
+                                    2
+                                ));
                             }
                             if (stmt instanceof ExchangeNode && stmt.args.length >= 2) {
                                 const arg2 = stmt.args[1];
                                 if (arg2.kind !== SyntaxKind.VariableReference && arg2.kind !== SyntaxKind.Identifier && arg2.kind !== SyntaxKind.FieldReference) {
-                                    diagnostics.push({
-                                        severity: DiagnosticSeverity.Error,
-                                        range: { start: doc.positionAt(arg2.start || stmt.start), end: doc.positionAt(arg2.end || stmt.end) },
-                                        message: `Second argument of 'Exchange' must be a variable or field reference`,
-                                        source: 'tdl'
-                                    });
+                                    diagnostics.push(createDiagnostic(
+                                        DiagnosticRules.InvalidExchangeArgument,
+                                        { start: doc.positionAt(arg2.start || stmt.start), end: doc.positionAt(arg2.end || stmt.end) }
+                                    ));
                                 }
                             }
                         }
@@ -248,12 +236,11 @@ export async function validateSourceFile(
                         if (labelText) {
                             const normalizedLabel = labelText.toLowerCase();
                             if (labels.has(normalizedLabel)) {
-                                diagnostics.push({
-                                    severity: DiagnosticSeverity.Error,
-                                    range: { start: doc.positionAt(stmt.label.start), end: doc.positionAt(stmt.label.end) },
-                                    message: `Duplicate label '${labelText}' in function`,
-                                    source: 'tdl'
-                                });
+                                diagnostics.push(createDiagnostic(
+                                    DiagnosticRules.DuplicateLabel,
+                                    { start: doc.positionAt(stmt.label.start), end: doc.positionAt(stmt.label.end) },
+                                    labelText
+                                ));
                             } else {
                                 labels.add(normalizedLabel);
                             }
@@ -267,12 +254,11 @@ export async function validateSourceFile(
                             (a.Aliases && a.Aliases.split(',').map(al => normalizeTypeName(al.trim())).includes(normalizeTypeName(actionName)))
                         );
                         if (!actionDef) {
-                            diagnostics.push({
-                                severity: DiagnosticSeverity.Warning,
-                                range: { start: doc.positionAt(stmt.action.start), end: doc.positionAt(stmt.action.end) },
-                                message: `Unknown action '${actionName}'`,
-                                source: 'tdl'
-                            });
+                            diagnostics.push(createDiagnostic(
+                                DiagnosticRules.UnknownAction,
+                                { start: doc.positionAt(stmt.action.start), end: doc.positionAt(stmt.action.end) },
+                                actionName
+                            ));
                         }
                     }
                     
@@ -306,14 +292,13 @@ export async function validateSourceFile(
                             else if (actText.startsWith('for ')) expectedEnd = 'End For';
                             else if (actText === 'start block') expectedEnd = 'End Block';
                             
-                            diagnostics.push({
-                                severity: DiagnosticSeverity.Error,
-                                range: { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
-                                message: `Statement block must end with '${expectedEnd}'`,
-                                code: MISSING_END_STATEMENT_DIAGNOSTIC_CODE,
-                                source: 'tdl',
-                                data: { expectedEnd }
-                            });
+                            const diag = createDiagnostic(
+                                DiagnosticRules.MissingEndStatement,
+                                { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
+                                expectedEnd.replace('End ', '')
+                            );
+                            (diag as any).data = { expectedEnd };
+                            diagnostics.push(diag);
                         }
                     }
                 };

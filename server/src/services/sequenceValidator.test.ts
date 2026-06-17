@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { validateLabelSequences, BROKEN_SEQUENCE_DIAGNOSTIC_CODE } from './sequenceValidator';
+import { validateLabelSequences } from './sequenceValidator';
 import { Parser } from '../parser/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { DiagnosticRules } from '../diagnostics';
 
 function createMockDocument(text: string): TextDocument {
     return TextDocument.create('file://test.tdl', 'tdl', 1, text);
@@ -19,7 +20,7 @@ describe('sequenceValidator', () => {
 
         const diagnostics = validateLabelSequences(sourceFile, doc);
         expect(diagnostics.length).toBe(1);
-        expect(diagnostics[0].code).toBe(BROKEN_SEQUENCE_DIAGNOSTIC_CODE);
+        expect(diagnostics[0].code).toBe(DiagnosticRules.DuplicateLabel.code);
         expect(diagnostics[0].message).toContain('Expected: 002');
         expect(diagnostics[0].data?.expectedLabel).toBe('002');
     });

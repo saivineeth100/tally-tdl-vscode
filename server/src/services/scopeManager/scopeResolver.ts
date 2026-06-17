@@ -21,9 +21,8 @@ export function resolveSymbol(state: IScopeResolverState, name: string, initialS
         visitedScopes.add(scope.id);
         
         // Check symbol map
-        for (const [key, sym] of scope.symbols) {
-            if (key.toLowerCase() === lowerName) return sym;
-        }
+        const sym = scope.symbols.get(lowerName);
+        if (sym) return sym;
 
         // Check Use inheritance first
         const uses = state.useInheritance.get(scope.id.toLowerCase());
@@ -59,9 +58,8 @@ export function resolveSymbol(state: IScopeResolverState, name: string, initialS
             const result = searchScopeAndParents(current);
             if (result) return result;
         } else {
-            for (const [key, sym] of current.symbols) {
-                if (key.toLowerCase() === lowerName) return sym;
-            }
+            const sym = current.symbols.get(lowerName);
+            if (sym) return sym;
         }
         current = current.parent;
     }

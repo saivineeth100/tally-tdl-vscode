@@ -4,6 +4,7 @@ import { TdlMetadata, TDLSchema, TDLSchemaProperty } from '../../tdlMetaData';
 import { SourceFile, DefinitionNode, AttributeNode, IdentifierNode, ComplexObjectNode } from '../../parser/ast';
 import { Token } from '../../parser/token';
 import { TokenKind } from '../../parser/tokenKind';
+import { DiagnosticRules } from '../../diagnostics';
 
 describe('XML Schema Validation', () => {
     let mockMetadata: TdlMetadata;
@@ -84,7 +85,7 @@ describe('XML Schema Validation', () => {
 
         const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
         expect(diagnostics.length).toBe(1);
-        expect(diagnostics[0].message).toContain("Unknown property 'UNKNOWNPROP'");
+        expect(diagnostics[0].code).toBe(DiagnosticRules.UnknownSchemaProperty.code);
     });
 
     it('reports errors for invalid logical values', async () => {
@@ -99,6 +100,6 @@ describe('XML Schema Validation', () => {
 
         const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
         expect(diagnostics.length).toBe(1);
-        expect(diagnostics[0].message).toContain("Invalid logical value");
+        expect(diagnostics[0].code).toBe(DiagnosticRules.InvalidLogicalValue.code);
     });
 });

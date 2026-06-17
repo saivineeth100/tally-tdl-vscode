@@ -116,7 +116,7 @@ export class TriviaScanner {
         }
         
         // Unclosed multi-line comment
-        this.state.diagnostics.push({ message: 'Unclosed multi-line comment', start, length: this.state._pos - start });
+        this.state.diagnostics.push({ message: 'Unclosed multi-line comment', start, length: this.state._pos - start, code: 'TDL1000' });
         const token = new Token(TokenKind.Unknown, start, start, this.state._pos - start);
         token.Text = this.state.GetText(start);
         return token;

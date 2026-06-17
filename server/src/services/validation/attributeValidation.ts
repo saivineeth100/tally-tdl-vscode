@@ -6,7 +6,7 @@ import { SymbolTable, definitionTypeToSymbolKind, SymbolKind } from "../symbolTa
 import { normalizeTypeName, getInterchangeableTypes } from "../utils";
 import { areTypesCompatible, inferExpressionType } from "./validationUtils";
 import { validateFunctionCall, validateBinaryExpression } from "./expressionValidation";
-import { UNKNOWN_ATTRIBUTE_DIAGNOSTIC_CODE, MISSING_DEFINITION_DIAGNOSTIC_CODE, UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE } from "./validationConstants";
+import { DiagnosticRules, createDiagnostic } from "../../diagnostics";
 
 
 
@@ -39,12 +39,11 @@ export function validateDefinitionAttributes(
                 const varName = identifierNode.text || '';
                 const lowerVarName = varName.toLowerCase();
                 if (declaredVariables.has(lowerVarName)) {
-                    diagnostics.push({
-                        severity: DiagnosticSeverity.Error,
-                        range: { start: doc.positionAt(attr.value[0].start), end: doc.positionAt(attr.value[0].end) },
-                        message: `Duplicate variable declaration: '${varName}' is already declared in this definition.`,
-                        source: 'tdl'
-                    });
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.DuplicateVariableDeclaration,
+                        { start: doc.positionAt(attr.value[0].start), end: doc.positionAt(attr.value[0].end) },
+                        varName
+                    ));
                 } else {
                     declaredVariables.add(lowerVarName);
                 }
@@ -58,14 +57,13 @@ export function validateDefinitionAttributes(
             const startPos = doc.positionAt(attr.name.start);
             const endPos = doc.positionAt(attr.name.end);
 
-            diagnostics.push({
-                severity: DiagnosticSeverity.Warning,
-                range: { start: startPos, end: endPos },
-                message: `Unknown attribute '${attrName}' for ${defTypeName} definition`,
-                code: UNKNOWN_ATTRIBUTE_DIAGNOSTIC_CODE,
-                data: { attrName, defTypeName },
-                source: 'tdl'
-            });
+            const diag = createDiagnostic(
+                DiagnosticRules.UnknownAttribute,
+                { start: startPos, end: endPos },
+                attrName
+            );
+            (diag as any).data = { attrName, defTypeName };
+            diagnostics.push(diag);
             continue;
         }
 
@@ -84,12 +82,11 @@ export function validateDefinitionAttributes(
             if (providedCount < minRequired) {
                 const startPos = doc.positionAt(attr.name.start);
                 const endPos = doc.positionAt(attr.name.end);
-                diagnostics.push({
-                    severity: DiagnosticSeverity.Warning,
-                    range: { start: startPos, end: endPos },
-                    message: `Attribute '${attrDef.Name}' expects at least ${minRequired} parameter(s). Provided: ${providedCount}`,
-                    source: 'tdl'
-                });
+                diagnostics.push(createDiagnostic(
+                    DiagnosticRules.MissingParameters,
+                    { start: startPos, end: endPos },
+                    attrDef.Name, minRequired, providedCount
+                ));
             } else {
                 // Check if any mandatory parameter is skipped (EmptyNode)
                 for (let i = 0; i <= lastMandatoryIndex; i++) {
@@ -98,12 +95,11 @@ export function validateDefinitionAttributes(
                         if (node.kind === SyntaxKind.Empty) {
                             const startPos = doc.positionAt(node.start);
                             const endPos = doc.positionAt(node.end);
-                            diagnostics.push({
-                                severity: DiagnosticSeverity.Error,
-                                range: { start: startPos, end: endPos },
-                                message: `Missing mandatory parameter: ${attrDef.Parameters[i].ParameterType || `at position ${i + 1}`}`,
-                                source: 'tdl'
-                            });
+                            diagnostics.push(createDiagnostic(
+                                DiagnosticRules.MissingMandatoryParameter,
+                                { start: startPos, end: endPos },
+                                attrDef.Parameters[i].ParameterType || `at position ${i + 1}`
+                            ));
                         }
                     }
                 }
@@ -127,12 +123,11 @@ export function validateDefinitionAttributes(
                     if (normalizedExpected !== normalizedInferred && !areTypesCompatible(normalizedExpected, normalizedInferred)) {
                         const startPos = doc.positionAt(paramNode.start);
                         const endPos = doc.positionAt(paramNode.end);
-                        diagnostics.push({
-                            severity: DiagnosticSeverity.Warning,
-                            range: { start: startPos, end: endPos },
-                            message: `Expected '${paramDef.DataType}' but provided expression evaluates to '${inferredType}'`,
-                            source: 'tdl'
-                        });
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.TypeMismatch,
+                            { start: startPos, end: endPos },
+                            paramDef.DataType, inferredType
+                        ));
                     }
                 }
 
@@ -172,24 +167,33 @@ export function validateDefinitionAttributes(
 
                 // Keyword Validation
                 // if (paramDef.ParameterType === 'Keyword' && paramDef.Keywords) {
-                //     const validKeywords = paramDef.Keywords.split(',').map(k => k.trim().toLowerCase());
+                //     const validKeywords = paramDef.Keywords.split(',').map((k: string) => k.trim().toLowerCase());
                     
                 //     let isValidAction = false;
                 //     if (paramDef.DataType?.toLowerCase() === 'action') {
-                //         isValidAction = metadata.actions.some(a => a.Name.toLowerCase() === cleanValue.toLowerCase());
+                //         isValidAction = metadata.actions.some((a: any) => a.Name.toLowerCase() === cleanValue.toLowerCase());
                 //     }
 
                 //     if (!validKeywords.includes(cleanValue.toLowerCase()) && !isValidAction) {
                 //         const startPos = doc.positionAt(paramNode.start);
                 //         const endPos = doc.positionAt(paramNode.end);
-                //         diagnostics.push({
-                //             severity: DiagnosticSeverity.Warning,
-                //             range: { start: startPos, end: endPos },
-                //             message: paramDef.DataType?.toLowerCase() === 'action'
-                //                 ? `Invalid action '${cleanValue}'. Expected a valid Action or Keyword: ${paramDef.Keywords}`
-                //                 : `Invalid keyword '${cleanValue}'. Expected one of: ${paramDef.Keywords}`,
-                //             source: 'tdl'
-                //         });
+                        
+                //         if (paramDef.DataType?.toLowerCase() === 'action') {
+                //             if (!DiagnosticRules.UnknownAction) console.error("FATAL: DiagnosticRules.UnknownAction is undefined!");
+                //             diagnostics.push(createDiagnostic(
+                //                 DiagnosticRules.UnknownAction,
+                //                 { start: startPos, end: endPos },
+                //                 cleanValue
+                //             ));
+                //         } else {
+                //             if (!DiagnosticRules.InvalidKeyword) console.error("FATAL: DiagnosticRules.InvalidKeyword is undefined!");
+                //             diagnostics.push(createDiagnostic(
+                //                 DiagnosticRules.InvalidKeyword,
+                //                 { start: startPos, end: endPos },
+                //                 cleanValue,
+                //                 paramDef.Keywords
+                //             ));
+                //         }
                 //     }
                 // }
                 // Action Validation (if it's not a Keyword ParameterType but still DataType is Action)
@@ -198,12 +202,11 @@ export function validateDefinitionAttributes(
                     if (!isValidAction) {
                         const startPos = doc.positionAt(paramNode.start);
                         const endPos = doc.positionAt(paramNode.end);
-                        diagnostics.push({
-                            severity: DiagnosticSeverity.Warning,
-                            range: { start: startPos, end: endPos },
-                            message: `Invalid action '${cleanValue}'. No such action exists.`,
-                            source: 'tdl'
-                        });
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.UnknownAction,
+                            { start: startPos, end: endPos },
+                            cleanValue
+                        ));
                     }
                 }
 
@@ -213,12 +216,11 @@ export function validateDefinitionAttributes(
                     if (!validLogical.includes(cleanValue.toLowerCase())) {
                         const startPos = doc.positionAt(paramNode.start);
                         const endPos = doc.positionAt(paramNode.end);
-                        diagnostics.push({
-                            severity: DiagnosticSeverity.Warning,
-                            range: { start: startPos, end: endPos },
-                            message: `Invalid logical value '${cleanValue}'. Expected: Yes, No, True, False`,
-                            source: 'tdl'
-                        });
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.InvalidLogicalValue,
+                            { start: startPos, end: endPos },
+                            cleanValue
+                        ));
                     }
                 }
 
@@ -242,26 +244,25 @@ export function validateDefinitionAttributes(
                     const hasDefinitionInMeta = metadata.isExistingDefinition(normalizedRefersToType, cleanValue);
 
                     if (!hasDefinitionInWorkspace && !hasDefinitionInMeta) {
-                        diagnostics.push({
-                            severity: DiagnosticSeverity.Warning,
-                            range: { start: startPos, end: endPos },
-                            message: `Definition '${cleanValue}' of type '${refersToType}' not found`,
-                            source: 'tdl',
-                            code: MISSING_DEFINITION_DIAGNOSTIC_CODE,
-                            data: { name: cleanValue, type: refersToType }
-                        });
+                        const diag = createDiagnostic(
+                            DiagnosticRules.MissingDefinition,
+                            { start: startPos, end: endPos },
+                            cleanValue
+                        );
+                        (diag as any).data = { name: cleanValue, type: refersToType };
+                        diagnostics.push(diag);
                     } else if (hasDefinitionInWorkspace && projectNodes) {
                         // Check if the definition is reachable from the project root
                         const validProjectSymbol = existingSymbols.find(s => targetKinds.includes(s.kind) && projectNodes.has(s.uri));
                         if (!validProjectSymbol) {
-                            diagnostics.push({
-                                severity: DiagnosticSeverity.Warning,
-                                range: { start: startPos, end: endPos },
-                                message: `Definition '${cleanValue}' is used from a file that is not included in the project`,
-                                source: 'tdl',
-                                code: MISSING_DEFINITION_DIAGNOSTIC_CODE,
-                                data: { name: cleanValue, type: refersToType }
-                            });
+                            const diag = createDiagnostic(
+                                DiagnosticRules.MissingDefinition,
+                                { start: startPos, end: endPos },
+                                cleanValue
+                            );
+                            diag.message = `Definition '${cleanValue}' is used from a file that is not included in the project`;
+                            (diag as any).data = { name: cleanValue, type: refersToType };
+                            diagnostics.push(diag);
                         }
                     }
                 }
@@ -298,12 +299,11 @@ export function validateSchemaObject(
         if (systemAttributes.includes(normalizedAttrName)) {
             // For VCHTYPE and OBJVIEW, these are typically only valid on VOUCHER.
             if ((normalizedAttrName === 'VCHTYPE' || normalizedAttrName === 'OBJVIEW') && schemaName.toUpperCase() !== 'VOUCHER') {
-                diagnostics.push({
-                    severity: DiagnosticSeverity.Warning,
-                    range: { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
-                    message: `Property '${attrName}' is only valid on VOUCHER schema`,
-                    source: 'tdl'
-                });
+                diagnostics.push(createDiagnostic(
+                    DiagnosticRules.InvalidSystemAttributeUsage,
+                    { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
+                    attrName
+                ));
             }
             // Skip further property validation for system attributes
             continue;
@@ -311,14 +311,13 @@ export function validateSchemaObject(
 
         const propKey = Array.from(schema.Properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
         if (!propKey) {
-            diagnostics.push({
-                severity: DiagnosticSeverity.Warning,
-                range: { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
-                message: `Unknown property '${attrName}' for schema '${schemaName}'`,
-                code: UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE,
-                data: { attrName, schemaName },
-                source: 'tdl'
-            });
+            const diag = createDiagnostic(
+                DiagnosticRules.UnknownSchemaProperty,
+                { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
+                attrName
+            );
+            (diag as any).data = { attrName, schemaName };
+            diagnostics.push(diag);
             continue;
         }
 
@@ -328,12 +327,11 @@ export function validateSchemaObject(
             if (firstVal.kind === SyntaxKind.Identifier) {
                 const valText = (firstVal as IdentifierNode).text.toLowerCase();
                 if (!['yes', 'no', 'true', 'false'].includes(valText)) {
-                    diagnostics.push({
-                        severity: DiagnosticSeverity.Warning,
-                        range: { start: doc.positionAt(firstVal.start), end: doc.positionAt(firstVal.end) },
-                        message: `Invalid logical value '${valText}'. Expected: Yes, No`,
-                        source: 'tdl'
-                    });
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.InvalidLogicalValue,
+                        { start: doc.positionAt(firstVal.start), end: doc.positionAt(firstVal.end) },
+                        valText
+                    ));
                 }
             }
         }
@@ -355,12 +353,11 @@ export function validateSchemaObject(
                     const attrName = attr.name.text;
                     const normalizedAttrName = attrName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
                     if (normalizedAttrName !== normalizedObjName && normalizedAttrName !== 'TYPE') {
-                        diagnostics.push({
-                            severity: DiagnosticSeverity.Warning,
-                            range: { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
-                            message: `Invalid inner tag '${attrName}'. Expected '${objName.replace(/\.LIST$/i, '')}'`,
-                            source: 'tdl'
-                        });
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.InvalidInnerTag,
+                            { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
+                            attrName
+                        ));
                     } else if (normalizedAttrName === normalizedObjName) {
                         // Validate data type
                         if (simpleProp.DataType?.toLowerCase() === 'logical' && attr.value.length > 0) {
@@ -368,12 +365,11 @@ export function validateSchemaObject(
                             if (firstVal.kind === 1) { // SyntaxKind.Identifier
                                 const valText = (firstVal as any).text.toLowerCase();
                                 if (!['yes', 'no', 'true', 'false'].includes(valText)) {
-                                    diagnostics.push({
-                                        severity: DiagnosticSeverity.Warning,
-                                        range: { start: doc.positionAt(firstVal.start), end: doc.positionAt(firstVal.end) },
-                                        message: `Invalid logical value '${valText}'. Expected: Yes, No`,
-                                        source: 'tdl'
-                                    });
+                                    diagnostics.push(createDiagnostic(
+                                        DiagnosticRules.InvalidLogicalValue,
+                                        { start: doc.positionAt(firstVal.start), end: doc.positionAt(firstVal.end) },
+                                        valText
+                                    ));
                                 }
                             }
                         }
@@ -385,25 +381,23 @@ export function validateSchemaObject(
                     const innerName = innerObj.name.text;
                     const normalizedInnerName = innerName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
                     if (normalizedInnerName !== normalizedObjName) {
-                        diagnostics.push({
-                            severity: DiagnosticSeverity.Warning,
-                            range: { start: doc.positionAt(innerObj.name.start), end: doc.positionAt(innerObj.name.end) },
-                            message: `Invalid inner tag '${innerName}'. Expected '${objName.replace(/\.LIST$/i, '')}'`,
-                            source: 'tdl'
-                        });
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.InvalidInnerTag,
+                            { start: doc.positionAt(innerObj.name.start), end: doc.positionAt(innerObj.name.end) },
+                            innerName
+                        ));
                     }
                 }
                 continue;
             }
 
-            diagnostics.push({
-                severity: DiagnosticSeverity.Warning,
-                range: { start: doc.positionAt(complexObj.name.start), end: doc.positionAt(complexObj.name.end) },
-                message: `Unknown complex property '${objName}' for schema '${schemaName}'`,
-                code: UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE,
-                data: { attrName: objName, schemaName: schemaName },
-                source: 'tdl'
-            });
+            const diag = createDiagnostic(
+                DiagnosticRules.UnknownSchemaProperty,
+                { start: doc.positionAt(complexObj.name.start), end: doc.positionAt(complexObj.name.end) },
+                objName
+            );
+            (diag as any).data = { attrName: objName, schemaName: schemaName };
+            diagnostics.push(diag);
             continue;
         }
 

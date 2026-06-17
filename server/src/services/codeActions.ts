@@ -1,19 +1,13 @@
 import { getMetadata } from './metadataService';
 import { CodeActionParams, CodeAction, CodeActionKind, TextEdit } from "vscode-languageserver";
 import { DocManager } from "../docManager";
-import { BROKEN_SEQUENCE_DIAGNOSTIC_CODE } from "./sequenceValidator";
-import { 
-    MISSING_DEFINITION_DIAGNOSTIC_CODE,
-    UNKNOWN_DEFINITION_TYPE_DIAGNOSTIC_CODE,
-    UNKNOWN_ATTRIBUTE_DIAGNOSTIC_CODE,
-    UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE,
-    MISSING_END_STATEMENT_DIAGNOSTIC_CODE
-} from "./validation";
+
 import { TextDocuments } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { findClosestMatch } from "../utils/stringUtils";
 import { TdlMetadata } from "../tdlMetaData";
 import { StatementNode, BlockStatementNode, IdentifierNode, LiteralNode, SyntaxKind } from "../parser/ast";
+import { DiagnosticRules } from "../diagnostics";
 import { incrementLabel, matchesSequencePattern } from "../utils/labelUtils";
 
 export function provideCodeActions(
@@ -29,7 +23,7 @@ export function provideCodeActions(
     if (!doc || !docState) return actions;
 
     for (const diagnostic of params.context.diagnostics) {
-        if (diagnostic.code === BROKEN_SEQUENCE_DIAGNOSTIC_CODE) {
+        if (diagnostic.code === DiagnosticRules.DuplicateLabel.code) {
             const expectedLabel = (diagnostic.data as any)?.expectedLabel;
             if (expectedLabel) {
                 const offset = doc.offsetAt(diagnostic.range.start);
@@ -126,7 +120,7 @@ export function provideCodeActions(
                     }
                 }
             }
-        } else if (diagnostic.code === MISSING_DEFINITION_DIAGNOSTIC_CODE) {
+        } else if (diagnostic.code === DiagnosticRules.MissingDefinition.code) {
             const data = diagnostic.data as any;
             if (data && data.name && data.type) {
                 // Determine the end of the document to append the new definition
@@ -146,7 +140,7 @@ export function provideCodeActions(
                     }
                 });
             }
-        } else if (diagnostic.code === MISSING_END_STATEMENT_DIAGNOSTIC_CODE) {
+        } else if (diagnostic.code === DiagnosticRules.MissingEndStatement.code) {
             const expectedEnd = (diagnostic.data as any)?.expectedEnd;
             if (expectedEnd) {
                 actions.push({
@@ -162,7 +156,7 @@ export function provideCodeActions(
                     }
                 });
             }
-        } else if (diagnostic.code === UNKNOWN_DEFINITION_TYPE_DIAGNOSTIC_CODE) {
+        } else if (diagnostic.code === DiagnosticRules.UnknownDefinitionType.code) {
             const defTypeName = (diagnostic.data as any)?.defTypeName;
             if (defTypeName && md) {
                 const types = Array.from(md.definitions.keys() as IterableIterator<string>);
@@ -182,7 +176,7 @@ export function provideCodeActions(
                     });
                 }
             }
-        } else if (diagnostic.code === UNKNOWN_ATTRIBUTE_DIAGNOSTIC_CODE) {
+        } else if (diagnostic.code === DiagnosticRules.UnknownAttribute.code) {
             const data = diagnostic.data as any;
             if (data?.attrName && data?.defTypeName && md) {
                 let attrs = md.definitions.get(data.defTypeName);
@@ -213,7 +207,7 @@ export function provideCodeActions(
                     }
                 }
             }
-        } else if (diagnostic.code === UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE) {
+        } else if (diagnostic.code === DiagnosticRules.UnknownSchemaProperty.code) {
             const data = diagnostic.data as any;
             if (data?.attrName && data?.schemaName && md) {
                 const schemaKey = Array.from(md.schemas.keys() as IterableIterator<string>).find((k: string) => k.toUpperCase() === data.schemaName.toUpperCase());
@@ -239,6 +233,19 @@ export function provideCodeActions(
                     }
                 }
             }
+        }
+        
+        if (diagnostic.code && typeof diagnostic.code === 'string' && diagnostic.code.startsWith('TDL')) {
+            actions.push({
+                title: `Disable warning ${diagnostic.code} for this project`,
+                kind: CodeActionKind.QuickFix,
+                diagnostics: [diagnostic],
+                command: {
+                    title: 'Disable Diagnostic',
+                    command: 'tally-tdl.disableDiagnostic',
+                    arguments: [diagnostic.code]
+                }
+            });
         }
     }
 

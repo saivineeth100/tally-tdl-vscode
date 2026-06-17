@@ -69,7 +69,7 @@ export class TokenScanner {
             }
 
             if (char === '\n' || char === '\r') {
-                this.state.diagnostics.push({ message: 'Unclosed string literal', start: start_pos - 1, length: this.state._pos - start_pos + 1 });
+                this.state.diagnostics.push({ message: 'Unclosed string literal', start: start_pos - 1, length: this.state._pos - start_pos + 1, code: 'TDL1000' });
                 break; // Unclosed string, stop at newline
             }
             if (char === quoteChar) {
@@ -90,7 +90,7 @@ export class TokenScanner {
         if (this.state._pos >= this.state._endOfFilePos) {
             const lastChar = this.state._contents[this.state._pos - 1];
             if (lastChar !== '\n' && lastChar !== '\r' && lastChar !== quoteChar) {
-                this.state.diagnostics.push({ message: 'Unclosed string literal', start: start_pos - 1, length: this.state._pos - start_pos + 1 });
+                this.state.diagnostics.push({ message: 'Unclosed string literal', start: start_pos - 1, length: this.state._pos - start_pos + 1, code: 'TDL1000' });
             }
         }
         

@@ -3,6 +3,8 @@ import { Token } from "../token";
 import { TokenKind } from "../tokenKind";
 import { Lexer } from "../lexer";
 import { DiagnosticError } from "../ast";
+import { DiagnosticRule } from "../../diagnostics/utils";
+import { formatDiagnosticMessage } from "../../diagnostics/utils";
 
 /**
  * Manages the token stream state for the parser, providing utility methods to
@@ -77,7 +79,7 @@ export class ParserState {
     const fallbackStart = this.PreviousToken ? this.PreviousToken.Start + this.PreviousToken.Length : this.CurrentToken.Start;
     const start = errorPos !== undefined ? errorPos : fallbackStart;
     const end = errorPos !== undefined ? errorPos : fallbackStart;
-    this.addError(message, start, end);
+    this.addError(message, start, end, 'TDL1003'); // Missing expected token default
     return undefined;
   }
 
@@ -125,8 +127,15 @@ export class ParserState {
    * @param start The start offset of the error.
    * @param end The end offset of the error.
    */
-  public addError(message: string, start: number, end: number) {
-    this.errors.push({ message, start, end });
+  public addError(message: string, start: number, end: number, code: string = 'TDL1001') {
+    this.errors.push({ message, start, end, code });
+  }
+
+  /**
+   * Records a diagnostic error using a predefined rule.
+   */
+  public reportDiagnostic(rule: DiagnosticRule, start: number, end: number, ...args: any[]) {
+    this.addError(formatDiagnosticMessage(rule, ...args), start, end, rule.code);
   }
 
   /**

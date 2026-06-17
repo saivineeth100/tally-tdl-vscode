@@ -194,6 +194,7 @@ export class Parser extends DefinitionsParser {
             `Unexpected top level token: ${token.Text}`,
             token.Start,
             token.Start + token.Length,
+            'TDL1002'
           );
           this.MoveToNextToken();
         }
