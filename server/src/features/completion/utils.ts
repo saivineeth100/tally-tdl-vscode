@@ -46,9 +46,9 @@ export function buildFunctionDocumentation(func: TDLFunction): string {
         if (!p.IsMandatory) pStr = `[${pStr}]`;
         return pStr;
     });
-    
+
     const sig = `$$${func.Name}(${paramStrings.join(', ')})${func.ReturnType ? ': ' + func.ReturnType : ''}`;
-    
+
     lines.push('```tdl');
     lines.push(sig);
     lines.push('```');
@@ -68,15 +68,15 @@ export function buildFunctionDocumentation(func: TDLFunction): string {
             if (param.DataType) parts.push(`Type: \`${param.DataType}\``);
             if (param.RefersTo) parts.push(`Refers to: \`${param.RefersTo.trim()}\``);
             if (param.Keywords) parts.push(`Keywords: \`${param.Keywords}\``);
-            
-            lines.push(`- \`${param.ParameterType || 'param' + (idx+1)}\` &mdash; ${parts.join(', ')}`);
+
+            lines.push(`- \`${param.ParameterType || 'param' + (idx + 1)}\` &mdash; ${parts.join(', ')}`);
         });
     }
 
     const metaParts = [];
     if (func.Category) metaParts.push(`Category: **${func.Category}**`);
     if (func.Mode) metaParts.push(`Mode: **${func.Mode}**`);
-    
+
     if (metaParts.length > 0) {
         lines.push('___');
         lines.push(metaParts.join(' | '));
@@ -89,5 +89,8 @@ export function buildFunctionDocumentation(func: TDLFunction): string {
  * Get definition types from metadata
  */
 export function getDefinitionTypes(md: TdlMetadata): string[] {
-    return Array.from(md.definitions.keys());
+    const types = Array.from(md.definitions.keys());
+    // Include and Import are special system directives parsed as definition types
+    types.push('Include');
+    return types;
 }

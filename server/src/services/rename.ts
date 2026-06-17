@@ -5,11 +5,11 @@ import { DocManager } from '../docManager';
 import { findReferences } from './references';
 import { findReferenceAtOffset } from './definition';
 
-export function renameSymbol(
+export async function renameSymbol(
     params: RenameParams,
     docManager: DocManager,
     docs: TextDocuments<TextDocument>
-): WorkspaceEdit | null {
+): Promise<WorkspaceEdit | null> {
     const uri = params.textDocument.uri;
     const doc = docs.get(uri);
     if (!doc) return null;
@@ -23,7 +23,7 @@ export function renameSymbol(
     }
 
     // Get all references including definitions
-    const locations = findReferences(docManager, docs, uri, offset);
+    const locations = await findReferences(docManager, docs, uri, offset, true);
     if (locations.length === 0) return null;
 
     const changes: { [uri: string]: TextEdit[] } = {};

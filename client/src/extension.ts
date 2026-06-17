@@ -121,6 +121,37 @@ export function activate(context: ExtensionContext) {
 
     workspace.onDidOpenTextDocument(didOpenTextDocument);
     workspace.textDocuments.forEach(didOpenTextDocument);
+
+    // Eagerly start clients for all workspace folders so scanning begins immediately
+    if (workspace.workspaceFolders) {
+        for (const folder of workspace.workspaceFolders) {
+            const outerFolder = getOuterMostWorkspaceFolder(folder);
+            if (!clients.has(outerFolder.uri.toString())) {
+                const serverOptions = {
+                    run: { module, transport: TransportKind.ipc },
+                    debug: { 
+                        module, 
+                        transport: TransportKind.ipc,
+                        options: { execArgv: ['--nolazy', `--inspect=${nextDebugPort++}`] }
+                    }
+                };
+                const clientOptions: LanguageClientOptions = {
+                    documentSelector: [
+                        { scheme: 'file', language: 'tdl', pattern: `${outerFolder.uri.fsPath}/**/*` },
+                        { scheme: 'file', language: 'xml', pattern: `${outerFolder.uri.fsPath}/**/*.xml` },
+                        { scheme: 'file', language: 'xml', pattern: `${outerFolder.uri.fsPath}/**/*.tdlxml` }
+                    ],
+                    diagnosticCollectionName: 'tally-tdl-server',
+                    workspaceFolder: outerFolder,
+                    outputChannel: outputChannel
+                };
+                const client = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
+                client.start();
+                clients.set(outerFolder.uri.toString(), client);
+            }
+        }
+    }
+
     workspace.onDidChangeWorkspaceFolders((event) => {
         for (const folder of event.removed) {
             const client = clients.get(folder.uri.toString());

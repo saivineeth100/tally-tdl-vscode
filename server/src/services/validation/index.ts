@@ -73,11 +73,14 @@ export async function validateSourceFile(
             const defType = def.type.text;
             const defName = def.name.text;
             const kind = definitionTypeToSymbolKind(defType);
+            const lowerDefType = defType.toLowerCase();
 
-            // Find matching definition type in metadata (case-insensitive)
-            let existsInMetadata = metadata.isExistingDefinition(defType, defName);
+            // Skip duplicate checks for Include and Import
+            if (lowerDefType !== 'include' && lowerDefType !== 'import') {
+                // Find matching definition type in metadata (case-insensitive)
+                let existsInMetadata = metadata.isExistingDefinition(defType, defName);
 
-            if (!def.modifier || def.modifier.Text === '!') {
+                if (!def.modifier || def.modifier.Text === '!') {
                 // Rule 1: No duplicate new definitions allowed
                 // Check against Default TDL
                 if (existsInMetadata) {
@@ -92,7 +95,7 @@ export async function validateSourceFile(
                     });
                 } else if (symbolTable) {
                     // Check against Workspace (excluding modifiers)
-                    const allSymbols = symbolTable.findAllByName(defName);
+                    const allSymbols = symbolTable.findAllByName(defName, projectNodes);
                     const originalDefs = allSymbols.filter(s => s.kind === kind && !s.isModifier);
                     
                     // If there are multiple original definitions with this name, it's a duplicate.
@@ -115,7 +118,7 @@ export async function validateSourceFile(
             } else {
                 // Rule 2: Modifiers must modify an existing definition
                 if (symbolTable) {
-                    const allSymbols = symbolTable.findAllByName(defName);
+                    const allSymbols = symbolTable.findAllByName(defName, projectNodes);
                     const existsInWorkspace = allSymbols.some(s => s.kind === kind && !s.isModifier);
                     
                     if (!existsInMetadata && !existsInWorkspace) {
@@ -127,6 +130,7 @@ export async function validateSourceFile(
                         });
                     }
                 }
+            }
             }
         }
         

@@ -128,7 +128,7 @@ export class StatementsParser extends ExpressionsParser {
           if (stmt.args.length > 1 && stmt.args[1].kind === SyntaxKind.Identifier) {
             const nestedAction = stmt.args[1] as IdentifierNode;
             const nestedArgs = stmt.args.slice(2);
-            const nestedStmt = new StatementNode(stmt.label, nestedAction, nestedArgs);
+            const nestedStmt = new StatementNode(undefined, nestedAction, nestedArgs);
             const groupedNested = this.GroupStatements([nestedStmt]);
             doIfNode.actionStatement = groupedNested.length > 0 ? groupedNested[0] : nestedStmt;
           }

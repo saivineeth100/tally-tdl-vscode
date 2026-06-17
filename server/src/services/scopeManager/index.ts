@@ -130,15 +130,15 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         return this.projectScope.children.find(c => c.id.toLowerCase() === lowerId);
     }
 
-    public findGlobalSymbolsByName(name: string): SymbolInfo[] {
-        return this.symbolTable.findAllByName(name);
+    public findGlobalSymbolsByName(name: string, projectScope?: Set<string>): SymbolInfo[] {
+        return this.symbolTable.findAllByName(name, projectScope);
     }
 
     /**
      * Resolve a symbol name starting from a specific scope and moving up
      */
-    resolve(name: string, initialScope: Scope): SymbolInfo | undefined {
-        return resolveSymbol(this, name, initialScope);
+    resolve(name: string, initialScope: Scope, projectScope?: Set<string>): SymbolInfo | undefined {
+        return resolveSymbol(this, name, initialScope, projectScope);
     }
 
     /**

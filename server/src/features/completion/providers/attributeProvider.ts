@@ -20,10 +20,10 @@ export function provideAttributeCompletions(
     if (matchingDefAttributes) {
         const lowerPartial = normalizeTypeName(partial);
         const addedAttrs = new Set<string>();
-        
+
         for (const [key, attr] of matchingDefAttributes) {
             if (addedAttrs.has(attr.Name)) continue;
-            
+
             const nameMatches = lowerPartial === '' || key.includes(lowerPartial);
 
             if (nameMatches) {
@@ -48,7 +48,8 @@ export function provideAttributeValueCompletions(
     md: TdlMetadata,
     defTypeName: string,
     context: CompletionContext,
-    symbolTable?: SymbolTable
+    symbolTable?: SymbolTable,
+    scope?: Set<string>
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     if (!context.attributeName || context.paramIndex === undefined) return items;
@@ -73,8 +74,24 @@ export function provideAttributeValueCompletions(
                 }
             }
         }
+
+        // 1.5. If Datatype is Action, ALSO suggest all actions from metadata
+        if (param.KeywordSet && normalizeTypeName(param.KeywordSet) === 'tdlActions') {
+            for (const action of md.actions) {
+                if (context.partial === '' || action.Name.toLowerCase().includes(context.partial.toLowerCase())) {
+                    items.push({
+                        label: action.Name,
+                        kind: CompletionItemKind.Function,
+                        detail: action.Description || 'Action',
+                        insertText: action.Name,
+                        sortText: '1_' + action.Name.toLowerCase(),
+                    });
+                }
+            }
+        }
+
         // 2. If Datatype is Logical, suggest Yes/No
-        else if (param.DataType?.toLowerCase() === 'logical') {
+        if (param.DataType?.toLowerCase() === 'logical') {
             const logicalValues = ['Yes', 'No'];
             for (const val of logicalValues) {
                 if (context.partial === '' || val.toLowerCase().includes(context.partial.toLowerCase())) {
@@ -91,7 +108,9 @@ export function provideAttributeValueCompletions(
         // 3. If parameter refers to a definition, suggest matching definitions
         else if (param.RefersTo) {
             const refersToType = param.RefersTo.trim();
-            items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, md, symbolTable));
+            if (refersToType) {
+                items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, md, symbolTable, scope));
+            }
         }
         // 4. If Datatype is String, add a hint
         else if (param.DataType?.toLowerCase() === 'string') {
@@ -114,6 +133,8 @@ export function provideAttributeValueCompletions(
             items.push(...getFunctionSuggestions(md, funcPartial, expectedType));
         }
     }
+
+
 
     return items;
 }

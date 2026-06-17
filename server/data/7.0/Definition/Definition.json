@@ -1,0 +1,204 @@
+{
+  "Border": {
+    "desc": "Border definition is used to define a Border as per specifications. Later this can be applied to the various Interface Elements.Thin Box, Thin Line, Common Border are all examples of Borders.",
+    "meta": {
+      "Aliases": "Border",
+      "Category": "Formatting",
+      "Total Atttributes": "8"
+    }
+  },
+  "Button": {
+    "desc": "The Button/Key Definition is used to associate a key with an Action. Button definition additionally creates button on the Button bar.",
+    "meta": {
+      "Aliases": "Button, Key",
+      "Category": "Procedural / Action",
+      "Total Atttributes": "40"
+    }
+  },
+  "Collection": {
+    "desc": "A Collection is an artifact which populates a group of objects from various Data Sources namely HTTP XML,DLL,ODBC etc. It has a capability to aggregate the objects from lower level in hierarchy. ",
+    "meta": {
+      "Aliases": "Collection, Table",
+      "Category": "Data",
+      "Total Atttributes": "102"
+    }
+  },
+  "Color": {
+    "desc": "Color definition is used to define a color. A name can be given to an RGB value of color. Crystal Blue, Canary Yellow are examples of Colour.",
+    "meta": {
+      "Aliases": "Color, Colour",
+      "Category": "Formatting",
+      "Total Atttributes": "7"
+    }
+  },
+  "COM Interface": {
+    "desc": "Interfaces in COM exposed classes can be defined with name, return type and parameter etc. information to be used later in TDL functions to execute functions defined in 3rd party/external DLLs.",
+    "meta": {
+      "Aliases": "COM Interface",
+      "Category": "Procedural / Action",
+      "Total Atttributes": "7"
+    }
+  },
+  "Field": {
+    "desc": "A field is a place where the data is actually displayed or entered. A field is contained within a line and comprises of constant or variable data.",
+    "meta": {
+      "Aliases": "Field",
+      "Category": "Interface",
+      "Total Atttributes": "103"
+    }
+  },
+  "Form": {
+    "desc": "A Form is an Interface Definition which is contained within a Report.A Form consists of one or more Parts. Vertical / Horizontal Balance Sheet displayed are examples of Forms of the report Balance Sheet.",
+    "meta": {
+      "Aliases": "Form",
+      "Category": "Interface",
+      "Total Atttributes": "82"
+    }
+  },
+  "Function": {
+    "desc": "Functions definition is the procedural Artifact in TDL which allows user to specify a set of actions/statements to be executed in the order as specified.It also allows to specify the various parameters and return value from the function.",
+    "meta": {
+      "Aliases": "Function",
+      "Category": "Procedural / Action",
+      "Total Atttributes": "9"
+    }
+  },
+  "Import File": {
+    "desc": "The Import file allows the user to describe the structure of each record in the ASCII file that is being imported.",
+    "meta": {
+      "Aliases": "Import File",
+      "Category": "Integration",
+      "Total Atttributes": "28"
+    }
+  },
+  "Import Object": {
+    "desc": "It identifies the type of information that is being imported into TallyPrime. The importable objects can be of the type groups, ledgers, cost centre, stock items, stock groups, vouchers etc.",
+    "meta": {
+      "Aliases": "Import Object",
+      "Category": "Integration",
+      "Total Atttributes": "9"
+    }
+  },
+  "Key Value Map": {
+    "desc": "This definition is used to define the key-value map for a quick search of the mapped expression value based on the key.",
+    "meta": {
+      "Aliases": "Key Value Map",
+      "Category": "Data",
+      "Total Atttributes": "6"
+    }
+  },
+  "Line": {
+    "desc": "A line is an Interface Definition contained within a Part and consists of one or more fields.",
+    "meta": {
+      "Aliases": "Line",
+      "Category": "Interface",
+      "Total Atttributes": "45"
+    }
+  },
+  "Menu": {
+    "desc": "This is the fundamental Interface Definition.A Menu displays a list of options. The TallyPrime application determines the action to be performed on the basis of the Menu Item selected by the user.The Gateway of Tally is an example of a Menu.  A Menu can activate another Menu or Report.",
+    "meta": {
+      "Aliases": "Menu",
+      "Category": "Interface",
+      "Total Atttributes": "24"
+    }
+  },
+  "Name Set": {
+    "desc": "Name Set provides the capability to define a set strings and provide identity to them for easy access. You can localise strings in the Name Set.",
+    "meta": {
+      "Aliases": "Name Set",
+      "Total Atttributes": "4"
+    }
+  },
+  "Notification": {
+    "desc": "The Notification definition serves as a generic framework that can be extended to support and manage different types of notifications within the system.",
+    "meta": {
+      "Aliases": "Notification",
+      "Category": "Data",
+      "Total Atttributes": "19"
+    }
+  },
+  "Object": {
+    "desc": "An object is the definition which consists of a data and associated / related functions, commonly called as methods that manipulate the data.An object can also further contain collection of Objects.A Ledger / Group is an example of an Object.",
+    "meta": {
+      "Aliases": "Object",
+      "Category": "Data",
+      "Total Atttributes": "18"
+    }
+  },
+  "Object Map": {
+    "desc": "This definition is used to map the data objects from the source object context (Used to \u0027read values\u0027) to the target object context (Used to \u0027edit values\u0027)",
+    "meta": {
+      "Aliases": "Object Map",
+      "Category": "Interface",
+      "Total Atttributes": "21"
+    }
+  },
+  "Part": {
+    "desc": "A Part is an Interface Definition which is contained within a Form or another Part. It can consist of other Parts or Lines.",
+    "meta": {
+      "Aliases": "Part",
+      "Category": "Interface",
+      "Total Atttributes": "76"
+    }
+  },
+  "Progress Bar": {
+    "desc": "Progress Bar definition is used to set Activity Name, Context, Process Name, Progress Indication, Note and stages for progress bar window.",
+    "meta": {
+      "Aliases": "Progress Bar",
+      "Category": "Procedural / Action",
+      "Total Atttributes": "9"
+    }
+  },
+  "QueryBox": {
+    "desc": "To Create Quary Box in TDL.",
+    "meta": {
+      "Aliases": "QueryBox",
+      "Category": "Procedural / Action",
+      "Total Atttributes": "6"
+    }
+  },
+  "Report": {
+    "desc": "This is one of the fundamental Interface Definition.Any input screen or output screen which appears in Tally Interface is created using the report definition.A Report consists of one or more Forms. Report consists of one or more Forms. Trial Balance is an example of a Report.",
+    "meta": {
+      "Aliases": "Report",
+      "Category": "Interface",
+      "Total Atttributes": "67"
+    }
+  },
+  "Resource": {
+    "desc": "Resource such as Icons, Images, etc",
+    "meta": {
+      "Aliases": "Resource",
+      "Category": "Interface",
+      "Total Atttributes": "6"
+    }
+  },
+  "Rule Set": {
+    "desc": "Rule Set definition allows you to define a set of rules that are to be evaluated in the current context.",
+    "meta": {
+      "Aliases": "Rule Set",
+      "Total Atttributes": "10"
+    }
+  },
+  "Style": {
+    "desc": "Style Definition determines the appearance of the text to be displayed by using a font scheme. Normal Bold, Normal Italic, Normal Bold Italic are examples of Style.",
+    "meta": {
+      "Aliases": "Style",
+      "Category": "Formatting",
+      "Total Atttributes": "6"
+    }
+  },
+  "System": {
+    "desc": "",
+    "meta": {}
+  },
+  "Variable": {
+    "desc": "A Variable definition is used to define a either a Simple/Compound Variable.Further these variables can be declared/instantiated at various scopes like Report/Function or System as a Simple/List Variable.",
+    "meta": {
+      "Aliases": "Variable",
+      "Category": "Procedural / Action",
+      "Total Atttributes": "15"
+    }
+  }
+}

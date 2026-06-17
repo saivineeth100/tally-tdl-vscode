@@ -188,77 +188,46 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
 
     tokens.sort((a, b) => a.startChar - b.startChar);
 
+    interface TokenSegment { line: number, char: number, len: number, typeIdx: number }
+    const segments: TokenSegment[] = [];
+
     for (const token of tokens) {
         const startPos = doc.positionAt(token.startChar);
         const endPos = doc.positionAt(token.startChar + token.length);
         const typeIdx = TOKEN_TYPE_MAP[token.type] ?? 0;
 
         if (startPos.line === endPos.line) {
-            // Single line token
-            builder.push(
-                startPos.line,
-                startPos.character,
-                token.length,
-                typeIdx,
-                0 // modifiers
-            );
+            segments.push({ line: startPos.line, char: startPos.character, len: token.length, typeIdx });
         } else {
-            // Multiline token - split into multiple tokens
-            // Iterate lines
             for (let line = startPos.line; line <= endPos.line; line++) {
-                // Let's use sourceFile.lineOffsets if available.
-                // Assuming sourceFile has lineOffsets populated by parser.
                 const lineOffsets = (sourceFile as any).lineOffsets;
-                let lineStartOffset = 0;
-                let lineEndOffset = 0;
+                let lineStartOffset = 0, lineEndOffset = 0;
 
                 if (lineOffsets && line < lineOffsets.length) {
                     lineStartOffset = lineOffsets[line];
                     if (line < lineOffsets.length - 1) {
-                        lineEndOffset = lineOffsets[line + 1] - 1; // Exclude \n
+                        lineEndOffset = lineOffsets[line + 1] - 1;
                     } else {
                         lineEndOffset = (sourceFile as any).end || (token.startChar + token.length + 100);
                     }
-                } else {
-                    // Fallback if no lineOffsets
-                    // Use doc logic?
-                    const p = doc.positionAt(token.startChar); // Just to verify loop integrity
-                    // Actually if we lack lineOffsets, splitting is hard.
-                    // But Parser DOES provide it.
-                    continue;
-                }
+                } else continue;
 
-                const tokenStart = token.startChar;
-                const tokenEnd = token.startChar + token.length;
-
-                const intersectionStart = Math.max(tokenStart, lineStartOffset);
-                const intersectionEnd = Math.min(tokenEnd, lineEndOffset);
-
-                // Usually we want to highlight until the end of the line including newline?
-                // Or just content.
-                // Using intersectionEnd calculated above is usually safest (excludes newline).
-                // But for comments, maybe newline is irrelevant.
-
-                const nextLineStart = (lineOffsets && line < lineOffsets.length - 1)
-                    ? lineOffsets[line + 1]
-                    : ((sourceFile as any).end || tokenEnd) + 1;
-
-                const effectiveTokenEnd = Math.min(tokenEnd, nextLineStart);
-
+                const intersectionStart = Math.max(token.startChar, lineStartOffset);
+                const nextLineStart = (lineOffsets && line < lineOffsets.length - 1) ? lineOffsets[line + 1] : ((sourceFile as any).end || token.startChar + token.length) + 1;
+                const effectiveTokenEnd = Math.min(token.startChar + token.length, nextLineStart);
                 const pos = doc.positionAt(intersectionStart);
                 const len = effectiveTokenEnd - intersectionStart;
 
                 if (len > 0) {
-                    builder.push(
-                        pos.line,
-                        pos.character,
-                        len,
-                        typeIdx,
-                        0
-                    );
+                    segments.push({ line: pos.line, char: pos.character, len, typeIdx });
                 }
             }
         }
+    }
+
+    segments.sort((a, b) => a.line !== b.line ? a.line - b.line : a.char - b.char);
+    for (const s of segments) {
+        builder.push(s.line, s.char, s.len, s.typeIdx, 0);
     }
 
     const result = builder.build();
@@ -282,13 +251,16 @@ export function provideSemanticTokensEdits(sourceFile: SourceFile, doc: any, pre
     const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, metadata, token);
     tokens.sort((a, b) => a.startChar - b.startChar);
 
+    interface TokenSegment { line: number, char: number, len: number, typeIdx: number }
+    const segments: TokenSegment[] = [];
+
     for (const t of tokens) {
         const startPos = doc.positionAt(t.startChar);
         const endPos = doc.positionAt(t.startChar + t.length);
         const typeIdx = TOKEN_TYPE_MAP[t.type] ?? 0;
 
         if (startPos.line === endPos.line) {
-            builder.push(startPos.line, startPos.character, t.length, typeIdx, 0);
+            segments.push({ line: startPos.line, char: startPos.character, len: t.length, typeIdx });
         } else {
             for (let line = startPos.line; line <= endPos.line; line++) {
                 const lineOffsets = (sourceFile as any).lineOffsets;
@@ -307,9 +279,14 @@ export function provideSemanticTokensEdits(sourceFile: SourceFile, doc: any, pre
                 const effectiveTokenEnd = Math.min(t.startChar + t.length, nextLineStart);
                 const pos = doc.positionAt(intersectionStart);
                 const len = effectiveTokenEnd - intersectionStart;
-                if (len > 0) builder.push(pos.line, pos.character, len, typeIdx, 0);
+                if (len > 0) segments.push({ line: pos.line, char: pos.character, len, typeIdx });
             }
         }
+    }
+
+    segments.sort((a, b) => a.line !== b.line ? a.line - b.line : a.char - b.char);
+    for (const s of segments) {
+        builder.push(s.line, s.char, s.len, s.typeIdx, 0);
     }
 
     const result = builder.buildEdits();
@@ -345,7 +322,7 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 startChar: def.type.start,
                 length: def.type.end - def.type.start,
                 type: SemanticTokenTypes.function,
-                text: def.type.text
+                text: def.type?.text
             });
         }
         if (def.closeType) {
@@ -354,12 +331,12 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 startChar: def.closeType.start,
                 length: def.closeType.end - def.closeType.start,
                 type: SemanticTokenTypes.function,
-                text: def.closeType.text
+                text: def.closeType?.text
             });
         }
         if (def.name) {
             let tokenType = SemanticTokenTypes.class;
-            if (def.type && (def.type.text.trim().toLowerCase() === 'include' || def.type.text.trim().toLowerCase() === 'import')) {
+            if (def.type && (def.type?.text?.trim().toLowerCase() === 'include' || def.type?.text?.trim().toLowerCase() === 'import')) {
                 tokenType = SemanticTokenTypes.string;
             }
 
@@ -368,12 +345,13 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 startChar: def.name.start,
                 length: def.name.end - def.name.start,
                 type: tokenType,
-                text: def.name.text
+                text: def.name?.text
             });
         }
-        traverseAttributes(def.attributes, tokens, def.name!.text, scopeManager, uri, metadata);
+        const defNameText = def.name?.text || '';
+        traverseAttributes(def.attributes, tokens, defNameText, scopeManager, uri, metadata);
         if (def.complexObjects) {
-            traverseComplexObjects(def.complexObjects, tokens, def.name!.text, scopeManager, uri, metadata);
+            traverseComplexObjects(def.complexObjects, tokens, defNameText, scopeManager, uri, metadata);
         }
 
         if (def.statements) {
@@ -396,13 +374,13 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
                 startChar: attr.name.start,
                 length: attr.name.end - attr.name.start,
                 type: SemanticTokenTypes.property,
-                text: attr.name.text
+                text: attr.name?.text
             });
 
             // Determine context for values
             if (metadata) {
 
-                defMeta = metadata.findDefinitionAttribute(attr.name.text, defName);
+                defMeta = metadata.findDefinitionAttribute(attr.name?.text || '', defName);
                 if (defMeta && defMeta.Parameters && defMeta.Parameters.length > 0) {
                     const param = defMeta.Parameters[0];
                     expectedType = mapMetaTypeToToken(param.RefersTo, param.DataType, metadata);
@@ -412,7 +390,7 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
 
 
             if (!expectedType) {
-                const key = Object.keys(ATTRIBUTE_CONTEXT).find(k => k.toLowerCase() === attr.name.text.toLowerCase());
+                const key = Object.keys(ATTRIBUTE_CONTEXT).find(k => k.toLowerCase() === (attr.name?.text || '').toLowerCase());
                 if (key) expectedType = ATTRIBUTE_CONTEXT[key];
             }
         }
@@ -455,7 +433,7 @@ function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], 
                 startChar: obj.name.start,
                 length: obj.name.end - obj.name.start,
                 type: SemanticTokenTypes.class,
-                text: obj.name.text
+                text: obj.name?.text
             });
         }
         if (obj.closeName) {
@@ -464,7 +442,7 @@ function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], 
                 startChar: obj.closeName.start,
                 length: obj.closeName.end - obj.closeName.start,
                 type: SemanticTokenTypes.class,
-                text: obj.closeName.text
+                text: obj.closeName?.text
             });
         }
 
@@ -490,7 +468,7 @@ function traverseStatement(stmt: any, tokens: SemanticToken[], scopeManager?: Sc
             startChar: stmt.label.start,
             length: stmt.label.end - stmt.label.start,
             type: SemanticTokenTypes.number,
-            text: stmt.label.text || String(stmt.label.value)
+            text: stmt.label?.text || String(stmt.label.value)
         });
     }
 
@@ -500,7 +478,7 @@ function traverseStatement(stmt: any, tokens: SemanticToken[], scopeManager?: Sc
             startChar: stmt.action.start,
             length: stmt.action.end - stmt.action.start,
             type: SemanticTokenTypes.keyword,
-            text: stmt.action.text
+            text: stmt.action?.text
         });
     }
 
@@ -532,7 +510,7 @@ function traverseStatement(stmt: any, tokens: SemanticToken[], scopeManager?: Sc
  */
 function isKeyword(node: IdentifierNode): boolean {
     // Check text for common keywords that might be parsed as identifiers
-    if (['Yes', 'No', 'True', 'False', 'On', 'Off'].includes(node.text)) return true;
+    if (['Yes', 'No', 'True', 'False', 'On', 'Off'].includes(node?.text || '')) return true;
 
     if (!node.tokens || node.tokens.length === 0) return false;
     const firstToken = node.tokens[0];
@@ -566,7 +544,7 @@ function keywordToken(node: IdentifierNode): SemanticToken {
         startChar: node.start,
         length: node.end - node.start,
         type: SemanticTokenTypes.keyword,
-        text: node.text
+        text: node?.text
     };
 }
 
@@ -590,7 +568,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
         if (scopeManager && uri) {
             const scope = scopeManager.getScopeAt(uri, idNode.start);
             if (scope) {
-                const symbol = scopeManager.resolve(idNode.text, scope);
+                const symbol = scopeManager.resolve(idNode?.text || '', scope);
                 if (symbol) {
                     const tokenType = getSemanticTypeFromSymbol(symbol);
                     tokens.push({
@@ -598,7 +576,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
                         startChar: idNode.start,
                         length: idNode.end - idNode.start,
                         type: tokenType,
-                        text: idNode.text
+                        text: idNode?.text
                     });
                     return;
                 }
@@ -611,7 +589,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
             startChar: idNode.start,
             length: idNode.end - idNode.start,
             type: expectedType || SemanticTokenTypes.variable,
-            text: idNode.text
+            text: idNode?.text
         });
     }
     // Handle Specific Note Types
@@ -623,14 +601,14 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
                 startChar: funcNode.functionName.start,
                 length: funcNode.functionName.end - funcNode.functionName.start,
                 type: SemanticTokenTypes.function,
-                text: funcNode.functionName.text
+                text: funcNode.functionName?.text
             });
         }
         if (funcNode.arguments) {
             // Determine parameter contexts if function is known
             let paramContexts: string[] | undefined;
             if (metadata && funcNode.functionName) {
-                const funcName = funcNode.functionName.text.replace(/^\$\$/, '');
+                const funcName = (funcNode.functionName?.text || '').replace(/^\$\$/, '');
                 const funcMeta = metadata.findFunction(funcName);
                 if (funcMeta && funcMeta.Parameters) {
                     paramContexts = funcMeta.Parameters.map(p => mapMetaTypeToToken(p.RefersTo, p.DataType, metadata) || SemanticTokenTypes.variable);
@@ -638,7 +616,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
             }
 
             if (!paramContexts && funcNode.functionName) {
-                const funcName = funcNode.functionName.text.replace(/^\$\$/, '');
+                const funcName = (funcNode.functionName?.text || '').replace(/^\$\$/, '');
                 paramContexts = FUNCTION_PARAMETER_CONTEXT[funcName];
             }
 
@@ -657,7 +635,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
                 startChar: varNode.variableName.start,
                 length: varNode.variableName.end - varNode.variableName.start,
                 type: SemanticTokenTypes.variable,
-                text: varNode.variableName.text
+                text: varNode.variableName?.text
             });
         }
     } else if (node.kind === SyntaxKind.FormulaReference) {
@@ -668,7 +646,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
                 startChar: formulaNode.formulaName.start,
                 length: formulaNode.formulaName.end - formulaNode.formulaName.start,
                 type: SemanticTokenTypes.macro,
-                text: formulaNode.formulaName.text
+                text: formulaNode.formulaName?.text
             });
         }
     } else if (node.kind === SyntaxKind.FieldReference) {
@@ -679,7 +657,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
                 startChar: fieldNode.fieldName.start,
                 length: fieldNode.fieldName.end - fieldNode.fieldName.start,
                 type: SemanticTokenTypes.variable,
-                text: fieldNode.fieldName.text
+                text: fieldNode.fieldName?.text
             });
         }
     } else if (node.kind === SyntaxKind.MethodReference) {
@@ -690,7 +668,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
                 startChar: methodNode.methodName.start,
                 length: methodNode.methodName.end - methodNode.methodName.start,
                 type: SemanticTokenTypes.function,
-                text: methodNode.methodName.text
+                text: methodNode.methodName?.text
             });
         }
     } else if (node.kind === SyntaxKind.List) {

@@ -104,9 +104,13 @@ export class SymbolTable {
      * @param name Symbol name (case-insensitive)
      * @returns Array of matching symbols
      */
-    findAllByName(name: string): SymbolInfo[] {
+    findAllByName(name: string, scope?: Set<string>): SymbolInfo[] {
         const normalizedName = this.normalizeName(name);
-        return this.nameIndex.get(normalizedName) || [];
+        const symbols = this.nameIndex.get(normalizedName) || [];
+        if (scope) {
+            return symbols.filter(s => scope.has(s.uri));
+        }
+        return symbols;
     }
 
     /**
@@ -194,9 +198,10 @@ export class SymbolTable {
      * @param kind Symbol kind to search for
      * @returns Array of matching symbols
      */
-    findByKind(kind: SymbolKind): SymbolInfo[] {
+    findByKind(kind: SymbolKind, scope?: Set<string>): SymbolInfo[] {
         const result: SymbolInfo[] = [];
-        for (const symbols of this.documentSymbols.values()) {
+        for (const [uri, symbols] of this.documentSymbols.entries()) {
+            if (scope && !scope.has(uri)) continue;
             for (const symbol of symbols) {
                 if (symbol.kind === kind) {
                     result.push(symbol);
@@ -211,9 +216,10 @@ export class SymbolTable {
      * @param kind Symbol kind to search for
      * @returns Array of unique symbol names
      */
-    getNamesByKind(kind: SymbolKind): string[] {
+    getNamesByKind(kind: SymbolKind, scope?: Set<string>): string[] {
         const names = new Set<string>();
-        for (const symbols of this.documentSymbols.values()) {
+        for (const [uri, symbols] of this.documentSymbols.entries()) {
+            if (scope && !scope.has(uri)) continue;
             for (const symbol of symbols) {
                 if (symbol.kind === kind) {
                     names.add(symbol.name);
@@ -241,12 +247,13 @@ export class SymbolTable {
      * @param maxResults Maximum number of results to return
      * @returns Array of matching symbols
      */
-    searchSymbols(query: string, typeFilter?: string, maxResults: number = 100): SymbolInfo[] {
+    searchSymbols(query: string, typeFilter?: string, maxResults: number = 100, scope?: Set<string>): SymbolInfo[] {
         const result: SymbolInfo[] = [];
         const lowerQuery = query.toLowerCase();
         const lowerTypeFilter = typeFilter?.toLowerCase();
 
-        for (const symbols of this.documentSymbols.values()) {
+        for (const [uri, symbols] of this.documentSymbols.entries()) {
+            if (scope && !scope.has(uri)) continue;
             for (const symbol of symbols) {
                 // Check type filter
                 if (lowerTypeFilter) {

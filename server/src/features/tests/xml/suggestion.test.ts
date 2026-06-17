@@ -1,11 +1,9 @@
-import { getMetadata, setMetadata } from '../../../services/metadataService';
+import { setMetadata } from '../../../services/metadataService';
 import { describe, it, expect, beforeAll } from 'vitest';
-import { detectXmlCompletionContext, registerCompletion } from '../../../features/completion';
+import { registerCompletion } from '../../../features/completion';
 import { DocManager } from '../../../docManager';
 import { TdlMetadata } from '../../../tdlMetaData';
-import { TextDocuments } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import * as path from 'path';
 import { SymbolTable, SymbolKind } from '../../../services/symbolTable';
 
 import { testMetadata } from '../../../test-setup';
@@ -38,7 +36,8 @@ describe('XML Suggestions Tests', () => {
         
         mockManager = {
             get: () => ({ sourceFile: { definitions: [], errors: [] } }),
-            getSymbolTable: () => new SymbolTable()
+            getSymbolTable: () => new SymbolTable(),
+            getProjectNodes: () => new Set([doc.uri])
         };
         
         registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
@@ -85,7 +84,8 @@ describe('XML Suggestions Tests', () => {
                     errors: []
                 }
             }),
-            getSymbolTable: () => new SymbolTable()
+            getSymbolTable: () => new SymbolTable(),
+            getProjectNodes: () => new Set([doc.uri])
         };
         
         registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
@@ -141,7 +141,8 @@ describe('XML Suggestions Tests', () => {
                     errors: []
                 }
             }),
-            getSymbolTable: () => symbolTable
+            getSymbolTable: () => symbolTable,
+            getProjectNodes: () => new Set([doc.uri, 'test'])
         };
         
         registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
@@ -195,8 +196,9 @@ describe('XML Suggestions Tests', () => {
         mockDocuments = { get: () => doc };
         mockManager = { 
             get: () => docManager.get(doc.uri),
-            getSymbolTable: () => docManager.getSymbolTable(doc.uri)
-        };
+            getSymbolTable: () => docManager.getSymbolTable(doc.uri),
+            getProjectNodes: () => new Set([doc.uri, 'test', 'test2.xml'])
+        } as any;
         
         registerCompletion(mockConnection, mockDocuments, mockManager);
         

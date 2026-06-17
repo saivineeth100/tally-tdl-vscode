@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { ExtensionContext, window, workspace, commands, Uri, OutputChannel } from 'vscode';
+import { ExtensionContext, window, workspace, commands, Uri, OutputChannel, Location, Position, Range } from 'vscode';
 import { LanguageClient } from 'vscode-languageclient/node';
 import { spawn } from 'child_process';
 import { setupTallyPath, setupOdbcPort } from './features/onboarding';
@@ -269,6 +269,20 @@ export function registerCommands(
 
         commands.registerCommand('tally-tdl.setupTallyPath', setupTallyPath),
         commands.registerCommand('tally-tdl.setupOdbcPort', setupOdbcPort),
-        commands.registerCommand('tally-tdl.restartServer', restartServers)
+        commands.registerCommand('tally-tdl.restartServer', restartServers),
+        commands.registerCommand('tally-tdl.showReferences', (uriStr: string, position: any, locations: any[]) => {
+            const uri = Uri.parse(uriStr);
+            const pos = new Position(position.line, position.character);
+            const locs = locations.map(loc => {
+                return new Location(
+                    Uri.parse(loc.uri),
+                    new Range(
+                        new Position(loc.range.start.line, loc.range.start.character),
+                        new Position(loc.range.end.line, loc.range.end.character)
+                    )
+                );
+            });
+            commands.executeCommand('editor.action.showReferences', uri, pos, locs);
+        })
     );
 }

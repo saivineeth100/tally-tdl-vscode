@@ -41,6 +41,7 @@ exports[`Lexer Error and Edge Cases > Illegal Characters 2`] = `
     "length": 6,
     "start": 1,
     "text": "Report",
+    "value": "Report",
   },
   {
     "kind": "ColonToken",
@@ -67,6 +68,7 @@ exports[`Lexer Error and Edge Cases > Illegal Characters 2`] = `
     "length": 4,
     "start": 10,
     "text": "Test",
+    "value": "Test",
   },
   {
     "kind": "Unknown",
@@ -201,6 +203,143 @@ Title: "Hello"",
 ]
 `;
 
+exports[`Lexer Error and Edge Cases > Unclosed Multi Line String Literal 1`] = `
+[
+  {
+    "length": 58,
+    "message": "Unclosed string literal",
+    "start": 22,
+  },
+]
+`;
+
+exports[`Lexer Error and Edge Cases > Unclosed Multi Line String Literal 2`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "length": 1,
+    "start": 0,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 1,
+    "text": "Report",
+    "value": "Report",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 7,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 8,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 9,
+    "text": "Test",
+    "value": "Test",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 13,
+    "text": "]",
+    "trailing": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 14,
+        "text": "
+",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 5,
+    "start": 15,
+    "text": "Title",
+    "value": "Title",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 20,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 21,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "StringLiteralToken",
+    "length": 58,
+    "start": 22,
+    "text": ""This is an unclosed +
+multi-line string +
+that stops here",
+    "trailing": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 80,
+        "text": "
+",
+      },
+    ],
+    "value": "This is an unclosed multi-line string that stops here",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 8,
+    "start": 81,
+    "text": "Variable",
+    "value": "Variable",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 89,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 90,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 91,
+    "text": "Test",
+    "value": "",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 95,
+    "text": "",
+  },
+]
+`;
+
 exports[`Lexer Error and Edge Cases > Unclosed String Literal 1`] = `
 [
   {
@@ -224,6 +363,7 @@ exports[`Lexer Error and Edge Cases > Unclosed String Literal 2`] = `
     "length": 6,
     "start": 1,
     "text": "Report",
+    "value": "Report",
   },
   {
     "kind": "ColonToken",
@@ -244,6 +384,7 @@ exports[`Lexer Error and Edge Cases > Unclosed String Literal 2`] = `
     "length": 4,
     "start": 9,
     "text": "Test",
+    "value": "Test",
   },
   {
     "kind": "CloseSquareBracketToken",
@@ -265,6 +406,7 @@ exports[`Lexer Error and Edge Cases > Unclosed String Literal 2`] = `
     "length": 5,
     "start": 15,
     "text": "Title",
+    "value": "Title",
   },
   {
     "kind": "ColonToken",
@@ -294,12 +436,14 @@ exports[`Lexer Error and Edge Cases > Unclosed String Literal 2`] = `
 ",
       },
     ],
+    "value": "Unclosed string ",
   },
   {
     "kind": "IdentifierToken",
     "length": 8,
     "start": 40,
     "text": "Variable",
+    "value": "Variable",
   },
   {
     "kind": "ColonToken",
@@ -320,11 +464,110 @@ exports[`Lexer Error and Edge Cases > Unclosed String Literal 2`] = `
     "length": 4,
     "start": 50,
     "text": "Test",
+    "value": "",
   },
   {
     "kind": "EndOfFileToken",
     "length": 0,
     "start": 54,
+    "text": "",
+  },
+]
+`;
+
+exports[`Lexer Error and Edge Cases > Unclosed String Literal at EOF 1`] = `
+[
+  {
+    "length": 23,
+    "message": "Unclosed string literal",
+    "start": 22,
+  },
+]
+`;
+
+exports[`Lexer Error and Edge Cases > Unclosed String Literal at EOF 2`] = `
+[
+  {
+    "kind": "OpenSquareBracketToken",
+    "length": 1,
+    "start": 0,
+    "text": "[",
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 6,
+    "start": 1,
+    "text": "Report",
+    "value": "Report",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 7,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 8,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 4,
+    "start": 9,
+    "text": "Test",
+    "value": "Test",
+  },
+  {
+    "kind": "CloseSquareBracketToken",
+    "length": 1,
+    "start": 13,
+    "text": "]",
+    "trailing": [
+      {
+        "kind": "LineFeed",
+        "length": 1,
+        "start": 14,
+        "text": "
+",
+      },
+    ],
+  },
+  {
+    "kind": "IdentifierToken",
+    "length": 5,
+    "start": 15,
+    "text": "Title",
+    "value": "Title",
+  },
+  {
+    "kind": "ColonToken",
+    "length": 1,
+    "start": 20,
+    "text": ":",
+    "trailing": [
+      {
+        "kind": "SpaceToken",
+        "length": 1,
+        "start": 21,
+        "text": " ",
+      },
+    ],
+  },
+  {
+    "kind": "StringLiteralToken",
+    "length": 23,
+    "start": 22,
+    "text": ""Unclosed string at EOF",
+    "value": "Unclosed string at EOF",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 45,
     "text": "",
   },
 ]

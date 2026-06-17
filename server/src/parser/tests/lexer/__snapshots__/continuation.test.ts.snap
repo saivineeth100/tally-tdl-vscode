@@ -1,5 +1,24 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Lexer - Line Continuation > should correctly parse multi-line strings with + continuation 1`] = `
+[
+  {
+    "kind": "StringLiteralToken",
+    "length": 206,
+    "start": 0,
+    "text": ""To illustrate the functionality of Action HTTP Request, branch details are fetched using HTTP Get request in both XML +
+and JSON format which  is further displayed in a report if the request is successful"",
+    "value": "To illustrate the functionality of Action HTTP Request, branch details are fetched using HTTP Get request in both XML and JSON format which  is further displayed in a report if the request is successful",
+  },
+  {
+    "kind": "EndOfFileToken",
+    "length": 0,
+    "start": 206,
+    "text": "",
+  },
+]
+`;
+
 exports[`Lexer - Line Continuation > should handle + as line continuation and + as unary string concatenation correctly 1`] = `
 [
   {
@@ -15,6 +34,7 @@ exports[`Lexer - Line Continuation > should handle + as line continuation and + 
         "text": " ",
       },
     ],
+    "value": "Local",
   },
   {
     "kind": "ColonToken",
@@ -43,6 +63,7 @@ exports[`Lexer - Line Continuation > should handle + as line continuation and + 
         "text": " ",
       },
     ],
+    "value": "Field",
   },
   {
     "kind": "ColonToken",
@@ -71,6 +92,7 @@ exports[`Lexer - Line Continuation > should handle + as line continuation and + 
         "text": " ",
       },
     ],
+    "value": "Purpose",
   },
   {
     "kind": "ColonToken",
@@ -99,6 +121,7 @@ exports[`Lexer - Line Continuation > should handle + as line continuation and + 
         "text": " ",
       },
     ],
+    "value": "Info",
   },
   {
     "kind": "ColonToken",
@@ -127,6 +150,7 @@ exports[`Lexer - Line Continuation > should handle + as line continuation and + 
         "text": " ",
       },
     ],
+    "value": "Line 1 ",
   },
   {
     "kind": "LineContinuationToken",
@@ -178,6 +202,7 @@ exports[`Lexer - Line Continuation > should handle + as line continuation and + 
         "text": " ",
       },
     ],
+    "value": "Line 2 ",
   },
   {
     "kind": "LineContinuationToken",
@@ -221,6 +246,7 @@ exports[`Lexer - Line Continuation > should handle + as line continuation and + 
     "length": 8,
     "start": 85,
     "text": ""Line 3"",
+    "value": "Line 3",
   },
   {
     "kind": "EndOfFileToken",
@@ -246,6 +272,7 @@ exports[`Lexer - Line Continuation > should tokenize + and newlines correctly 1`
         "text": " ",
       },
     ],
+    "value": "01",
   },
   {
     "kind": "ColonToken",
@@ -274,6 +301,7 @@ exports[`Lexer - Line Continuation > should tokenize + and newlines correctly 1`
         "text": " ",
       },
     ],
+    "value": "Action",
   },
   {
     "kind": "ColonToken",
@@ -294,6 +322,7 @@ exports[`Lexer - Line Continuation > should tokenize + and newlines correctly 1`
     "length": 4,
     "start": 14,
     "text": "Arg1",
+    "value": "Arg1",
   },
   {
     "kind": "CommaToken",
@@ -314,6 +343,7 @@ exports[`Lexer - Line Continuation > should tokenize + and newlines correctly 1`
     "length": 4,
     "start": 20,
     "text": "Arg2",
+    "value": "Arg2",
   },
   {
     "kind": "CommaToken",
@@ -357,6 +387,7 @@ exports[`Lexer - Line Continuation > should tokenize + and newlines correctly 1`
     "length": 4,
     "start": 46,
     "text": "Arg3",
+    "value": "",
   },
   {
     "kind": "EndOfFileToken",

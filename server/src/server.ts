@@ -66,6 +66,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 
     if (params.workspaceFolders) {
         globalWorkspaceFolders = params.workspaceFolders.map(f => URI.parse(f.uri).fsPath);
+        docManager.workspaceFolders = globalWorkspaceFolders;
     }
 
     const capabilities = params.capabilities;
@@ -155,15 +156,14 @@ connection.onInitialized(async () => {
                 docManager.scanWorkspaceFolders(addedUris);
             }
         });
-    }
-
-    // Fallback to rootUri from initialization params if workspace folders not found
-    if (globalWorkspaceFolders.length === 0) {
-        if (initParams?.rootUri) {
+    } else {
+        // Fallback: use the folders/rootUri provided in initialization params
+        if (initParams.workspaceFolders && initParams.workspaceFolders.length > 0) {
+            const folderUris = initParams.workspaceFolders.map(f => f.uri);
+            docManager.scanWorkspaceFolders(folderUris);
+        } else if (initParams.rootUri) {
             docManager.scanWorkspaceFolders([initParams.rootUri]);
-        } else if (initParams?.rootPath) {
-            // Legacy fallback
-            const { URI } = await import('vscode-uri');
+        } else if (initParams.rootPath) {
             docManager.scanWorkspaceFolders([URI.file(initParams.rootPath).toString()]);
         }
     }
@@ -203,7 +203,8 @@ connection.onHover((params: HoverParams): Hover | null => {
     const metadata = requireMetadata();
 
     // Use enhanced hover with AST-based detection
-    const hoverResult = getHoverInfo(docState.sourceFile, offset, metadata, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri);
+    const projectScope = docManager.getProjectNodes(params.textDocument.uri);
+    const hoverResult = getHoverInfo(docState.sourceFile, offset, metadata, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri, projectScope);
     if (!hoverResult) return null;
 
     return {
@@ -314,11 +315,11 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
         return null;
     }
 
-    // Use ScopeManager to resolve first (this handles local variables, iterators, and global symbols)
     const scopeMgr = docManager.getScopeManager(params.textDocument.uri);
     const scope = scopeMgr.getScopeAt(params.textDocument.uri, offset);
+    const projectScope = docManager.getProjectNodes(params.textDocument.uri);
     if (scope) {
-        const resolved = scopeMgr.resolve(ref.name, scope);
+        const resolved = scopeMgr.resolve(ref.name, scope, projectScope);
         if (resolved) {
             // Found via ScopeManager!
             const targetDoc = docs.get(resolved.uri);
@@ -522,20 +523,19 @@ connection.onDocumentOnTypeFormatting((params, token) => {
 
 // Handle Rename Request
 import { renameSymbol, prepareRename } from "./services/rename";
-connection.onRenameRequest((params) => {
-    return renameSymbol(params, docManager, docs);
+connection.onRenameRequest(async (params) => {
+    return await renameSymbol(params, docManager, docs);
 });
 connection.onPrepareRename((params) => {
     return prepareRename(params, docManager, docs);
 });
 
-// Handle References Request
-import { findReferences } from "./services/references";
-connection.onReferences((params) => {
+// Provide references
+connection.onReferences(async (params) => {
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return null;
     const offset = doc.offsetAt(params.position);
-    return findReferences(docManager, docs, params.textDocument.uri, offset);
+    return await findReferences(docManager, docs, params.textDocument.uri, offset, params.context.includeDeclaration);
 });
 
 // Handle Document Links (for Include statements across the whole document)
@@ -572,6 +572,7 @@ connection.onCodeAction((params) => {
 
 // Handle TDL to XML Conversion
 import { generateXml } from "./services/xmlGenerator";
+import { findReferences } from "./services/references";
 // Handle Scope Tree Debug Request
 connection.onRequest("tdl/getScopeTreeDebug", async (params: { uri: string }) => {
     const scopeMgr = docManager.getScopeManager(params.uri);

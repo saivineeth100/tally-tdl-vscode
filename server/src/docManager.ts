@@ -12,6 +12,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { URI } from 'vscode-uri';
 
+export async function readFileWithEncoding(filePath: string): Promise<string> {
+    const buffer = await fs.promises.readFile(filePath);
+    if (buffer.length >= 2 && buffer[0] === 0xFF && buffer[1] === 0xFE) {
+        return buffer.toString('utf16le');
+    }
+    return buffer.toString('utf-8');
+}
+
 /**
  * Document state containing parsed AST and diagnostics
  */
@@ -44,8 +52,14 @@ export class DocManager {
     /** Queue for workspace scan requests */
     private scanQueue: string[][] = [];
 
+    /** Workspace root folders */
+    public workspaceFolders: string[] = [];
+
     /** Directed graph of inclusions: URI -> Set of URIs it includes */
     private includeGraph = new Map<string, Set<string>>();
+
+    /** Reverse graph of inclusions: URI -> Set of URIs that include it */
+    private parentGraph = new Map<string, Set<string>>();
 
     private rebuildTimers = new Map<string, NodeJS.Timeout>();
     private readonly REBUILD_DELAY = 200; // ms
@@ -142,6 +156,11 @@ export class DocManager {
                 this.includeGraph.delete(uri);
             }
         }
+        for (const [uri, _] of this.parentGraph.entries()) {
+            if (URI.parse(uri).fsPath.startsWith(folderPath)) {
+                this.parentGraph.delete(uri);
+            }
+        }
     }
 
     /**
@@ -172,26 +191,80 @@ export class DocManager {
                 }
             } else if (entry.isFile()) {
                 const ext = path.extname(entry.name).toLowerCase();
-                if (ext === '.tdl' || ext === '.txt') {
-                    await this.indexFile(fullPath);
+                if (ext === '.tpj') {
+                    await this.parseProjectFile(fullPath);
                 }
             }
         }
     }
 
     /**
+     * Parse a .tpj file and index its entries
+     */
+    private async parseProjectFile(tpjPath: string): Promise<void> {
+        try {
+            const content = await readFileWithEncoding(tpjPath);
+            const lines = content.split(/\r?\n/);
+            const dirPath = path.dirname(tpjPath);
+            const visited = new Set<string>();
+            for (let line of lines) {
+                line = line.trim();
+                if (!line || line.startsWith(';') || line.startsWith('[') || line.startsWith(']')) {
+                    continue;
+                }
+                
+                let entryFile = '';
+                if (line.toLowerCase().startsWith('project file=')) {
+                    entryFile = line.substring('project file='.length).trim();
+                } else if (line.toLowerCase().endsWith('.txt') || line.toLowerCase().endsWith('.tdl')) {
+                    // Lenient parsing: if the line simply names a .txt or .tdl file, use it
+                    entryFile = line;
+                }
+
+                if (entryFile) {
+                    // Strip any surrounding quotes just in case
+                    entryFile = entryFile.replace(/^["']|["']$/g, '');
+                    const targetPath = path.resolve(dirPath, entryFile);
+                    if (fs.existsSync(targetPath)) {
+                        await this.indexFile(targetPath, visited);
+                    }
+                }
+            }
+        } catch (err) {
+            this.connection.console.warn(`Error parsing .tpj file ${tpjPath}: ${err}`);
+        }
+    }
+
+    /**
      * Index a single file for symbols (without storing full doc state)
      */
-    private async indexFile(filePath: string): Promise<void> {
+    private async indexFile(filePath: string, visited: Set<string> = new Set()): Promise<void> {
         try {
-            const content = await fs.promises.readFile(filePath, 'utf-8');
             const uri = URI.file(filePath).toString();
+            
+            // Prevent circular/duplicate processing in the same scan chain
+            if (visited.has(uri)) return;
+            visited.add(uri);
 
             // Skip if already in docs (open in editor)
             if (this.docs.has(uri)) return;
 
-            const parser = new Parser(content);
-            const sourceFile = parser.parse();
+            const content = await readFileWithEncoding(filePath);
+            const ext = path.extname(filePath).toLowerCase();
+            const isXml = ext === '.xml' || ext === '.tdlxml';
+            const metadata = getMetadata();
+            
+            let sourceFile: SourceFile;
+            if (isXml && metadata) {
+                sourceFile = parseXmlToAst(content, metadata);
+            } else {
+                const parser = new Parser(content);
+                sourceFile = parser.parse();
+            }
+
+            // Clear previous symbols for this document
+            const symTable = this.getSymbolTable(uri);
+            symTable.clearDocument(uri);
 
             // Add symbols from definitions (skip incomplete)
             for (const def of sourceFile.definitions) {
@@ -202,17 +275,41 @@ export class DocManager {
                         uri: uri,
                         start: def.start,
                         end: def.end,
-                        definitionType: def.type.text
+                        definitionType: def.type.text,
+                        isModifier: !!def.modifier && def.modifier.Text !== '!'
                     };
-                    this.getSymbolTable(uri).addSymbol(symbolInfo);
+                    symTable.addSymbol(symbolInfo);
                 }
             }
             
             // Build scope tree to capture global variables and formulas
-            this.getScopeManager(uri).buildFileScope(uri, sourceFile);
+            const scopeMgr = this.getScopeManager(uri);
+            scopeMgr.buildFileScope(uri, sourceFile);
 
             // Update Include Graph
-            this.updateIncludeGraph(uri, sourceFile);
+            const includes = this.updateIncludeGraph(uri, sourceFile);
+            
+            // Recursively index included files FIRST so their symbols exist
+            for (const incUri of includes) {
+                await this.indexFile(URI.parse(incUri).fsPath, visited);
+            }
+            
+            // Run validation and send diagnostics
+            if (metadata) {
+                const languageId = isXml ? 'xml' : 'tdl';
+                const doc = TextDocument.create(uri, languageId, 1, content);
+                
+                const diagnostics: Diagnostic[] = sourceFile.errors.map(error => ({
+                    severity: DiagnosticSeverity.Error,
+                    range: { start: doc.positionAt(error.start), end: doc.positionAt(error.end) },
+                    message: error.message,
+                    source: 'tdl'
+                }));
+                
+                diagnostics.push(...(await validateSourceFile(sourceFile, doc, metadata, symTable, scopeMgr, this.resolveIncludePath, this)));
+                
+                this.connection.sendDiagnostics({ uri, diagnostics });
+            }
         } catch (err) {
             // Silently skip files that can't be read, but log error
             this.connection.console.warn(`Error indexing file ${filePath}: ${err}`);
@@ -222,7 +319,7 @@ export class DocManager {
     /**
      * Updates the include graph for a given document.
      */
-    private updateIncludeGraph(uri: string, sourceFile: SourceFile) {
+    private updateIncludeGraph(uri: string, sourceFile: SourceFile): Set<string> {
         const includes = new Set<string>();
         const currentFsPath = URI.parse(uri).fsPath;
 
@@ -242,7 +339,26 @@ export class DocManager {
                 }
             }
         }
+        // Remove old parent links
+        const oldIncludes = this.includeGraph.get(uri) || new Set<string>();
+        for (const inc of oldIncludes) {
+            const parents = this.parentGraph.get(inc);
+            if (parents) {
+                parents.delete(uri);
+                if (parents.size === 0) this.parentGraph.delete(inc);
+            }
+        }
+
         this.includeGraph.set(uri, includes);
+
+        // Add new parent links
+        for (const inc of includes) {
+            const parents = this.parentGraph.get(inc) || new Set<string>();
+            parents.add(uri);
+            this.parentGraph.set(inc, parents);
+        }
+
+        return includes;
     }
 
     /**
@@ -276,61 +392,43 @@ export class DocManager {
      * A project is defined as the set of all files reachable from any root that can reach targetUri.
      */
     public getProjectNodes(targetUri: string): Set<string> {
-        const inDegrees = new Map<string, number>();
-        const allNodes = new Set<string>();
+        // Find roots by walking UP parentGraph
+        const roots = new Set<string>();
+        const visitedParents = new Set<string>();
         
-        for (const [node, edges] of this.includeGraph.entries()) {
-            allNodes.add(node);
-            if (!inDegrees.has(node)) inDegrees.set(node, 0);
-            for (const edge of edges) {
-                allNodes.add(edge);
-                inDegrees.set(edge, (inDegrees.get(edge) || 0) + 1);
-            }
-        }
-
-        const roots = Array.from(allNodes).filter(node => (inDegrees.get(node) || 0) === 0);
-        
-        // Find which roots can reach targetUri
-        const validRoots = new Set<string>();
-        
-        // Helper to find reachable nodes
-        const getReachable = (start: string) => {
-            const visited = new Set<string>();
-            const queue = [start];
-            while (queue.length > 0) {
-                const curr = queue.shift()!;
-                if (!visited.has(curr)) {
-                    visited.add(curr);
-                    const edges = this.includeGraph.get(curr);
-                    if (edges) {
-                        queue.push(...edges);
-                    }
+        const queueParents = [targetUri];
+        while (queueParents.length > 0) {
+            const curr = queueParents.shift()!;
+            if (!visitedParents.has(curr)) {
+                visitedParents.add(curr);
+                const parents = this.parentGraph.get(curr);
+                if (!parents || parents.size === 0) {
+                    roots.add(curr);
+                } else {
+                    queueParents.push(...parents);
                 }
             }
-            return visited;
         }
 
-        for (const root of roots) {
-            const reachable = getReachable(root);
-            if (reachable.has(targetUri)) {
-                validRoots.add(root);
-            }
+        // If isolated or part of disjoint cycle, ensure targetUri itself acts as root
+        if (roots.size === 0) {
+            roots.add(targetUri);
         }
 
-        // If targetUri is not reachable from ANY root, it's an isolated file or part of a disjoint cycle
-        if (validRoots.size === 0) {
-            validRoots.add(targetUri);
-        }
-
-        // Union of all reachable nodes from valid roots
+        // Walk DOWN includeGraph from all roots
         const projectNodes = new Set<string>();
-        for (const root of validRoots) {
-            const reachable = getReachable(root);
-            for (const node of reachable) {
-                projectNodes.add(node);
+        const queueChildren = Array.from(roots);
+        while (queueChildren.length > 0) {
+            const curr = queueChildren.shift()!;
+            if (!projectNodes.has(curr)) {
+                projectNodes.add(curr);
+                const children = this.includeGraph.get(curr);
+                if (children) {
+                    queueChildren.push(...children);
+                }
             }
         }
-        
+
         return projectNodes;
     }
 
@@ -389,7 +487,17 @@ export class DocManager {
         scopeMgr.buildFileScope(doc.uri, sourceFile);
 
         // Update Include Graph
-        this.updateIncludeGraph(doc.uri, sourceFile);
+        const includes = this.updateIncludeGraph(doc.uri, sourceFile);
+        
+        // Ensure new includes are indexed and diagnosed (background, non-blocking)
+        const visited = new Set<string>([doc.uri]);
+        for (const incUri of includes) {
+            if (!this.docs.has(incUri) && !this.includeGraph.has(incUri)) {
+                this.indexFile(URI.parse(incUri).fsPath, visited).catch(err => {
+                    this.connection.console.warn(`Failed to index new include ${incUri}: ${err}`);
+                });
+            }
+        }
 
         // Run metadata-based validations if metadata is available
         if (metadata) {

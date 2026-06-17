@@ -2,9 +2,9 @@ import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNode } from "../../parser/ast";
 import { TdlMetadata } from "../../tdlMetaData";
-import { SymbolTable, definitionTypeToSymbolKind } from "../symbolTable";
-import { normalizeTypeName } from "../utils";
-import {  areTypesCompatible, inferExpressionType } from "./validationUtils";
+import { SymbolTable, definitionTypeToSymbolKind, SymbolKind } from "../symbolTable";
+import { normalizeTypeName, getInterchangeableTypes } from "../utils";
+import { areTypesCompatible, inferExpressionType } from "./validationUtils";
 import { validateFunctionCall, validateBinaryExpression } from "./expressionValidation";
 import { UNKNOWN_ATTRIBUTE_DIAGNOSTIC_CODE, MISSING_DEFINITION_DIAGNOSTIC_CODE, UNKNOWN_SCHEMA_PROPERTY_DIAGNOSTIC_CODE } from "./validationConstants";
 
@@ -171,15 +171,37 @@ export function validateDefinitionAttributes(
                 if (!cleanValue) continue;
 
                 // Keyword Validation
-                if (paramDef.ParameterType === 'Keyword' && paramDef.Keywords) {
-                    const validKeywords = paramDef.Keywords.split(',').map(k => k.trim().toLowerCase());
-                    if (!validKeywords.includes(cleanValue.toLowerCase())) {
+                // if (paramDef.ParameterType === 'Keyword' && paramDef.Keywords) {
+                //     const validKeywords = paramDef.Keywords.split(',').map(k => k.trim().toLowerCase());
+                    
+                //     let isValidAction = false;
+                //     if (paramDef.DataType?.toLowerCase() === 'action') {
+                //         isValidAction = metadata.actions.some(a => a.Name.toLowerCase() === cleanValue.toLowerCase());
+                //     }
+
+                //     if (!validKeywords.includes(cleanValue.toLowerCase()) && !isValidAction) {
+                //         const startPos = doc.positionAt(paramNode.start);
+                //         const endPos = doc.positionAt(paramNode.end);
+                //         diagnostics.push({
+                //             severity: DiagnosticSeverity.Warning,
+                //             range: { start: startPos, end: endPos },
+                //             message: paramDef.DataType?.toLowerCase() === 'action'
+                //                 ? `Invalid action '${cleanValue}'. Expected a valid Action or Keyword: ${paramDef.Keywords}`
+                //                 : `Invalid keyword '${cleanValue}'. Expected one of: ${paramDef.Keywords}`,
+                //             source: 'tdl'
+                //         });
+                //     }
+                // }
+                // Action Validation (if it's not a Keyword ParameterType but still DataType is Action)
+                if (paramDef.KeywordSet && normalizeTypeName( paramDef.KeywordSet) === 'tdlActions') {
+                    const isValidAction = metadata.actions.some(a => a.Name.toLowerCase() === cleanValue.toLowerCase());
+                    if (!isValidAction) {
                         const startPos = doc.positionAt(paramNode.start);
                         const endPos = doc.positionAt(paramNode.end);
                         diagnostics.push({
                             severity: DiagnosticSeverity.Warning,
                             range: { start: startPos, end: endPos },
-                            message: `Invalid keyword '${cleanValue}'. Expected one of: ${paramDef.Keywords}`,
+                            message: `Invalid action '${cleanValue}'. No such action exists.`,
                             source: 'tdl'
                         });
                     }
@@ -208,13 +230,18 @@ export function validateDefinitionAttributes(
                     }
 
                     const refersToType = paramDef.RefersTo.trim();
+                    const normalizedRefersToType = normalizeTypeName(refersToType);
                     const startPos = doc.positionAt(paramNode.start);
                     const endPos = doc.positionAt(paramNode.end);
 
-                    const existingSymbols = symbolTable.findAllByName(cleanValue);
-                    const hasDefinition = existingSymbols.some(s => s.kind === definitionTypeToSymbolKind(refersToType));
+                    const interchangeableTypes = getInterchangeableTypes(normalizedRefersToType);
+                    const targetKinds = interchangeableTypes.map(t => definitionTypeToSymbolKind(t));
 
-                    if (!hasDefinition) {
+                    const existingSymbols = symbolTable.findAllByName(cleanValue);
+                    const hasDefinitionInWorkspace = existingSymbols.some(s => targetKinds.includes(s.kind));
+                    const hasDefinitionInMeta = metadata.isExistingDefinition(normalizedRefersToType, cleanValue);
+
+                    if (!hasDefinitionInWorkspace && !hasDefinitionInMeta) {
                         diagnostics.push({
                             severity: DiagnosticSeverity.Warning,
                             range: { start: startPos, end: endPos },
@@ -223,9 +250,9 @@ export function validateDefinitionAttributes(
                             code: MISSING_DEFINITION_DIAGNOSTIC_CODE,
                             data: { name: cleanValue, type: refersToType }
                         });
-                    } else if (projectNodes) {
+                    } else if (hasDefinitionInWorkspace && projectNodes) {
                         // Check if the definition is reachable from the project root
-                        const validProjectSymbol = existingSymbols.find(s => s.kind === definitionTypeToSymbolKind(refersToType) && projectNodes.has(s.uri));
+                        const validProjectSymbol = existingSymbols.find(s => targetKinds.includes(s.kind) && projectNodes.has(s.uri));
                         if (!validProjectSymbol) {
                             diagnostics.push({
                                 severity: DiagnosticSeverity.Warning,

@@ -64,7 +64,7 @@ describe('Document Highlights', () => {
             position: document.positionAt(offset)
         };
         
-        const highlights = getDocumentHighlights(params, docManager, mockDocuments);
+        const highlights = await getDocumentHighlights(params, docManager, mockDocuments);
         
         expect(highlights.length).toBe(2);
     });
@@ -78,7 +78,7 @@ describe('Document Highlights', () => {
             position: document.positionAt(5)
         };
         
-        const highlights = getDocumentHighlights(params, docManager, mockDocuments);
+        const highlights = await getDocumentHighlights(params, docManager, mockDocuments);
         
         expect(highlights.length).toBe(0);
     });
@@ -92,14 +92,14 @@ describe('Document Highlights', () => {
             textDocument: { uri },
             position: document.positionAt(refOffset)
         };
-        const refHighlights = getDocumentHighlights(refParams, docManager, mockDocuments);
+        const refHighlights = await getDocumentHighlights(refParams, docManager, mockDocuments);
         
         const defOffset = tdl.lastIndexOf('MyForm');
         const defParams: DocumentHighlightParams = {
             textDocument: { uri },
             position: document.positionAt(defOffset)
         };
-        const defHighlights = getDocumentHighlights(defParams, docManager, mockDocuments);
+        const defHighlights = await getDocumentHighlights(defParams, docManager, mockDocuments);
         
         expect(refHighlights.length).toBe(2);
         expect(defHighlights.length).toBe(2);

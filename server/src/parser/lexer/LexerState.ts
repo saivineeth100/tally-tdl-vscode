@@ -6,6 +6,7 @@ import { CharacterCodes } from "../characterCodes";
  * Useful for highlighting illegal characters or unclosed strings in the editor.
  */
 export interface LexicalDiagnostic {
+    code?: string;
     message: string;
     start: number;
     length: number;

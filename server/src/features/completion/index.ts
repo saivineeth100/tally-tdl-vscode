@@ -10,6 +10,7 @@ import { provideVariableCompletions, provideFormulaCompletions } from './provide
 import { provideXmlSchemaAttributeCompletions, provideSchemaTypeCompletions, provideXmlAttributeValueCompletions } from './providers/xmlProvider';
 import { provideAttributeCompletions, provideAttributeValueCompletions } from './providers/attributeProvider';
 import { provideModifierValueCompletions } from './providers/modifierProvider';
+import { provideFilePathCompletions } from './providers/pathProvider';
 import { getDefinitionTypes } from './utils';
 
 export * from './utils';
@@ -20,7 +21,7 @@ export function registerCompletion(
     documents: TextDocuments<TextDocument>,
     manager: DocManager
 ) {
-    connection.onCompletion((params: CompletionParams): CompletionList => {
+    connection.onCompletion(async (params: CompletionParams): Promise<CompletionList> => {
         const items: CompletionItem[] = [];
         const md = getMetadata() as TdlMetadata;
         const doc = documents.get(params.textDocument.uri);
@@ -37,6 +38,7 @@ export function registerCompletion(
 
         const isXml = doc.languageId === 'xml';
         const symbolTable = manager.getSymbolTable(params.textDocument.uri);
+        const projectScope = manager.getProjectNodes(params.textDocument.uri);
         let context: CompletionContext;
         
         if (isXml) {
@@ -61,8 +63,13 @@ export function registerCompletion(
                 break;
 
             case 'definition_name':
-                if (context.hasModifier && context.defType) {
-                    items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, md, symbolTable));
+                if (context.defType) {
+                    const lowerType = context.defType.toLowerCase();
+                    if (lowerType === 'include' || lowerType === 'import') {
+                        items.push(...(await provideFilePathCompletions(params.textDocument.uri, context.partial, manager.workspaceFolders)));
+                    } else if (context.hasModifier) {
+                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, md, symbolTable, projectScope));
+                    }
                 }
                 break;
 
@@ -87,14 +94,14 @@ export function registerCompletion(
             case 'attribute_value':
                 let xmlHandled = false;
                 if (isXml && context.tagPath && context.tagPath.length > 0 && context.attributeName) {
-                    const xmlItems = provideXmlAttributeValueCompletions(md, context.tagPath, context.attributeName, context.partial, currentDef, symbolTable);
+                    const xmlItems = provideXmlAttributeValueCompletions(md, context.tagPath, context.attributeName, context.partial, currentDef, symbolTable, projectScope);
                     if (xmlItems !== null) {
                         items.push(...xmlItems);
                         xmlHandled = true;
                     }
                 }
                 if (!xmlHandled && currentDef) {
-                    items.push(...provideAttributeValueCompletions(md, currentDef.type.text, context, symbolTable));
+                    items.push(...provideAttributeValueCompletions(md, currentDef.type.text, context, symbolTable, projectScope));
                 }
                 break;
 
@@ -151,8 +158,9 @@ export function registerCompletion(
                                     });
                                 }
                             }
-                        } else if (param.RefersTo) {
-                            items.push(...getSuggestionsForDefinitionType(param.RefersTo.trim(), context.partial, md, symbolTable));
+                        }
+                          if (param.RefersTo && context.defType !== 'Function') {
+                            items.push(...getSuggestionsForDefinitionType(param.RefersTo.trim(), context.partial, md, symbolTable, projectScope));
                         } else if (param.DataType?.toLowerCase() === 'string') {
                             items.push({
                                 label: '"..."',

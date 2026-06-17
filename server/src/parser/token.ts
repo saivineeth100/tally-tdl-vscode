@@ -7,6 +7,7 @@ export class Token {
     Start: number;
     Length: number;
     Text: string;
+    Value?: string; // Optional property for the "evaluated" or "cleaned" semantic string value
     Leading: Token[];
     Trailing: Token[];
 
@@ -25,7 +26,7 @@ export class Token {
         if (text === null) {
             return null;
         }
-        // Fallback to Length if Text is empty
+        // Fallback to extraction from raw source if Text isn't fully set
         const len = this.Text.length > 0 ? this.Text.length : this.Length;
         return text.substring(this.Start, this.Start + len);
     }
@@ -40,6 +41,7 @@ export class Token {
         return {
             kind: TokenKind[this.Kind],
             text: this.GetText(text),
+            ...(this.Value !== undefined ? { value: this.Value } : {}),
             start: this.Start,
             length: this.Length,
             ...(this.Leading?.length ? { leading: this.Leading.map(t => t.toJSON(text)) } : {}),

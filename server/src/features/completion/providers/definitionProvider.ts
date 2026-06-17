@@ -10,7 +10,8 @@ export function getSuggestionsForDefinitionType(
     defType: string,
     partial: string,
     md: TdlMetadata,
-    symbolTable?: SymbolTable
+    symbolTable?: SymbolTable,
+    scope?: Set<string>
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     const normalizedPartial = normalizeTypeName(partial);
@@ -28,7 +29,7 @@ export function getSuggestionsForDefinitionType(
         // 1. Check Symbol Table (user code)
         if (symbolTable) {
             const kind = definitionTypeToSymbolKind(type);
-            const existingNames = symbolTable.getNamesByKind(kind);
+            const existingNames = symbolTable.getNamesByKind(kind, scope);
 
             for (const name of existingNames) {
                 if (normalizedPartial === '' || normalizeTypeName(name).includes(normalizedPartial)) {

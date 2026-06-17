@@ -213,12 +213,13 @@ export class Lexer {
                 // Includes quotes in token.Text
                 const startQuote = this.state._pos;
                 this.state._pos++;
-                this.tokenScanner.ScanText(char); // Advance past content
+                let parsedStringContent = this.tokenScanner.ScanText(char);
                 if (this.state._pos < this.state._endOfFilePos && this.state.Peek() === char) {
                     this.state._pos++; // Advance past closing quote
                 }
                 token.Kind = TokenKind.StringLiteralToken;
                 token.Text = this.state.GetText(startQuote);
+                token.Value = parsedStringContent;
                 break;
             default:
                 if (this.state.IsNameStart(char)) {
@@ -241,11 +242,13 @@ export class Lexer {
                     }
 
                     token.Kind = matchedKind ?? TokenKind.IdentifierToken;
+                    token.Value = token.Text; // Ensure Value is populated
                     break;
                 }
                 else if (this.state.IsDigitChar(char)) {
                     token.Kind = TokenKind.NumberToken;
                     token.Text = this.tokenScanner.ScanDigits();
+                    token.Value = token.Text; // Ensure Value is populated
                     break;
                 }
                 this.state.diagnostics.push({ message: `Unexpected character: ${char}`, start: this.state._pos, length: 1 });

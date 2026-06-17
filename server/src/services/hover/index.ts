@@ -34,7 +34,8 @@ export function getHoverInfo(
     offset: number,
     metadata?: TdlMetadata,
     scopeManager?: ScopeManager,
-    uri?: string
+    uri?: string,
+    projectScope?: Set<string>
 ): HoverResult | null {
     // Check for variables/fields anywhere at this offset
     if (scopeManager && uri) {
@@ -82,7 +83,7 @@ export function getHoverInfo(
             
             if (foundText.startsWith('##') || foundText.startsWith('#')) {
                 const varName = foundText.replace(/^##?/, '');
-                const resolved = scopeManager.resolve(varName, scope);
+                const resolved = scopeManager.resolve(varName, scope, projectScope);
                 if (resolved) {
                     return {
                         type: 'attribute', // generic

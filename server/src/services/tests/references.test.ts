@@ -71,6 +71,7 @@ function setupMocks(files: Record<string, string>) {
     const mockDocManager = {
         get: (uri: string) => docStates.get(uri),
         getAllDocs: () => docStates.entries(),
+        getProjectNodes: (uri: string) => new Set(Array.from(docs.keys())),
         getScopeManager: (uri: string) => ({
             getVariableScope: () => null,
             getVariables: () => [],
@@ -87,7 +88,7 @@ describe('References Service', () => {
         setMetadata(mockMetadata as any);
     });
 
-    it('should find references within same file', () => {
+    it('should find references within same file', async () => {
         const { mockDocs, mockDocManager, targetUri, offset } = setupMocks({
             'file:///test.tdl': `
                 [Report: TestReport]
@@ -98,13 +99,13 @@ describe('References Service', () => {
             `
         });
         
-        const refs = findReferences(mockDocManager, mockDocs, targetUri, offset);
+        const refs = await findReferences(mockDocManager, mockDocs, targetUri, offset, true);
         
         expect(refs).toBeDefined();
         expect(refs.length).toBe(2); 
     });
 
-    it('should find references across multiple files', () => {
+    it('should find references across multiple files', async () => {
         const { mockDocs, mockDocManager, targetUri, offset } = setupMocks({
             'file:///file1.tdl': `
                 [Report: |BaseReport]
@@ -115,13 +116,13 @@ describe('References Service', () => {
             `
         });
         
-        const refs = findReferences(mockDocManager, mockDocs, targetUri, offset);
+        const refs = await findReferences(mockDocManager, mockDocs, targetUri, offset, true);
         
         expect(refs).toBeDefined();
         expect(refs.length).toBe(2);
     });
 
-    it('should differentiate between definition names and attribute values', () => {
+    it('should differentiate between definition names and attribute values', async () => {
         const { mockDocs, mockDocManager, targetUri, offset } = setupMocks({
             'file:///test.tdl': `
                 [Report: |MyReport]
@@ -129,14 +130,14 @@ describe('References Service', () => {
             `
         });
         
-        const refs = findReferences(mockDocManager, mockDocs, targetUri, offset);
+        const refs = await findReferences(mockDocManager, mockDocs, targetUri, offset, true);
         // Should only match Report: MyReport, not Part: MyReport (unless types mismatch is ignored)
         // Let's see what the implementation does. The targetType is 'Report', so Part: MyReport won't match.
         expect(refs).toBeDefined();
         expect(refs.length).toBe(1);
     });
 
-    it('should not have false positives for substring matches', () => {
+    it('should not have false positives for substring matches', async () => {
         const { mockDocs, mockDocManager, targetUri, offset } = setupMocks({
             'file:///test.tdl': `
                 [Report: |BaseReport]
@@ -146,12 +147,12 @@ describe('References Service', () => {
             `
         });
         
-        const refs = findReferences(mockDocManager, mockDocs, targetUri, offset);
+        const refs = await findReferences(mockDocManager, mockDocs, targetUri, offset, true);
         expect(refs).toBeDefined();
         expect(refs.length).toBe(1); // Only the definition itself
     });
 
-    it('should find variable references', () => {
+    it('should find variable references', async () => {
         const { mockDocs, mockDocManager, targetUri, offset } = setupMocks({
             'file:///test.tdl': `
                 [System: Variable]
@@ -163,7 +164,7 @@ describe('References Service', () => {
             `
         });
         
-        const refs = findReferences(mockDocManager, mockDocs, targetUri, offset);
+        const refs = await findReferences(mockDocManager, mockDocs, targetUri, offset, true);
         
         expect(refs).toBeDefined();
         // Variables might not have strict definition tracking without scope manager returning proper scope, but test basic

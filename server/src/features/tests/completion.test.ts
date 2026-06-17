@@ -158,7 +158,8 @@ describe('TDL Suggestions Tests', () => {
                 sourceFile: mockSourceFile
             }),
             getSymbolTable: () => symbolTable,
-            getScopeManager: () => scopeManager
+            getScopeManager: () => scopeManager,
+            getProjectNodes: () => new Set(['untitled:Untitled-1', 'test'])
         };
         
         registerCompletion(mockConnection, mockDocuments as any, mockManager as any);

@@ -113,7 +113,8 @@ export function provideXmlAttributeValueCompletions(
     attributeName: string,
     partial: string,
     currentDef?: DefinitionNode,
-    symbolTable?: SymbolTable
+    symbolTable?: SymbolTable,
+    scope?: Set<string>
 ): CompletionItem[] | null {
     const items: CompletionItem[] = [];
 
@@ -198,7 +199,7 @@ export function provideXmlAttributeValueCompletions(
                             paramIndex: 0,
                             partial: partial,
                             hasModifier: false
-                        }, symbolTable));
+                        }, symbolTable, scope));
                     }
                 }
             }

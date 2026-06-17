@@ -65,6 +65,7 @@ exports[`Lexer Full Tests > Complex Definition 1`] = `
     "length": 6,
     "start": 1,
     "text": "Report",
+    "value": "Report",
   },
   {
     "kind": "ColonToken",
@@ -85,6 +86,7 @@ exports[`Lexer Full Tests > Complex Definition 1`] = `
     "length": 8,
     "start": 9,
     "text": "MyReport",
+    "value": "MyReport",
   },
   {
     "kind": "CloseSquareBracketToken",
@@ -116,6 +118,7 @@ exports[`Lexer Full Tests > Identifiers 1`] = `
         "text": " ",
       },
     ],
+    "value": "MyReport",
   },
   {
     "kind": "IdentifierToken",
@@ -130,12 +133,14 @@ exports[`Lexer Full Tests > Identifiers 1`] = `
         "text": " ",
       },
     ],
+    "value": "My_Report",
   },
   {
     "kind": "IdentifierToken",
     "length": 9,
     "start": 19,
     "text": "report123",
+    "value": "",
   },
   {
     "kind": "EndOfFileToken",
@@ -161,6 +166,7 @@ exports[`Lexer Full Tests > Literals 1`] = `
         "text": " ",
       },
     ],
+    "value": "Hello World",
   },
   {
     "kind": "StringLiteralToken",
@@ -175,12 +181,14 @@ exports[`Lexer Full Tests > Literals 1`] = `
         "text": " ",
       },
     ],
+    "value": "Escaped "" Quote",
   },
   {
     "kind": "NumberToken",
     "length": 5,
     "start": 33,
     "text": "12345",
+    "value": "12345",
   },
   {
     "kind": "EndOfFileToken",
@@ -453,6 +461,7 @@ exports[`Lexer Full Tests > Symbols and Prefixes 1`] = `
     "length": 1,
     "start": 19,
     "text": "_",
+    "value": "",
   },
   {
     "kind": "EndOfFileToken",

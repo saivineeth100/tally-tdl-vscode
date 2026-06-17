@@ -9,10 +9,10 @@ export interface IScopeResolverState {
     metadata?: any;
     
     findDefinitionScope(id: string): Scope | undefined;
-    findGlobalSymbolsByName(name: string): SymbolInfo[];
+    findGlobalSymbolsByName(name: string, projectScope?: Set<string>): SymbolInfo[];
 }
 
-export function resolveSymbol(state: IScopeResolverState, name: string, initialScope: Scope): SymbolInfo | undefined {
+export function resolveSymbol(state: IScopeResolverState, name: string, initialScope: Scope, projectScope?: Set<string>): SymbolInfo | undefined {
     const lowerName = name.toLowerCase();
     const visitedScopes = new Set<string>();
     
@@ -67,7 +67,7 @@ export function resolveSymbol(state: IScopeResolverState, name: string, initialS
     }
 
     // Fallback to SymbolTable's global index 
-    const globalSymbols = state.findGlobalSymbolsByName(name);
+    const globalSymbols = state.findGlobalSymbolsByName(name, projectScope);
     if (globalSymbols.length > 0) {
         return globalSymbols[0];
     }

@@ -2,7 +2,7 @@ import * as fsasync from 'fs/promises';
 import * as fs from 'fs';
 import * as path from 'path';
 import { TDLFunction, TDLFunctionParameter } from './models/tdlFunction';
-import { normalizeTypeName } from './services/utils';
+import { normalizeTypeName, getInterchangeableTypes, registerInterchangeableTypes } from './services/utils';
 
 async function loadJsonSafe<T>(filePath: string): Promise<T | null> {
     return fs.existsSync(filePath) ? JSON.parse(await fsasync.readFile(filePath, 'utf-8')) : null;
@@ -163,6 +163,9 @@ export class TdlMetadata {
         // Load app info
         this.appInfo = await loadJsonSafe<AppInfo>(path.join(versionPath, "appInfo.json")) ?? undefined;
 
+        // Load definition aliases
+        await this.loadDefinitionAliases(versionPath);
+
         // Load functions
         await this.loadFunctions(versionPath);
 
@@ -180,6 +183,24 @@ export class TdlMetadata {
 
         // Build fast lookup maps
         this.buildLookupMaps();
+    }
+
+    private async loadDefinitionAliases(versionPath: string) {
+        const definitionMetaFile = path.join(versionPath, "Definition", "Definition.json");
+        if (fs.existsSync(definitionMetaFile)) {
+            const defMetaData = await loadJsonSafe<any>(definitionMetaFile);
+            if (defMetaData) {
+                for (const defType of Object.keys(defMetaData)) {
+                    const meta = defMetaData[defType].meta;
+                    if (meta && meta.Aliases) {
+                        const aliases = meta.Aliases.split(',').map((a: string) => a.trim());
+                        if (aliases.length > 1) {
+                            registerInterchangeableTypes(aliases);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private buildLookupMaps() {
@@ -303,6 +324,7 @@ export class TdlMetadata {
                 const defsMap = new Map<string, TDLDefinitionAttribute>();
                 for (const defName of Object.keys(definitionsData)) {
                     const def = TDLDefinitionAttribute.FromJSON(definitionsData[defName]);
+                    if (!def.Name) def.Name = defName;
 
                     defsMap.set(normalizeTypeName(def.Name), def);
                     const aliases = def.Aliases?.split(',');
@@ -364,7 +386,7 @@ export class TdlMetadata {
                     if (defName.includes(',')) {
                         const parts = defName.split(',');
                         for (const part of parts) {
-                            defSet.add(normalizeTypeName(part.trim()));
+                            defSet.add(normalizeTypeName(part));
                         }
                     } else {
                         defSet.add(normalizeTypeName(defName));
@@ -379,8 +401,18 @@ export class TdlMetadata {
 
     isExistingDefinition(defType: string, defName: string): boolean {
         if (!defType || !defName) return false;
-        const typeSet = this.existingDefinitions.get(normalizeTypeName(defType));
-        return typeSet ? typeSet.has(normalizeTypeName(defName)) : false;
+        const normalizedType = normalizeTypeName(defType);
+        const normalizedName = normalizeTypeName(defName);
+
+        const typesToCheck = getInterchangeableTypes(normalizedType);
+        for (const t of typesToCheck) {
+            const typeSet = this.existingDefinitions.get(t);
+            if (typeSet && typeSet.has(normalizedName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     findFunction(name: string): TDLFunction | undefined {

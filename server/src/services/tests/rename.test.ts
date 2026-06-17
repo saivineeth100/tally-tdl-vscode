@@ -83,6 +83,7 @@ function setupMocks(files: Record<string, string>) {
     const mockDocManager = {
         get: (uri: string) => docStates.get(uri),
         getAllDocs: () => docStates.entries(),
+        getProjectNodes: (uri: string) => new Set(Array.from(docs.keys())),
         getScopeManager: (uri: string) => ({
             getVariableScope: () => null,
             getVariables: () => [],
@@ -99,7 +100,7 @@ describe('Rename Service', () => {
         setMetadata(mockMetadata as any);
     });
 
-    it('should rename definition and update all references', () => {
+    it('should rename definition and update all references', async () => {
         const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
             'file:///test.tdl': `
 [Report: |BaseReport]
@@ -113,7 +114,7 @@ Use: BaseReport
             newName: 'NewReport'
         };
         
-        const edit = renameSymbol(params, mockDocManager, mockDocs);
+        const edit = await renameSymbol(params, mockDocManager, mockDocs);
         
         expect(edit).toBeDefined();
         expect(edit?.changes).toBeDefined();
@@ -125,7 +126,7 @@ Use: BaseReport
         }
     });
 
-    it('should preserve prefixes for variables', () => {
+    it('should preserve prefixes for variables', async () => {
         const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
             'file:///test.tdl': `
 [System: Variable]
@@ -143,7 +144,7 @@ Local: Field: Default: Set as: ##MyVar
             newName: 'NewVar'
         };
         
-        const edit = renameSymbol(params, mockDocManager, mockDocs);
+        const edit = await renameSymbol(params, mockDocManager, mockDocs);
         
         expect(edit).toBeDefined();
         if (edit?.changes) {
@@ -158,7 +159,7 @@ Local: Field: Default: Set as: ##MyVar
         }
     });
 
-    it('should reject empty names', () => {
+    it('should return null if new name is empty', async () => {
         const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
             'file:///test.tdl': `
 [Report: |BaseReport]
@@ -171,11 +172,11 @@ Local: Field: Default: Set as: ##MyVar
             newName: '   '
         };
         
-        const edit = renameSymbol(params, mockDocManager, mockDocs);
+        const edit = await renameSymbol(params, mockDocManager, mockDocs);
         expect(edit).toBeNull();
     });
 
-    it('should handle cross-file rename and produce correct WorkspaceEdit', () => {
+    it('should handle cross-file rename and produce correct WorkspaceEdit', async () => {
         const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
             'file:///file1.tdl': `
 [Report: |BaseReport]
@@ -192,7 +193,7 @@ Use: BaseReport
             newName: 'NewReport'
         };
         
-        const edit = renameSymbol(params, mockDocManager, mockDocs);
+        const edit = await renameSymbol(params, mockDocManager, mockDocs);
         expect(edit).toBeDefined();
         if (edit?.changes) {
             expect(edit.changes['file:///file1.tdl'].length).toBe(1);

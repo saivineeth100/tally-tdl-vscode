@@ -36,8 +36,9 @@ export function provideVariableCompletions(
     }
     
     // 2. Global definitions
-    items.push(...getSuggestionsForDefinitionType('Variable', partial, md, symbolTable));
-    items.push(...getSuggestionsForDefinitionType('System Variable', partial, md, symbolTable));
+    const projectScope = manager.getProjectNodes(uri);
+    items.push(...getSuggestionsForDefinitionType('Variable', partial, md, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('System Variable', partial, md, symbolTable, projectScope));
 
     return items;
 }
@@ -71,12 +72,14 @@ export function provideFormulaCompletions(
         }
     }
     
-    items.push(...getSuggestionsForDefinitionType('Formula', partial, md, symbolTable));
-    items.push(...getSuggestionsForDefinitionType('Formulae', partial, md, symbolTable));
-    items.push(...getSuggestionsForDefinitionType('Formulas', partial, md, symbolTable));
-    items.push(...getSuggestionsForDefinitionType('System Formula', partial, md, symbolTable));
-    items.push(...getSuggestionsForDefinitionType('System Formulae', partial, md, symbolTable));
-    items.push(...getSuggestionsForDefinitionType('System Formulas', partial, md, symbolTable));
+    // 2. Global formula definitions
+    const projectScope = manager.getProjectNodes(uri);
+    items.push(...getSuggestionsForDefinitionType('Formula', partial, md, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('Formulae', partial, md, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('Formulas', partial, md, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('System Formula', partial, md, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('System Formulae', partial, md, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('System Formulas', partial, md, symbolTable, projectScope));
 
     return items;
 }

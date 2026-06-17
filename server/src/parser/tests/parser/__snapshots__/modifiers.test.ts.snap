@@ -14,6 +14,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
         "Start": 18,
         "Text": "]",
         "Trailing": [],
+        "Value": undefined,
       },
       "closeType": undefined,
       "colon": {
@@ -32,8 +33,10 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
             "Start": 9,
             "Text": " ",
             "Trailing": [],
+            "Value": undefined,
           },
         ],
+        "Value": undefined,
       },
       "complexObjects": [],
       "directives": [],
@@ -52,6 +55,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
         "Start": 1,
         "Text": "#",
         "Trailing": [],
+        "Value": undefined,
       },
       "name": {
         "end": 18,
@@ -68,6 +72,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
             "Start": 10,
             "Text": "MyReport",
             "Trailing": [],
+            "Value": "MyReport",
           },
         ],
       },
@@ -80,6 +85,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
         "Start": 0,
         "Text": "[",
         "Trailing": [],
+        "Value": undefined,
       },
       "start": 0,
       "statements": [],
@@ -98,6 +104,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
             "Start": 2,
             "Text": "Report",
             "Trailing": [],
+            "Value": "Report",
           },
         ],
       },
@@ -120,6 +127,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
       "Start": 0,
       "Text": "[",
       "Trailing": [],
+      "Value": undefined,
     },
     {
       "FullStart": 1,
@@ -129,6 +137,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
       "Start": 1,
       "Text": "#",
       "Trailing": [],
+      "Value": undefined,
     },
     {
       "FullStart": 2,
@@ -138,6 +147,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
       "Start": 2,
       "Text": "Report",
       "Trailing": [],
+      "Value": "Report",
     },
     {
       "FullStart": 8,
@@ -155,8 +165,10 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
           "Start": 9,
           "Text": " ",
           "Trailing": [],
+          "Value": undefined,
         },
       ],
+      "Value": undefined,
     },
     {
       "FullStart": 10,
@@ -166,6 +178,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
       "Start": 10,
       "Text": "MyReport",
       "Trailing": [],
+      "Value": "MyReport",
     },
     {
       "FullStart": 18,
@@ -175,6 +188,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
       "Start": 18,
       "Text": "]",
       "Trailing": [],
+      "Value": undefined,
     },
     {
       "FullStart": 19,
@@ -184,6 +198,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Modifier 1`] = `
       "Start": 19,
       "Text": "",
       "Trailing": [],
+      "Value": undefined,
     },
   ],
 }
@@ -203,6 +218,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
         "Start": 16,
         "Text": "]",
         "Trailing": [],
+        "Value": undefined,
       },
       "closeType": undefined,
       "colon": {
@@ -221,8 +237,10 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
             "Start": 8,
             "Text": " ",
             "Trailing": [],
+            "Value": undefined,
           },
         ],
+        "Value": undefined,
       },
       "complexObjects": [],
       "directives": [],
@@ -241,6 +259,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
         "Start": 1,
         "Text": "!",
         "Trailing": [],
+        "Value": undefined,
       },
       "name": {
         "end": 16,
@@ -257,6 +276,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
             "Start": 9,
             "Text": "MyField",
             "Trailing": [],
+            "Value": "MyField",
           },
         ],
       },
@@ -269,6 +289,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
         "Start": 0,
         "Text": "[",
         "Trailing": [],
+        "Value": undefined,
       },
       "start": 0,
       "statements": [],
@@ -287,6 +308,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
             "Start": 2,
             "Text": "Field",
             "Trailing": [],
+            "Value": "Field",
           },
         ],
       },
@@ -309,6 +331,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
       "Start": 0,
       "Text": "[",
       "Trailing": [],
+      "Value": undefined,
     },
     {
       "FullStart": 1,
@@ -318,6 +341,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
       "Start": 1,
       "Text": "!",
       "Trailing": [],
+      "Value": undefined,
     },
     {
       "FullStart": 2,
@@ -327,6 +351,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
       "Start": 2,
       "Text": "Field",
       "Trailing": [],
+      "Value": "Field",
     },
     {
       "FullStart": 7,
@@ -344,8 +369,10 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
           "Start": 8,
           "Text": " ",
           "Trailing": [],
+          "Value": undefined,
         },
       ],
+      "Value": undefined,
     },
     {
       "FullStart": 9,
@@ -355,6 +382,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
       "Start": 9,
       "Text": "MyField",
       "Trailing": [],
+      "Value": "MyField",
     },
     {
       "FullStart": 16,
@@ -364,6 +392,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
       "Start": 16,
       "Text": "]",
       "Trailing": [],
+      "Value": undefined,
     },
     {
       "FullStart": 17,
@@ -373,6 +402,7 @@ exports[`Parser Modifiers Tests > Parse Definition with Optional Modifier 1`] = 
       "Start": 17,
       "Text": "",
       "Trailing": [],
+      "Value": undefined,
     },
   ],
 }

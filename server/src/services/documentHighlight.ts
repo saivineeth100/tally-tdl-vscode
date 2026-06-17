@@ -3,11 +3,11 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DocManager } from '../docManager';
 import { findReferences } from './references';
 
-export function getDocumentHighlights(
+export async function getDocumentHighlights(
     params: DocumentHighlightParams,
     docManager: DocManager,
     docs: TextDocuments<TextDocument>
-): DocumentHighlight[] {
+): Promise<DocumentHighlight[]> {
     const uri = params.textDocument.uri;
     const doc = docs.get(uri);
     if (!doc) return [];
@@ -15,7 +15,7 @@ export function getDocumentHighlights(
     const offset = doc.offsetAt(params.position);
     
     // Use findReferences but filter for the current document only
-    const locations = findReferences(docManager, docs, uri, offset);
+    const locations = await findReferences(docManager, docs, uri, offset, true);
     
     const highlights: DocumentHighlight[] = [];
     
