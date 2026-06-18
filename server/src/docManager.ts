@@ -3,8 +3,6 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Parser } from "./parser/parser";
 import { parseXmlToAst } from "./parser/xmlAdapter";
 import { SourceFile } from "./parser/ast";
-import { TdlMetadata } from "./tdlMetaData";
-import { getMetadata } from "./services/metadataService";
 import { getDiagnosticSeverity, isDiagnosticsEnabled, shouldTreatWarningsAsErrors, shouldHideWarnings } from './services/settingsManager';
 import { validateSourceFile } from "./services/validation";
 import { SymbolTable, SymbolInfo, definitionTypeToSymbolKind } from "./services/symbolTable";
@@ -302,11 +300,11 @@ export class DocManager {
             const content = await readFileWithEncoding(filePath);
             const ext = path.extname(filePath).toLowerCase();
             const isXml = ext === '.xml' || ext === '.tdlxml';
-            const metadata = getMetadata();
+            const scopeMgr = this.getScopeManager(uri);
             
             let sourceFile: SourceFile;
-            if (isXml && metadata) {
-                sourceFile = parseXmlToAst(content, metadata);
+            if (isXml) {
+                sourceFile = parseXmlToAst(content, scopeMgr);
             } else {
                 const parser = new Parser(content);
                 sourceFile = parser.parse();
@@ -333,7 +331,6 @@ export class DocManager {
             }
             
             // Build scope tree to capture global variables and formulas
-            const scopeMgr = this.getScopeManager(uri);
             scopeMgr.buildFileScope(uri, sourceFile);
 
             // Update Include Graph
@@ -345,46 +342,44 @@ export class DocManager {
             }
             
             // Run validation and send diagnostics
-            if (metadata) {
-                const languageId = isXml ? 'xml' : 'tdl';
-                const doc = TextDocument.create(uri, languageId, 1, content);
-                
-                const diagnostics: Diagnostic[] = sourceFile.errors.map(error => ({
-                    severity: DiagnosticSeverity.Error,
-                    range: { start: doc.positionAt(error.start), end: doc.positionAt(error.end) },
-                    message: error.message,
-                    code: error.code,
-                    source: 'tdl'
-                }));
-                diagnostics.push(...(await validateSourceFile(sourceFile, doc, metadata, symTable, scopeMgr, this.resolveIncludePath, this)));
-                
-                const treatAsError = shouldTreatWarningsAsErrors();
-                const hideWarnings = shouldHideWarnings();
+            const languageId = isXml ? 'xml' : 'tdl';
+            const doc = TextDocument.create(uri, languageId, 1, content);
+            
+            const diagnostics: Diagnostic[] = sourceFile.errors.map(error => ({
+                severity: DiagnosticSeverity.Error,
+                range: { start: doc.positionAt(error.start), end: doc.positionAt(error.end) },
+                message: error.message,
+                code: error.code,
+                source: 'tdl'
+            }));
+            diagnostics.push(...(await validateSourceFile(sourceFile, doc, symTable, scopeMgr, this.resolveIncludePath, this)));
+            
+            const treatAsError = shouldTreatWarningsAsErrors();
+            const hideWarnings = shouldHideWarnings();
 
-                const finalDiagnostics = isDiagnosticsEnabled() ? diagnostics.filter(d => {
-                    // Check individual overrides first
-                    if (d.code && typeof d.code === 'string') {
-                        const setting = getDiagnosticSeverity(d.code);
-                        if (setting === 'none') return false;
-                        if (setting === 'error') d.severity = DiagnosticSeverity.Error;
-                        if (setting === 'warning') d.severity = DiagnosticSeverity.Warning;
-                        if (setting === 'information') d.severity = DiagnosticSeverity.Information;
-                        if (setting === 'hint') d.severity = DiagnosticSeverity.Hint;
+            const finalDiagnostics = isDiagnosticsEnabled() ? diagnostics.filter(d => {
+                // Check individual overrides first
+                if (d.code && typeof d.code === 'string') {
+                    const setting = getDiagnosticSeverity(d.code);
+                    if (setting === 'none') return false;
+                    if (setting === 'error') d.severity = DiagnosticSeverity.Error;
+                    if (setting === 'warning') d.severity = DiagnosticSeverity.Warning;
+                    if (setting === 'information') d.severity = DiagnosticSeverity.Information;
+                    if (setting === 'hint') d.severity = DiagnosticSeverity.Hint;
+                }
+
+                // Apply global warning settings
+                if (d.severity === DiagnosticSeverity.Warning) {
+                    if (treatAsError) {
+                        d.severity = DiagnosticSeverity.Error;
+                    } else if (hideWarnings) {
+                        return false;
                     }
+                }
+                return true;
+            }) : [];
 
-                    // Apply global warning settings
-                    if (d.severity === DiagnosticSeverity.Warning) {
-                        if (treatAsError) {
-                            d.severity = DiagnosticSeverity.Error;
-                        } else if (hideWarnings) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }) : [];
-
-                this.connection.sendDiagnostics({ uri, diagnostics: finalDiagnostics });
-            }
+            this.connection.sendDiagnostics({ uri, diagnostics: finalDiagnostics });
         } catch (err) {
             // Silently skip files that can't be read, but log error
             this.connection.console.warn(`Error indexing file ${filePath}: ${err}`);
@@ -515,13 +510,13 @@ export class DocManager {
         const text = doc.getText();
         const isXml = doc.languageId === 'xml';
 
-        const metadata = getMetadata();
+        const scopeMgr = this.getScopeManager(doc.uri);
         
         const oldDocState = this.docs.get(doc.uri);
         const oldSourceFile = oldDocState?.sourceFile;
 
         if (isXml) {
-            sourceFile = parseXmlToAst(text, metadata);
+            sourceFile = parseXmlToAst(text, scopeMgr);
         } else {
             const parser = new Parser(text, oldSourceFile);
             sourceFile = parser.parse();
@@ -559,7 +554,6 @@ export class DocManager {
         }
 
         // Build Scope Tree for the file
-        const scopeMgr = this.getScopeManager(doc.uri);
         scopeMgr.buildFileScope(doc.uri, sourceFile);
 
         // Update Include Graph
@@ -575,10 +569,8 @@ export class DocManager {
             }
         }
 
-        // Run metadata-based validations if metadata is available
-        if (metadata) {
-            diagnostics.push(...(await validateSourceFile(sourceFile, doc, metadata, symTable, scopeMgr, this.resolveIncludePath, this)));
-        }
+        // Run validations
+        diagnostics.push(...(await validateSourceFile(sourceFile, doc, symTable, scopeMgr, this.resolveIncludePath, this)));
 
         // Store document state
         this.docs.set(doc.uri, { sourceFile, diagnostics });

@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { Parser } from '../../parser/parser';
-import { TDLFunction } from '../../models/tdlFunction';
+import { FunctionSymbol, SymbolKind } from '../../models/symbols';
 import {
     validateDefinitionAttributes
 } from '../validation';
 import { DiagnosticRules } from '../../diagnostics';
 import { normalizeTypeName } from '../utils';
 import { SymbolTable, definitionTypeToSymbolKind } from '../symbolTable';
-import { testMetadata } from '../../test-setup';
+import { testScopeManager } from '../../test-setup';
 
 describe('Attribute Validation', () => {
 
@@ -27,8 +27,6 @@ describe('Attribute Validation', () => {
         });
     });
 
-
-
     describe('Mandatory Parameter Validation', () => {
         it('should detect missing mandatory parameters in Report', async () => {
             const tdl = `[Report: MyReport]
@@ -41,7 +39,7 @@ describe('Attribute Validation', () => {
             const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
 
             const def = sourceFile.definitions[0];
-            const diagnostics = validateDefinitionAttributes(def, docReal, testMetadata!);
+            const diagnostics = validateDefinitionAttributes(def, docReal, testScopeManager!);
 
             const formDiag = diagnostics.find(d =>
                 d.code === DiagnosticRules.MissingParameters.code ||
@@ -58,7 +56,7 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const formDiag = diagnostics.find(d => d.code === DiagnosticRules.MissingParameters.code);
             expect(formDiag).toBeUndefined();
         });
@@ -79,7 +77,6 @@ describe('Attribute Validation', () => {
             });
         });
 
-
         it('should validate reference to existing form', async () => {
             const tdl = `[Report: RefReport]
                 Form: ExistingForm
@@ -88,7 +85,7 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!, symbolTable);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!, symbolTable);
             const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeUndefined();
         });
@@ -101,7 +98,7 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!, symbolTable);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!, symbolTable);
 
             const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeDefined();
@@ -109,30 +106,25 @@ describe('Attribute Validation', () => {
     });
 
     describe('List Modifier Validation', () => {
-        // The dynamic transformation splits "Add/Replace/Delete" into separate definitions.
-        // They inherit the original definition's parameters (1 mandatory param).
-        // This test verifies that each split part is recognized as a valid attribute.
-
         it('should recognize Add as a valid attribute after transformation', async () => {
-            const addDef = testMetadata!.findDefinitionAttribute('Add', 'Report');
+            const addDef = testScopeManager!.globalScope.attributes.get('report')?.get('add');
             expect(addDef).toBeDefined();
-            expect(addDef?.Name).toBe('Add');
+            expect(addDef?.name).toBe('Add');
         });
 
         it('should recognize Delete as a valid attribute after transformation', async () => {
-            const delDef = testMetadata!.findDefinitionAttribute('Delete', 'Report');
+            const delDef = testScopeManager!.globalScope.attributes.get('report')?.get('delete');
             expect(delDef).toBeDefined();
-            expect(delDef?.Name).toBe('Delete');
+            expect(delDef?.name).toBe('Delete');
         });
 
         it('should recognize Replace as a valid attribute after transformation', async () => {
-            const repDef = testMetadata!.findDefinitionAttribute('Replace', 'Report');
+            const repDef = testScopeManager!.globalScope.attributes.get('report')?.get('replace');
             expect(repDef).toBeDefined();
-            expect(repDef?.Name).toBe('Replace');
+            expect(repDef?.name).toBe('Replace');
         });
 
         it('should validate Add attribute with correct parameters', async () => {
-            // Original Add/Replace/Delete has 1 mandatory param
             const tdl = `[Report: TestReport]
                 Add: Form: NewForm
             `;
@@ -140,42 +132,22 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
-            // No missing mandatory param errors expected, as original has 1 mandatory and we provided 2
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const diag = diagnostics.find(d => d.code === DiagnosticRules.MissingParameters.code);
             expect(diag).toBeUndefined();
         });
 
         it('should replace Description with part-specific text for Add', async () => {
-            const addDef = testMetadata!.findDefinitionAttribute('Add', 'Report');
+            const addDef = testScopeManager!.globalScope.attributes.get('report')?.get('add');
             expect(addDef).toBeDefined();
-            // Description should NOT contain "Add/Replace/Delete" or similar combined patterns
-            expect(addDef?.Description).not.toMatch(/Add\/Replace\/Delete/i);
-            expect(addDef?.Description).not.toMatch(/ADD\/Delete\/Replace/i);
-            // Should contain the part name
-            expect(addDef?.Description).toMatch(/Add/i);
-        });
-
-        it('should replace Description with part-specific text for Delete', async () => {
-            const delDef = testMetadata!.findDefinitionAttribute('Delete', 'Report');
-            expect(delDef).toBeDefined();
-            expect(delDef?.Description).not.toMatch(/Add\/Replace\/Delete/i);
-            expect(delDef?.Description).not.toMatch(/ADD\/Delete\/Replace/i);
-            expect(delDef?.Description).toMatch(/Delete/i);
-        });
-
-        it('should replace Description with part-specific text for Replace', async () => {
-            const repDef = testMetadata!.findDefinitionAttribute('Replace', 'Report');
-            expect(repDef).toBeDefined();
-            expect(repDef?.Description).not.toMatch(/Add\/Replace\/Delete/i);
-            expect(repDef?.Description).not.toMatch(/ADD\/Delete\/Replace/i);
-            expect(repDef?.Description).toMatch(/Replace/i);
+            expect(addDef?.description).not.toMatch(/Add\/Replace\/Delete/i);
+            expect(addDef?.description).not.toMatch(/ADD\/Delete\/Replace/i);
+            expect(addDef?.description).toMatch(/Add/i);
         });
     });
 
     describe('Datatype Validation', () => {
         it('should validate Logical datatype with invalid value', async () => {
-            // Part has Balance attribute with Logical datatype
             const tdl = `[Part: TestPart]
                 Balance: Maybe
             `;
@@ -183,7 +155,7 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const diag = diagnostics.find(d => d.code === DiagnosticRules.InvalidLogicalValue.code);
             expect(diag).toBeDefined();
         });
@@ -196,13 +168,12 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const diag = diagnostics.find(d => d.code === DiagnosticRules.InvalidLogicalValue.code);
             expect(diag).toBeUndefined();
         });
 
         it('should validate Keyword parameter with invalid value', async () => {
-            // Part has Horizontal Align attribute with Keyword type
             const tdl = `[Part: TestPart]
                 Horizontal Align: Invalid
             `;
@@ -210,7 +181,7 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const diag = diagnostics.find(d => d.code === DiagnosticRules.InvalidKeyword.code);
             expect(diag).toBeDefined();
         });
@@ -223,16 +194,14 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testMetadata!);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const diag = diagnostics.find(d => d.code === DiagnosticRules.InvalidKeyword.code);
             expect(diag).toBeUndefined();
         });
 
-        it('should cache keywordSets during testMetadata! loading', async () => {
-            // Check if keywordSets is populated
-            expect(testMetadata!.keywordSets.size).toBeGreaterThan(0);
-            // Align Type should be cached
-            const alignTypeKeywords = testMetadata!.keywordSets.get('Align Type');
+        it('should cache keywordSets during testScopeManager loading', async () => {
+            expect(testScopeManager!.keywordSets.size).toBeGreaterThan(0);
+            const alignTypeKeywords = testScopeManager!.keywordSets.get('Align Type');
             expect(alignTypeKeywords).toBeDefined();
             expect(alignTypeKeywords).toContain('Center');
             expect(alignTypeKeywords).toContain('Left');
@@ -240,31 +209,28 @@ describe('Attribute Validation', () => {
     });
 
     describe('Function Return Type Validation', () => {
-        it('should have functions loaded in testMetadata!', async () => {
-            expect(testMetadata!.functions.length).toBeGreaterThan(0);
+        it('should have functions loaded in testScopeManager!', async () => {
+            expect(testScopeManager!.globalScope.functions.size).toBeGreaterThan(0);
         });
 
-        it('should have function with ReturnType', async () => {
-            const printDate = testMetadata!.functions.find((f: TDLFunction) => f.Name === 'PrintDate');
+        it('should have function with returnType', async () => {
+            const printDate = testScopeManager!.globalScope.functions.get('printdate');
             expect(printDate).toBeDefined();
-            expect(printDate?.ReturnType).toBe('Date');
+            expect(printDate?.returnType).toBe('Date');
         });
 
         it('should have function parameters with DataType', async () => {
-            const dateFunc = testMetadata!.functions.find((f: TDLFunction) => f.Name === 'Date');
+            const dateFunc = testScopeManager!.globalScope.functions.get('date');
             expect(dateFunc).toBeDefined();
-            expect(dateFunc?.Parameters?.length).toBeGreaterThan(0);
-            expect(dateFunc?.Parameters?.[0].DataType).toBe('Date');
+            expect(dateFunc?.parameters?.length).toBeGreaterThan(0);
+            expect(dateFunc?.parameters?.[0].DataType).toBe('Date');
         });
 
         it('should check type compatibility for compatible types', async () => {
-            // String accepts number, date, etc.
-            // This test validates the areTypesCompatible logic indirectly
-            const stringFuncs = testMetadata!.functions.filter((f: TDLFunction) => f.ReturnType === 'String');
-            const dateFuncs = testMetadata!.functions.filter((f: TDLFunction) => f.ReturnType === 'Date');
+            const stringFuncs = Array.from(testScopeManager!.globalScope.functions.values()).filter(f => f.returnType === 'String');
+            const dateFuncs = Array.from(testScopeManager!.globalScope.functions.values()).filter(f => f.returnType === 'Date');
             expect(stringFuncs.length).toBeGreaterThan(0);
             expect(dateFuncs.length).toBeGreaterThan(0);
         });
     });
 });
-

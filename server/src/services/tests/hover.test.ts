@@ -2,8 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser/parser';
 import { createHoverContent, getHoverInfo } from '../hover';
 import { getDefinitionAtOffset } from '../definition';
-import { testMetadata } from '../../test-setup';
-import { TDLFunction } from '../../models/tdlFunction';
+import { ScopeManager, ScopeKind } from '../scopeManager';
+import { SymbolTable, SymbolKind } from '../symbolTable';
+import { AttributeSymbol, FunctionSymbol } from '../../models/symbols';
 
 describe('Hover Feature', () => {
 
@@ -115,7 +116,16 @@ describe('Hover Feature', () => {
         });
     });
 
-    describe('getHoverInfo with testMetadata!', () => {
+    describe('getHoverInfo with ScopeManager', () => {
+        
+        let scopeManager: ScopeManager;
+        const testUri = 'file://test.tdl';
+
+        beforeEach(() => {
+            const table = new SymbolTable();
+            scopeManager = new ScopeManager(table);
+        });
+
         it('should show attribute description when hovering on attribute name', () => {
             const tdl = `[Report: TestReport]
                 Form: MainForm
@@ -124,11 +134,31 @@ describe('Hover Feature', () => {
             const sourceFile = parser.parse();
             const offset = tdl.indexOf('Form');
 
-            const result = getHoverInfo(sourceFile, offset, testMetadata!);
+            scopeManager.buildFileScope(testUri, sourceFile);
+            
+            // Mock the resolution of 'Form' attribute
+            scopeManager.resolveAttribute = (name, type) => {
+                if (name === 'Form' && type === 'Report') {
+                    return {
+                        name: 'Form',
+                        kind: SymbolKind.Object,
+                        definitionType: 'Report',
+                        uri: 'global',
+                        start: 0, end: 0,
+                        description: 'Specifies the form used in the report',
+                        isDiscrete: false,
+                        parameters: []
+                    } as AttributeSymbol;
+                }
+                return undefined;
+            };
+
+            const result = getHoverInfo(sourceFile, offset, scopeManager, testUri);
 
             expect(result).toBeDefined();
             expect(result?.type).toBe('attribute');
             expect(result?.content).toContain('**Form**');
+            expect(result?.content).toContain('Specifies the form');
         });
 
         it('should show parameter info when hovering on parameter value', () => {
@@ -139,11 +169,32 @@ describe('Hover Feature', () => {
             const sourceFile = parser.parse();
             const offset = tdl.indexOf('MainForm');
 
-            const result = getHoverInfo(sourceFile, offset, testMetadata!);
+            scopeManager.buildFileScope(testUri, sourceFile);
+
+            // Mock the resolution of 'Form' attribute with parameters
+            scopeManager.resolveAttribute = (name, type) => {
+                if (name === 'Form' && type === 'Report') {
+                    return {
+                        name: 'Form',
+                        kind: SymbolKind.Object,
+                        definitionType: 'Report',
+                        uri: 'global',
+                        start: 0, end: 0,
+                        isDiscrete: false,
+                        parameters: [
+                            { ParameterType: 'Value1', DataType: 'Form', IsMandatory: true }
+                        ]
+                    } as AttributeSymbol;
+                }
+                return undefined;
+            };
+
+            const result = getHoverInfo(sourceFile, offset, scopeManager, testUri);
 
             expect(result).toBeDefined();
             expect(result?.type).toBe('parameter');
-            expect(result?.content).toContain('Parameter');
+            expect(result?.content).toContain('Parameter 1');
+            expect(result?.content).toContain('Form');
         });
 
         it('should show definition info when hovering on definition header', () => {
@@ -154,7 +205,9 @@ describe('Hover Feature', () => {
             const sourceFile = parser.parse();
             const offset = tdl.indexOf('TestReport');
 
-            const result = getHoverInfo(sourceFile, offset, testMetadata!);
+            scopeManager.buildFileScope(testUri, sourceFile);
+
+            const result = getHoverInfo(sourceFile, offset, scopeManager, testUri);
 
             expect(result).toBeDefined();
             expect(result?.type).toBe('definition');
@@ -163,6 +216,14 @@ describe('Hover Feature', () => {
     });
 
     describe('Function hover', () => {
+        let scopeManager: ScopeManager;
+        const testUri = 'file://test.tdl';
+
+        beforeEach(() => {
+            const table = new SymbolTable();
+            scopeManager = new ScopeManager(table);
+        });
+
         it('should show function info when hovering on $$FunctionName', () => {
             const tdl = `[Field: DateField]
                 Set As: $$PrintDate
@@ -171,33 +232,61 @@ describe('Hover Feature', () => {
             const sourceFile = parser.parse();
             const offset = tdl.indexOf('PrintDate');
 
-            const result = getHoverInfo(sourceFile, offset, testMetadata!);
+            scopeManager.buildFileScope(testUri, sourceFile);
+
+            scopeManager.resolveFunction = (name) => {
+                if (name.toLowerCase() === 'printdate') {
+                    return {
+                        name: 'PrintDate',
+                        kind: SymbolKind.Function,
+                        definitionType: 'Function',
+                        uri: 'global',
+                        start: 0, end: 0,
+                        description: 'Returns the current date',
+                        parameters: []
+                    } as FunctionSymbol;
+                }
+                return undefined;
+            };
+
+            const result = getHoverInfo(sourceFile, offset, scopeManager, testUri);
 
             expect(result).toBeDefined();
             expect(result?.type).toBe('function');
             expect(result?.content).toContain('$$PrintDate');
         });
 
-        it('should show function parameter info when inside function params (colon style)', () => {
+        it('should show function parameter info when inside function params', () => {
             const tdl = `[Field: DateField]
                 Set As: $$Date:(20251206)
             `;
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
-            // Position cursor inside the parameter
             const offset = tdl.indexOf('20251206');
 
-            const result = getHoverInfo(sourceFile, offset, testMetadata!);
+            scopeManager.buildFileScope(testUri, sourceFile);
 
-            // Should show function parameter info
+            scopeManager.resolveFunction = (name) => {
+                if (name.toLowerCase() === 'date') {
+                    return {
+                        name: 'Date',
+                        kind: SymbolKind.Function,
+                        definitionType: 'Function',
+                        uri: 'global',
+                        start: 0, end: 0,
+                        parameters: [
+                            { ParameterType: 'DateString', DataType: 'String', IsMandatory: true }
+                        ]
+                    } as FunctionSymbol;
+                }
+                return undefined;
+            };
+
+            const result = getHoverInfo(sourceFile, offset, scopeManager, testUri);
+
             expect(result).toBeDefined();
             expect(result?.type).toBe('function_parameter');
-        });
-
-        it('should have testMetadata! functions loaded', () => {
-            expect(testMetadata!.functions.length).toBeGreaterThan(0);
-            const printDate = testMetadata!.functions.find((f: TDLFunction) => f.Name === 'PrintDate');
-            expect(printDate).toBeDefined();
+            expect(result?.content).toContain('Parameter 1');
         });
     });
 });

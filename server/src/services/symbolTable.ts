@@ -1,50 +1,8 @@
 import { normalizeTypeName } from './utils';
 
-/**
- * Enumeration of symbol kinds for TDL definitions
- */
-export enum SymbolKind {
-    Report = 'Report',
-    Form = 'Form',
-    Part = 'Part',
-    Line = 'Line',
-    Field = 'Field',
-    Menu = 'Menu',
-    Collection = 'Collection',
-    Function = 'Function',
-    Variable = 'Variable',
-    Button = 'Button',
-    Key = 'Key',
-    Border = 'Border',
-    Style = 'Style',
-    Color = 'Color',
-    Object = 'Object',
-    Unknown = 'Unknown'
-}
+export * from '../models/symbols';
+import { SymbolInfo, SymbolKind } from '../models/symbols';
 
-/**
- * Information about a symbol in the TDL codebase
- */
-export interface SymbolInfo {
-    /** Name of the symbol */
-    name: string;
-    /** Kind of symbol (Report, Field, etc.) */
-    kind: SymbolKind;
-    /** URI of the document containing this symbol */
-    uri: string;
-    /** Start offset in the document */
-    start: number;
-    /** End offset in the document */
-    end: number;
-    /** The definition type as written in code (e.g., "Report", "Field") */
-    definitionType: string;
-    /** Optional parent symbol (for nested definitions) */
-    parent?: string;
-    /** Child symbols (attributes, nested definitions) */
-    children?: SymbolInfo[];
-    /** Whether this symbol is a modifier (e.g., #Report) */
-    isModifier?: boolean;
-}
 
 /**
  * Symbol table for tracking all TDL definitions across documents

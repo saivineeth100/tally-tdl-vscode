@@ -1,6 +1,5 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
 import { DocManager } from '../../../docManager';
-import { TdlMetadata, TDLDefinitionAttribute } from '../../../tdlMetaData';
 import { Scope } from '../../../services/scopeManager';
 import { CompletionContext } from '../contextAnalyzer';
 import { getDefinitionTypes } from '../utils';
@@ -13,7 +12,6 @@ export function provideModifierValueCompletions(
     manager: DocManager,
     uri: string,
     offset: number,
-    md: TdlMetadata,
     currentDef: DefinitionNode,
     context: CompletionContext,
     isXml: boolean,
@@ -24,6 +22,7 @@ export function provideModifierValueCompletions(
 
     const modName = context.modifierName.toLowerCase();
     const partial = context.partial.toLowerCase();
+    const scopeManager = manager.getScopeManager(uri);
     
     if (modName === 'local') {
         let state = 0; // 0: Type, 1: Name, 2: Attribute, 3: Value
@@ -32,7 +31,6 @@ export function provideModifierValueCompletions(
         let targetDefName = '';
         let effectiveDefType: string | undefined = currentDef.type?.text;
         
-        const scopeManager = manager.getScopeManager(uri);
         let effectiveScope: Scope | undefined = scopeManager.getScopeAt(uri, offset);
         
         const parts = context.modifierParts || [];
@@ -84,7 +82,7 @@ export function provideModifierValueCompletions(
         // Now what are we suggesting?
         if (state === 0) {
             // Typing <Definition Type> for Local
-            const defTypes = getDefinitionTypes(md);
+            const defTypes = Array.from(scopeManager.existingDefinitions.keys());
             const normalizedPartial = normalizeTypeName(partial);
 
             for (const defType of defTypes) {
@@ -115,29 +113,29 @@ export function provideModifierValueCompletions(
                 
                 // Fallback to global if nothing found or to complement
                 if (reachable.length === 0) {
-                    items.push(...getSuggestionsForDefinitionType(targetDefType, context.partial, md, symbolTable));
+                    items.push(...getSuggestionsForDefinitionType(targetDefType, context.partial, scopeManager, symbolTable));
                 }
             }
         } else if (state === 2 || state === 4) {
             // Typing <Attribute> for the effective Definition Type
             if (effectiveDefType) {
-              
-                let matchingDefAttributes: Map<string, TDLDefinitionAttribute> | undefined = md.getDefinitionsForType(effectiveDefType);
+                const normalizedDefType = normalizeTypeName(effectiveDefType);
+                const matchingDefAttributes = scopeManager.globalScope.attributes.get(normalizedDefType);
 
                 if (matchingDefAttributes) {
                     for (const [_,attr] of matchingDefAttributes) {
-                        const names = [attr.Name];
-                        if (attr.Aliases) names.push(...attr.Aliases.split(',').map(a => a.trim()));
+                        const names = [attr.name];
+                        if (attr.aliases) names.push(...attr.aliases.split(',').map(a => a.trim()));
                         if (partial === '' || names.some(n => n.toLowerCase().includes(partial))) {
-                            const displayAttr = isXml ? attr.Name.toUpperCase().replace(/\s+/g, '') : attr.Name;
+                            const displayAttr = isXml ? attr.name.toUpperCase().replace(/\s+/g, '') : attr.name;
                             items.push({
                                 label: displayAttr,
                                 kind: CompletionItemKind.Property,
                                 detail: `${effectiveDefType} attribute`,
                                 insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr} : `,
                                 insertTextFormat: isXml ? 2 : undefined,
-                                data: { type: 'attribute', defType: effectiveDefType, name: attr.Name },
-                                sortText: attr.Name.toLowerCase(),
+                                data: { type: 'attribute', defType: effectiveDefType, name: attr.name },
+                                sortText: attr.name.toLowerCase(),
                             });
                         }
                     }
@@ -148,23 +146,23 @@ export function provideModifierValueCompletions(
         if (context.paramIndex === 0) {
             // Suggest attributes of the current definition
             const defTypeName = currentDef.type.text;
-           
-            let matchingDefAttributes: Map<string, TDLDefinitionAttribute> | undefined = md.getDefinitionsForType(defTypeName);
+            const normalizedDefType = normalizeTypeName(defTypeName);
+            const matchingDefAttributes = scopeManager.globalScope.attributes.get(normalizedDefType);
 
             if (matchingDefAttributes) {
                 for (const [_,attr] of matchingDefAttributes) {
-                    const names = [attr.Name];
-                    if (attr.Aliases) names.push(...attr.Aliases.split(',').map(a => a.trim()));
+                    const names = [attr.name];
+                    if (attr.aliases) names.push(...attr.aliases.split(',').map(a => a.trim()));
                     if (partial === '' || names.some(n => n.toLowerCase().includes(partial))) {
-                        const displayAttr = isXml ? attr.Name.toUpperCase().replace(/\s+/g, '') : attr.Name;
+                        const displayAttr = isXml ? attr.name.toUpperCase().replace(/\s+/g, '') : attr.name;
                         items.push({
                             label: displayAttr,
                             kind: CompletionItemKind.Property,
                             detail: `${defTypeName} attribute`,
                             insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr} : `,
                             insertTextFormat: isXml ? 2 : undefined,
-                            data: { type: 'attribute', defType: defTypeName, name: attr.Name },
-                            sortText: attr.Name.toLowerCase(),
+                            data: { type: 'attribute', defType: defTypeName, name: attr.name },
+                            sortText: attr.name.toLowerCase(),
                         });
                     }
                 }
@@ -188,7 +186,7 @@ export function provideModifierValueCompletions(
         // Use : <Definition Name>
         if (context.paramIndex === 0) {
             const defTypeName = currentDef.type.text;
-            items.push(...getSuggestionsForDefinitionType(defTypeName, context.partial, md, symbolTable));
+            items.push(...getSuggestionsForDefinitionType(defTypeName, context.partial, scopeManager, symbolTable));
         }
     }
     return items;

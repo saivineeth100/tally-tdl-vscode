@@ -1,7 +1,6 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { SourceFile, SyntaxKind, IdentifierNode, FunctionCallNode, BinaryExpressionNode, Node, BreakNode, ContinueNode, ReturnNode, SetNode, ExchangeNode, IncrementNode, DecrementNode, WhileNode, WalkNode, ForNode, DoIfNode } from "../../parser/ast";
-import { TdlMetadata } from "../../tdlMetaData";
 import { SymbolTable, definitionTypeToSymbolKind } from "../symbolTable";
 import { normalizeTypeName } from "../utils";
 import { ScopeManager } from "../scopeManager";
@@ -21,7 +20,6 @@ export * from './expressionValidation';
 export async function validateSourceFile(
     sourceFile: SourceFile,
     doc: TextDocument,
-    metadata: TdlMetadata,
     symbolTable?: SymbolTable,
     scopeManager?: ScopeManager,
     resolveIncludePath?: (currentPath: string, name: string) => string | null,
@@ -35,13 +33,17 @@ export async function validateSourceFile(
         projectNodes = docManager.getProjectNodes(doc.uri);
     }
 
+    if (!scopeManager) {
+        return diagnostics;
+    }
+
     for (const def of sourceFile.definitions) {
         if (def.type) {
             const normalizedType = normalizeTypeName(def.type.text);
             const typeUpper = def.type.text.toUpperCase();
             
-            if (metadata.primarySchemaNames && metadata.primarySchemaNames.some(s => s.toUpperCase() === typeUpper)) {
-                validateSchemaObject(def, def.type.text, doc, metadata, diagnostics);
+            if (scopeManager.globalScope.schemas.has(typeUpper)) {
+                validateSchemaObject(def, def.type.text, doc, scopeManager, diagnostics);
                 continue;
             }
             
@@ -65,7 +67,7 @@ export async function validateSourceFile(
         }
 
         // Validate attributes
-        diagnostics.push(...validateDefinitionAttributes(def, doc, metadata, symbolTable, projectNodes));
+        diagnostics.push(...validateDefinitionAttributes(def, doc, scopeManager, symbolTable, projectNodes));
 
         // Validate duplicate definitions and modifiers
         if (!isXml && !def.isIncomplete && def.name && def.type) {
@@ -76,8 +78,8 @@ export async function validateSourceFile(
 
             // Skip duplicate checks for Include and Import
             if (lowerDefType !== 'include' && lowerDefType !== 'import') {
-                // Find matching definition type in metadata (case-insensitive)
-                let existsInMetadata = metadata.isExistingDefinition(defType, defName);
+                const typeMap = scopeManager.existingDefinitions.get(normalizeTypeName(defType));
+                const existsInMetadata = typeMap ? typeMap.has(normalizeTypeName(defName)) : false;
 
                 if (!def.modifier || def.modifier.Text === '!') {
                 // Rule 1: No duplicate new definitions allowed
@@ -96,9 +98,6 @@ export async function validateSourceFile(
                     const allSymbols = symbolTable.findAllByName(defName, projectNodes);
                     const originalDefs = allSymbols.filter(s => s.kind === kind && !s.isModifier);
                     
-                    // If there are multiple original definitions with this name, it's a duplicate.
-                    // We only flag if we aren't the *first* one (to avoid double errors, or we can just flag all).
-                    // Actually, if there is ANY original definition that isn't us (different start pos or different uri), it's a duplicate.
                     const isDuplicateInWorkspace = originalDefs.some(s => s.uri !== doc.uri || s.start !== def.start);
                     
                     if (isDuplicateInWorkspace) {
@@ -249,11 +248,21 @@ export async function validateSourceFile(
 
                     if (stmt.action) {
                         const actionName = stmt.action.text;
-                        const actionDef = metadata.actions.find(a => 
-                            normalizeTypeName(a.Name) === normalizeTypeName(actionName) || 
-                            (a.Aliases && a.Aliases.split(',').map(al => normalizeTypeName(al.trim())).includes(normalizeTypeName(actionName)))
-                        );
-                        if (!actionDef) {
+                        const actionDef = scopeManager.globalScope.actions.get(normalizeTypeName(actionName));
+                        // It might have an alias, but action definition symbol name matching handles it. Wait, the ScopeManager normalizes aliases too? No, wait. We can just use the global scope action map. If it's not found, maybe check aliases?
+                        // ScopeManager stores aliases in `action.aliases`, but `actions` map might not map aliases to the same action.
+                        // I'll iterate through `actions` map for now or rely on the fact that aliases might not be widely used for actions or I can just iterate over `actions.values()`.
+                        let foundAction = actionDef;
+                        if (!foundAction) {
+                            for (const a of scopeManager.globalScope.actions.values()) {
+                                if (a.aliases && a.aliases.split(',').map(al => normalizeTypeName(al.trim())).includes(normalizeTypeName(actionName))) {
+                                    foundAction = a;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!foundAction) {
                             diagnostics.push(createDiagnostic(
                                 DiagnosticRules.UnknownAction,
                                 { start: doc.positionAt(stmt.action.start), end: doc.positionAt(stmt.action.end) },

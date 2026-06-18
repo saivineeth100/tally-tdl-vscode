@@ -1,24 +1,15 @@
-import { getMetadata, setMetadata } from '../metadataService';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { provideCodeActions } from '../codeActions';
 import { CodeActionParams, Diagnostic, CodeActionKind, Range, DiagnosticSeverity } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { createDiagnostic, DiagnosticRules } from '../../diagnostics';
 import { Parser } from '../../parser/parser';
+import { ScopeManager } from '../scopeManager';
+import { SymbolTable } from '../symbolTable';
 
 describe('Code Actions', () => {
     let mockDocManager: any;
     let mockDocuments: any;
-
-    beforeEach(() => {
-        // Setup mock metadata
-        setMetadata({
-            definitions: new Map([
-                ['Report', [{ Name: 'Form' }, { Name: 'Title' }]]
-            ]),
-            schemas: new Map()
-        } as any);
-    });
 
     function setup(tdl: string) {
         const uri = 'file:///test.tdl';
@@ -26,8 +17,18 @@ describe('Code Actions', () => {
         const parser = new Parser(tdl);
         const sourceFile = parser.parse();
 
+        const symbolTable = new SymbolTable();
+        const mockScopeManager = new ScopeManager(symbolTable);
+
+        // Setup mock metadata
+        const reportAttrs = new Map<string, any>();
+        reportAttrs.set('form', { name: 'Form' });
+        reportAttrs.set('title', { name: 'Title' });
+        mockScopeManager.globalScope.attributes.set('REPORT', reportAttrs);
+
         mockDocManager = {
-            get: vi.fn().mockReturnValue({ sourceFile })
+            get: vi.fn().mockReturnValue({ sourceFile }),
+            getScopeManager: vi.fn().mockReturnValue(mockScopeManager)
         };
 
         mockDocuments = {

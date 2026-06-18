@@ -1,25 +1,17 @@
-import { setMetadata } from '../../../services/metadataService';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { registerCompletion } from '../../../features/completion';
 import { DocManager } from '../../../docManager';
-import { TdlMetadata } from '../../../tdlMetaData';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { SymbolTable, SymbolKind } from '../../../services/symbolTable';
 
-import { testMetadata } from '../../../test-setup';
+import { testScopeManager } from '../../../test-setup';
 
 describe('XML Suggestions Tests', () => {
-    let md: TdlMetadata;
     let mockConnection: any;
     let mockDocuments: any;
     let mockManager: any;
     let mockSymbolTable: SymbolTable;
     let completionCallback: Function;
-
-    beforeAll(async () => {
-        md = testMetadata!;
-        setMetadata(md as any);
-    });
 
     it('returns correct XML definition_type suggestion', async () => {
         const xmlContent = '<TDL><TDLMESSAGE><R';
@@ -37,6 +29,7 @@ describe('XML Suggestions Tests', () => {
         mockManager = {
             get: () => ({ sourceFile: { definitions: [], errors: [] } }),
             getSymbolTable: () => new SymbolTable(),
+            getScopeManager: () => testScopeManager,
             getProjectNodes: () => new Set([doc.uri])
         };
         
@@ -46,9 +39,6 @@ describe('XML Suggestions Tests', () => {
             textDocument: { uri: 'untitled:Untitled-1' },
             position: doc.positionAt(xmlContent.length)
         });
-        
-
-        
         
     const reportItem = result.items.find((i: any) => i.label === 'REPORT');
 
@@ -85,6 +75,7 @@ describe('XML Suggestions Tests', () => {
                 }
             }),
             getSymbolTable: () => new SymbolTable(),
+            getScopeManager: () => testScopeManager,
             getProjectNodes: () => new Set([doc.uri])
         };
         
@@ -142,6 +133,7 @@ describe('XML Suggestions Tests', () => {
                 }
             }),
             getSymbolTable: () => symbolTable,
+            getScopeManager: () => testScopeManager,
             getProjectNodes: () => new Set([doc.uri, 'test'])
         };
         
@@ -179,6 +171,7 @@ describe('XML Suggestions Tests', () => {
             get: () => doc
         };
         const docManager = new DocManager(mockConnection, mockDocuments as any);
+        (docManager as any).xmlScopeManager = testScopeManager as any;
         await docManager.rebuild(doc);
         
         const symbolTable = docManager.getSymbolTable(doc.uri);
@@ -197,6 +190,7 @@ describe('XML Suggestions Tests', () => {
         mockManager = { 
             get: () => docManager.get(doc.uri),
             getSymbolTable: () => docManager.getSymbolTable(doc.uri),
+            getScopeManager: () => docManager.getScopeManager(doc.uri),
             getProjectNodes: () => new Set([doc.uri, 'test', 'test2.xml'])
         } as any;
         

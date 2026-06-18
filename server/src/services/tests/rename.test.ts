@@ -1,42 +1,11 @@
-import { getMetadata, setMetadata } from '../metadataService';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { renameSymbol, prepareRename } from '../rename';
 import { DocManager } from '../../docManager';
 import { TextDocuments, Position, RenameParams, PrepareRenameParams } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Parser } from '../../parser/parser';
-
-const mockMetadata = {
-    findDefinitionAttribute: (name: string, type?: string) => {
-        if (name.toLowerCase() === 'parts') {
-            return {
-                Name: 'Part',
-                Parameters: [
-                    { IsList: true, RefersTo: 'Part' }
-                ]
-            };
-        }
-        if (name.toLowerCase() === 'use') {
-            return {
-                Name: 'Use',
-                Parameters: [
-                    { RefersTo: 'Report' }
-                ]
-            };
-        }
-        if (name.toLowerCase() === 'set') {
-            return {
-                Name: 'Set',
-                Parameters: [
-                    { RefersTo: 'Variable' },
-                    { RefersTo: 'Expression' }
-                ]
-            };
-        }
-        return undefined;
-    },
-    actions: []
-} as any;
+import { ScopeManager } from '../scopeManager';
+import { SymbolTable } from '../symbolTable';
 
 function setupMocks(files: Record<string, string>) {
     const docs = new Map<string, TextDocument>();
@@ -80,25 +49,37 @@ function setupMocks(files: Record<string, string>) {
         get: (uri: string) => docs.get(uri)
     } as unknown as TextDocuments<TextDocument>;
 
+    const symbolTable = new SymbolTable();
+    const scopeManager = new ScopeManager(symbolTable);
+
+    // Build scopes
+    const { buildFileScope } = require('../scopeBuilder');
+    for (const [uri, state] of docStates.entries()) {
+        buildFileScope(scopeManager, uri, state.sourceFile);
+    }
+
+    // Mock global scope attributes
+    const reportAttrs = new Map<string, any>();
+    reportAttrs.set('use', { name: 'Use', parameters: [{ RefersTo: 'Report' }] });
+    reportAttrs.set('set', { name: 'Set', parameters: [{ RefersTo: 'Variable' }, { RefersTo: 'Expression' }] });
+    scopeManager.globalScope.attributes.set('REPORT', reportAttrs);
+
+    const formAttrs = new Map<string, any>();
+    formAttrs.set('parts', { name: 'Parts', parameters: [{ IsList: true, RefersTo: 'Part' }] });
+    scopeManager.globalScope.attributes.set('FORM', formAttrs);
+
+
     const mockDocManager = {
         get: (uri: string) => docStates.get(uri),
         getAllDocs: () => docStates.entries(),
         getProjectNodes: (uri: string) => new Set(Array.from(docs.keys())),
-        getScopeManager: (uri: string) => ({
-            getVariableScope: () => null,
-            getVariables: () => [],
-            getScopeAt: (uri: string, offset: number) => ({}),
-            resolve: (name: string, scope: any) => ({ definitionType: 'Variable' })
-        })
+        getScopeManager: (uri: string) => scopeManager
     } as unknown as DocManager;
     
     return { mockDocs, mockDocManager, targetUri, position };
 }
 
 describe('Rename Service', () => {
-    beforeEach(() => {
-        setMetadata(mockMetadata as any);
-    });
 
     it('should rename definition and update all references', async () => {
         const { mockDocs, mockDocManager, targetUri, position } = setupMocks({

@@ -233,6 +233,37 @@
                     },
                     "default": [],
                     "description": "Additional command line arguments to pass to Tally. The /TDL and file path arguments are added automatically. Use ${file} as a placeholder for the current file path if needed elsewhere."
+                },
+                "tallyTDL.diagnostics.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable or disable Tally TDL diagnostics."
+                },
+                "tallyTDL.diagnostics.treatWarningsAsErrors": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Treat all Tally TDL warnings as errors."
+                },
+                "tallyTDL.diagnostics.hideWarnings": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Hide all Tally TDL warnings."
+                },
+                "tallyTDL.diagnostics.severity": {
+                    "type": "object",
+                    "default": {},
+                    "description": "Configure severity for specific diagnostic codes.",
+                  
+                    "additionalProperties": {
+                        "type": "string",
+                        "enum": [
+                            "error",
+                            "warning",
+                            "information",
+                            "hint",
+                            "none"
+                        ]
+                    }
                 }
             }
         },

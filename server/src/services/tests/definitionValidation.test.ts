@@ -1,32 +1,32 @@
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser/parser';
 import { validateSourceFile } from '../validation';
-import { TdlMetadata } from '../../tdlMetaData';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DiagnosticSeverity } from 'vscode-languageserver';
 import { normalizeTypeName } from '../utils';
 import { DiagnosticRules } from '../../diagnostics';
+import { ScopeManager } from '../scopeManager';
+import { SymbolTable, SymbolKind } from '../symbolTable';
 
 describe('Definition Validation (Mocked)', () => {
-    // Mock metadata
-    const mockMetadata = {
-        existingDefinitions: new Map<string, Set<string>>([
-            ['report', new Set(['balancesheet', 'trialbalance'])],
-            ['field', new Set(['name', 'amount'])]
-        ]),
-        definitions: new Map<string, any>([
-            ['Report', []],
-            ['Menu', []],
-            ['Function', []],
-            ['Field', []]
-        ]), // For attributes
-        actions: [], // Add empty actions array to fix tests
-        getDefinitionsForType: function(this: any, type: string) { return this.definitions?.get(type) || this.definitions?.get(normalizeTypeName(type)); },
-        isExistingDefinition: function(this: any, defType: string, defName: string): boolean {
-            const typeSet = this.existingDefinitions.get(normalizeTypeName(defType));
-            return typeSet ? typeSet.has(normalizeTypeName(defName)) : false;
-        }
-    } as unknown as TdlMetadata;
+    // Mock ScopeManager
+    const symbolTable = new SymbolTable();
+    const mockScopeManager = new ScopeManager(symbolTable);
+    
+    // Add existing definitions directly to the scope manager
+    mockScopeManager.existingDefinitions = new Map<string, Set<string>>([
+        ['report', new Set(['balancesheet', 'trialbalance'])],
+        ['field', new Set(['name', 'amount'])],
+        ['menu', new Set()]
+    ]);
+
+    // Mock definitions map for attributes using attributes map in globalScope
+    const reportAttrs = new Map<string, any>();
+    reportAttrs.set('use', {
+        name: 'Use',
+        parameters: [{ RefersTo: 'Report' }]
+    });
+    mockScopeManager.globalScope.attributes.set('REPORT', reportAttrs);
 
     it('should detect duplicate Report definition', async () => {
         const tdl = `[Report: Balance Sheet]`;
@@ -34,7 +34,7 @@ describe('Definition Validation (Mocked)', () => {
         const sourceFile = parser.parse();
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
-        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
 
         const error = diagnostics.find(d => d.code === DiagnosticRules.DuplicateDefinition.code);
         expect(error).toBeDefined();
@@ -47,7 +47,7 @@ describe('Definition Validation (Mocked)', () => {
         const sourceFile = parser.parse();
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
-        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
         expect(diagnostics.length).toBe(0);
     });
 
@@ -57,7 +57,7 @@ describe('Definition Validation (Mocked)', () => {
         const sourceFile = parser.parse();
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
-        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
         expect(diagnostics.length).toBe(0);
     });
 
@@ -68,9 +68,9 @@ describe('Definition Validation (Mocked)', () => {
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
         // Add Menu to mock metadata
-        mockMetadata.existingDefinitions.set('menu', new Set(['gatewayoftally']));
+        mockScopeManager.existingDefinitions.get('menu')?.add('gatewayoftally');
 
-        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
         const error = diagnostics.find(d => d.code === DiagnosticRules.DuplicateDefinition.code);
         expect(error).toBeDefined();
     });
@@ -84,12 +84,14 @@ describe('Definition Validation (Mocked)', () => {
         const sourceFile = parser.parse();
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
-        const mockScopeManager = {
+        const localScopeManager = {
             getScopeAt: () => ({}), // Return a dummy scope
-            resolve: () => undefined
+            resolve: () => undefined,
+            existingDefinitions: mockScopeManager.existingDefinitions,
+            globalScope: mockScopeManager.globalScope
         } as any;
 
-        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata, undefined, mockScopeManager);
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, localScopeManager);
         const error = diagnostics.find(d => d.code === DiagnosticRules.DuplicateLabel.code);
         expect(error).toBeDefined();
     });
@@ -105,7 +107,7 @@ describe('Definition Validation (Mocked)', () => {
             getProjectNodes: () => new Set<string>()
         } as any;
 
-        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata, undefined, undefined, undefined, mockDocManager);
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager, undefined, mockDocManager);
         const error = diagnostics.find(d => d.code === DiagnosticRules.CircularInclude.code);
         expect(error).toBeDefined();
         expect(error?.severity).toBe(DiagnosticSeverity.Error);
@@ -128,7 +130,7 @@ describe('Definition Validation (Mocked)', () => {
                 if (name === 'OtherReport') {
                     return [{
                         name: 'OtherReport',
-                        kind: 'Report', // SymbolKind.Report
+                        kind: SymbolKind.Report,
                         uri: 'file:///unlinked.tdl',
                         start: 0,
                         end: 10,
@@ -138,20 +140,12 @@ describe('Definition Validation (Mocked)', () => {
                 return [];
             },
             getNamesByKind: (kind: any) => {
-                if (kind === 'Report') return ['OtherReport'];
+                if (kind === SymbolKind.Report) return ['OtherReport']; // Simplification
                 return [];
             }
         } as any;
 
-        // Mock definitions array to include 'Use' attribute so reference validation runs
-        const reportDefs = new Map<string, any>();
-        reportDefs.set('use', { 
-            Name: 'Use', 
-            Parameters: [{ RefersTo: 'Report' } as any] 
-        } as any);
-        mockMetadata.definitions.set('Report', reportDefs);
-
-        const diagnostics = await validateSourceFile(sourceFile, doc, mockMetadata, mockSymbolTable, undefined, undefined, mockDocManager);
+        const diagnostics = await validateSourceFile(sourceFile, doc, mockSymbolTable, mockScopeManager, undefined, mockDocManager);
         const warning = diagnostics.find(d => d.message.includes('not included in the project'));
         expect(warning).toBeDefined();
         expect(warning?.severity).toBe(DiagnosticSeverity.Warning);

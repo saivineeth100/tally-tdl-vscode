@@ -1,5 +1,5 @@
 import { SourceFile, SyntaxKind, IdentifierNode, StatementNode, BlockStatementNode, ForNode, WalkNode, IfNode, WhileNode } from '../../parser/ast';
-import { SymbolInfo, SymbolKind } from '../symbolTable';
+import { SymbolInfo, SymbolKind, VariableSymbol, DefinitionSymbol } from '../symbolTable';
 import { Scope, ScopeKind } from './types';
 
 // We need to interface with ScopeManager without a circular dependency if possible,
@@ -46,7 +46,12 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
             
             if (existing) {
                 defScope = manager.createScope(ScopeKind.Definition, defId, existing, { start: def.start, end: def.end }, uri);
-                defScope.symbols = existing.symbols; // Share the exact same map!
+                defScope.variables = existing.variables;
+                defScope.functions = existing.functions;
+                defScope.actions = existing.actions;
+                defScope.attributes = existing.attributes;
+                defScope.schemas = existing.schemas;
+                defScope.definitions = existing.definitions;
             } else {
                 defScope = manager.createScope(ScopeKind.Definition, defId, fileScope, { start: def.start, end: def.end }, uri);
             }
@@ -108,7 +113,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                 if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
                     const varNameNode = attr.value[0] as IdentifierNode;
                     const varName = varNameNode.text;
-                    const symbol: SymbolInfo = {
+                    const symbol: VariableSymbol = {
                         name: varName,
                         kind: SymbolKind.Variable,
                         uri: uri,
@@ -120,10 +125,10 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                     // If it is a global [System: ...] or [System: Variable]
                     const defTypeLower = def.type?.text?.toLowerCase();
                     if (defTypeLower === 'system') {
-                        manager.projectScope.symbols.set(varName.toLowerCase(), symbol);
+                        manager.projectScope.variables.set(varName.toLowerCase(), symbol);
                     } else {
                         // Local to the current definition
-                        defScope.symbols.set(varName.toLowerCase(), symbol);
+                        defScope.variables.set(varName.toLowerCase(), symbol);
                     }
                 }
             } else if (def.type?.text?.toLowerCase() === 'system') {
@@ -131,7 +136,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                 if (systemDefName === 'variable' || systemDefName === 'variables') {
                     // [System: Variable] MyGlobalVar : "" -> MyGlobalVar is the variable!
                     const varName = attr.name.text;
-                    const symbol: SymbolInfo = {
+                    const symbol: VariableSymbol = {
                         name: varName,
                         kind: SymbolKind.Variable,
                         uri: uri,
@@ -139,26 +144,26 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                         end: attr.name.end,
                         definitionType: 'Variable'
                     };
-                    manager.projectScope.symbols.set(varName.toLowerCase(), symbol);
+                    manager.projectScope.variables.set(varName.toLowerCase(), symbol);
                 } else if (systemDefName === 'formula' || systemDefName === 'formulae' || systemDefName === 'formulas') {
                     // [System: Formula] MyURL : "" -> MyURL is the formula!
                     const formulaName = attr.name.text;
-                    const symbol: SymbolInfo = {
+                    const symbol: VariableSymbol = {
                         name: formulaName,
-                        kind: SymbolKind.Variable,
+                        kind: SymbolKind.Variable, // Treat formula as variable reference
                         uri: uri,
                         start: attr.name.start,
                         end: attr.name.end,
                         definitionType: 'Formula'
                     };
-                    manager.projectScope.symbols.set(formulaName.toLowerCase(), symbol);
+                    manager.projectScope.variables.set(formulaName.toLowerCase(), symbol);
                 }
             } else if (def.type?.text?.toLowerCase() === 'function' && attrNameLower === 'parameter') {
                 // Parse function parameters
                 for (const paramNode of attr.value) {
                     if (paramNode.kind === SyntaxKind.Identifier) {
                         const varName = (paramNode as IdentifierNode).text;
-                        const symbol: SymbolInfo = {
+                        const symbol: VariableSymbol = {
                             name: varName,
                             kind: SymbolKind.Variable,
                             uri: uri,
@@ -166,7 +171,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                             end: paramNode.end,
                             definitionType: 'Variable'
                         };
-                        defScope.symbols.set(varName.toLowerCase(), symbol);
+                        defScope.variables.set(varName.toLowerCase(), symbol);
                     }
                 }
             } else if (attrNameLower === 'fetchobject') {
@@ -176,28 +181,28 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                         const methodNode = attr.value[i];
                         if (methodNode.kind === SyntaxKind.Identifier) {
                             const methodName = (methodNode as IdentifierNode).text;
-                            const symbol: SymbolInfo = {
+                            const symbol: VariableSymbol = {
                                 name: '$' + methodName,
-                                kind: SymbolKind.Field,
+                                kind: SymbolKind.Field, // Treat methods as field references
                                 uri: uri,
                                 start: methodNode.start,
                                 end: methodNode.end,
                                 definitionType: 'Method'
                             };
-                            defScope.symbols.set('$' + methodName.toLowerCase(), symbol);
+                            defScope.variables.set('$' + methodName.toLowerCase(), symbol);
                         } else if (methodNode.kind === SyntaxKind.List) {
                             for (const subNode of (methodNode as any).values) {
                                 if (subNode.kind === SyntaxKind.Identifier) {
                                     const methodName = (subNode as IdentifierNode).text;
-                                    const symbol: SymbolInfo = {
+                                    const symbol: VariableSymbol = {
                                         name: '$' + methodName,
-                                        kind: SymbolKind.Field,
+                                        kind: SymbolKind.Field, // Treat methods as field references
                                         uri: uri,
                                         start: subNode.start,
                                         end: subNode.end,
                                         definitionType: 'Method'
                                     };
-                                    defScope.symbols.set('$' + methodName.toLowerCase(), symbol);
+                                    defScope.variables.set('$' + methodName.toLowerCase(), symbol);
                                 }
                             }
                         }
@@ -235,7 +240,7 @@ export function buildBlockScopes(manager: IScopeManager, statements: StatementNo
                 const forNode = blockNode as ForNode;
                 if (forNode.iteratorVariable) {
                     const varName = forNode.iteratorVariable.text;
-                    const symbol: SymbolInfo = {
+                    const symbol: VariableSymbol = {
                         name: varName,
                         kind: SymbolKind.Variable,
                         uri: uri,
@@ -243,7 +248,7 @@ export function buildBlockScopes(manager: IScopeManager, statements: StatementNo
                         end: forNode.iteratorVariable.end,
                         definitionType: 'Variable'
                     };
-                    blockScope.symbols.set(varName.toLowerCase(), symbol);
+                    blockScope.variables.set(varName.toLowerCase(), symbol);
                 }
             }
 

@@ -1,9 +1,6 @@
-
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser/parser';
-import { detectCompletionContext, findDefinitionAtCursor, registerCompletion, CompletionContext } from '../completion';
-import { TdlMetadata, TDLDefinitionAttribute, TDLParameter } from '../../tdlMetaData';
-import { SourceFile } from '../../parser/ast';
+import { detectCompletionContext, findDefinitionAtCursor } from '../completion';
 
 describe('Completion Attribute Value Context', () => {
 

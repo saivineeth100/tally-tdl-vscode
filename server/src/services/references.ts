@@ -1,4 +1,3 @@
-import { getMetadata } from './metadataService';
 import { Location } from 'vscode-languageserver';
 import { DocManager, readFileWithEncoding } from '../docManager';
 import { TextDocuments } from 'vscode-languageserver';
@@ -22,15 +21,12 @@ export async function findReferences(
     
     if (!sourceDoc || !sourceDocState) return locations;
 
-    const metadata = getMetadata();
-
     // Determine what we are trying to find references for.
     // It could be a reference or a definition where the cursor currently is.
     const refInfo = findReferenceAtOffset(
         sourceDocState.sourceFile,
         offset,
         sourceDoc.getText(),
-        metadata,
         docManager.getScopeManager(uri),
         uri
     );
@@ -128,7 +124,6 @@ export async function findReferences(
                 docState.sourceFile,
                 matchOffset,
                 text,
-                metadata,
                 docManager.getScopeManager(docUri),
                 docUri
             );

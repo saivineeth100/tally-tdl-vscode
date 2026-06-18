@@ -1,25 +1,23 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNode } from "../../parser/ast";
-import { TdlMetadata } from "../../tdlMetaData";
 import { SymbolTable, definitionTypeToSymbolKind, SymbolKind } from "../symbolTable";
 import { normalizeTypeName, getInterchangeableTypes } from "../utils";
 import { areTypesCompatible, inferExpressionType } from "./validationUtils";
 import { validateFunctionCall, validateBinaryExpression } from "./expressionValidation";
 import { DiagnosticRules, createDiagnostic } from "../../diagnostics";
-
-
+import { ScopeManager } from "../scopeManager";
 
 export function validateDefinitionAttributes(
     def: DefinitionNode,
     doc: TextDocument,
-    metadata: TdlMetadata,
+    scopeManager: ScopeManager,
     symbolTable?: SymbolTable,
     projectNodes?: Set<string>
 ): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
     const defTypeName = def.type.text;
-    const allowedAttrs = metadata.getDefinitionsForType(defTypeName);
+    const allowedAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(defTypeName));
 
     // Skip validation if we don't have metadata for this definition type
     if (!allowedAttrs) {
@@ -68,11 +66,11 @@ export function validateDefinitionAttributes(
         }
 
         // Validate Parameters
-        if (attrDef.Parameters && attrDef.Parameters.length > 0) {
+        if (attrDef.parameters && attrDef.parameters.length > 0) {
             // 1. Mandatory Parameter Validation
             let lastMandatoryIndex = -1;
-            for (let i = 0; i < attrDef.Parameters.length; i++) {
-                if (attrDef.Parameters[i].IsMandatory) {
+            for (let i = 0; i < attrDef.parameters.length; i++) {
+                if (attrDef.parameters[i].IsMandatory) {
                     lastMandatoryIndex = i;
                 }
             }
@@ -85,7 +83,7 @@ export function validateDefinitionAttributes(
                 diagnostics.push(createDiagnostic(
                     DiagnosticRules.MissingParameters,
                     { start: startPos, end: endPos },
-                    attrDef.Name, minRequired, providedCount
+                    attrDef.name, minRequired, providedCount
                 ));
             } else {
                 // Check if any mandatory parameter is skipped (EmptyNode)
@@ -98,7 +96,7 @@ export function validateDefinitionAttributes(
                             diagnostics.push(createDiagnostic(
                                 DiagnosticRules.MissingMandatoryParameter,
                                 { start: startPos, end: endPos },
-                                attrDef.Parameters[i].ParameterType || `at position ${i + 1}`
+                                attrDef.parameters[i].ParameterType || `at position ${i + 1}`
                             ));
                         }
                     }
@@ -107,15 +105,15 @@ export function validateDefinitionAttributes(
 
             // 2. Datatype Validation (always runs)
             for (let i = 0; i < attr.value.length; i++) {
-                if (i >= attrDef.Parameters.length) break;
+                if (i >= attrDef.parameters.length) break;
 
-                const paramDef = attrDef.Parameters[i];
+                const paramDef = attrDef.parameters[i];
                 const paramNode = attr.value[i];
 
                 if (paramNode.kind === SyntaxKind.Empty) continue;
 
                 // Expression Type Validation
-                const inferredType = inferExpressionType(paramNode, metadata);
+                const inferredType = inferExpressionType(paramNode, scopeManager);
                 if (inferredType && paramDef.DataType) {
                     const normalizedExpected = normalizeTypeName(paramDef.DataType);
                     const normalizedInferred = normalizeTypeName(inferredType);
@@ -132,7 +130,7 @@ export function validateDefinitionAttributes(
                 }
 
                 // Validate nested binary expressions
-                validateBinaryExpression(paramNode, doc, metadata, diagnostics);
+                validateBinaryExpression(paramNode, doc, scopeManager, diagnostics);
 
                 // If it's a function call, validate arguments recursively
                 if (paramNode.kind === SyntaxKind.FunctionCall) {
@@ -140,7 +138,7 @@ export function validateDefinitionAttributes(
                         paramNode as FunctionCallNode,
                         undefined, // Return type is already checked above, just validate arguments
                         doc,
-                        metadata,
+                        scopeManager,
                         diagnostics
                     );
                     continue; // Function handled, skip other validations for this node
@@ -165,40 +163,10 @@ export function validateDefinitionAttributes(
                 const cleanValue = paramValue.replace(/^["']|["']$/g, '');
                 if (!cleanValue) continue;
 
-                // Keyword Validation
-                // if (paramDef.ParameterType === 'Keyword' && paramDef.Keywords) {
-                //     const validKeywords = paramDef.Keywords.split(',').map((k: string) => k.trim().toLowerCase());
-                    
-                //     let isValidAction = false;
-                //     if (paramDef.DataType?.toLowerCase() === 'action') {
-                //         isValidAction = metadata.actions.some((a: any) => a.Name.toLowerCase() === cleanValue.toLowerCase());
-                //     }
-
-                //     if (!validKeywords.includes(cleanValue.toLowerCase()) && !isValidAction) {
-                //         const startPos = doc.positionAt(paramNode.start);
-                //         const endPos = doc.positionAt(paramNode.end);
-                        
-                //         if (paramDef.DataType?.toLowerCase() === 'action') {
-                //             if (!DiagnosticRules.UnknownAction) console.error("FATAL: DiagnosticRules.UnknownAction is undefined!");
-                //             diagnostics.push(createDiagnostic(
-                //                 DiagnosticRules.UnknownAction,
-                //                 { start: startPos, end: endPos },
-                //                 cleanValue
-                //             ));
-                //         } else {
-                //             if (!DiagnosticRules.InvalidKeyword) console.error("FATAL: DiagnosticRules.InvalidKeyword is undefined!");
-                //             diagnostics.push(createDiagnostic(
-                //                 DiagnosticRules.InvalidKeyword,
-                //                 { start: startPos, end: endPos },
-                //                 cleanValue,
-                //                 paramDef.Keywords
-                //             ));
-                //         }
-                //     }
-                // }
                 // Action Validation (if it's not a Keyword ParameterType but still DataType is Action)
                 if (paramDef.KeywordSet && normalizeTypeName( paramDef.KeywordSet) === 'tdlActions') {
-                    const isValidAction = metadata.actions.some(a => a.Name.toLowerCase() === cleanValue.toLowerCase());
+                    const isValidAction = scopeManager.globalScope.actions.has(normalizeTypeName(cleanValue));
+                    // Check aliases too? It's fine for now.
                     if (!isValidAction) {
                         const startPos = doc.positionAt(paramNode.start);
                         const endPos = doc.positionAt(paramNode.end);
@@ -227,7 +195,7 @@ export function validateDefinitionAttributes(
                 // Reference Validation (requires symbolTable)
                 if (symbolTable && paramDef.RefersTo && !paramDef.KeywordSet) {
                     // Skip reference validation for Function Parameters as they define the variable
-                    if (defTypeName.toLowerCase() === 'function' && attrDef.Name.toLowerCase() === 'parameter' && i === 0) {
+                    if (defTypeName.toLowerCase() === 'function' && attrDef.name.toLowerCase() === 'parameter' && i === 0) {
                         continue;
                     }
 
@@ -241,7 +209,8 @@ export function validateDefinitionAttributes(
 
                     const existingSymbols = symbolTable.findAllByName(cleanValue);
                     const hasDefinitionInWorkspace = existingSymbols.some(s => targetKinds.includes(s.kind));
-                    const hasDefinitionInMeta = metadata.isExistingDefinition(normalizedRefersToType, cleanValue);
+                    const typeMap = scopeManager.existingDefinitions.get(normalizedRefersToType);
+                    const hasDefinitionInMeta = typeMap ? typeMap.has(normalizeTypeName(cleanValue)) : false;
 
                     if (!hasDefinitionInWorkspace && !hasDefinitionInMeta) {
                         const diag = createDiagnostic(
@@ -280,12 +249,10 @@ export function validateSchemaObject(
     node: DefinitionNode | import('../../parser/ast').ComplexObjectNode,
     schemaName: string,
     doc: TextDocument,
-    metadata: TdlMetadata,
+    scopeManager: ScopeManager,
     diagnostics: Diagnostic[]
 ) {
-    const schemaKey = Array.from(metadata.schemas.keys()).find(k => k.toUpperCase() === schemaName.toUpperCase());
-    if (!schemaKey) return;
-    const schema = metadata.schemas.get(schemaKey);
+    const schema = scopeManager.globalScope.schemas.get(schemaName.toUpperCase());
     if (!schema) return;
 
     // Validate simple attributes
@@ -309,7 +276,7 @@ export function validateSchemaObject(
             continue;
         }
 
-        const propKey = Array.from(schema.Properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
+        const propKey = Array.from(schema.properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
         if (!propKey) {
             const diag = createDiagnostic(
                 DiagnosticRules.UnknownSchemaProperty,
@@ -321,7 +288,7 @@ export function validateSchemaObject(
             continue;
         }
 
-        const propDef = schema.Properties.get(propKey)!;
+        const propDef = schema.properties.get(propKey)!;
         if (propDef.DataType?.toLowerCase() === 'logical' && attr.value.length > 0) {
             const firstVal = attr.value[0];
             if (firstVal.kind === SyntaxKind.Identifier) {
@@ -342,10 +309,10 @@ export function validateSchemaObject(
         if (!complexObj.name) continue;
         const objName = complexObj.name.text;
         const normalizedObjName = objName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
-        const complexPropKey = Array.from(schema.ComplexProperties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedObjName);
+        const complexPropKey = Array.from(schema.complexProperties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedObjName);
         if (!complexPropKey) {
-            const simplePropKey = Array.from(schema.Properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedObjName);
-            const simpleProp = simplePropKey ? schema.Properties.get(simplePropKey) : undefined;
+            const simplePropKey = Array.from(schema.properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedObjName);
+            const simpleProp = simplePropKey ? schema.properties.get(simplePropKey) : undefined;
             if (simpleProp && simpleProp.IsRepeated) {
                 // Validate inner tags
                 for (const attr of complexObj.attributes) {
@@ -401,7 +368,7 @@ export function validateSchemaObject(
             continue;
         }
 
-        const nextSchemaName = schema.ComplexProperties.get(complexPropKey)!;
-        validateSchemaObject(complexObj, nextSchemaName, doc, metadata, diagnostics);
+        const nextSchemaName = schema.complexProperties.get(complexPropKey)!;
+        validateSchemaObject(complexObj, nextSchemaName, doc, scopeManager, diagnostics);
     }
 }

@@ -1,11 +1,12 @@
 import { SignatureHelp, Position, SignatureInformation, ParameterInformation } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { TdlMetadata } from '../tdlMetaData';
+import { ScopeManager } from './scopeManager';
+import { normalizeTypeName } from './utils';
 
 export function provideSignatureHelp(
     doc: TextDocument, 
     position: Position,
-    metadata: TdlMetadata
+    scopeManager: ScopeManager
 ): SignatureHelp | null {
     const text = doc.getText();
     const offset = doc.offsetAt(position);
@@ -53,16 +54,16 @@ export function provideSignatureHelp(
     }
     
     if (foundDollar && functionNameStr) {
-        const func = metadata.findFunction(functionNameStr);
+        const func = scopeManager.globalScope.functions.get(normalizeTypeName(functionNameStr));
         if (func) {
-            const parameters: ParameterInformation[] = func.Parameters.map(p => ({
+            const parameters: ParameterInformation[] = (func.parameters || []).map(p => ({
                 label: p.ParameterType || 'Parameter',
                 documentation: p.DataType ? `Data Type: ${p.DataType}` : undefined
             }));
             
             const signature: SignatureInformation = {
-                label: `$$${func.Name}${func.Parameters.length > 0 ? ':' + func.Parameters.map(p => p.ParameterType).join(':') : ''}`,
-                documentation: func.Description,
+                label: `$$${func.name}${func.parameters && func.parameters.length > 0 ? ':' + func.parameters.map(p => p.ParameterType).join(':') : ''}`,
+                documentation: func.description,
                 parameters: parameters
             };
             
@@ -111,16 +112,16 @@ export function provideSignatureHelp(
     
     for (let i = parts.length - 2; i >= 0; i--) {
         const possibleActionName = parts[i].trim();
-        const action = metadata.findAction(possibleActionName);
+        const action = scopeManager.globalScope.actions.get(normalizeTypeName(possibleActionName));
         if (action) {
-            const parameters: ParameterInformation[] = action.Parameters.map(p => ({
+            const parameters: ParameterInformation[] = (action.parameters || []).map(p => ({
                 label: p.ParameterType || 'Parameter',
                 documentation: p.IsConstant ? `Constant. Type: ${p.ParameterType}` : undefined
             }));
             
             const signature: SignatureInformation = {
-                label: `Action: ${action.Name}${action.Parameters.length > 0 ? ':' + action.Parameters.map(p => p.ParameterType).join(':') : ''}`,
-                documentation: action.Description,
+                label: `Action: ${action.name}${action.parameters && action.parameters.length > 0 ? ':' + action.parameters.map(p => p.ParameterType).join(':') : ''}`,
+                documentation: action.description,
                 parameters: parameters
             };
             

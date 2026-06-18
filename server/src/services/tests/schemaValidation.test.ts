@@ -1,44 +1,55 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { validateSourceFile } from '../validation';
-import { TdlMetadata, TDLSchema, TDLSchemaProperty } from '../../tdlMetaData';
 import { SourceFile, DefinitionNode, AttributeNode, IdentifierNode, ComplexObjectNode } from '../../parser/ast';
 import { Token } from '../../parser/token';
 import { TokenKind } from '../../parser/tokenKind';
 import { DiagnosticRules } from '../../diagnostics';
+import { ScopeManager } from '../scopeManager';
+import { SymbolTable } from '../symbolTable';
+import { SchemaSymbol, SymbolKind } from '../../models/symbols';
 
 describe('XML Schema Validation', () => {
-    let mockMetadata: TdlMetadata;
+    let mockScopeManager: ScopeManager;
 
     beforeEach(() => {
-        mockMetadata = new TdlMetadata('');
-        mockMetadata.primarySchemaNames = ['VOUCHER'];
+        const symbolTable = new SymbolTable();
+        mockScopeManager = new ScopeManager(symbolTable);
+        mockScopeManager.primarySchemaNames = ['VOUCHER'];
         
-        const voucherSchema = new TDLSchema();
-        voucherSchema.Name = 'Voucher';
+        const voucherSchema: SchemaSymbol = {
+            name: 'Voucher',
+            kind: SymbolKind.Object,
+            uri: 'global:metadata',
+            start: 0,
+            end: 0,
+            definitionType: 'Schema',
+            properties: new Map([
+                ['Party Ledger Name', { Name: 'Party Ledger Name', DataType: 'String', IsComplex: false, IsRepeated: false }],
+                ['Is Optional', { Name: 'Is Optional', DataType: 'Logical', IsComplex: false, IsRepeated: false }]
+            ]),
+            complexProperties: new Map([
+                ['All Ledger Entries', 'Ledger Entry']
+            ]),
+            isPrimary: true
+        };
         
-        const prop1 = new TDLSchemaProperty();
-        prop1.Name = 'Party Ledger Name';
-        prop1.DataType = 'String';
+        mockScopeManager.globalScope.schemas.set('VOUCHER', voucherSchema);
         
-        const prop2 = new TDLSchemaProperty();
-        prop2.Name = 'Is Optional';
-        prop2.DataType = 'Logical';
+        const ledgerSchema: SchemaSymbol = {
+            name: 'Ledger Entry',
+            kind: SymbolKind.Object,
+            uri: 'global:metadata',
+            start: 0,
+            end: 0,
+            definitionType: 'Schema',
+            properties: new Map([
+                ['Ledger Name', { Name: 'Ledger Name', DataType: 'String', IsComplex: false, IsRepeated: false }]
+            ]),
+            complexProperties: new Map(),
+            isPrimary: false
+        };
         
-        voucherSchema.Properties.set('Party Ledger Name', prop1);
-        voucherSchema.Properties.set('Is Optional', prop2);
-        
-        voucherSchema.ComplexProperties.set('All Ledger Entries', 'Ledger Entry');
-        mockMetadata.schemas.set('Voucher', voucherSchema);
-        
-        const ledgerSchema = new TDLSchema();
-        ledgerSchema.Name = 'Ledger Entry';
-        
-        const lprop = new TDLSchemaProperty();
-        lprop.Name = 'Ledger Name';
-        lprop.DataType = 'String';
-        
-        ledgerSchema.Properties.set('Ledger Name', lprop);
-        mockMetadata.schemas.set('Ledger Entry', ledgerSchema);
+        mockScopeManager.globalScope.schemas.set('LEDGERENTRY', ledgerSchema);
     });
 
     const createDummyDoc = () => ({
@@ -69,7 +80,7 @@ describe('XML Schema Validation', () => {
         def.complexObjects = [complexObj];
         sourceFile.definitions.push(def);
 
-        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), undefined, mockScopeManager);
         expect(diagnostics.length).toBe(0);
     });
 
@@ -83,7 +94,7 @@ describe('XML Schema Validation', () => {
         
         sourceFile.definitions.push(def);
 
-        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), undefined, mockScopeManager);
         expect(diagnostics.length).toBe(1);
         expect(diagnostics[0].code).toBe(DiagnosticRules.UnknownSchemaProperty.code);
     });
@@ -98,7 +109,7 @@ describe('XML Schema Validation', () => {
         
         sourceFile.definitions.push(def);
 
-        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), mockMetadata);
+        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), undefined, mockScopeManager);
         expect(diagnostics.length).toBe(1);
         expect(diagnostics[0].code).toBe(DiagnosticRules.InvalidLogicalValue.code);
     });

@@ -1,8 +1,8 @@
 import { SymbolInfo, SymbolKind, SymbolTable } from '../symbolTable';
 import { SourceFile } from '../../parser/ast';
-import { Scope, ScopeKind, OffsetRange, ScopeNodeDTO, ScopeTreeDTO, getSemanticTypeFromSymbol } from './types';
+import { Scope, ScopeKind, OffsetRange, ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, getSemanticTypeFromSymbol } from './types';
 import { IScopeManager, buildFileScope } from './scopeBuilder';
-import { IScopeResolverState, resolveSymbol, getAllVariablesInScope, getReachableChildren } from './scopeResolver';
+import { IScopeResolverState, resolveSymbol, resolveVariable, resolveFunction, resolveDefinition, resolveAttribute, resolveSchema, getAllVariablesInScope, getReachableChildren } from './scopeResolver';
 
 export * from './types';
 export * from './scopeBuilder';
@@ -12,10 +12,13 @@ export * from './scopeResolver';
  * Manages the scope hierarchy and symbol resolution
  */
 export class ScopeManager implements IScopeManager, IScopeResolverState {
-    private globalScope: Scope;
+    public globalScope: Scope;
     public projectScope: Scope;
     public fileMap = new Map<string, Scope>(); // URI -> FileScope
     public metadata: any;
+    public existingDefinitions = new Map<string, Set<string>>();
+    public keywordSets = new Map<string, string[]>();
+    public primarySchemaNames: string[] = [];
 
     /** Tracks structural usage graph (childDefinitionId -> Set of parentDefinitionIds) */
     public parentDefinitions = new Map<string, Set<string>>();
@@ -35,23 +38,8 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     /**
      * Initialize Global Scope with metadata (System definitions)
      */
-    initializeGlobalScope(metadata: any): void {
-        this.metadata = metadata;
-        // Populating global scope with system functions ($$...)
-        if (metadata && metadata.functions) {
-            for (const func of metadata.functions) {
-                const name = func.Name;
-                const symbol: SymbolInfo = {
-                    name,
-                    kind: SymbolKind.Function,
-                    uri: 'global:metadata',
-                    start: 0,
-                    end: 0,
-                    definitionType: 'Function'
-                };
-                this.globalScope.symbols.set(name.toLowerCase(), symbol);
-            }
-        }
+    initializeGlobalScope(): void {
+        // Global scope initialization is now handled directly by the Metadata Loader
     }
 
     /**
@@ -63,7 +51,12 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             kind,
             parent,
             children: [],
-            symbols: new Map(),
+            variables: new Map(),
+            functions: new Map(),
+            actions: new Map(),
+            attributes: new Map(),
+            schemas: new Map(),
+            definitions: new Map(),
             range,
             uri
         };
@@ -84,10 +77,22 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         }
         
         // Remove global symbols that were defined in this file
-        for (const [key, sym] of this.projectScope.symbols.entries()) {
-            if (sym.uri === uri) {
-                this.projectScope.symbols.delete(key);
+        const clearMap = (map: Map<string, any>) => {
+            for (const [key, sym] of map.entries()) {
+                if (sym.uri === uri) {
+                    map.delete(key);
+                }
             }
+        };
+        clearMap(this.projectScope.variables);
+        clearMap(this.projectScope.functions);
+        clearMap(this.projectScope.actions);
+        for (const attrMap of this.projectScope.attributes.values()) {
+            clearMap(attrMap);
+        }
+        clearMap(this.projectScope.schemas);
+        for (const defMap of this.projectScope.definitions.values()) {
+            clearMap(defMap);
         }
     }
 
@@ -135,10 +140,30 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     }
 
     /**
-     * Resolve a symbol name starting from a specific scope and moving up
+     * Resolve a symbol name generically when the exact type is unknown (legacy)
      */
     resolve(name: string, initialScope: Scope, projectScope?: Set<string>): SymbolInfo | undefined {
         return resolveSymbol(this, name, initialScope, projectScope);
+    }
+
+    public resolveVariable(name: string, initialScope: Scope, projectScope?: Set<string>) {
+        return resolveVariable(this, name, initialScope, projectScope);
+    }
+
+    public resolveFunction(name: string, initialScope: Scope, projectScope?: Set<string>) {
+        return resolveFunction(this, name, initialScope, projectScope);
+    }
+
+    public resolveDefinition(name: string, defType: string, initialScope: Scope, projectScope?: Set<string>) {
+        return resolveDefinition(this, name, defType, initialScope, projectScope);
+    }
+
+    public resolveAttribute(name: string, defType: string, initialScope: Scope, projectScope?: Set<string>) {
+        return resolveAttribute(this, name, defType, initialScope, projectScope);
+    }
+
+    public resolveSchema(name: string, initialScope: Scope, projectScope?: Set<string>) {
+        return resolveSchema(this, name, initialScope, projectScope);
     }
 
     /**
@@ -162,11 +187,22 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         const fileScope = this.fileMap.get(uri);
 
         const serializeNode = (node: Scope): ScopeNodeDTO => {
-            const symbols = Array.from(node.symbols.values()).map(s => ({
-                name: s.name,
-                kind: typeof s.kind === 'number' ? SymbolKind[s.kind] || 'Variable' : s.kind.toString(),
-                definitionType: s.definitionType
-            }));
+            const symbolGroups: { kind: string, count: number }[] = [];
+            if (node.variables.size > 0) symbolGroups.push({ kind: 'Variables', count: node.variables.size });
+            if (node.functions.size > 0) symbolGroups.push({ kind: 'Functions', count: node.functions.size });
+            if (node.actions.size > 0) symbolGroups.push({ kind: 'Actions', count: node.actions.size });
+            let attrCount = 0;
+            for (const attrMap of node.attributes.values()) {
+                attrCount += attrMap.size;
+            }
+            if (attrCount > 0) symbolGroups.push({ kind: 'Attributes', count: attrCount });
+            if (node.schemas.size > 0) symbolGroups.push({ kind: 'Schemas', count: node.schemas.size });
+            for (const [defType, defMap] of node.definitions.entries()) {
+                if (defMap.size > 0) {
+                    symbolGroups.push({ kind: defType, count: defMap.size });
+                }
+            }
+
 
             let children = node.children;
             if (node.kind === ScopeKind.Project && fileScope) {
@@ -189,7 +225,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
                 structuralParents,
                 structuralChildren,
                 usedDefinitions,
-                symbols,
+                symbolGroups,
                 children: children.map(c => serializeNode(c))
             };
         };
@@ -197,6 +233,58 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         return {
             globalScope: serializeNode(this.globalScope),
             projectScope: serializeNode(this.projectScope)
+        };
+    }
+
+    /**
+     * Get paginated symbols for a specific scope and kind
+     */
+    public getSymbolsPaginated(scopeId: string, kind: string, page: number, limit: number, query?: string): PaginatedSymbolsDTO {
+        const scope = this.getScopeById(scopeId) || (scopeId === 'global' ? this.globalScope : this.projectScope);
+        let symbols: SymbolInfo[] = [];
+
+        if (scope) {
+            const lowerKind = kind.toLowerCase();
+            if (lowerKind === 'variables') {
+                symbols = Array.from(scope.variables.values());
+            } else if (lowerKind === 'functions') {
+                symbols = Array.from(scope.functions.values());
+            } else if (lowerKind === 'actions') {
+                symbols = Array.from(scope.actions.values());
+            } else if (lowerKind === 'attributes') {
+                for (const attrMap of scope.attributes.values()) {
+                    symbols.push(...Array.from(attrMap.values()));
+                }
+            } else if (lowerKind === 'schemas') {
+                symbols = Array.from(scope.schemas.values());
+            } else {
+                // Check definitions
+                for (const [defType, defMap] of scope.definitions.entries()) {
+                    if (defType.toLowerCase() === lowerKind || defType === kind) {
+                        symbols.push(...Array.from(defMap.values()));
+                    }
+                }
+            }
+        }
+
+        if (query) {
+            const lowerQuery = query.toLowerCase();
+            symbols = symbols.filter(s => s.name.toLowerCase().includes(lowerQuery));
+        }
+
+        // Sort by name for consistent pagination
+        symbols.sort((a, b) => a.name.localeCompare(b.name));
+
+        const totalCount = symbols.length;
+        const startIndex = (page - 1) * limit;
+        const paginatedSymbols = symbols.slice(startIndex, startIndex + limit);
+
+        return {
+            symbols: paginatedSymbols,
+            totalCount,
+            page,
+            limit,
+            kind
         };
     }
 }

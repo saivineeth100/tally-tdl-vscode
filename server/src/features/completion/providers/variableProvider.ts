@@ -1,7 +1,6 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
 import { DocManager } from '../../../docManager';
 import { getSuggestionsForDefinitionType } from './definitionProvider';
-import { TdlMetadata } from '../../../tdlMetaData';
 import { SymbolTable } from '../../../services/symbolTable';
 
 export function provideVariableCompletions(
@@ -9,7 +8,6 @@ export function provideVariableCompletions(
     uri: string,
     offset: number,
     partial: string,
-    md: TdlMetadata,
     symbolTable?: SymbolTable
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
@@ -37,8 +35,8 @@ export function provideVariableCompletions(
     
     // 2. Global definitions
     const projectScope = manager.getProjectNodes(uri);
-    items.push(...getSuggestionsForDefinitionType('Variable', partial, md, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('System Variable', partial, md, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('Variable', partial, scopeManager, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('System Variable', partial, scopeManager, symbolTable, projectScope));
 
     return items;
 }
@@ -48,7 +46,6 @@ export function provideFormulaCompletions(
     uri: string,
     offset: number,
     partial: string,
-    md: TdlMetadata,
     symbolTable?: SymbolTable
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
@@ -74,12 +71,12 @@ export function provideFormulaCompletions(
     
     // 2. Global formula definitions
     const projectScope = manager.getProjectNodes(uri);
-    items.push(...getSuggestionsForDefinitionType('Formula', partial, md, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('Formulae', partial, md, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('Formulas', partial, md, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('System Formula', partial, md, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('System Formulae', partial, md, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('System Formulas', partial, md, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('Formula', partial, scopeMgr, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('Formulae', partial, scopeMgr, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('Formulas', partial, scopeMgr, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('System Formula', partial, scopeMgr, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('System Formulae', partial, scopeMgr, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('System Formulas', partial, scopeMgr, symbolTable, projectScope));
 
     return items;
 }

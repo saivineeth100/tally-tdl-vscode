@@ -20,13 +20,14 @@ describe('ScopeManager', () => {
         const symbolTable = new SymbolTable();
         const manager = new ScopeManager(symbolTable);
 
-        const mockMetadata = {
-            functions: [
-                { Name: 'Date', Description: 'Returns current date' }
-            ]
-        };
-
-        manager.initializeGlobalScope(mockMetadata);
+        manager.initializeGlobalScope();
+        manager.globalScope.functions.set('date', {
+            name: 'Date',
+            parameters: [],
+            totalParameters: 0,
+            totalMandatoryParameters: 0,
+            kind: SymbolKind.Function
+        } as any);
 
         // Create a dummy file scope to start search from
         const fileScope = manager.createScope(ScopeKind.File, 'test', undefined); // Parent will be set to project scope internally? 
@@ -131,12 +132,12 @@ describe('ScopeManager', () => {
         expect(defScope).toBeDefined();
 
         // Check if $Name and $Parent are in symbols
-        const nameSymbol = defScope.symbols.get('$name');
+        const nameSymbol = defScope.variables.get('$name');
         expect(nameSymbol).toBeDefined();
         expect(nameSymbol?.name).toBe('$Name');
         expect(nameSymbol?.definitionType).toBe('Method');
 
-        const parentSymbol = defScope.symbols.get('$parent');
+        const parentSymbol = defScope.variables.get('$parent');
         expect(parentSymbol).toBeDefined();
         expect(parentSymbol?.name).toBe('$Parent');
     });

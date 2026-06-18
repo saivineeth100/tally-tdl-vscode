@@ -1,5 +1,6 @@
 import { SourceFile, SyntaxKind, IdentifierNode, LiteralNode } from '../../parser/ast';
 import { ScopeManager } from '../scopeManager';
+import { normalizeTypeName } from '../utils';
 
 /**
  * Information about a reference to a definition
@@ -59,12 +60,11 @@ export function getExpectedTypeForAttribute(attrName: string): string | undefine
 
 /**
  * Find a reference at a given offset in the source file
- * Uses metadata to dynamically resolve RefersTo for attribute parameters
+ * Uses ScopeManager to dynamically resolve RefersTo for attribute parameters
  * @param sourceFile Parsed source file
  * @param offset Character offset
  * @param text Full document text
- * @param metadata Optional TDL metadata for dynamic RefersTo resolution
- * @param scopeManager Scope manager for variable resolution
+ * @param scopeManager Scope manager for variable resolution and metadata access
  * @param uri Document URI
  * @returns ReferenceInfo if a reference is found, undefined otherwise
  */
@@ -72,7 +72,6 @@ export function findReferenceAtOffset(
     sourceFile: SourceFile,
     offset: number,
     text: string,
-    metadata?: any,
     scopeManager?: ScopeManager,
     uri?: string
 ): ReferenceInfo | undefined {
@@ -113,23 +112,21 @@ export function findReferenceAtOffset(
                                                 expectedType: resolved.definitionType || 'Variable',
                                                 start: arg.start,
                                                 end: arg.end
-                                                // Note: definition.ts had expectedType: resolved.definitionType
-                                                // which is a string. If it's undefined, fallback to 'Variable'
                                             };
                                         }
                                     }
                                 }
                             }
 
-                            if (metadata && stmt.action) {
+                            if (scopeManager && stmt.action) {
                                 const actionName = stmt.action.text;
-                                const actionDef = metadata.actions.find((a: any) => 
-                                    a.Name.toLowerCase() === actionName.toLowerCase() || 
-                                    (a.Aliases && a.Aliases.toLowerCase().split(',').map((al: string) => al.trim()).includes(actionName.toLowerCase()))
+                                const actionDef = Array.from(scopeManager.globalScope.actions.values()).find(a => 
+                                    a.name.toLowerCase() === actionName.toLowerCase() || 
+                                    (a.aliases && a.aliases.toLowerCase().split(',').map((al: string) => al.trim()).includes(actionName.toLowerCase()))
                                 );
 
-                                if (actionDef && actionDef.Parameters && actionDef.Parameters[i]) {
-                                    const paramDef = actionDef.Parameters[i];
+                                if (actionDef && actionDef.parameters && actionDef.parameters[i]) {
+                                    const paramDef = actionDef.parameters[i];
                                     if (paramDef.RefersTo) {
                                         let name = '';
                                         if (arg.kind === SyntaxKind.List) {
@@ -174,14 +171,19 @@ export function findReferenceAtOffset(
                     }
                 }
 
-                if (paramIndex >= 0 && metadata) {
-                    const defTypeName = def.type.text;
-                    const attrDef = metadata.findDefinitionAttribute(attr.name.text, defTypeName);
+                if (paramIndex >= 0 && scopeManager) {
+                    const defTypeName = normalizeTypeName(def.type.text);
+                    const attrMap = scopeManager.globalScope.attributes.get(defTypeName);
+                    
+                    let attrDef;
+                    if (attrMap) {
+                         attrDef = attrMap.get(normalizeTypeName(attr.name.text));
+                    }
 
-                    if (attrDef && attrDef.Parameters && attrDef.Parameters.length > 0) {
-                        let param = attrDef.Parameters[paramIndex];
+                    if (attrDef && attrDef.parameters && attrDef.parameters.length > 0) {
+                        let param = attrDef.parameters[paramIndex];
                         if (!param) {
-                            const lastParam = attrDef.Parameters[attrDef.Parameters.length - 1];
+                            const lastParam = attrDef.parameters[attrDef.parameters.length - 1];
                             if (lastParam.IsList || lastParam.IsVariableArgument) {
                                 param = lastParam;
                             }
@@ -196,7 +198,7 @@ export function findReferenceAtOffset(
                     }
 
                     if (!expectedType && attrDef) {
-                        expectedType = getExpectedTypeForAttribute(attrDef.Name);
+                        expectedType = getExpectedTypeForAttribute(attrDef.name);
                     }
                 }
 
@@ -247,19 +249,19 @@ export function findReferenceAtOffset(
                     }
 
                     // Fallback: Check if it's an action argument (e.g. 01: Alter: Part: My Part Name)
-                    if (!expectedType && attr.value.length > 0 && metadata) {
+                    if (!expectedType && attr.value.length > 0 && scopeManager) {
                         const firstVal = attr.value[0];
                         if ('text' in firstVal) {
                             const actionName = (firstVal as IdentifierNode).text;
-                            const actionDef = metadata.actions.find((a: any) => 
-                                a.Name.toLowerCase() === actionName.toLowerCase() || 
-                                (a.Aliases && a.Aliases.toLowerCase().split(',').map((al: string) => al.trim()).includes(actionName.toLowerCase()))
+                            const actionDef = Array.from(scopeManager.globalScope.actions.values()).find(a => 
+                                a.name.toLowerCase() === actionName.toLowerCase() || 
+                                (a.aliases && a.aliases.toLowerCase().split(',').map((al: string) => al.trim()).includes(actionName.toLowerCase()))
                             );
 
                             if (actionDef && paramIndex > 0) {
                                 const actionParamIndex = paramIndex - 1; // parameters start after action name
-                                if (actionDef.Parameters && actionDef.Parameters[actionParamIndex]) {
-                                    const paramDef = actionDef.Parameters[actionParamIndex];
+                                if (actionDef.parameters && actionDef.parameters[actionParamIndex]) {
+                                    const paramDef = actionDef.parameters[actionParamIndex];
                                     if (paramDef.RefersTo) {
                                         return {
                                             name,

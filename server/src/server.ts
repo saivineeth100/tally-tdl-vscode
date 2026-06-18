@@ -18,14 +18,14 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import * as path from 'path';
 import * as fs from 'fs';
 import { URI } from 'vscode-uri';
-import { TdlMetadata } from "./tdlMetaData";
-import { getMetadata, setMetadata, requireMetadata } from './services/metadataService';
+import { loadMetadata as loadNewMetadata } from './services/metadataLoader';
 import { registerCompletion, buildFunctionDocumentation, buildAttributeDocumentation } from "./features/completion";
 import { createDocumentSymbols } from "./services/documentSymbol";
 import { getHoverInfo } from "./services/hover";
 import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from "./services/definition";
 import { provideFoldingRanges } from "./services/foldingRange";
 import { updateSettings } from "./services/settingsManager";
+import { normalizeTypeName } from "./services/utils";
 
 // Create LSP connection
 const connection = createConnection(ProposedFeatures.all);
@@ -40,13 +40,14 @@ const docManager = new DocManager(connection, docs, resolveIncludePath);
  */
 async function loadMetadata(version: string) {
     const dataDir = path.resolve(__dirname, '../data');
-    const md = new TdlMetadata(dataDir, version);
-    await md.load();
-    setMetadata(md);
 
     // Initialize Global Scope in ScopeManagers
-    docManager.tdlScopeManager.initializeGlobalScope(md);
-    docManager.xmlScopeManager.initializeGlobalScope(md);
+    docManager.tdlScopeManager.initializeGlobalScope();
+    docManager.xmlScopeManager.initializeGlobalScope();
+
+    // NEW WAY: Load directly into the scope manager
+    await loadNewMetadata(dataDir, version, docManager.tdlScopeManager);
+    await loadNewMetadata(dataDir, version, docManager.xmlScopeManager);
 }
 
 /**
@@ -201,11 +202,10 @@ connection.onHover((params: HoverParams): Hover | null => {
     if (!docState || !docState.sourceFile) return null;
 
     const offset = doc.offsetAt(params.position);
-    const metadata = requireMetadata();
 
     // Use enhanced hover with AST-based detection
     const projectScope = docManager.getProjectNodes(params.textDocument.uri);
-    const hoverResult = getHoverInfo(docState.sourceFile, offset, metadata, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri, projectScope);
+    const hoverResult = getHoverInfo(docState.sourceFile, offset, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri, projectScope);
     if (!hoverResult) return null;
 
     return {
@@ -232,7 +232,7 @@ import { provideSignatureHelp } from "./services/signatureHelp";
 connection.onSignatureHelp((params) => {
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return null;
-    return provideSignatureHelp(doc, params.position, requireMetadata());
+    return provideSignatureHelp(doc, params.position, docManager.getScopeManager(params.textDocument.uri));
 });
 
 // Handle Inlay Hints
@@ -244,7 +244,7 @@ connection.languages.inlayHint.on((params) => {
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return null;
 
-    return provideInlayHints(docState.sourceFile, doc, params.range, requireMetadata());
+    return provideInlayHints(docState.sourceFile, doc, params.range, docManager.getScopeManager(params.textDocument.uri));
 });
 
 // Handle Code Lens
@@ -292,14 +292,11 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
 
     const text = doc.getText();
     const offset = doc.offsetAt(params.position);
-
-    // Load metadata only when specifically requested
-    const metadata = getMetadata();
-    if (!metadata) return null;
+    
+    const scopeMgr = docManager.getScopeManager(params.textDocument.uri);
 
     // Find if we're on a reference
-    const ref = findReferenceAtOffset(docState.sourceFile, offset, text, metadata, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri);
-    // connection.console.log(`  Reference found: ${ref ? `${ref.name} (${ref.expectedType})` : 'none'}`);
+    const ref = findReferenceAtOffset(docState.sourceFile, offset, text, scopeMgr, params.textDocument.uri);
     if (!ref) return null;
 
     if (ref.expectedType === 'File') {
@@ -316,7 +313,6 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
         return null;
     }
 
-    const scopeMgr = docManager.getScopeManager(params.textDocument.uri);
     const scope = scopeMgr.getScopeAt(params.textDocument.uri, offset);
     const projectScope = docManager.getProjectNodes(params.textDocument.uri);
     if (scope) {
@@ -450,9 +446,9 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
         }
 
         // Check Default TDL
-        const md = getMetadata();
-        if (md && ref.expectedType) {
-            if (md.isExistingDefinition(ref.expectedType, ref.name)) {
+        if (ref.expectedType) {
+            const defs = scopeMgr.existingDefinitions.get(normalizeTypeName(ref.expectedType));
+            if (defs && defs.has(normalizeTypeName(ref.name))) {
                 connection.window.showInformationMessage(`Definition '${ref.name}' is part of default TDL source.`);
             }
         }
@@ -481,8 +477,7 @@ connection.languages.semanticTokens.on((params, token) => {
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return { data: [] };
 
-    const metadata = requireMetadata();
-    return provideSemanticTokens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri), metadata, token);
+    return provideSemanticTokens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri), token);
 });
 
 connection.languages.semanticTokens.onDelta((params, token) => {
@@ -492,8 +487,7 @@ connection.languages.semanticTokens.onDelta((params, token) => {
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return { edits: [] };
 
-    const metadata = requireMetadata();
-    return provideSemanticTokensEdits(docState.sourceFile, doc, params.previousResultId, docManager.getScopeManager(params.textDocument.uri), metadata, token);
+    return provideSemanticTokensEdits(docState.sourceFile, doc, params.previousResultId, docManager.getScopeManager(params.textDocument.uri), token);
 });
 
 // Handlers registered below
@@ -580,6 +574,11 @@ connection.onRequest("tdl/getScopeTreeDebug", async (params: { uri: string }) =>
     return scopeMgr.serializeScopeTree(params.uri);
 });
 
+connection.onRequest("tdl/getScopeSymbols", async (params: { uri: string, scopeId: string, kind: string, page: number, limit: number, query?: string }) => {
+    const scopeMgr = docManager.getScopeManager(params.uri);
+    return scopeMgr.getSymbolsPaginated(params.scopeId, params.kind, params.page, params.limit, params.query);
+});
+
 connection.onRequest("tdl/convertToXml", async (params: { uri: string }) => {
     const doc = docs.get(params.uri);
     const docState = docManager.get(params.uri);
@@ -603,25 +602,30 @@ connection.listen();
 
 connection.onCompletionResolve((item) => {
     if (!item.data) return item;
-    const md = getMetadata();
-    if (!md) return item;
+    // We do not have a specific docManager or scopeManager available here because it's a global completion request.
+    // However, the doc uri is sometimes stored in item.data. We can use docManager.getScopeManager(item.data.uri) if available.
+    // But since it's global scope functions and attributes we need, we can just use docManager.tdlScopeManager.
+    const scopeMgr = docManager.tdlScopeManager;
 
     if (item.data.type === 'function') {
-        const func = md.functions.find(f => f.Name === item.data.name);
+        const func = scopeMgr.globalScope.functions.get(normalizeTypeName(item.data.name));
         if (func) {
             item.documentation = {
                 kind: 'markdown',
-                value: buildFunctionDocumentation(func)
+                value: buildFunctionDocumentation(func as any) // Assuming buildFunctionDocumentation handles new FunctionSymbol format
             };
         }
     } else if (item.data.type === 'attribute') {
         const targetDef = item.data.defType;
-        const attr = md.findDefinitionAttribute(item.data.name, targetDef);
-        if (attr) {
-            item.documentation = {
-                kind: 'markdown',
-                value: buildAttributeDocumentation(attr)
-            };
+        const attrMap = scopeMgr.globalScope.attributes.get(normalizeTypeName(targetDef));
+        if (attrMap) {
+            const attr = attrMap.get(normalizeTypeName(item.data.name));
+            if (attr) {
+                item.documentation = {
+                    kind: 'markdown',
+                    value: buildAttributeDocumentation(attr as any) // Assuming buildAttributeDocumentation handles new AttributeSymbol format
+                };
+            }
         }
 
     }

@@ -1,4 +1,4 @@
-import { SymbolInfo, SymbolKind } from '../symbolTable';
+import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, DefinitionSymbol, ActionSymbol, AttributeSymbol, SchemaSymbol } from '../symbolTable';
 import { SemanticTokenTypes } from 'vscode-languageserver';
 
 /**
@@ -33,8 +33,13 @@ export interface Scope {
     parent?: Scope;
     /** Child scopes */
     children: Scope[];
-    /** Symbols defined directly in this scope */
-    symbols: Map<string, SymbolInfo>;
+    /** Grouped symbols by kind */
+    variables: Map<string, VariableSymbol>;
+    functions: Map<string, FunctionSymbol>;
+    actions: Map<string, ActionSymbol>;
+    attributes: Map<string, Map<string, AttributeSymbol>>; // Outer key: definitionType (e.g. 'Field'), Inner key: attribute name
+    schemas: Map<string, SchemaSymbol>;
+    definitions: Map<string, Map<string, DefinitionSymbol>>; // Outer key: definitionType (e.g. 'Form'), Inner key: name
     /** Range in the document where this scope is valid (undefined for Global/Project) */
     range?: OffsetRange;
     /** Optional URI if tied to a file */
@@ -48,7 +53,7 @@ export interface ScopeNodeDTO {
     structuralParents?: string[];
     structuralChildren?: string[];
     usedDefinitions?: string[];
-    symbols: { name: string, kind: string, definitionType?: string }[];
+    symbolGroups: { kind: string, count: number }[];
     children: ScopeNodeDTO[];
 }
 
@@ -56,6 +61,24 @@ export interface ScopeTreeDTO {
     globalScope: ScopeNodeDTO;
     projectScope: ScopeNodeDTO;
 }
+
+export interface PaginatedSymbolsDTO {
+    symbols: SymbolInfo[];
+    totalCount: number;
+    page: number;
+    limit: number;
+    kind: string;
+}
+
+export interface SymbolRequestDTO {
+    uri: string;
+    scopeId: string;
+    kind: string;
+    page: number;
+    limit: number;
+    query?: string;
+}
+
 
 /**
  * Helper to map TDL definition type string to SymbolKind

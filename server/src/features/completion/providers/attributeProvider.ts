@@ -1,5 +1,5 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
-import { TdlMetadata, TDLDefinitionAttribute } from '../../../tdlMetaData';
+import { ScopeManager } from '../../../services/scopeManager/index';
 import { normalizeTypeName, normalizeXMLTypeName } from '../../../services/utils';
 import { getFunctionSuggestions } from './functionProvider';
 import { getSuggestionsForDefinitionType } from './definitionProvider';
@@ -7,7 +7,7 @@ import { SymbolTable } from '../../../services/symbolTable';
 import { CompletionContext } from '../contextAnalyzer';
 
 export function provideAttributeCompletions(
-    md: TdlMetadata,
+    scopeManager: ScopeManager,
     defTypeName: string,
     partial: string,
     isXml: boolean
@@ -15,28 +15,28 @@ export function provideAttributeCompletions(
     const items: CompletionItem[] = [];
     const normalizedDefType = normalizeTypeName(defTypeName);
 
-    let matchingDefAttributes: Map<string, TDLDefinitionAttribute> | undefined = md.getDefinitionsForType(defTypeName);
+    const matchingDefAttributes = scopeManager.globalScope.attributes.get(normalizedDefType);
 
     if (matchingDefAttributes) {
         const lowerPartial = normalizeTypeName(partial);
         const addedAttrs = new Set<string>();
 
         for (const [key, attr] of matchingDefAttributes) {
-            if (addedAttrs.has(attr.Name)) continue;
+            if (addedAttrs.has(attr.name)) continue;
 
             const nameMatches = lowerPartial === '' || key.includes(lowerPartial);
 
             if (nameMatches) {
-                addedAttrs.add(attr.Name);
-                const displayAttr = isXml ? normalizeXMLTypeName(attr.Name) : attr.Name;
+                addedAttrs.add(attr.name);
+                const displayAttr = isXml ? normalizeXMLTypeName(attr.name) : attr.name;
                 items.push({
                     label: displayAttr,
                     kind: CompletionItemKind.Property,
                     detail: `${defTypeName} attribute`,
                     insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr} : `,
                     insertTextFormat: isXml ? 2 : undefined,
-                    data: { type: 'attribute', defType: defTypeName, name: attr.Name },
-                    sortText: '1_' + attr.Name.toLowerCase(),
+                    data: { type: 'attribute', defType: defTypeName, name: attr.name },
+                    sortText: '1_' + attr.name.toLowerCase(),
                 });
             }
         }
@@ -45,7 +45,7 @@ export function provideAttributeCompletions(
 }
 
 export function provideAttributeValueCompletions(
-    md: TdlMetadata,
+    scopeManager: ScopeManager,
     defTypeName: string,
     context: CompletionContext,
     symbolTable?: SymbolTable,
@@ -54,10 +54,18 @@ export function provideAttributeValueCompletions(
     const items: CompletionItem[] = [];
     if (!context.attributeName || context.paramIndex === undefined) return items;
 
-    const attrDef = md.findDefinitionAttribute(context.attributeName, defTypeName)
+    // Use scopeManager to resolve attribute 
+    // Usually attributes exist globally per definition type, so we can just check globalScope.attributes
+    const normalizedDefType = normalizeTypeName(defTypeName);
+    const normalizedAttr = normalizeTypeName(context.attributeName);
 
-    if (attrDef && attrDef.Parameters && attrDef.Parameters.length > context.paramIndex) {
-        const param = attrDef.Parameters[context.paramIndex];
+    const attrMap = scopeManager.globalScope.attributes.get(normalizedDefType);
+    if (!attrMap) return items;
+
+    const attrDef = attrMap.get(normalizedAttr);
+
+    if (attrDef && attrDef.parameters && attrDef.parameters.length > context.paramIndex) {
+        const param = attrDef.parameters[context.paramIndex];
 
         // 1. If parameter has Keywords, suggest them
         if (param.Keywords) {
@@ -73,19 +81,39 @@ export function provideAttributeValueCompletions(
                     });
                 }
             }
-        }
+        } else if (param.KeywordSet) {
+            // Check keywordSets in scopeManager
+            const keywords = scopeManager.keywordSets.get(param.KeywordSet);
+            if (keywords) {
+                for (const keyword of keywords) {
+                    if (context.partial === '' || keyword.toLowerCase().includes(context.partial.toLowerCase())) {
+                        items.push({
+                            label: keyword,
+                            kind: CompletionItemKind.EnumMember,
+                            detail: `Keyword: ${param.KeywordSet}`,
+                            insertText: keyword,
+                            sortText: '0_' + keyword.toLowerCase(),
+                        });
+                    }
+                }
+            }
 
-        // 1.5. If Datatype is Action, ALSO suggest all actions from metadata
-        if (param.KeywordSet && normalizeTypeName(param.KeywordSet) === 'tdlActions') {
-            for (const action of md.actions) {
-                if (context.partial === '' || action.Name.toLowerCase().includes(context.partial.toLowerCase())) {
-                    items.push({
-                        label: action.Name,
-                        kind: CompletionItemKind.Function,
-                        detail: action.Description || 'Action',
-                        insertText: action.Name,
-                        sortText: '1_' + action.Name.toLowerCase(),
-                    });
+            // 1.5. If Datatype is Action, ALSO suggest all actions from metadata
+            if (normalizeTypeName(param.KeywordSet) === 'tdlactions') {
+                const added = new Set<string>();
+                for (const [key, action] of scopeManager.globalScope.actions) {
+                    if (added.has(action.name)) continue;
+                    
+                    if (context.partial === '' || action.name.toLowerCase().includes(context.partial.toLowerCase())) {
+                        added.add(action.name);
+                        items.push({
+                            label: action.name,
+                            kind: CompletionItemKind.Function,
+                            detail: action.description || 'Action',
+                            insertText: action.name,
+                            sortText: '1_' + action.name.toLowerCase(),
+                        });
+                    }
                 }
             }
         }
@@ -109,7 +137,7 @@ export function provideAttributeValueCompletions(
         else if (param.RefersTo) {
             const refersToType = param.RefersTo.trim();
             if (refersToType) {
-                items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, md, symbolTable, scope));
+                items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, scopeManager, symbolTable, scope));
             }
         }
         // 4. If Datatype is String, add a hint
@@ -130,11 +158,9 @@ export function provideAttributeValueCompletions(
                 ? context.partial.substring(2)
                 : '';
             const expectedType = param.DataType;
-            items.push(...getFunctionSuggestions(md, funcPartial, expectedType));
+            items.push(...getFunctionSuggestions(scopeManager, funcPartial, expectedType));
         }
     }
-
-
 
     return items;
 }

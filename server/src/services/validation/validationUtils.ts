@@ -1,7 +1,7 @@
-import { TdlMetadata, TDLDefinitionAttribute } from "../../tdlMetaData";
 import { normalizeTypeName } from "../utils";
 import { SyntaxKind, LiteralNode, FunctionCallNode, BinaryExpressionNode, UnaryExpressionNode, Node } from "../../parser/ast";
 import { TokenKind } from "../../parser/tokenKind";
+import { ScopeManager } from "../scopeManager";
 
 /**
  * Check if two TDL datatypes are compatible
@@ -35,7 +35,7 @@ export function areTypesCompatible(expected: string, actual: string): boolean {
 /**
  * Infer the return type of an expression
  */
-export function inferExpressionType(exprNode: Node, metadata: TdlMetadata): string | undefined {
+export function inferExpressionType(exprNode: Node, scopeManager: ScopeManager): string | undefined {
     if (exprNode.kind === SyntaxKind.Literal) {
         const lit = exprNode as LiteralNode;
         const tk = lit.token?.Kind;
@@ -50,9 +50,9 @@ export function inferExpressionType(exprNode: Node, metadata: TdlMetadata): stri
         const funcNode = exprNode as FunctionCallNode;
         const funcName = funcNode.functionName?.text;
         if (funcName) {
-            const func = metadata.functions.find(f => f.Name.toLowerCase() === funcName.toLowerCase());
-            if (func && func.ReturnType) {
-                return func.ReturnType;
+            const func = scopeManager.globalScope.functions.get(normalizeTypeName(funcName));
+            if (func && func.returnType) {
+                return func.returnType;
             }
         }
         return undefined;

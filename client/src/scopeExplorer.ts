@@ -22,6 +22,38 @@ export class ScopeExplorer {
         
         // Send data to the webview
         panel.webview.postMessage({ command: 'render', data: scopeTree });
+
+        // Handle messages from the webview
+        panel.webview.onDidReceiveMessage(
+            async message => {
+                switch (message.command) {
+                    case 'goToDefinition':
+                        vscode.commands.executeCommand('tdl.goToDefinition', message.text);
+                        return;
+                    case 'getSymbols':
+                        try {
+                            const result = await client.sendRequest<any>('tdl/getScopeSymbols', {
+                                uri,
+                                scopeId: message.scopeId,
+                                kind: message.kind,
+                                page: message.page,
+                                limit: message.limit,
+                                query: message.query
+                            });
+                            panel.webview.postMessage({ 
+                                command: 'symbolsResult', 
+                                data: result,
+                                reqId: message.reqId 
+                            });
+                        } catch (err) {
+                            console.error('Error fetching symbols:', err);
+                        }
+                        return;
+                }
+            },
+            undefined,
+            context.subscriptions
+        );
     }
 
     private static getHtmlForWebview(webview: vscode.Webview, extensionPath: string): string {

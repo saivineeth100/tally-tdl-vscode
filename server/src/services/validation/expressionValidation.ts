@@ -1,53 +1,53 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { FunctionCallNode, BinaryExpressionNode, Node, SyntaxKind } from "../../parser/ast";
-import { TdlMetadata } from "../../tdlMetaData";
 import { normalizeTypeName } from "../utils";
 import { areTypesCompatible, inferExpressionType } from "./validationUtils";
 import { DiagnosticRules, createDiagnostic } from "../../diagnostics";
+import { ScopeManager } from "../scopeManager";
 
 /**
  * Recursively validate function calls - checks return type and validates nested function arguments
  * @param funcNode The function call AST node to validate
  * @param expectedType The expected return type (if any)
  * @param doc The text document for position calculation
- * @param metadata TDL metadata containing function definitions
+ * @param scopeManager ScopeManager containing function definitions
  * @param diagnostics Array to push diagnostics into
  */
 export function validateFunctionCall(
     funcNode: FunctionCallNode,
     expectedType: string | undefined,
     doc: TextDocument,
-    metadata: TdlMetadata,
+    scopeManager: ScopeManager,
     diagnostics: Diagnostic[]
 ): void {
     const funcName = funcNode.functionName?.text;
     if (!funcName) return;
 
-    const func = metadata.functions.find(f => f.Name.toLowerCase() === funcName.toLowerCase());
+    const func = scopeManager.globalScope.functions.get(normalizeTypeName(funcName));
     if (!func) return;
 
     // 1. Validate return type if expected type is provided
-    if (expectedType && func.ReturnType) {
+    if (expectedType && func.returnType) {
         const normalizedExpected = normalizeTypeName(expectedType);
-        const normalizedReturn = normalizeTypeName(func.ReturnType);
+        const normalizedReturn = normalizeTypeName(func.returnType);
 
         if (normalizedExpected !== normalizedReturn && !areTypesCompatible(normalizedExpected, normalizedReturn)) {
             const diag = createDiagnostic(
                 DiagnosticRules.TypeMismatch,
                 { start: doc.positionAt(funcNode.start), end: doc.positionAt(funcNode.end) },
-                expectedType, func.ReturnType
+                expectedType, func.returnType
             );
-            diag.message = `Function '$$${funcName}' returns '${func.ReturnType}' but expected '${expectedType}'`;
+            diag.message = `Function '$$${funcName}' returns '${func.returnType}' but expected '${expectedType}'`;
             diagnostics.push(diag);
         }
     }
 
     // 2. Recursively validate function arguments
-    if (funcNode.arguments && func.Parameters) {
+    if (funcNode.arguments && func.parameters) {
         for (let i = 0; i < funcNode.arguments.length; i++) {
             const argNode = funcNode.arguments[i];
-            const paramDef = func.Parameters[i];
+            const paramDef = func.parameters[i];
 
             if (!paramDef) continue;
 
@@ -57,7 +57,7 @@ export function validateFunctionCall(
                     argNode as FunctionCallNode,
                     paramDef.DataType,
                     doc,
-                    metadata,
+                    scopeManager,
                     diagnostics
                 );
             }
@@ -71,13 +71,13 @@ export function validateFunctionCall(
 export function validateBinaryExpression(
     exprNode: Node,
     doc: TextDocument,
-    metadata: TdlMetadata,
+    scopeManager: ScopeManager,
     diagnostics: Diagnostic[]
 ) {
     if (exprNode.kind === SyntaxKind.Statement && 'operator' in exprNode && 'left' in exprNode && 'right' in exprNode) {
         const binExpr = exprNode as BinaryExpressionNode;
-        const leftType = inferExpressionType(binExpr.left, metadata);
-        const rightType = inferExpressionType(binExpr.right, metadata);
+        const leftType = inferExpressionType(binExpr.left, scopeManager);
+        const rightType = inferExpressionType(binExpr.right, scopeManager);
         
         if (leftType && rightType) {
             const normalizedLeft = normalizeTypeName(leftType);
@@ -93,13 +93,13 @@ export function validateBinaryExpression(
             }
         }
         
-        validateBinaryExpression(binExpr.left, doc, metadata, diagnostics);
-        validateBinaryExpression(binExpr.right, doc, metadata, diagnostics);
+        validateBinaryExpression(binExpr.left, doc, scopeManager, diagnostics);
+        validateBinaryExpression(binExpr.right, doc, scopeManager, diagnostics);
     } else if (exprNode.kind === SyntaxKind.FunctionCall) {
         const funcNode = exprNode as FunctionCallNode;
         if (funcNode.arguments) {
             for (const arg of funcNode.arguments) {
-                validateBinaryExpression(arg, doc, metadata, diagnostics);
+                validateBinaryExpression(arg, doc, scopeManager, diagnostics);
             }
         }
     }

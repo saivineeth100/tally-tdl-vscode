@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { Parser } from '../../../parser/parser';
 import { getSemanticTokens } from '../semanticTokens';
 import { SemanticTokenTypes } from 'vscode-languageserver';
-import { testMetadata } from '../../../test-setup';
+import { testScopeManager } from '../../../test-setup';
 
 /**
  * Helper to parse TDL and get tokens
@@ -10,7 +10,7 @@ import { testMetadata } from '../../../test-setup';
 export function parseAndGetTokens(tdl: string) {
     const parser = new Parser(tdl);
     const sourceFile = parser.parse();
-    return getSemanticTokens(sourceFile, undefined, undefined, testMetadata);
+    return getSemanticTokens(sourceFile, testScopeManager);
 }
 
 describe('Semantic Tokens', () => {

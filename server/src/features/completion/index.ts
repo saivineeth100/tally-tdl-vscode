@@ -1,8 +1,6 @@
 import { Connection, TextDocuments, CompletionItem, CompletionItemKind, CompletionParams, CompletionList, MarkupKind } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DocManager } from '../../docManager';
-import { TdlMetadata } from '../../tdlMetaData';
-import { getMetadata } from '../../services/metadataService';
 import { detectCompletionContext, detectXmlCompletionContext, findDefinitionAtCursor, CompletionContext } from './contextAnalyzer';
 import { provideDefinitionTypeCompletions, getSuggestionsForDefinitionType } from './providers/definitionProvider';
 import { provideFunctionCompletions, getFunctionSuggestions } from './providers/functionProvider';
@@ -11,7 +9,6 @@ import { provideXmlSchemaAttributeCompletions, provideSchemaTypeCompletions, pro
 import { provideAttributeCompletions, provideAttributeValueCompletions } from './providers/attributeProvider';
 import { provideModifierValueCompletions } from './providers/modifierProvider';
 import { provideFilePathCompletions } from './providers/pathProvider';
-import { getDefinitionTypes } from './utils';
 
 export * from './utils';
 export * from './contextAnalyzer';
@@ -23,9 +20,13 @@ export function registerCompletion(
 ) {
     connection.onCompletion(async (params: CompletionParams): Promise<CompletionList> => {
         const items: CompletionItem[] = [];
-        const md = getMetadata() as TdlMetadata;
         const doc = documents.get(params.textDocument.uri);
-        if (!doc || !md) {
+        if (!doc) {
+            return { items, isIncomplete: false };
+        }
+
+        const scopeManager = manager.getScopeManager(params.textDocument.uri);
+        if (!scopeManager) {
             return { items, isIncomplete: false };
         }
 
@@ -50,16 +51,17 @@ export function registerCompletion(
         switch (context.type) {
             case 'xml_schema_attribute':
                 if (isXml && context.tagPath) {
-                    items.push(...provideXmlSchemaAttributeCompletions(md, context.tagPath, context.partial));
+                    items.push(...provideXmlSchemaAttributeCompletions(scopeManager, context.tagPath, context.partial));
                 }
                 break;
 
             case 'schema_type':
-                items.push(...provideSchemaTypeCompletions(md, context.partial));
+                items.push(...provideSchemaTypeCompletions(scopeManager, context.partial));
                 break;
 
             case 'definition_type':
-                items.push(...provideDefinitionTypeCompletions(md, context.partial, isXml, getDefinitionTypes(md)));
+                const defTypes = Array.from(scopeManager.existingDefinitions.keys());
+                items.push(...provideDefinitionTypeCompletions(context.partial, isXml, defTypes));
                 break;
 
             case 'definition_name':
@@ -68,56 +70,60 @@ export function registerCompletion(
                     if (lowerType === 'include' || lowerType === 'import') {
                         items.push(...(await provideFilePathCompletions(params.textDocument.uri, context.partial, manager.workspaceFolders)));
                     } else if (context.hasModifier) {
-                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, md, symbolTable, projectScope));
+                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, symbolTable, projectScope));
                     }
                 }
                 break;
 
             case 'function':
-                items.push(...provideFunctionCompletions(md, context.partial));
+                items.push(...provideFunctionCompletions(scopeManager, context.partial));
                 break;
 
             case 'variable':
-                items.push(...provideVariableCompletions(manager, params.textDocument.uri, offset, context.partial, md, symbolTable));
+                items.push(...provideVariableCompletions(manager, params.textDocument.uri, offset, context.partial, symbolTable));
                 break;
 
             case 'formula':
-                items.push(...provideFormulaCompletions(manager, params.textDocument.uri, offset, context.partial, md, symbolTable));
+                items.push(...provideFormulaCompletions(manager, params.textDocument.uri, offset, context.partial, symbolTable));
                 break;
 
             case 'attribute':
                 if (currentDef) {
-                    items.push(...provideAttributeCompletions(md, currentDef.type.text, context.partial, isXml));
+                    items.push(...provideAttributeCompletions(scopeManager, currentDef.type.text, context.partial, isXml));
                 }
                 break;
 
             case 'attribute_value':
                 let xmlHandled = false;
                 if (isXml && context.tagPath && context.tagPath.length > 0 && context.attributeName) {
-                    const xmlItems = provideXmlAttributeValueCompletions(md, context.tagPath, context.attributeName, context.partial, currentDef, symbolTable, projectScope);
+                    const xmlItems = provideXmlAttributeValueCompletions(scopeManager, context.tagPath, context.attributeName, context.partial, currentDef, symbolTable, projectScope);
                     if (xmlItems !== null) {
                         items.push(...xmlItems);
                         xmlHandled = true;
                     }
                 }
                 if (!xmlHandled && currentDef) {
-                    items.push(...provideAttributeValueCompletions(md, currentDef.type.text, context, symbolTable, projectScope));
+                    items.push(...provideAttributeValueCompletions(scopeManager, currentDef.type.text, context, symbolTable, projectScope));
                 }
                 break;
 
             case 'function_action':
-                for (const act of md.actions) {
-                    if (context.partial === '' || act.Name.toLowerCase().includes(context.partial.toLowerCase())) {
+                const addedActions = new Set<string>();
+                for (const [key, act] of scopeManager.globalScope.actions) {
+                    if (addedActions.has(act.name)) continue;
+                    addedActions.add(act.name);
+
+                    if (context.partial === '' || act.name.toLowerCase().includes(context.partial.toLowerCase())) {
                         items.push({
-                            label: act.Name,
+                            label: act.name,
                             kind: CompletionItemKind.Keyword,
-                            detail: act.Description || 'Procedural Action',
-                            insertText: act.Name,
+                            detail: act.description || 'Procedural Action',
+                            insertText: act.name,
                             documentation: {
                                 kind: MarkupKind.Markdown,
-                                value: act.Description || ''
+                                value: act.description || ''
                             },
-                            sortText: '0_' + act.Name
+                            sortText: '0_' + act.name
                         });
                     }
                 }
@@ -126,13 +132,13 @@ export function registerCompletion(
             case 'function_action_parameter':
                 if (currentDef && context.actionName && context.paramIndex !== undefined) {
                     const actionName = context.actionName.toLowerCase();
-                    const actionDef = md.actions.find(a => 
-                        a.Name.toLowerCase() === actionName || 
-                        (a.Aliases && a.Aliases.toLowerCase().split(',').map(al => al.trim()).includes(actionName))
+                    const actionDef = Array.from(scopeManager.globalScope.actions.values()).find(a => 
+                        a.name.toLowerCase() === actionName || 
+                        (a.aliases && a.aliases.toLowerCase().split(',').map(al => al.trim()).includes(actionName))
                     );
 
-                    if (actionDef && actionDef.Parameters && actionDef.Parameters.length > context.paramIndex) {
-                        const param = actionDef.Parameters[context.paramIndex];
+                    if (actionDef && actionDef.parameters && actionDef.parameters.length > context.paramIndex) {
+                        const param = actionDef.parameters[context.paramIndex];
                         if (param.Keywords) {
                             const keywords = param.Keywords.split(',').map(k => k.trim());
                             for (const keyword of keywords) {
@@ -144,6 +150,21 @@ export function registerCompletion(
                                         insertText: keyword,
                                         sortText: '0_' + keyword.toLowerCase(),
                                     });
+                                }
+                            }
+                        } else if (param.KeywordSet) {
+                            const keywords = scopeManager.keywordSets.get(param.KeywordSet);
+                            if (keywords) {
+                                for (const keyword of keywords) {
+                                    if (context.partial === '' || keyword.toLowerCase().includes(context.partial.toLowerCase())) {
+                                        items.push({
+                                            label: keyword,
+                                            kind: CompletionItemKind.EnumMember,
+                                            detail: `Keyword: ${param.KeywordSet}`,
+                                            insertText: keyword,
+                                            sortText: '0_' + keyword.toLowerCase(),
+                                        });
+                                    }
                                 }
                             }
                         } else if (param.DataType?.toLowerCase() === 'logical') {
@@ -160,7 +181,7 @@ export function registerCompletion(
                             }
                         }
                           if (param.RefersTo && context.defType !== 'Function') {
-                            items.push(...getSuggestionsForDefinitionType(param.RefersTo.trim(), context.partial, md, symbolTable, projectScope));
+                            items.push(...getSuggestionsForDefinitionType(param.RefersTo.trim(), context.partial, scopeManager, symbolTable, projectScope));
                         } else if (param.DataType?.toLowerCase() === 'string') {
                             items.push({
                                 label: '"..."',
@@ -173,7 +194,7 @@ export function registerCompletion(
 
                         if (context.partial.startsWith('$$') || context.partial === '$') {
                             const funcPartial = context.partial.startsWith('$$') ? context.partial.substring(2) : '';
-                            items.push(...getFunctionSuggestions(md, funcPartial, param.DataType));
+                            items.push(...getFunctionSuggestions(scopeManager, funcPartial, param.DataType));
                         }
                     }
                 }
@@ -181,7 +202,7 @@ export function registerCompletion(
                 
             case 'modifier_value':
                 if (currentDef) {
-                    items.push(...provideModifierValueCompletions(manager, params.textDocument.uri, offset, md, currentDef, context, isXml, symbolTable));
+                    items.push(...provideModifierValueCompletions(manager, params.textDocument.uri, offset, currentDef, context, isXml, symbolTable));
                 }
                 break;
         }

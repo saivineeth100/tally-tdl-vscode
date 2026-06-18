@@ -6,7 +6,7 @@ import {
 import { Token } from './token';
 import { TokenKind } from './tokenKind';
 import { Parser } from './parser';
-import { TdlMetadata } from '../tdlMetaData';
+import { ScopeManager } from '../services/scopeManager';
 
 interface TagState {
     name: string;
@@ -16,7 +16,7 @@ interface TagState {
     node: ComplexObjectNode;
 }
 
-export function parseXmlToAst(xmlText: string, metadata?: TdlMetadata): SourceFile {
+export function parseXmlToAst(xmlText: string, scopeManager?: ScopeManager): SourceFile {
     const sourceFile = new SourceFile(0, xmlText.length);
     sourceFile.lineOffsets = computeLineOffsets(xmlText);
 
@@ -63,8 +63,9 @@ export function parseXmlToAst(xmlText: string, metadata?: TdlMetadata): SourceFi
             
             // Check if it's a primary schema
             let isPrimarySchema = false;
-            if (metadata) {
-                isPrimarySchema = metadata.primarySchemaNames.some(s => s.toUpperCase() === tagUpper);
+            if (scopeManager) {
+                // TODO: Maybe use globalScope.schemas instead
+                isPrimarySchema = scopeManager.globalScope.schemas.has(tagUpper);
             }
 
             if (insideTdlMessage > 0 || hasName || knownDefTypes.has(tagUpper) || isPrimarySchema) {
@@ -100,7 +101,7 @@ export function parseXmlToAst(xmlText: string, metadata?: TdlMetadata): SourceFi
                                 const singleQuoteIndex = openingTagText.indexOf("'", equalIndex);
                                 if (singleQuoteIndex !== -1) {
                                     nameStartInTag = singleQuoteIndex + 1;
-                                }
+                                 }
                             }
                         }
                     }
@@ -147,7 +148,7 @@ export function parseXmlToAst(xmlText: string, metadata?: TdlMetadata): SourceFi
         }
 
         let isNewDef = false;
-        if (metadata && !metadata.primarySchemaNames.some(s => s.toUpperCase() === tagUpper)) {
+        if (scopeManager && !scopeManager.globalScope.schemas.has(tagUpper)) {
             if (knownDefTypes.has(tagUpper) && node.attributes['NAME'] !== undefined) {
                 isNewDef = true;
             }

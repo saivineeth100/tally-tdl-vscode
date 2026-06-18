@@ -1,7 +1,7 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
-import { TdlMetadata } from '../../../tdlMetaData';
 import { SymbolTable, definitionTypeToSymbolKind } from '../../../services/symbolTable';
-import { normalizeTypeName } from '../../../services/utils';
+import { normalizeTypeName, getInterchangeableTypes } from '../../../services/utils';
+import { ScopeManager } from '../../../services/scopeManager';
 
 /**
  * Get suggestions for a specific definition type
@@ -9,18 +9,14 @@ import { normalizeTypeName } from '../../../services/utils';
 export function getSuggestionsForDefinitionType(
     defType: string,
     partial: string,
-    md: TdlMetadata,
+    scopeManager: ScopeManager,
     symbolTable?: SymbolTable,
     scope?: Set<string>
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     const normalizedPartial = normalizeTypeName(partial);
 
-    // Button and Key are used interchangeably in TDL
-    const typesToSearch = [defType];
-    const lowerDefType = defType.toLowerCase();
-    if (lowerDefType === 'button') typesToSearch.push('Key');
-    if (lowerDefType === 'key') typesToSearch.push('Button');
+    const typesToSearch = getInterchangeableTypes(normalizeTypeName(defType));
 
     // Keep track of added names to avoid duplicates if they exist in both
     const addedNames = new Set<string>();
@@ -38,7 +34,7 @@ export function getSuggestionsForDefinitionType(
                         items.push({
                             label: name,
                             kind: CompletionItemKind.Reference,
-                            detail: `Existing ${type} definition`,
+                            detail: `Existing ${defType} definition`,
                             insertText: name,
                             sortText: '0_' + name.toLowerCase(), // Prioritize user symbols
                         });
@@ -48,7 +44,7 @@ export function getSuggestionsForDefinitionType(
         }
 
         // 2. Check ExistingDefinitions (default TDL)
-        const defaultNames = md.existingDefinitions.get(normalizeTypeName(type));
+        const defaultNames = scopeManager.existingDefinitions.get(normalizeTypeName(type));
         if (defaultNames) {
             for (const name of defaultNames) {
                 if (normalizedPartial === '' || normalizeTypeName(name).includes(normalizedPartial)) {
@@ -57,7 +53,7 @@ export function getSuggestionsForDefinitionType(
                         items.push({
                             label: name,
                             kind: CompletionItemKind.Reference,
-                            detail: `Default TDL ${type}`,
+                            detail: `Default TDL ${defType}`,
                             insertText: name,
                             sortText: '1_' + name.toLowerCase(), // Lower priority than user symbols
                         });
@@ -70,7 +66,7 @@ export function getSuggestionsForDefinitionType(
     return items;
 }
 
-export function provideDefinitionTypeCompletions(md: TdlMetadata, partial: string, isXml: boolean, defTypes: string[]): CompletionItem[] {
+export function provideDefinitionTypeCompletions(partial: string, isXml: boolean, defTypes: string[]): CompletionItem[] {
     const items: CompletionItem[] = [];
     const normalizedPartial = normalizeTypeName(partial);
 

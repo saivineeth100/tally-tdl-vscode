@@ -1,4 +1,3 @@
-import { getMetadata } from './metadataService';
 import { WorkspaceEdit, TextEdit, RenameParams, PrepareRenameParams, Range, TextDocuments } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DocManager } from '../docManager';
@@ -84,13 +83,10 @@ export function prepareRename(
     const docState = docManager.get(uri);
     if (!docState) return null;
 
-    const metadata = getMetadata();
-    
     const refInfo = findReferenceAtOffset(
         docState.sourceFile,
         offset,
         doc.getText(),
-        metadata,
         docManager.getScopeManager(uri),
         uri
     );

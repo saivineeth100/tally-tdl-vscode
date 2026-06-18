@@ -8,8 +8,25 @@
     <link rel="stylesheet" href="{{styleUri}}">
 </head>
 <body>
-    <h2>TDL Scope Explorer</h2>
-    <div id="tree-container">Loading scopes...</div>
+    <div class="container">
+        <!-- Left Pane: Scope Tree -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>SCOPE TREE</h3>
+                <div class="breadcrumbs" id="breadcrumbs">global</div>
+            </div>
+            <div class="tree-container" id="tree-container">
+                <div class="loading">Loading scopes...</div>
+            </div>
+        </div>
+
+        <!-- Right Pane: Details -->
+        <div class="main-panel">
+            <div class="main-panel-content" id="main-panel">
+                <div class="empty-state">Select a node to view details</div>
+            </div>
+        </div>
+    </div>
     
     <!-- JS will be injected by VS Code Webview -->
     <script src="{{scriptUri}}"></script>

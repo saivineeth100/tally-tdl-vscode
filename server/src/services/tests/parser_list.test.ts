@@ -1,22 +1,9 @@
-
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser/parser';
 import { findReferenceAtOffset } from '../definition';
 import { SyntaxKind } from '../../parser/ast';
-
-const mockMetadata = {
-    findDefinitionAttribute: (name: string, type?: string) => {
-        if (name.toLowerCase() === 'parts') {
-            return {
-                Name: 'Part',
-                Parameters: [
-                    { IsList: true, RefersTo: 'Part' }
-                ]
-            };
-        }
-        return undefined;
-    }
-} as any;
+import { ScopeManager } from '../scopeManager';
+import { SymbolTable } from '../symbolTable';
 
 describe('Parser - List Values', () => {
     it('should parse comma-separated values as separate parameters', () => {
@@ -56,8 +43,19 @@ describe('Parser - List Values', () => {
         const parser = new Parser(text);
         const sourceFile = parser.parse();
 
+        const symbolTable = new SymbolTable();
+        const mockScopeManager = new ScopeManager(symbolTable);
+        const formAttrs = new Map<string, any>();
+        formAttrs.set('parts', {
+            name: 'Parts',
+            parameters: [
+                { IsList: true, RefersTo: 'Part' }
+            ]
+        });
+        mockScopeManager.globalScope.attributes.set('FORM', formAttrs);
+
         const offset = text.indexOf('P2') + 1;
-        const ref = findReferenceAtOffset(sourceFile, offset, text, mockMetadata);
+        const ref = findReferenceAtOffset(sourceFile, offset, text, mockScopeManager);
 
         expect(ref).toBeDefined();
         expect(ref?.name).toBe('P2');

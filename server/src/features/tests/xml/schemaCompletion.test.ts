@@ -1,49 +1,54 @@
-import { getMetadata, setMetadata } from '../../../services/metadataService';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { registerCompletion } from '../../../features/completion';
-import { TdlMetadata, TDLSchema, TDLSchemaProperty } from '../../../tdlMetaData';
-import { CompletionItemKind, InsertTextFormat, CompletionList, CompletionItem } from 'vscode-languageserver';
+import { ScopeManager } from '../../../services/scopeManager';
 import { SymbolTable } from '../../../services/symbolTable';
+import { CompletionItemKind, InsertTextFormat, CompletionList, CompletionItem } from 'vscode-languageserver';
+import { SchemaSymbol, SymbolKind } from '../../../models/symbols';
 
 describe('XML Schema Completion', () => {
-    let mockMetadata: TdlMetadata;
+    let scopeManager: ScopeManager;
     let symbolTable: SymbolTable;
     let onCompletionCallback: (params: any) => Promise<CompletionList>;
 
     beforeEach(() => {
         symbolTable = new SymbolTable();
+        scopeManager = new ScopeManager(symbolTable);
+        scopeManager.primarySchemaNames = ['VOUCHER'];
         
-        mockMetadata = new TdlMetadata('');
-        mockMetadata.primarySchemaNames = ['VOUCHER'];
+        const voucherSchema: SchemaSymbol = {
+            name: 'Voucher',
+            kind: SymbolKind.Object,
+            uri: 'global:metadata',
+            start: 0,
+            end: 0,
+            definitionType: 'Schema',
+            properties: new Map([
+                ['Party Ledger Name', { Name: 'Party Ledger Name', DataType: 'String', IsComplex: false, IsRepeated: false }],
+                ['Is Optional', { Name: 'Is Optional', DataType: 'Logical', IsComplex: false, IsRepeated: false }]
+            ]),
+            complexProperties: new Map([
+                ['All Ledger Entries', 'Ledger Entry']
+            ]),
+            isPrimary: true
+        };
         
-        const voucherSchema = new TDLSchema();
-        voucherSchema.Name = 'Voucher';
+        scopeManager.globalScope.schemas.set('VOUCHER', voucherSchema);
         
-        const prop1 = new TDLSchemaProperty();
-        prop1.Name = 'Party Ledger Name';
-        prop1.DataType = 'String';
+        const ledgerSchema: SchemaSymbol = {
+            name: 'Ledger Entry',
+            kind: SymbolKind.Object,
+            uri: 'global:metadata',
+            start: 0,
+            end: 0,
+            definitionType: 'Schema',
+            properties: new Map([
+                ['Ledger Name', { Name: 'Ledger Name', DataType: 'String', IsComplex: false, IsRepeated: false }]
+            ]),
+            complexProperties: new Map(),
+            isPrimary: false
+        };
         
-        const prop2 = new TDLSchemaProperty();
-        prop2.Name = 'Is Optional';
-        prop2.DataType = 'Logical';
-        
-        voucherSchema.Properties.set('Party Ledger Name', prop1);
-        voucherSchema.Properties.set('Is Optional', prop2);
-        
-        voucherSchema.ComplexProperties.set('All Ledger Entries', 'Ledger Entry');
-        mockMetadata.schemas.set('Voucher', voucherSchema);
-        
-        const ledgerSchema = new TDLSchema();
-        ledgerSchema.Name = 'Ledger Entry';
-        
-        const lprop = new TDLSchemaProperty();
-        lprop.Name = 'Ledger Name';
-        lprop.DataType = 'String';
-        
-        ledgerSchema.Properties.set('Ledger Name', lprop);
-        mockMetadata.schemas.set('Ledger Entry', ledgerSchema);
-
-        setMetadata(mockMetadata as any);
+        scopeManager.globalScope.schemas.set('LEDGERENTRY', ledgerSchema);
     });
 
     const getItems = async (xmlText: string, offset: number): Promise<CompletionItem[]> => {
@@ -67,6 +72,7 @@ describe('XML Schema Completion', () => {
         const dummyManager = {
             get: () => ({ sourceFile: { definitions: [] } }),
             getSymbolTable: () => symbolTable,
+            getScopeManager: () => scopeManager,
             getProjectNodes: () => new Set(['test://file.xml'])
         };
         

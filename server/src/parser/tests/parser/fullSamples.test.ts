@@ -1,4 +1,3 @@
-
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser';
 import { Lexer } from '../../lexer';
@@ -6,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { DiagnosticRules, validateSourceFile } from '../../../services/validation';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { testMetadata } from '../../../test-setup';
+import { testScopeManager } from '../../../test-setup';
 
 const samplesPath = 'c:/Program Files/TallyPrimeDeveloper_7/Samples';
 const SAMPLES_DIR = process.env.TDL_SAMPLES_DIR || samplesPath
@@ -71,9 +70,9 @@ describe.skipIf(!hasSamples)('Parser - Full Sample File Validation', () => {
             expect(formattedErrors).toEqual([]);
 
             // Validate
-            if (testMetadata) {
+            if (testScopeManager) {
                 const doc = TextDocument.create('file:///' + relativePath.replace(/\\/g, '/'), 'tdl', 1, content);
-                const diagnostics = await validateSourceFile(sourceFile, doc, testMetadata);
+                const diagnostics = await validateSourceFile(sourceFile, doc, undefined, testScopeManager);
 
                 // Exclude broken sequence diagnostics as requested
                 const filteredDiagnostics = diagnostics.filter(d => d.code !== DiagnosticRules.BrokenLabelSeqence.code);

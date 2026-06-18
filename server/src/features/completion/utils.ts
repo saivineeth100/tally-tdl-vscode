@@ -1,16 +1,15 @@
-import { TDLDefinitionAttribute, TdlMetadata } from '../../tdlMetaData';
-import { TDLFunction } from '../../models/tdlFunction';
-import { CompletionItem, CompletionItemKind, MarkupKind } from 'vscode-languageserver/node';
+import { AttributeSymbol, FunctionSymbol } from '../../models/symbols';
+import { ScopeManager } from '../../services/scopeManager';
 
 /**
  * Build markdown documentation for an attribute
  */
-export function buildAttributeDocumentation(attr: TDLDefinitionAttribute): string {
-    let doc = attr.Description || '';
+export function buildAttributeDocumentation(attr: AttributeSymbol): string {
+    let doc = attr.description || '';
 
-    if (attr.Parameters && attr.Parameters.length > 0) {
+    if (attr.parameters && attr.parameters.length > 0) {
         doc += '\n\n**Parameters:**\n';
-        attr.Parameters.forEach((param, idx) => {
+        attr.parameters.forEach((param, idx) => {
             const parts: string[] = [];
             if (param.DataType) parts.push(`Type: ${param.DataType}`);
             if (param.IsMandatory) parts.push('Required');
@@ -21,12 +20,12 @@ export function buildAttributeDocumentation(attr: TDLDefinitionAttribute): strin
         });
     }
 
-    if (attr.Type) {
-        doc += `\n**Type:** ${attr.Type}`;
+    if (attr.type) {
+        doc += `\n**Type:** ${attr.type}`;
     }
 
-    if (attr.Aliases && attr.Aliases !== attr.Name) {
-        doc += `\n\n**Aliases:** ${attr.Aliases}`;
+    if (attr.aliases && attr.aliases !== attr.name) {
+        doc += `\n\n**Aliases:** ${attr.aliases}`;
     }
 
     return doc;
@@ -37,31 +36,31 @@ export function buildAttributeDocumentation(attr: TDLDefinitionAttribute): strin
  * @param func Function metadata
  * @returns Markdown documentation string
  */
-export function buildFunctionDocumentation(func: TDLFunction): string {
+export function buildFunctionDocumentation(func: FunctionSymbol): string {
     const lines: string[] = [];
 
-    const paramStrings = func.Parameters.map((p, index) => {
+    const paramStrings = (func.parameters || []).map((p, index) => {
         let pName = p.ParameterType || 'param' + index;
         let pStr = `${pName}: ${p.DataType || 'Any'}`;
         if (!p.IsMandatory) pStr = `[${pStr}]`;
         return pStr;
     });
 
-    const sig = `$$${func.Name}(${paramStrings.join(', ')})${func.ReturnType ? ': ' + func.ReturnType : ''}`;
+    const sig = `$$${func.name}(${paramStrings.join(', ')})${func.returnType ? ': ' + func.returnType : ''}`;
 
     lines.push('```tdl');
     lines.push(sig);
     lines.push('```');
 
-    if (func.Description) {
+    if (func.description) {
         lines.push('___');
-        lines.push(func.Description);
+        lines.push(func.description);
     }
 
-    if (func.Parameters && func.Parameters.length > 0) {
+    if (func.parameters && func.parameters.length > 0) {
         lines.push('___');
         lines.push('**Parameters:**');
-        func.Parameters.forEach((param, idx) => {
+        func.parameters.forEach((param, idx) => {
             const parts: string[] = [];
             if (param.IsMandatory) parts.push('**Required**');
             else parts.push('*Optional*');
@@ -73,23 +72,14 @@ export function buildFunctionDocumentation(func: TDLFunction): string {
         });
     }
 
-    const metaParts = [];
-    if (func.Category) metaParts.push(`Category: **${func.Category}**`);
-    if (func.Mode) metaParts.push(`Mode: **${func.Mode}**`);
-
-    if (metaParts.length > 0) {
-        lines.push('___');
-        lines.push(metaParts.join(' | '));
-    }
-
     return lines.join('\n');
 }
 
 /**
  * Get definition types from metadata
  */
-export function getDefinitionTypes(md: TdlMetadata): string[] {
-    const types = Array.from(md.definitions.keys());
+export function getDefinitionTypes(scopeManager: ScopeManager): string[] {
+    const types = Array.from(scopeManager.existingDefinitions.keys());
     // Include and Import are special system directives parsed as definition types
     types.push('Include');
     return types;

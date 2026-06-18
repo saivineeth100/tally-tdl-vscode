@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser/parser';
 import { findReferenceAtOffset } from '../definition';
+import { ScopeManager } from '../scopeManager';
+import { SymbolTable } from '../symbolTable';
 
 describe('Statement Definition Range', () => {
     it('should find reference for multi-word argument in statement', () => {
@@ -13,21 +15,22 @@ describe('Statement Definition Range', () => {
 
         const offsetMy = tdl.indexOf('My Part Name') + 1;
         
-        // Mock metadata with Alter action
-        const mockMetadata: any = {
-            findDefinitionAttribute: () => undefined,
-            actions: [
-                {
-                    Name: 'Alter',
-                    Parameters: [
-                        { RefersTo: 'Definition Type' }, // First param is definition type
-                        { RefersTo: 'Part' } // Second param is definition name
-                    ]
-                }
-            ]
-        };
+        const symbolTable = new SymbolTable();
+        const mockScopeManager = new ScopeManager(symbolTable);
 
-        const refMy = findReferenceAtOffset(sourceFile, offsetMy, tdl, mockMetadata);
+        // Mock action in globalScope
+        mockScopeManager.globalScope.actions.set('alter', {
+            name: 'Alter',
+            parameters: [
+                { RefersTo: 'Definition Type' }, // First param is definition type
+                { RefersTo: 'Part' } // Second param is definition name
+            ],
+            totalParameters: 2,
+            totalMandatoryParameters: 2,
+            kind: SymbolTable.SymbolKind.Variable // Action
+        } as any);
+
+        const refMy = findReferenceAtOffset(sourceFile, offsetMy, tdl, mockScopeManager);
         
         expect(refMy).toBeDefined();
         expect(refMy!.name).toBe('My Part Name');

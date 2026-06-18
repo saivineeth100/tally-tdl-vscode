@@ -15,14 +15,12 @@ import {
     ListNode,
     LiteralNode,
     SyntaxKind,
-    AttributeNode,
-    DefinitionNode
+    AttributeNode
 } from '../../parser/ast';
 import { TokenKind } from '../../parser/tokenKind';
 import { ScopeManager, getSemanticTypeFromSymbol } from '../scopeManager';
 import { normalizeTypeName } from '../utils';
-import { SymbolKind, SymbolTable } from '../symbolTable';
-import { TDLDefinitionAttribute } from '../../tdlMetaData';
+import { SymbolKind } from '../symbolTable';
 
 export interface SemanticToken {
     line: number;
@@ -66,72 +64,23 @@ const TOKEN_TYPE_MAP: Record<string, number> = {
     [SemanticTokenTypes.type]: 10
 };
 
-/**
- * Map SymbolKind to SemanticTokenTypes
- */
-function symbolKindToTokenType(kind: SymbolKind): string {
-    switch (kind) {
-        case SymbolKind.Report:
-        case SymbolKind.Form:
-        case SymbolKind.Part:
-        case SymbolKind.Line:
-        case SymbolKind.Field:
-        case SymbolKind.Menu:
-        case SymbolKind.Collection:
-        case SymbolKind.Button:
-        case SymbolKind.Key:
-        case SymbolKind.Border:
-        case SymbolKind.Style:
-        case SymbolKind.Color:
-        case SymbolKind.Object: // Generic object
-            return SemanticTokenTypes.class; // Or type
-        case SymbolKind.Function:
-            return SemanticTokenTypes.function;
-        case SymbolKind.Variable:
-            return SemanticTokenTypes.variable;
-        default:
-            return SemanticTokenTypes.variable; // Default fallback
-    }
-}
-
-// Define local interface for Metadata Context
-export interface TdlMetadataContext {
-    findDefinitionAttribute(name: string, defType: string): TDLDefinitionAttribute | undefined;
-    findFunction(name: string): { Name: string; Parameters?: { RefersTo?: string; DataType?: string; IsList?: boolean }[] } | undefined;
-    existingDefinitions?: Map<string, Set<string>>;
-    definitions?: Map<string, Map<String, TDLDefinitionAttribute>>;
-}
-
-
 // Helper mapping for RefersTo/DataType to SemanticTokenTypes
-function mapMetaTypeToToken(refersTo?: string, dataType?: string, metadata?: TdlMetadataContext): string | undefined {
+function mapMetaTypeToToken(refersTo?: string, dataType?: string, scopeManager?: ScopeManager): string | undefined {
     if (refersTo) {
         refersTo = normalizeTypeName(refersTo);
         // Use metadata to check if it's a valid definition type
-        if (metadata && metadata.definitions) {
-            // Check if refersTo is a key in the definitions map (e.g., "Report", "Collection")
-            // Keys are usually preserved case, so we might need case-insensitive check 
-            // OR normalize if map uses normalized keys.
-            // Based on tdlMetaData.ts, keys match file names (e.g. "Collection").
-            // We can iterate or check specific cases. TDL is case-insensitive.
-
-            // Let's assume exact match or normalized check. 
-            // Ideally tdlMetaData should expose `hasDefinitionType(type)`.
-            // But we can check keys.
-
-            for (const key of metadata.definitions.keys()) {
-                if (key.toLowerCase() === refersTo) {
-                    return SemanticTokenTypes.class;
-                }
+        if (scopeManager) {
+            if (scopeManager.globalScope.attributes.has(refersTo)) {
+                return SemanticTokenTypes.class;
             }
         }
 
         // If refers to Function?
-        if (refersTo === 'Function') return SemanticTokenTypes.function;
+        if (refersTo === 'function') return SemanticTokenTypes.function;
     }
 
     if (dataType) {
-        if (dataType === 'String') return SemanticTokenTypes.string;
+        if (dataType.toLowerCase() === 'string') return SemanticTokenTypes.string;
     }
     return undefined;
 }
@@ -180,8 +129,8 @@ const tokenBuilders = new Map<string, SemanticTokensBuilder>();
 /**
  * Provide semantic tokens for LSP request
  */
-export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeManager?: ScopeManager, metadata?: TdlMetadataContext, token?: CancellationToken): SemanticTokens {
-    const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, metadata, token); // Assuming Doc has URI, or pass explicitly
+export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeManager?: ScopeManager, token?: CancellationToken): SemanticTokens {
+    const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, token); // Assuming Doc has URI, or pass explicitly
 
     let builder = new SemanticTokensBuilder();
     tokenBuilders.set(doc.uri, builder);
@@ -191,13 +140,13 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
     interface TokenSegment { line: number, char: number, len: number, typeIdx: number }
     const segments: TokenSegment[] = [];
 
-    for (const token of tokens) {
-        const startPos = doc.positionAt(token.startChar);
-        const endPos = doc.positionAt(token.startChar + token.length);
-        const typeIdx = TOKEN_TYPE_MAP[token.type] ?? 0;
+    for (const t of tokens) {
+        const startPos = doc.positionAt(t.startChar);
+        const endPos = doc.positionAt(t.startChar + t.length);
+        const typeIdx = TOKEN_TYPE_MAP[t.type] ?? 0;
 
         if (startPos.line === endPos.line) {
-            segments.push({ line: startPos.line, char: startPos.character, len: token.length, typeIdx });
+            segments.push({ line: startPos.line, char: startPos.character, len: t.length, typeIdx });
         } else {
             for (let line = startPos.line; line <= endPos.line; line++) {
                 const lineOffsets = (sourceFile as any).lineOffsets;
@@ -208,13 +157,13 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
                     if (line < lineOffsets.length - 1) {
                         lineEndOffset = lineOffsets[line + 1] - 1;
                     } else {
-                        lineEndOffset = (sourceFile as any).end || (token.startChar + token.length + 100);
+                        lineEndOffset = (sourceFile as any).end || (t.startChar + t.length + 100);
                     }
                 } else continue;
 
-                const intersectionStart = Math.max(token.startChar, lineStartOffset);
-                const nextLineStart = (lineOffsets && line < lineOffsets.length - 1) ? lineOffsets[line + 1] : ((sourceFile as any).end || token.startChar + token.length) + 1;
-                const effectiveTokenEnd = Math.min(token.startChar + token.length, nextLineStart);
+                const intersectionStart = Math.max(t.startChar, lineStartOffset);
+                const nextLineStart = (lineOffsets && line < lineOffsets.length - 1) ? lineOffsets[line + 1] : ((sourceFile as any).end || t.startChar + t.length) + 1;
+                const effectiveTokenEnd = Math.min(t.startChar + t.length, nextLineStart);
                 const pos = doc.positionAt(intersectionStart);
                 const len = effectiveTokenEnd - intersectionStart;
 
@@ -240,15 +189,15 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
 /**
  * Provide semantic token deltas for LSP request
  */
-export function provideSemanticTokensEdits(sourceFile: SourceFile, doc: any, previousResultId: string, scopeManager?: ScopeManager, metadata?: TdlMetadataContext, token?: CancellationToken): SemanticTokens | SemanticTokensDelta {
+export function provideSemanticTokensEdits(sourceFile: SourceFile, doc: any, previousResultId: string, scopeManager?: ScopeManager, token?: CancellationToken): SemanticTokens | SemanticTokensDelta {
     let builder = tokenBuilders.get(doc.uri);
     if (!builder) {
-        return provideSemanticTokens(sourceFile, doc, scopeManager, metadata, token);
+        return provideSemanticTokens(sourceFile, doc, scopeManager, token);
     }
 
     builder.previousResult(previousResultId);
 
-    const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, metadata, token);
+    const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, token);
     tokens.sort((a, b) => a.startChar - b.startChar);
 
     interface TokenSegment { line: number, char: number, len: number, typeIdx: number }
@@ -299,7 +248,7 @@ export function provideSemanticTokensEdits(sourceFile: SourceFile, doc: any, pre
 /**
  * Generates semantic tokens from a parsed TDL source file
  */
-export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeManager, uri?: string, metadata?: TdlMetadataContext, token?: CancellationToken): SemanticToken[] {
+export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeManager, uri?: string, token?: CancellationToken): SemanticToken[] {
     const tokens: SemanticToken[] = [];
 
     // 1. Tokenize Comments (Global)
@@ -348,26 +297,26 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 text: def.name?.text
             });
         }
-        const defNameText = def.name?.text || '';
-        traverseAttributes(def.attributes, tokens, defNameText, scopeManager, uri, metadata);
+        const defNameText = normalizeTypeName(def.type?.text || '');
+        traverseAttributes(def.attributes, tokens, defNameText, scopeManager, uri);
         if (def.complexObjects) {
-            traverseComplexObjects(def.complexObjects, tokens, defNameText, scopeManager, uri, metadata);
+            traverseComplexObjects(def.complexObjects, tokens, defNameText, scopeManager, uri);
         }
 
         if (def.statements) {
             for (const stmt of def.statements) {
-                traverseStatement(stmt, tokens, scopeManager, uri, metadata);
+                traverseStatement(stmt, tokens, scopeManager, uri);
             }
         }
     }
     return tokens;
 }
 
-function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[], defName: string, scopeManager?: ScopeManager, uri?: string, metadata?: TdlMetadataContext) {
+function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[], defTypeName: string, scopeManager?: ScopeManager, uri?: string) {
 
     for (const attr of attributes) {
         let expectedType: string | undefined;
-        let defMeta: TDLDefinitionAttribute | undefined
+        let defMeta: any | undefined
         if (attr.name) {
             tokens.push({
                 line: 0,
@@ -378,16 +327,16 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
             });
 
             // Determine context for values
-            if (metadata) {
-
-                defMeta = metadata.findDefinitionAttribute(attr.name?.text || '', defName);
-                if (defMeta && defMeta.Parameters && defMeta.Parameters.length > 0) {
-                    const param = defMeta.Parameters[0];
-                    expectedType = mapMetaTypeToToken(param.RefersTo, param.DataType, metadata);
+            if (scopeManager) {
+                const attrMap = scopeManager.globalScope.attributes.get(defTypeName);
+                if (attrMap) {
+                    defMeta = attrMap.get(normalizeTypeName(attr.name?.text || ''));
+                }
+                if (defMeta && defMeta.parameters && defMeta.parameters.length > 0) {
+                    const param = defMeta.parameters[0];
+                    expectedType = mapMetaTypeToToken(param.RefersTo, param.DataType, scopeManager);
                 }
             }
-
-
 
             if (!expectedType) {
                 const key = Object.keys(ATTRIBUTE_CONTEXT).find(k => k.toLowerCase() === (attr.name?.text || '').toLowerCase());
@@ -408,23 +357,23 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
         if (attr.value) {
             for (let i = 0; i < attr.value.length; i++) {
                 let argExpectedType = expectedType;
-                if (defMeta && defMeta.Parameters) {
-                    if (i < defMeta.Parameters.length) {
-                        const p = defMeta.Parameters[i];
-                        argExpectedType = mapMetaTypeToToken(p.RefersTo, p.DataType, metadata);
-                    } else if (defMeta.Parameters.length > 0 && defMeta.Parameters[defMeta.Parameters.length - 1].IsList) {
-                        const p = defMeta.Parameters[defMeta.Parameters.length - 1];
-                        argExpectedType = mapMetaTypeToToken(p.RefersTo, p.DataType, metadata);
+                if (defMeta && defMeta.parameters) {
+                    if (i < defMeta.parameters.length) {
+                        const p = defMeta.parameters[i];
+                        argExpectedType = mapMetaTypeToToken(p.RefersTo, p.DataType, scopeManager);
+                    } else if (defMeta.parameters.length > 0 && defMeta.parameters[defMeta.parameters.length - 1].IsList) {
+                        const p = defMeta.parameters[defMeta.parameters.length - 1];
+                        argExpectedType = mapMetaTypeToToken(p.RefersTo, p.DataType, scopeManager);
                     }
                 }
 
-                traverseNode(attr.value[i], tokens, scopeManager, uri, argExpectedType, metadata);
+                traverseNode(attr.value[i], tokens, scopeManager, uri, argExpectedType);
             }
         }
     }
 }
 
-function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], defName: string, scopeManager?: ScopeManager, uri?: string, metadata?: TdlMetadataContext) {
+function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], defTypeName: string, scopeManager?: ScopeManager, uri?: string) {
     if (!complexObjects) return;
     for (const obj of complexObjects) {
         if (obj.name) {
@@ -447,11 +396,11 @@ function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], 
         }
 
         if (obj.attributes) {
-            traverseAttributes(obj.attributes, tokens, defName, scopeManager, uri, metadata);
+            traverseAttributes(obj.attributes, tokens, normalizeTypeName(obj.name?.text || ''), scopeManager, uri);
         }
 
         if (obj.complexObjects) {
-            traverseComplexObjects(obj.complexObjects, tokens, defName, scopeManager, uri, metadata);
+            traverseComplexObjects(obj.complexObjects, tokens, normalizeTypeName(obj.name?.text || ''), scopeManager, uri);
         }
     }
 }
@@ -459,7 +408,7 @@ function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], 
 /**
  * Traverse a statement node and collect semantic tokens
  */
-function traverseStatement(stmt: any, tokens: SemanticToken[], scopeManager?: ScopeManager, uri?: string, metadata?: TdlMetadataContext) {
+function traverseStatement(stmt: any, tokens: SemanticToken[], scopeManager?: ScopeManager, uri?: string) {
     if (!stmt) return;
 
     if (stmt.label) {
@@ -484,24 +433,24 @@ function traverseStatement(stmt: any, tokens: SemanticToken[], scopeManager?: Sc
 
     if (stmt.args) {
         for (const arg of stmt.args) {
-            traverseNode(arg, tokens, scopeManager, uri, undefined, metadata);
+            traverseNode(arg, tokens, scopeManager, uri, undefined);
         }
     }
 
     if (stmt.statements) {
         for (const s of stmt.statements) {
-            traverseStatement(s, tokens, scopeManager, uri, metadata);
+            traverseStatement(s, tokens, scopeManager, uri);
         }
     }
 
     if (stmt.elseStatements) {
         for (const s of stmt.elseStatements) {
-            traverseStatement(s, tokens, scopeManager, uri, metadata);
+            traverseStatement(s, tokens, scopeManager, uri);
         }
     }
 
     if (stmt.endStatement) {
-        traverseStatement(stmt.endStatement, tokens, scopeManager, uri, metadata);
+        traverseStatement(stmt.endStatement, tokens, scopeManager, uri);
     }
 }
 
@@ -514,14 +463,6 @@ function isKeyword(node: IdentifierNode): boolean {
 
     if (!node.tokens || node.tokens.length === 0) return false;
     const firstToken = node.tokens[0];
-    const contextKeywords = [
-        TokenKind.YesToken, TokenKind.NoToken,
-        TokenKind.TrueToken, TokenKind.FalseToken,
-        TokenKind.OnToken, TokenKind.OffToken,
-        TokenKind.AndToken, TokenKind.OrToken, TokenKind.NotToken,
-        TokenKind.InToken, TokenKind.NullToken
-    ];
-    // ... remove invalid additions ...
     const validKinds = [
         TokenKind.YesToken, TokenKind.NoToken,
         TokenKind.TrueToken, TokenKind.FalseToken,
@@ -551,7 +492,7 @@ function keywordToken(node: IdentifierNode): SemanticToken {
 /**
  * Traverse AST node and collect semantic tokens
  */
-function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeManager, uri?: string, expectedType?: string, metadata?: TdlMetadataContext) {
+function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeManager, uri?: string, expectedType?: string) {
     if (!node) return;
 
     // Handle Identifiers (potential references)
@@ -607,24 +548,30 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
         if (funcNode.arguments) {
             // Determine parameter contexts if function is known
             let paramContexts: string[] | undefined;
-            if (metadata && funcNode.functionName) {
-                const funcName = (funcNode.functionName?.text || '').replace(/^\$\$/, '');
-                const funcMeta = metadata.findFunction(funcName);
-                if (funcMeta && funcMeta.Parameters) {
-                    paramContexts = funcMeta.Parameters.map(p => mapMetaTypeToToken(p.RefersTo, p.DataType, metadata) || SemanticTokenTypes.variable);
+            if (scopeManager && funcNode.functionName) {
+                const funcName = normalizeTypeName((funcNode.functionName?.text || '').replace(/^\$\$/, ''));
+                const funcMeta = scopeManager.globalScope.functions.get(funcName);
+                if (funcMeta && funcMeta.parameters) {
+                    paramContexts = funcMeta.parameters.map(p => mapMetaTypeToToken(p.RefersTo, p.DataType, scopeManager) || SemanticTokenTypes.variable);
                 }
             }
 
             if (!paramContexts && funcNode.functionName) {
-                const funcName = (funcNode.functionName?.text || '').replace(/^\$\$/, '');
-                paramContexts = FUNCTION_PARAMETER_CONTEXT[funcName];
+                const funcName = normalizeTypeName((funcNode.functionName?.text || '').replace(/^\$\$/, ''));
+                // FUNCTION_PARAMETER_CONTEXT is un-normalized string array.
+                // It was used un-normalized in the original implementation.
+                // For 'CollectionField', etc.
+                const key = Object.keys(FUNCTION_PARAMETER_CONTEXT).find(k => normalizeTypeName(k) === funcName);
+                if (key) {
+                     paramContexts = FUNCTION_PARAMETER_CONTEXT[key];
+                }
             }
 
             for (let i = 0; i < funcNode.arguments.length; i++) {
                 const arg = funcNode.arguments[i];
                 // Use index, or last if varargs/list
                 const argExpectedType = paramContexts ? paramContexts[Math.min(i, paramContexts.length - 1)] : undefined;
-                traverseNode(arg, tokens, scopeManager, uri, argExpectedType, metadata);
+                traverseNode(arg, tokens, scopeManager, uri, argExpectedType);
             }
         }
     } else if (node.kind === SyntaxKind.VariableReference) {
@@ -675,7 +622,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
         const listNode = node as ListNode;
         if (listNode.values) {
             for (const item of listNode.values) {
-                traverseNode(item, tokens, scopeManager, uri, expectedType, metadata);
+                traverseNode(item, tokens, scopeManager, uri, expectedType);
             }
         }
     } else if (node.kind === SyntaxKind.Literal) {
@@ -705,7 +652,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
         }
     } else if (node.kind === SyntaxKind.Statement || ('operator' in node)) {
         const binNode = node as any;
-        if (binNode.left) traverseNode(binNode.left, tokens, scopeManager, uri, expectedType, metadata);
-        if (binNode.right) traverseNode(binNode.right, tokens, scopeManager, uri, expectedType, metadata);
+        if (binNode.left) traverseNode(binNode.left, tokens, scopeManager, uri, expectedType);
+        if (binNode.right) traverseNode(binNode.right, tokens, scopeManager, uri, expectedType);
     }
 }

@@ -1,23 +1,16 @@
 import { DefinitionNode } from '../../parser/ast';
-import { TDLParameter } from '../../tdlMetaData';
-import { TDLFunction, TDLFunctionParameter } from '../../models/tdlFunction';
 import { ScopeManager } from '../scopeManager';
+import { AttributeSymbol, FunctionSymbol, ActionSymbol, TDLParameter } from '../../models/symbols';
 
 /**
  * Create hover content for a definition
- * @param def Definition node
- * @param scopeManager Optional ScopeManager to resolve scope info
- * @param uri Optional document URI
- * @returns Markdown formatted hover content
  */
 export function createHoverContent(def: DefinitionNode, scopeManager?: ScopeManager, uri?: string): string {
     const lines: string[] = [];
 
-    // Header
     const prefix = def.modifier ? '#' : '';
     lines.push(`**${prefix}${def.type.text}**: ${def.name?.text}`);
 
-    // If it's a modifier
     if (def.modifier) {
         lines.push('*Modified Definition*');
     }
@@ -29,7 +22,6 @@ export function createHoverContent(def: DefinitionNode, scopeManager?: ScopeMana
         }
     }
 
-    // List attributes (first few)
     if (def.attributes.length > 0) {
         lines.push('');
         lines.push('Attributes:');
@@ -46,28 +38,26 @@ export function createHoverContent(def: DefinitionNode, scopeManager?: ScopeMana
 
 /**
  * Create hover content for an attribute
- * @param attrDef Attribute definition from metadata
- * @returns Markdown formatted hover content
  */
-export function createAttributeHover(attrDef: any): string {
+export function createAttributeHover(attrSym: AttributeSymbol): string {
     const lines: string[] = [];
 
-    lines.push(`**${attrDef.Name}**`);
+    lines.push(`**${attrSym.name}**`);
 
-    if (attrDef.Description) {
+    if (attrSym.description) {
         lines.push('');
-        lines.push(attrDef.Description);
+        lines.push(attrSym.description);
     }
 
-    if (attrDef.Type) {
+    if (attrSym.type) {
         lines.push('');
-        lines.push(`*Type: ${attrDef.Type}*`);
+        lines.push(`*Type: ${attrSym.type}*`);
     }
 
-    if (attrDef.Parameters && attrDef.Parameters.length > 0) {
+    if (attrSym.parameters && attrSym.parameters.length > 0) {
         lines.push('');
         lines.push('**Parameters:**');
-        attrDef.Parameters.forEach((param: TDLParameter, idx: number) => {
+        attrSym.parameters.forEach((param, idx) => {
             const parts: string[] = [];
             if (param.IsMandatory) parts.push('**Required**');
             if (param.DataType) parts.push(`Type: ${param.DataType}`);
@@ -77,19 +67,16 @@ export function createAttributeHover(attrDef: any): string {
         });
     }
 
-    if (attrDef.Aliases && attrDef.Aliases !== attrDef.Name) {
+    if (attrSym.aliases && attrSym.aliases !== attrSym.name) {
         lines.push('');
-        lines.push(`*Aliases: ${attrDef.Aliases}*`);
+        lines.push(`*Aliases: ${attrSym.aliases}*`);
     }
 
     return lines.join('\n');
 }
 
 /**
- * Create hover content for a parameter
- * @param param Parameter definition from metadata
- * @param paramIndex 0-based index of the parameter
- * @returns Markdown formatted hover content
+ * Create hover content for a parameter (works for both function and attribute parameters)
  */
 export function createParameterHover(param: TDLParameter, paramIndex: number): string {
     const lines: string[] = [];
@@ -129,36 +116,33 @@ export function createParameterHover(param: TDLParameter, paramIndex: number): s
 }
 
 /**
- * Create hover content for a TDL function
- * @param func Function definition from metadata
- * @returns Markdown formatted hover content
+ * Create hover content for a TDL function or action
  */
-export function createFunctionHover(func: TDLFunction): string {
+export function createFunctionHover(func: FunctionSymbol | ActionSymbol): string {
     const lines: string[] = [];
 
-    // Generate signature for code block
-    const paramStrings = func.Parameters.map((p, index) => {
+    const paramStrings = (func.parameters || []).map((p, index) => {
         let pName = p.ParameterType || 'param' + index;
         let pStr = `${pName}: ${p.DataType || 'Any'}`;
         if (!p.IsMandatory) pStr = `[${pStr}]`;
         return pStr;
     });
     
-    const sig = `$$${func.Name}(${paramStrings.join(', ')})${func.ReturnType ? ': ' + func.ReturnType : ''}`;
+    const sig = `$$${func.name}(${paramStrings.join(', ')})${func.returnType ? ': ' + func.returnType : ''}`;
     
     lines.push('```tdl');
     lines.push(sig);
     lines.push('```');
 
-    if (func.Description) {
+    if (func.description) {
         lines.push('___');
-        lines.push(func.Description);
+        lines.push(func.description);
     }
 
-    if (func.Parameters && func.Parameters.length > 0) {
+    if (func.parameters && func.parameters.length > 0) {
         lines.push('___');
         lines.push('**Parameters:**');
-        func.Parameters.forEach((param, idx) => {
+        func.parameters.forEach((param, idx) => {
             const parts: string[] = [];
             if (param.IsMandatory) parts.push('**Required**');
             else parts.push('*Optional*');
@@ -171,56 +155,14 @@ export function createFunctionHover(func: TDLFunction): string {
     }
 
     const metaParts = [];
-    if (func.Category) metaParts.push(`Category: **${func.Category}**`);
-    if (func.Mode) metaParts.push(`Mode: **${func.Mode}**`);
+    const actionFunc = func as ActionSymbol;
+    if (actionFunc.category) metaParts.push(`Category: **${actionFunc.category}**`);
+    if (actionFunc.mode) metaParts.push(`Mode: **${actionFunc.mode}**`);
     
     if (metaParts.length > 0) {
         lines.push('___');
         lines.push(metaParts.join(' | '));
     }
 
-    return lines.join('\n');
-}
-
-/**
- * Create hover content for a function parameter
- * @param param Function parameter definition
- * @param paramIndex 0-based index of the parameter
- * @returns Markdown formatted hover content
- */
-export function createFunctionParameterHover(param: TDLFunctionParameter, paramIndex: number): string {
-    const lines: string[] = [];
-
-    lines.push(`**Parameter ${paramIndex + 1}**`);
-    lines.push('');
-
-    const infoLines: string[] = [];
-    if (param.IsMandatory) {
-        infoLines.push('- **Required**');
-    } else {
-        infoLines.push('- Optional');
-    }
-
-    if (param.DataType) {
-        infoLines.push(`- Type: \`${param.DataType}\``);
-    }
-
-    if (param.RefersTo) {
-        infoLines.push(`- Refers to: \`${param.RefersTo.trim()}\` definition`);
-    }
-
-    if (param.KeywordSet) {
-        infoLines.push(`- Keyword Set: ${param.KeywordSet}`);
-    }
-
-    if (param.Keywords) {
-        infoLines.push(`- Valid values: ${param.Keywords}`);
-    }
-
-    if (param.DataType?.toLowerCase() === 'logical') {
-        infoLines.push('- Valid values: `Yes`, `No`');
-    }
-
-    lines.push(...infoLines);
     return lines.join('\n');
 }

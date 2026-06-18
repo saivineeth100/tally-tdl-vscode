@@ -1,9 +1,9 @@
 import { CompletionItem, CompletionItemKind, MarkupKind } from 'vscode-languageserver/node';
-import { TdlMetadata } from '../../../tdlMetaData';
 import { normalizeTypeName } from '../../../services/utils';
+import { ScopeManager } from '../../../services/scopeManager';
 
 export function provideXmlSchemaAttributeCompletions(
-    md: TdlMetadata,
+    scopeManager: ScopeManager,
     tagPath: string[],
     partial: string
 ): CompletionItem[] {
@@ -13,7 +13,7 @@ export function provideXmlSchemaAttributeCompletions(
     let rootTagIdx = -1;
     let rootTag = '';
     for (let i = tagPath.length - 1; i >= 0; i--) {
-        if (md.primarySchemaNames.some(s => s.toUpperCase() === tagPath[i].toUpperCase())) {
+        if (scopeManager.primarySchemaNames.some(s => s.toUpperCase() === tagPath[i].toUpperCase())) {
             rootTagIdx = i;
             rootTag = tagPath[i];
             break;
@@ -21,17 +21,17 @@ export function provideXmlSchemaAttributeCompletions(
     }
 
     if (rootTagIdx !== -1) {
-        const rootKey = Array.from(md.schemas.keys()).find(k => k.toUpperCase() === rootTag.toUpperCase());
-        let currentSchema = rootKey ? md.schemas.get(rootKey) : undefined;
+        const rootKey = Array.from(scopeManager.globalScope.schemas.keys()).find(k => k.toUpperCase() === rootTag.toUpperCase());
+        let currentSchema = rootKey ? scopeManager.globalScope.schemas.get(rootKey) : undefined;
         
         for (let i = rootTagIdx + 1; i < tagPath.length; i++) {
             const step = tagPath[i];
             const normalizedStep = step.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
-            const complexPropKey = Array.from(currentSchema?.ComplexProperties.keys() || []).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
+            const complexPropKey = Array.from(currentSchema?.complexProperties?.keys() || []).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
             if (complexPropKey) {
-                const nextSchemaName = currentSchema!.ComplexProperties.get(complexPropKey)!;
-                const nextKey = Array.from(md.schemas.keys()).find(k => k.toUpperCase() === nextSchemaName.toUpperCase());
-                currentSchema = nextKey ? md.schemas.get(nextKey) : undefined;
+                const nextSchemaName = currentSchema!.complexProperties!.get(complexPropKey)!;
+                const nextKey = Array.from(scopeManager.globalScope.schemas.keys()).find(k => k.toUpperCase() === nextSchemaName.toUpperCase());
+                currentSchema = nextKey ? scopeManager.globalScope.schemas.get(nextKey) : undefined;
             } else {
                 currentSchema = undefined;
                 break;
@@ -44,7 +44,7 @@ export function provideXmlSchemaAttributeCompletions(
                 { name: 'NAME', type: 'String' }
             ];
             
-            if (currentSchema.Name.toUpperCase() === 'VOUCHER') {
+            if (currentSchema.name.toUpperCase() === 'VOUCHER') {
                 systemAttributes.push(
                     { name: 'VCHTYPE', type: 'String' },
                     { name: 'OBJVIEW', type: 'String', values: ['Accounting Voucher View', 'Invoice Voucher View'] }
@@ -64,37 +64,39 @@ export function provideXmlSchemaAttributeCompletions(
                 }
             }
 
-            for (const [propName, propDef] of currentSchema.Properties) {
-                let displayProp = propName.toUpperCase().replace(/\s+/g, '');
-                let insertText = '';
-                
-                if (propDef.IsComplex) {
-                    if (!displayProp.endsWith('.LIST')) {
-                        displayProp += '.LIST';
+            if (currentSchema.properties) {
+                for (const [propName, propDef] of currentSchema.properties) {
+                    let displayProp = propName.toUpperCase().replace(/\s+/g, '');
+                    let insertText = '';
+                    
+                    if (propDef.IsComplex) {
+                        if (!displayProp.endsWith('.LIST')) {
+                            displayProp += '.LIST';
+                        }
+                        insertText = `${displayProp}>\n\t$0\n</${displayProp}>`;
+                    } else if (propDef.IsRepeated) {
+                        if (!displayProp.endsWith('.LIST')) {
+                            displayProp += '.LIST';
+                        }
+                        const innerTag = propName.toUpperCase().replace(/\s+/g, '');
+                        const cleanType = propDef.DataType ? propDef.DataType.split(' ')[0] : '';
+                        const typeAttr = cleanType ? ` TYPE="${cleanType}"` : '';
+                        insertText = `${displayProp}${typeAttr}>\n\t<${innerTag}>$0</${innerTag}>\n</${displayProp}>`;
+                    } else {
+                        insertText = `${displayProp}>$0</${displayProp}>`;
                     }
-                    insertText = `${displayProp}>\n\t$0\n</${displayProp}>`;
-                } else if (propDef.IsRepeated) {
-                    if (!displayProp.endsWith('.LIST')) {
-                        displayProp += '.LIST';
-                    }
-                    const innerTag = propName.toUpperCase().replace(/\s+/g, '');
-                    const cleanType = propDef.DataType ? propDef.DataType.split(' ')[0] : '';
-                    const typeAttr = cleanType ? ` TYPE="${cleanType}"` : '';
-                    insertText = `${displayProp}${typeAttr}>\n\t<${innerTag}>$0</${innerTag}>\n</${displayProp}>`;
-                } else {
-                    insertText = `${displayProp}>$0</${displayProp}>`;
-                }
 
-                if (partial === '' || displayProp.toLowerCase().includes(partial.toLowerCase()) || propName.toLowerCase().includes(partial.toLowerCase())) {
-                    items.push({
-                        label: displayProp,
-                        kind: CompletionItemKind.Property,
-                        detail: `Schema Property (${propDef.DataType || 'String'})`,
-                        insertText: insertText,
-                        insertTextFormat: 2,
-                        documentation: { kind: MarkupKind.Markdown, value: `Type: ${propDef.DataType || 'String'}\nOriginal Name: ${propName}` },
-                        sortText: displayProp,
-                    });
+                    if (partial === '' || displayProp.toLowerCase().includes(partial.toLowerCase()) || propName.toLowerCase().includes(partial.toLowerCase())) {
+                        items.push({
+                            label: displayProp,
+                            kind: CompletionItemKind.Property,
+                            detail: `Schema Property (${propDef.DataType || 'String'})`,
+                            insertText: insertText,
+                            insertTextFormat: 2,
+                            documentation: { kind: MarkupKind.Markdown, value: `Type: ${propDef.DataType || 'String'}\nOriginal Name: ${propName}` },
+                            sortText: displayProp,
+                        });
+                    }
                 }
             }
         }
@@ -108,7 +110,7 @@ import { DefinitionNode } from '../../../parser/ast';
 import { SymbolTable } from '../../../services/symbolTable';
 
 export function provideXmlAttributeValueCompletions(
-    md: TdlMetadata,
+    scopeManager: ScopeManager,
     tagPath: string[],
     attributeName: string,
     partial: string,
@@ -121,7 +123,7 @@ export function provideXmlAttributeValueCompletions(
     let rootTagIdx = -1;
     let rootTag = '';
     for (let i = tagPath.length - 1; i >= 0; i--) {
-        if (md.primarySchemaNames.some(s => s.toUpperCase() === tagPath[i].toUpperCase())) {
+        if (scopeManager.primarySchemaNames.some(s => s.toUpperCase() === tagPath[i].toUpperCase())) {
             rootTagIdx = i;
             rootTag = tagPath[i];
             break;
@@ -129,17 +131,17 @@ export function provideXmlAttributeValueCompletions(
     }
 
     if (rootTagIdx !== -1) {
-        const rootKey = Array.from(md.schemas.keys()).find(k => k.toUpperCase() === rootTag.toUpperCase());
-        let currentSchema = rootKey ? md.schemas.get(rootKey) : undefined;
+        const rootKey = Array.from(scopeManager.globalScope.schemas.keys()).find(k => k.toUpperCase() === rootTag.toUpperCase());
+        let currentSchema = rootKey ? scopeManager.globalScope.schemas.get(rootKey) : undefined;
         
         for (let i = rootTagIdx + 1; i < tagPath.length - 1; i++) {
             const step = tagPath[i];
             const normalizedStep = step.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
-            const complexPropKey = Array.from(currentSchema?.ComplexProperties.keys() || []).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
+            const complexPropKey = Array.from(currentSchema?.complexProperties?.keys() || []).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
             if (complexPropKey) {
-                const nextSchemaName = currentSchema!.ComplexProperties.get(complexPropKey)!;
-                const nextKey = Array.from(md.schemas.keys()).find(k => k.toUpperCase() === nextSchemaName.toUpperCase());
-                currentSchema = nextKey ? md.schemas.get(nextKey) : undefined;
+                const nextSchemaName = currentSchema!.complexProperties!.get(complexPropKey)!;
+                const nextKey = Array.from(scopeManager.globalScope.schemas.keys()).find(k => k.toUpperCase() === nextSchemaName.toUpperCase());
+                currentSchema = nextKey ? scopeManager.globalScope.schemas.get(nextKey) : undefined;
             } else {
                 currentSchema = undefined;
                 break;
@@ -161,7 +163,7 @@ export function provideXmlAttributeValueCompletions(
                         });
                     }
                 }
-            } else if (normalizedAttrName === 'OBJVIEW' && currentSchema.Name.toUpperCase() === 'VOUCHER') {
+            } else if (normalizedAttrName === 'OBJVIEW' && currentSchema.name.toUpperCase() === 'VOUCHER') {
                 const views = ['Accounting Voucher View', 'Invoice Voucher View'];
                 for (const view of views) {
                     if (partial === '' || view.toLowerCase().includes(partial.toLowerCase())) {
@@ -175,31 +177,33 @@ export function provideXmlAttributeValueCompletions(
                 }
             }
 
-            const propKey = Array.from(currentSchema.Properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
-            if (propKey) {
-                const propDef = currentSchema.Properties.get(propKey)!;
-                if (propDef.DataType?.toLowerCase() === 'logical') {
-                    const logicalValues = ['Yes', 'No'];
-                    for (const val of logicalValues) {
-                        if (partial === '' || val.toLowerCase().includes(partial.toLowerCase())) {
-                            items.push({
-                                label: val,
-                                kind: CompletionItemKind.Value,
-                                detail: 'Logical value',
-                                insertText: val,
-                                sortText: '0_' + val.toLowerCase(),
-                            });
+            if (currentSchema.properties) {
+                const propKey = Array.from(currentSchema.properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
+                if (propKey) {
+                    const propDef = currentSchema.properties.get(propKey)!;
+                    if (propDef.DataType?.toLowerCase() === 'logical') {
+                        const logicalValues = ['Yes', 'No'];
+                        for (const val of logicalValues) {
+                            if (partial === '' || val.toLowerCase().includes(partial.toLowerCase())) {
+                                items.push({
+                                    label: val,
+                                    kind: CompletionItemKind.Value,
+                                    detail: 'Logical value',
+                                    insertText: val,
+                                    sortText: '0_' + val.toLowerCase(),
+                                });
+                            }
                         }
-                    }
-                } else {
-                    if (currentDef) {
-                        items.push(...provideAttributeValueCompletions(md, currentDef.type.text, {
-                            type: 'attribute_value',
-                            attributeName: propDef.Name,
-                            paramIndex: 0,
-                            partial: partial,
-                            hasModifier: false
-                        }, symbolTable, scope));
+                    } else {
+                        if (currentDef) {
+                            items.push(...provideAttributeValueCompletions(scopeManager, currentDef.type.text, {
+                                type: 'attribute_value',
+                                attributeName: propDef.Name,
+                                paramIndex: 0,
+                                partial: partial,
+                                hasModifier: false
+                            }, symbolTable, scope));
+                        }
                     }
                 }
             }
@@ -209,9 +213,9 @@ export function provideXmlAttributeValueCompletions(
     return rootTagIdx !== -1 ? items : null;
 }
 
-export function provideSchemaTypeCompletions(md: TdlMetadata, partial: string): CompletionItem[] {
+export function provideSchemaTypeCompletions(scopeManager: ScopeManager, partial: string): CompletionItem[] {
     const items: CompletionItem[] = [];
-    const schemas = md.primarySchemaNames;
+    const schemas = scopeManager.primarySchemaNames;
     const normalizedSchemaPartial = normalizeTypeName(partial);
     for (const schema of schemas) {
         if (normalizedSchemaPartial === '' || normalizeTypeName(schema).includes(normalizedSchemaPartial)) {

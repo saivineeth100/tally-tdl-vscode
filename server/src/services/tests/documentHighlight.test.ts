@@ -1,11 +1,9 @@
-import { getMetadata, setMetadata } from '../metadataService';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { getDocumentHighlights } from '../documentHighlight';
 import { DocumentHighlightParams } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DocManager } from '../../docManager';
 import { TextDocuments } from 'vscode-languageserver';
-import { TdlMetadata } from '../../tdlMetaData';
 import { normalizeTypeName } from '../utils';
 
 describe('Document Highlights', () => {
@@ -22,24 +20,17 @@ describe('Document Highlights', () => {
         
         docManager = new DocManager(mockConnection, mockDocuments);
 
-        setMetadata({
-            definitions: new Map<string, any>([
-                ['Report', new Map([['form', { Name: 'Form' }]])],
-                ['Form', new Map([['parts', { Name: 'Parts' }], ['part', { Name: 'Part' }]])]
-            ]),
-            schemas: new Map(),
-            existingDefinitions: new Map(),
-            findDefinitionAttribute: vi.fn((name: string) => {
-                if (name.toLowerCase() === 'form') {
-                    return { Name: 'Form', Parameters: [{ RefersTo: 'Form' }] };
-                }
-                return undefined;
-            }),
-            getDefinitionsForType: function(this: any, type: string) { return this.definitions?.get(type) || this.definitions?.get(normalizeTypeName(type)); },
-            isExistingDefinition: function(this: any, defType: string, defName: string): boolean {
-                return false;
-            }
-        } as unknown as TdlMetadata);
+        // Populate scope manager with minimal mock data for the test
+        const tdlScope = docManager.tdlScopeManager.globalScope;
+        
+        const reportAttrs = new Map<string, any>();
+        reportAttrs.set('form', { name: 'Form', parameters: [{ RefersTo: 'Form' }] });
+        tdlScope.attributes.set('REPORT', reportAttrs);
+
+        const formAttrs = new Map<string, any>();
+        formAttrs.set('parts', { name: 'Parts', parameters: [{ RefersTo: 'Part' }] });
+        formAttrs.set('part', { name: 'Part', parameters: [{ RefersTo: 'Part' }] });
+        tdlScope.attributes.set('FORM', formAttrs);
     });
 
     async function setup(tdl: string) {

@@ -1,14 +1,13 @@
-import { getMetadata } from './metadataService';
 import { CodeActionParams, CodeAction, CodeActionKind, TextEdit } from "vscode-languageserver";
 import { DocManager } from "../docManager";
 
 import { TextDocuments } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { findClosestMatch } from "../utils/stringUtils";
-import { TdlMetadata } from "../tdlMetaData";
 import { StatementNode, BlockStatementNode, IdentifierNode, LiteralNode, SyntaxKind } from "../parser/ast";
 import { DiagnosticRules } from "../diagnostics";
 import { incrementLabel, matchesSequencePattern } from "../utils/labelUtils";
+import { normalizeTypeName } from "./utils";
 
 export function provideCodeActions(
     params: CodeActionParams,
@@ -18,7 +17,7 @@ export function provideCodeActions(
     const actions: CodeAction[] = [];
     const doc = docs.get(params.textDocument.uri);
     const docState = docManager.get(params.textDocument.uri);
-    const md = getMetadata() as TdlMetadata;
+    const scopeManager = docManager.getScopeManager(params.textDocument.uri);
 
     if (!doc || !docState) return actions;
 
@@ -158,8 +157,8 @@ export function provideCodeActions(
             }
         } else if (diagnostic.code === DiagnosticRules.UnknownDefinitionType.code) {
             const defTypeName = (diagnostic.data as any)?.defTypeName;
-            if (defTypeName && md) {
-                const types = Array.from(md.definitions.keys() as IterableIterator<string>);
+            if (defTypeName && scopeManager) {
+                const types = Array.from(scopeManager.existingDefinitions.keys() as IterableIterator<string>);
                 const closest = findClosestMatch(defTypeName, types);
                 if (closest) {
                     actions.push({
@@ -178,17 +177,14 @@ export function provideCodeActions(
             }
         } else if (diagnostic.code === DiagnosticRules.UnknownAttribute.code) {
             const data = diagnostic.data as any;
-            if (data?.attrName && data?.defTypeName && md) {
-                let attrs = md.definitions.get(data.defTypeName);
-                if (!attrs) {
-                    const key = Array.from(md.definitions.keys() as IterableIterator<string>).find((k: string) => k.toLowerCase() === data.defTypeName.toLowerCase());
-                    if (key) attrs = md.definitions.get(key);
-                }
+            if (data?.attrName && data?.defTypeName && scopeManager) {
+                let attrs = scopeManager.globalScope.attributes.get(normalizeTypeName(data.defTypeName));
+                
                 if (attrs) {
                     const attrNames: string[] = [];
-                    attrs.forEach((a: any) => {
-                        attrNames.push(a.Name);
-                        if (a.Aliases) attrNames.push(...a.Aliases.split(',').map((al: string) => al.trim()));
+                    attrs.forEach((a) => {
+                        attrNames.push(a.name);
+                        if (a.aliases) attrNames.push(...a.aliases.split(',').map((al: string) => al.trim()));
                     });
                     const closest = findClosestMatch(data.attrName, attrNames);
                     if (closest) {
@@ -209,27 +205,24 @@ export function provideCodeActions(
             }
         } else if (diagnostic.code === DiagnosticRules.UnknownSchemaProperty.code) {
             const data = diagnostic.data as any;
-            if (data?.attrName && data?.schemaName && md) {
-                const schemaKey = Array.from(md.schemas.keys() as IterableIterator<string>).find((k: string) => k.toUpperCase() === data.schemaName.toUpperCase());
-                if (schemaKey) {
-                    const schema = md.schemas.get(schemaKey);
-                    if (schema) {
-                        const props = Array.from(schema.Properties.keys() as IterableIterator<string>);
-                        const closest = findClosestMatch(data.attrName, props);
-                        if (closest) {
-                            actions.push({
-                                title: `Change to '${closest}'`,
-                                kind: CodeActionKind.QuickFix,
-                                diagnostics: [diagnostic],
-                                edit: {
-                                    changes: {
-                                        [params.textDocument.uri]: [
-                                            TextEdit.replace(diagnostic.range, closest)
-                                        ]
-                                    }
+            if (data?.attrName && data?.schemaName && scopeManager) {
+                const schema = scopeManager.globalScope.schemas.get(data.schemaName.toUpperCase());
+                if (schema) {
+                    const props = Array.from(schema.properties.keys() as IterableIterator<string>);
+                    const closest = findClosestMatch(data.attrName, props);
+                    if (closest) {
+                        actions.push({
+                            title: `Change to '${closest}'`,
+                            kind: CodeActionKind.QuickFix,
+                            diagnostics: [diagnostic],
+                            edit: {
+                                changes: {
+                                    [params.textDocument.uri]: [
+                                        TextEdit.replace(diagnostic.range, closest)
+                                    ]
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                 }
             }
