@@ -1,19 +1,25 @@
 import { SourceFile, SyntaxKind, IdentifierNode, StatementNode, BlockStatementNode, ForNode, WalkNode, IfNode, WhileNode } from '../../parser/ast';
 import { SymbolInfo, SymbolKind, VariableSymbol, DefinitionSymbol } from '../symbolTable';
-import { Scope, ScopeKind } from './types';
-
+import { Scope, ScopeKind, definitionTypeToSymbolKind } from './types';
+import { normalizeTypeName } from '../utils';
 // We need to interface with ScopeManager without a circular dependency if possible,
 // or just use any/duck typing. Let's define the interface needed from ScopeManager:
 export interface IScopeManager {
-    projectScope: Scope;
+    projectScope: import('./types').ProjectScope;
     fileMap: Map<string, Scope>;
     parentDefinitions: Map<string, Set<string>>;
     childDefinitions: Map<string, Set<string>>;
     useInheritance: Map<string, Set<string>>;
     includedFiles: Set<string>;
     
-    createScope(kind: ScopeKind, id: string, parent?: Scope, range?: import('./types').OffsetRange, uri?: string): Scope;
+    createFileScope(id: string, parent: import('./types').ProjectScope, range: import('./types').OffsetRange, uri: string): import('./types').FileScope;
+    createDefinitionScope(id: string, parent: Scope, range: import('./types').OffsetRange, uri: string): import('./types').DefinitionScope;
+    createFunctionScope(id: string, parent: Scope, range: import('./types').OffsetRange, uri: string): import('./types').FunctionScope;
+    createBlockScope(id: string, parent: Scope, range: import('./types').OffsetRange, uri: string): import('./types').BlockScope;
     removeFileScope(uri: string): void;
+    findDefinitionScope(id: string): Scope | undefined;
+    registerModifierContribution?(contribution: import('./types').ModifierContribution): void;
+    recordGraphContribution?(uri: string, type: 'parentDef' | 'childDef' | 'useInherit' | 'include' | 'modifier', key1: string, key2?: string): void;
 }
 
 export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: SourceFile): Scope {
@@ -21,7 +27,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
     manager.removeFileScope(uri);
 
     // Create File Scope
-    const fileScope = manager.createScope(ScopeKind.File, `file:${uri}`, manager.projectScope, { start: 0, end: Number.MAX_SAFE_INTEGER }, uri);
+    const fileScope = manager.createFileScope(`file:${uri}`, manager.projectScope, { start: 0, end: Number.MAX_SAFE_INTEGER }, uri);
     manager.fileMap.set(uri, fileScope);
 
     // Populate Scope with Definitions from SourceFile
@@ -30,6 +36,9 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
         if (def.type?.text?.toLowerCase() === 'include' && def.name?.text) {
             const includedFile = def.name.text.replace(/^["']|["']$/g, '');
             manager.includedFiles.add(includedFile);
+            if (manager.recordGraphContribution) {
+                manager.recordGraphContribution(uri, 'include', includedFile);
+            }
         }
 
         // Create a scope for each definition (Report, Field, etc.)
@@ -39,24 +48,58 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
 
         // Handle Definition Modifiers (#, !, *)
         let defScope: Scope;
+        const isFunction = def.type?.text?.toLowerCase() === 'function';
         if (def.modifier) {
             // Find original definition scope in current file or project
-            const existing = fileScope.children.find(c => c.id.toLowerCase() === defId.toLowerCase()) || 
-                             manager.projectScope.children.find(c => c.id.toLowerCase() === defId.toLowerCase());
+            const existing = fileScope.childScopes.find(c => c.id.toLowerCase() === defId.toLowerCase()) || 
+                             manager.findDefinitionScope(defId);
             
             if (existing) {
-                defScope = manager.createScope(ScopeKind.Definition, defId, existing, { start: def.start, end: def.end }, uri);
-                defScope.variables = existing.variables;
-                defScope.functions = existing.functions;
-                defScope.actions = existing.actions;
-                defScope.attributes = existing.attributes;
-                defScope.schemas = existing.schemas;
-                defScope.definitions = existing.definitions;
+                defScope = isFunction
+                    ? manager.createFunctionScope(`modifier:${defId}:${def.start}`, fileScope, { start: def.start, end: def.end }, uri)
+                    : manager.createDefinitionScope(`modifier:${defId}:${def.start}`, fileScope, { start: def.start, end: def.end }, uri);
+                // Record modifier contribution against base definition
+                if (manager.registerModifierContribution) {
+                    manager.registerModifierContribution({
+                        targetDefinitionId: defId,
+                        modifierKind: def.modifier.Text as '#' | '!' | '*',
+                        uri: uri,
+                        range: { start: def.start, end: def.end },
+                        scope: defScope,
+                        order: def.start
+                    });
+                }
             } else {
-                defScope = manager.createScope(ScopeKind.Definition, defId, fileScope, { start: def.start, end: def.end }, uri);
+                defScope = isFunction
+                    ? manager.createFunctionScope(defId, fileScope, { start: def.start, end: def.end }, uri)
+                    : manager.createDefinitionScope(defId, fileScope, { start: def.start, end: def.end }, uri);
             }
         } else {
-            defScope = manager.createScope(ScopeKind.Definition, defId, fileScope, { start: def.start, end: def.end }, uri);
+            defScope = isFunction
+                ? manager.createFunctionScope(defId, fileScope, { start: def.start, end: def.end }, uri)
+                : manager.createDefinitionScope(defId, fileScope, { start: def.start, end: def.end }, uri);
+        }
+
+        // Register non-incomplete, non-modifier definitions in projectScope.definitions
+        if (!def.isIncomplete && def.name && !def.modifier) {
+            const defTypeLower = normalizeTypeName(def.type?.text || '');
+            let typeMap = manager.projectScope.definitions.get(defTypeLower);
+            if (!typeMap) {
+                typeMap = new Map();
+                manager.projectScope.definitions.set(defTypeLower, typeMap);
+            }
+            const defNameLower = normalizeTypeName(def.name.text);
+            if (!typeMap.has(defNameLower)) {
+                typeMap.set(defNameLower, {
+                    name: def.name.text,
+                    kind: definitionTypeToSymbolKind(def.type?.text || ''),
+                    uri: uri,
+                    start: def.start,
+                    end: def.end,
+                    definitionType: def.type?.text || ''
+                } as DefinitionSymbol);
+                // The definition map is automatically cleared on rebuild by ScopeManager.removeFileScope
+            }
         }
 
         // Add definition parameters/variables if any (e.g. from functions)
@@ -77,6 +120,9 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                                 manager.parentDefinitions.set(childId.toLowerCase(), parents);
                             }
                             parents.add(defId.toLowerCase());
+                            if (manager.recordGraphContribution) {
+                                manager.recordGraphContribution(uri, 'parentDef', childId.toLowerCase(), defId.toLowerCase());
+                            }
 
                             let children = manager.childDefinitions.get(defId.toLowerCase());
                             if (!children) {
@@ -84,6 +130,17 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                                 manager.childDefinitions.set(defId.toLowerCase(), children);
                             }
                             children.add(childId.toLowerCase());
+                            if (defScope.kind === ScopeKind.Definition) {
+                                let localStructChildren = defScope.structuralChildren.get(attrNameLower);
+                                if (!localStructChildren) {
+                                    localStructChildren = new Set<string>();
+                                    defScope.structuralChildren.set(attrNameLower, localStructChildren);
+                                }
+                                localStructChildren.add(childName);
+                            }
+                            if (manager.recordGraphContribution) {
+                                manager.recordGraphContribution(uri, 'childDef', defId.toLowerCase(), childId.toLowerCase());
+                            }
                         }
                     }
                 }
@@ -104,6 +161,12 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                                 manager.useInheritance.set(defId.toLowerCase(), uses);
                             }
                             uses.add(parentDefId);
+                            if (defScope.kind === ScopeKind.Definition) {
+                                defScope.uses.add(parentDefId);
+                            }
+                            if (manager.recordGraphContribution) {
+                                manager.recordGraphContribution(uri, 'useInherit', defId.toLowerCase(), parentDefId);
+                            }
                         }
                     }
                 }
@@ -232,7 +295,7 @@ export function buildBlockScopes(manager: IScopeManager, statements: StatementNo
             const blockNode = stmt as BlockStatementNode;
             
             // Create a new Block Scope
-            const blockScope = manager.createScope(ScopeKind.Block, `block:${blockNode.start}`, parentScope, { start: blockNode.start, end: blockNode.end }, uri);
+            const blockScope = manager.createBlockScope(`block:${blockNode.start}`, parentScope, { start: blockNode.start, end: blockNode.end }, uri);
             currentScope = blockScope;
 
             // Add iterator variable for For loops

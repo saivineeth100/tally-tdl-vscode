@@ -1,5 +1,7 @@
 import { DocumentSymbol, SymbolKind as LSPSymbolKind, Range, Position } from 'vscode-languageserver';
 import { DefinitionNode, SourceFile, AttributeNode, StatementNode } from '../parser/ast';
+import { definitionTypeToSymbolKind, symbolKindToLSPSymbolKind } from './scopeManager/types';
+import { offsetToPosition } from '../utils/positionUtils';
 
 /**
  * Map TDL definition type to LSP SymbolKind
@@ -7,47 +9,10 @@ import { DefinitionNode, SourceFile, AttributeNode, StatementNode } from '../par
  * @returns Corresponding LSP SymbolKind
  */
 export function tdlTypeToLSPSymbolKind(definitionType: string): LSPSymbolKind {
-    const upperType = definitionType.toUpperCase();
-    switch (upperType) {
-        case 'REPORT': return LSPSymbolKind.Class;
-        case 'FORM': return LSPSymbolKind.Interface;
-        case 'PART': return LSPSymbolKind.Struct;
-        case 'LINE': return LSPSymbolKind.Constructor;
-        case 'FIELD': return LSPSymbolKind.Field;
-        case 'MENU': return LSPSymbolKind.Enum;
-        case 'COLLECTION': return LSPSymbolKind.Array;
-        case 'FUNCTION': return LSPSymbolKind.Function;
-        case 'VARIABLE': return LSPSymbolKind.Variable;
-        case 'BUTTON': return LSPSymbolKind.Event;
-        case 'KEY': return LSPSymbolKind.Key;
-        case 'BORDER': return LSPSymbolKind.Object;
-        case 'STYLE': return LSPSymbolKind.Object;
-        case 'COLOR': return LSPSymbolKind.Constant;
-        case 'OBJECT': return LSPSymbolKind.Class;
-        case 'SYSTEM': return LSPSymbolKind.Module;
-        default: return LSPSymbolKind.Object;
-    }
+    return symbolKindToLSPSymbolKind(definitionTypeToSymbolKind(definitionType));
 }
 
-/**
- * Convert offset to Position using text content
- * @param text Full document text
- * @param offset Character offset
- * @returns Position object with line and character
- */
-function offsetToPosition(text: string, offset: number): Position {
-    let line = 0;
-    let character = 0;
-    for (let i = 0; i < offset && i < text.length; i++) {
-        if (text[i] === '\n') {
-            line++;
-            character = 0;
-        } else if (text[i] !== '\r') {
-            character++;
-        }
-    }
-    return { line, character };
-}
+
 
 /**
  * Create Range from start and end offsets

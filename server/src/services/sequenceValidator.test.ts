@@ -20,8 +20,8 @@ describe('sequenceValidator', () => {
 
         const diagnostics = validateLabelSequences(sourceFile, doc);
         expect(diagnostics.length).toBe(1);
-        expect(diagnostics[0].code).toBe(DiagnosticRules.DuplicateLabel.code);
-        expect(diagnostics[0].message).toContain('Expected: 002');
+        expect(diagnostics[0].code).toBe(DiagnosticRules.BrokenLabelSeqence.code);
+        expect(diagnostics[0].message).toContain("Expected: '002'");
         expect(diagnostics[0].data?.expectedLabel).toBe('002');
     });
 
@@ -39,6 +39,6 @@ D : Statement D
 
         const diagnostics = validateLabelSequences(sourceFile, doc);
         expect(diagnostics.length).toBe(1); // Only the D after B is flagged
-        expect(diagnostics[0].message).toContain('Expected: C');
+        expect(diagnostics[0].message).toContain("Expected: 'C'");
     });
 });

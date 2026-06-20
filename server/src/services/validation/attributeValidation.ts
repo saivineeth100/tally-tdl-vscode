@@ -5,7 +5,7 @@ import { SymbolTable, definitionTypeToSymbolKind, SymbolKind } from "../symbolTa
 import { normalizeTypeName, getInterchangeableTypes } from "../utils";
 import { areTypesCompatible, inferExpressionType } from "./validationUtils";
 import { validateFunctionCall, validateBinaryExpression } from "./expressionValidation";
-import { DiagnosticRules, createDiagnostic } from "../../diagnostics";
+import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, UnknownAttributeData, MissingDefinitionData, UnknownSchemaPropertyData } from "../../diagnostics";
 import { ScopeManager } from "../scopeManager";
 
 export function validateDefinitionAttributes(
@@ -25,6 +25,7 @@ export function validateDefinitionAttributes(
     }
 
     const declaredVariables = new Set<string>();
+    const seenAttributes = new Map<string, number>();
 
     for (const attr of def.attributes) {
         const attrName = attr.name.text;
@@ -32,7 +33,7 @@ export function validateDefinitionAttributes(
 
         // Check for duplicate variables
         if (attrNameLower === 'variable' || attrNameLower === 'listvariable') {
-            if (attr.value.length > 0 && attr.value[0].kind === 3 /* SyntaxKind.Identifier */) {
+            if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
                 const identifierNode = attr.value[0] as any;
                 const varName = identifierNode.text || '';
                 const lowerVarName = varName.toLowerCase();
@@ -55,14 +56,27 @@ export function validateDefinitionAttributes(
             const startPos = doc.positionAt(attr.name.start);
             const endPos = doc.positionAt(attr.name.end);
 
-            const diag = createDiagnostic(
+            const diag = createDiagnosticWithData<UnknownAttributeData>(
                 DiagnosticRules.UnknownAttribute,
                 { start: startPos, end: endPos },
+                { attrName, defTypeName },
                 attrName
             );
-            (diag as any).data = { attrName, defTypeName };
             diagnostics.push(diag);
             continue;
+        }
+
+        // Check for discrete attribute duplicates
+        if (attrDef.isDiscrete) {
+            const prevCount = seenAttributes.get(attrNameLower) || 0;
+            if (prevCount > 0) {
+                diagnostics.push(createDiagnostic(
+                    DiagnosticRules.DuplicateDiscreteAttribute,
+                    { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
+                    attrName
+                ));
+            }
+            seenAttributes.set(attrNameLower, prevCount + 1);
         }
 
         // Validate Parameters
@@ -115,7 +129,7 @@ export function validateDefinitionAttributes(
                 // Expression Type Validation
                 const inferredType = inferExpressionType(paramNode, scopeManager);
                 if (inferredType && paramDef.DataType) {
-                    const normalizedExpected = normalizeTypeName(paramDef.DataType);
+                    const normalizedExpected = normalizeTypeName(paramDef.DataType || '');
                     const normalizedInferred = normalizeTypeName(inferredType);
 
                     if (normalizedExpected !== normalizedInferred && !areTypesCompatible(normalizedExpected, normalizedInferred)) {
@@ -139,7 +153,8 @@ export function validateDefinitionAttributes(
                         undefined, // Return type is already checked above, just validate arguments
                         doc,
                         scopeManager,
-                        diagnostics
+                        diagnostics,
+                        projectNodes
                     );
                     continue; // Function handled, skip other validations for this node
                 }
@@ -164,20 +179,38 @@ export function validateDefinitionAttributes(
                 if (!cleanValue) continue;
 
                 // Action Validation (if it's not a Keyword ParameterType but still DataType is Action)
-                if (paramDef.KeywordSet && normalizeTypeName( paramDef.KeywordSet) === 'tdlActions') {
-                    const isValidAction = scopeManager.globalScope.actions.has(normalizeTypeName(cleanValue));
-                    // Check aliases too? It's fine for now.
-                    if (!isValidAction) {
-                        const startPos = doc.positionAt(paramNode.start);
-                        const endPos = doc.positionAt(paramNode.end);
-                        diagnostics.push(createDiagnostic(
-                            DiagnosticRules.UnknownAction,
-                            { start: startPos, end: endPos },
-                            cleanValue
-                        ));
+                if (paramDef.KeywordSet) {
+                    if (paramDef.KeywordSet === 'tdlActions') {
+                        const isValidAction = scopeManager.globalScope.actions.has(normalizeTypeName(cleanValue));
+                        // Check aliases too? It's fine for now.
+                        if (!isValidAction) {
+                            const startPos = doc.positionAt(paramNode.start);
+                            const endPos = doc.positionAt(paramNode.end);
+                            diagnostics.push(createDiagnostic(
+                                DiagnosticRules.UnknownAction,
+                                { start: startPos, end: endPos },
+                                cleanValue
+                            ));
+                        }
+                    }
+                    else {
+
+                        let isValidKeyword = paramDef.Keywords?.some(k => k.toLowerCase() === cleanValue.toLowerCase());
+                        if (!isValidKeyword) {
+                            const cachedKeywords = scopeManager.keywordSets.get(normalizeTypeName(paramDef.KeywordSet || ''));
+                            isValidKeyword = cachedKeywords?.some(k => k.toLowerCase() === cleanValue.toLowerCase());
+                        }
+                        if (!isValidKeyword) {
+                            const startPos = doc.positionAt(paramNode.start);
+                            const endPos = doc.positionAt(paramNode.end);
+                            diagnostics.push(createDiagnostic(
+                                DiagnosticRules.InvalidKeyword,
+                                { start: startPos, end: endPos },
+                                cleanValue
+                            ));
+                        }
                     }
                 }
-
                 // Logical Datatype Validation
                 if (paramDef.DataType?.toLowerCase() === 'logical') {
                     const validLogical = ['yes', 'no', 'true', 'false', 'on', 'off', '0', '1'];
@@ -192,45 +225,37 @@ export function validateDefinitionAttributes(
                     }
                 }
 
-                // Reference Validation (requires symbolTable)
-                if (symbolTable && paramDef.RefersTo && !paramDef.KeywordSet) {
+                // Reference Validation (uses scopeManager)
+                if (paramDef.RefersTo && !paramDef.KeywordSet) {
                     // Skip reference validation for Function Parameters as they define the variable
                     if (defTypeName.toLowerCase() === 'function' && attrDef.name.toLowerCase() === 'parameter' && i === 0) {
                         continue;
                     }
 
                     const refersToType = paramDef.RefersTo.trim();
-                    const normalizedRefersToType = normalizeTypeName(refersToType);
                     const startPos = doc.positionAt(paramNode.start);
                     const endPos = doc.positionAt(paramNode.end);
 
-                    const interchangeableTypes = getInterchangeableTypes(normalizedRefersToType);
-                    const targetKinds = interchangeableTypes.map(t => definitionTypeToSymbolKind(t));
-
-                    const existingSymbols = symbolTable.findAllByName(cleanValue);
-                    const hasDefinitionInWorkspace = existingSymbols.some(s => targetKinds.includes(s.kind));
-                    const typeMap = scopeManager.existingDefinitions.get(normalizedRefersToType);
-                    const hasDefinitionInMeta = typeMap ? typeMap.has(normalizeTypeName(cleanValue)) : false;
-
-                    if (!hasDefinitionInWorkspace && !hasDefinitionInMeta) {
-                        const diag = createDiagnostic(
+                    const resolvedDef = scopeManager.resolveDefinition(cleanValue, refersToType, scopeManager.projectScope, projectNodes);
+                    
+                    if (!resolvedDef) {
+                        const diag = createDiagnosticWithData<MissingDefinitionData>(
                             DiagnosticRules.MissingDefinition,
                             { start: startPos, end: endPos },
+                            { name: cleanValue, type: refersToType },
                             cleanValue
                         );
-                        (diag as any).data = { name: cleanValue, type: refersToType };
                         diagnostics.push(diag);
-                    } else if (hasDefinitionInWorkspace && projectNodes) {
-                        // Check if the definition is reachable from the project root
-                        const validProjectSymbol = existingSymbols.find(s => targetKinds.includes(s.kind) && projectNodes.has(s.uri));
-                        if (!validProjectSymbol) {
-                            const diag = createDiagnostic(
+                    } else if (resolvedDef.uri !== 'global:metadata' && projectNodes) {
+                        // Check if the resolved definition is within the project
+                        if (!projectNodes.has(resolvedDef.uri)) {
+                            const diag = createDiagnosticWithData<MissingDefinitionData>(
                                 DiagnosticRules.MissingDefinition,
                                 { start: startPos, end: endPos },
+                                { name: cleanValue, type: refersToType },
                                 cleanValue
                             );
                             diag.message = `Definition '${cleanValue}' is used from a file that is not included in the project`;
-                            (diag as any).data = { name: cleanValue, type: refersToType };
                             diagnostics.push(diag);
                         }
                     }
@@ -252,20 +277,20 @@ export function validateSchemaObject(
     scopeManager: ScopeManager,
     diagnostics: Diagnostic[]
 ) {
-    const schema = scopeManager.globalScope.schemas.get(schemaName.toUpperCase());
+    const schema = scopeManager.globalScope.schemas.get(normalizeTypeName(schemaName));
     if (!schema) return;
 
     // Validate simple attributes
     for (const attr of node.attributes) {
         if (!attr.name) continue;
         const attrName = attr.name.text;
-        const normalizedAttrName = attrName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+        const normalizedAttrName = normalizeTypeName(attrName).replace(/\.list$/, '');
 
         // System attributes allowed on schemas in XML payloads
-        const systemAttributes = ['ACTION', 'VCHTYPE', 'OBJVIEW', 'NAME'];
+        const systemAttributes = ['action', 'vchtype', 'objview', 'name'];
         if (systemAttributes.includes(normalizedAttrName)) {
             // For VCHTYPE and OBJVIEW, these are typically only valid on VOUCHER.
-            if ((normalizedAttrName === 'VCHTYPE' || normalizedAttrName === 'OBJVIEW') && schemaName.toUpperCase() !== 'VOUCHER') {
+            if ((normalizedAttrName === 'vchtype' || normalizedAttrName === 'objview') && normalizeTypeName(schemaName) !== 'voucher') {
                 diagnostics.push(createDiagnostic(
                     DiagnosticRules.InvalidSystemAttributeUsage,
                     { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
@@ -276,14 +301,14 @@ export function validateSchemaObject(
             continue;
         }
 
-        const propKey = Array.from(schema.properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
+        const propKey = Array.from(schema.properties.keys()).find(k => normalizeTypeName(k).replace(/\.list$/, '') === normalizedAttrName);
         if (!propKey) {
-            const diag = createDiagnostic(
+            const diag = createDiagnosticWithData<UnknownSchemaPropertyData>(
                 DiagnosticRules.UnknownSchemaProperty,
                 { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
+                { attrName, schemaName },
                 attrName
             );
-            (diag as any).data = { attrName, schemaName };
             diagnostics.push(diag);
             continue;
         }
@@ -308,18 +333,18 @@ export function validateSchemaObject(
     for (const complexObj of node.complexObjects || []) {
         if (!complexObj.name) continue;
         const objName = complexObj.name.text;
-        const normalizedObjName = objName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
-        const complexPropKey = Array.from(schema.complexProperties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedObjName);
+        const normalizedObjName = normalizeTypeName(objName).replace(/\.list$/, '');
+        const complexPropKey = Array.from(schema.complexProperties.keys()).find(k => normalizeTypeName(k).replace(/\.list$/, '') === normalizedObjName);
         if (!complexPropKey) {
-            const simplePropKey = Array.from(schema.properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedObjName);
+            const simplePropKey = Array.from(schema.properties.keys()).find(k => normalizeTypeName(k).replace(/\.list$/, '') === normalizedObjName);
             const simpleProp = simplePropKey ? schema.properties.get(simplePropKey) : undefined;
             if (simpleProp && simpleProp.IsRepeated) {
                 // Validate inner tags
                 for (const attr of complexObj.attributes) {
                     if (!attr.name) continue;
                     const attrName = attr.name.text;
-                    const normalizedAttrName = attrName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
-                    if (normalizedAttrName !== normalizedObjName && normalizedAttrName !== 'TYPE') {
+                    const normalizedAttrName = normalizeTypeName(attrName).replace(/\.list$/, '');
+                    if (normalizedAttrName !== normalizedObjName && normalizedAttrName !== 'type') {
                         diagnostics.push(createDiagnostic(
                             DiagnosticRules.InvalidInnerTag,
                             { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
@@ -329,7 +354,7 @@ export function validateSchemaObject(
                         // Validate data type
                         if (simpleProp.DataType?.toLowerCase() === 'logical' && attr.value.length > 0) {
                             const firstVal = attr.value[0];
-                            if (firstVal.kind === 1) { // SyntaxKind.Identifier
+                            if (firstVal.kind === SyntaxKind.Identifier) {
                                 const valText = (firstVal as any).text.toLowerCase();
                                 if (!['yes', 'no', 'true', 'false'].includes(valText)) {
                                     diagnostics.push(createDiagnostic(
@@ -346,7 +371,7 @@ export function validateSchemaObject(
                 for (const innerObj of complexObj.complexObjects || []) {
                     if (!innerObj.name) continue;
                     const innerName = innerObj.name.text;
-                    const normalizedInnerName = innerName.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
+                    const normalizedInnerName = normalizeTypeName(innerName).replace(/\.list$/, '');
                     if (normalizedInnerName !== normalizedObjName) {
                         diagnostics.push(createDiagnostic(
                             DiagnosticRules.InvalidInnerTag,
@@ -358,12 +383,12 @@ export function validateSchemaObject(
                 continue;
             }
 
-            const diag = createDiagnostic(
+            const diag = createDiagnosticWithData<UnknownSchemaPropertyData>(
                 DiagnosticRules.UnknownSchemaProperty,
                 { start: doc.positionAt(complexObj.name.start), end: doc.positionAt(complexObj.name.end) },
+                { attrName: objName, schemaName: schemaName },
                 objName
             );
-            (diag as any).data = { attrName: objName, schemaName: schemaName };
             diagnostics.push(diag);
             continue;
         }

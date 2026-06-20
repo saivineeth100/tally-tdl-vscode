@@ -26,7 +26,7 @@ describe('Definition Validation (Mocked)', () => {
         name: 'Use',
         parameters: [{ RefersTo: 'Report' }]
     });
-    mockScopeManager.globalScope.attributes.set('REPORT', reportAttrs);
+    mockScopeManager.globalScope.attributes.set('report', reportAttrs);
 
     it('should detect duplicate Report definition', async () => {
         const tdl = `[Report: Balance Sheet]`;
@@ -43,6 +43,16 @@ describe('Definition Validation (Mocked)', () => {
 
     it('should allow modified definition (#)', async () => {
         const tdl = `[#Report: Balance Sheet]`;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
+
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
+        expect(diagnostics.length).toBe(0);
+    });
+
+    it('should allow modified definition (!)', async () => {
+        const tdl = `[!Report: Balance Sheet]`;
         const parser = new Parser(tdl);
         const sourceFile = parser.parse();
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
@@ -88,7 +98,8 @@ describe('Definition Validation (Mocked)', () => {
             getScopeAt: () => ({}), // Return a dummy scope
             resolve: () => undefined,
             existingDefinitions: mockScopeManager.existingDefinitions,
-            globalScope: mockScopeManager.globalScope
+            globalScope: mockScopeManager.globalScope,
+            projectScope: { definitions: new Map() }
         } as any;
 
         const diagnostics = await validateSourceFile(sourceFile, doc, undefined, localScopeManager);
@@ -125,27 +136,11 @@ describe('Definition Validation (Mocked)', () => {
             getProjectNodes: () => new Set<string>(['file:///main.tdl'])
         } as any;
 
-        const mockSymbolTable = {
-            findAllByName: (name: string) => {
-                if (name === 'OtherReport') {
-                    return [{
-                        name: 'OtherReport',
-                        kind: SymbolKind.Report,
-                        uri: 'file:///unlinked.tdl',
-                        start: 0,
-                        end: 10,
-                        definitionType: 'Report'
-                    }];
-                }
-                return [];
-            },
-            getNamesByKind: (kind: any) => {
-                if (kind === SymbolKind.Report) return ['OtherReport']; // Simplification
-                return [];
-            }
-        } as any;
+        let typeMap = mockScopeManager.projectScope.definitions.get('report');
+        if (!typeMap) { typeMap = new Map(); mockScopeManager.projectScope.definitions.set('report', typeMap); }
+        typeMap.set('otherreport', { name: 'OtherReport', definitionType: 'Report', kind: SymbolKind.Report, uri: 'file:///unlinked.tdl' } as any);
 
-        const diagnostics = await validateSourceFile(sourceFile, doc, mockSymbolTable, mockScopeManager, undefined, mockDocManager);
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager, undefined, mockDocManager);
         const warning = diagnostics.find(d => d.message.includes('not included in the project'));
         expect(warning).toBeDefined();
         expect(warning?.severity).toBe(DiagnosticSeverity.Warning);

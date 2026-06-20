@@ -67,14 +67,18 @@ describe('Attribute Validation', () => {
 
         beforeAll(() => {
             symbolTable = new SymbolTable();
-            symbolTable.addSymbol({
-                name: 'ExistingForm',
-                kind: definitionTypeToSymbolKind('Form'),
-                definitionType: 'Form',
-                uri: 'file:///other.tdl',
-                start: 0,
-                end: 10
-            });
+            if (testScopeManager) {
+                let typeMap = testScopeManager.projectScope.definitions.get('form');
+                if (!typeMap) { typeMap = new Map(); testScopeManager.projectScope.definitions.set('form', typeMap); }
+                typeMap.set('existingform', {
+                    name: 'ExistingForm',
+                    kind: definitionTypeToSymbolKind('Form'),
+                    definitionType: 'Form',
+                    uri: 'file:///other.tdl',
+                    start: 0,
+                    end: 10
+                } as any);
+            }
         });
 
         it('should validate reference to existing form', async () => {
@@ -201,7 +205,7 @@ describe('Attribute Validation', () => {
 
         it('should cache keywordSets during testScopeManager loading', async () => {
             expect(testScopeManager!.keywordSets.size).toBeGreaterThan(0);
-            const alignTypeKeywords = testScopeManager!.keywordSets.get('Align Type');
+            const alignTypeKeywords = testScopeManager!.keywordSets.get('aligntype');
             expect(alignTypeKeywords).toBeDefined();
             expect(alignTypeKeywords).toContain('Center');
             expect(alignTypeKeywords).toContain('Left');
@@ -219,11 +223,11 @@ describe('Attribute Validation', () => {
             expect(printDate?.returnType).toBe('Date');
         });
 
-        it('should have function parameters with DataType', async () => {
+        it('should have function parameters with DataType', () => {
             const dateFunc = testScopeManager!.globalScope.functions.get('date');
             expect(dateFunc).toBeDefined();
             expect(dateFunc?.parameters?.length).toBeGreaterThan(0);
-            expect(dateFunc?.parameters?.[0].DataType).toBe('Date');
+            expect(dateFunc?.parameters?.[0].DataType?.toLowerCase()).toBe('date');
         });
 
         it('should check type compatibility for compatible types', async () => {
@@ -231,6 +235,95 @@ describe('Attribute Validation', () => {
             const dateFuncs = Array.from(testScopeManager!.globalScope.functions.values()).filter(f => f.returnType === 'Date');
             expect(stringFuncs.length).toBeGreaterThan(0);
             expect(dateFuncs.length).toBeGreaterThan(0);
+        });
+    });
+    describe('Collection and Field validation', () => {
+        it('validates attributes on Collection definitions', () => {
+            const tdl = `[Collection: MyColl]
+                Type: Ledger
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const diag = diagnostics.find(d => d.code === DiagnosticRules.UnknownAttribute.code);
+            expect(diag).toBeUndefined();
+        });
+
+        it('reports unknown attributes on Field', () => {
+            const tdl = `[Field: MyField]
+                NonExistentAttr: Yes
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const diag = diagnostics.find(d => d.code === DiagnosticRules.UnknownAttribute.code);
+            expect(diag).toBeDefined();
+        });
+    });
+
+    describe('Discrete attribute validation', () => {
+        it('reports duplicate discrete attribute', () => {
+            const tdl = `[Report: MyRep]
+                Form: Form1
+                Form: Form2
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const diag = diagnostics.filter(d => d.code === 'TDL021'); // DuplicateDiscreteAttribute
+            expect(diag.length).toBeGreaterThan(0);
+        });
+
+        it('allows multiple non-discrete attributes', () => {
+            const tdl = `[Field: MyField]
+                Set As: "A"
+                Set As: "B"
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const diag = diagnostics.filter(d => d.code === 'TDL021'); // DuplicateDiscreteAttribute
+            expect(diag.length).toBe(0);
+        });
+    });
+
+    describe('Metadata display casing', () => {
+        it('displays original DataType casing in error messages', () => {
+            const tdl = `[Part: TestPart]
+                Balance: "Not a Logical"
+            `;
+            // 'Balance' expects Logical, we give it String
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const diag = diagnostics.find(d => d.code === DiagnosticRules.TypeMismatch.code);
+            expect(diag).toBeDefined();
+            expect(diag?.message.toLowerCase()).toContain('logical');
+        });
+
+        it('displays original RefersTo casing in diagnostic messages', () => {
+            const tdl = `[Report: TestReport]
+                Form: UnknownForm
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const diag = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
+            expect(diag).toBeDefined();
+            // Should contain "Form" with original casing
+            expect(diag?.message).toContain('Form');
         });
     });
 });

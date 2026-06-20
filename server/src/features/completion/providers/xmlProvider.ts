@@ -30,7 +30,7 @@ export function provideXmlSchemaAttributeCompletions(
             const complexPropKey = Array.from(currentSchema?.complexProperties?.keys() || []).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
             if (complexPropKey) {
                 const nextSchemaName = currentSchema!.complexProperties!.get(complexPropKey)!;
-                const nextKey = Array.from(scopeManager.globalScope.schemas.keys()).find(k => k.toUpperCase() === nextSchemaName.toUpperCase());
+                const nextKey = Array.from(scopeManager.globalScope.schemas.keys()).find(k => k.toUpperCase().replace(/\s+/g, '') === nextSchemaName.toUpperCase().replace(/\s+/g, ''));
                 currentSchema = nextKey ? scopeManager.globalScope.schemas.get(nextKey) : undefined;
             } else {
                 currentSchema = undefined;
@@ -140,7 +140,7 @@ export function provideXmlAttributeValueCompletions(
             const complexPropKey = Array.from(currentSchema?.complexProperties?.keys() || []).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
             if (complexPropKey) {
                 const nextSchemaName = currentSchema!.complexProperties!.get(complexPropKey)!;
-                const nextKey = Array.from(scopeManager.globalScope.schemas.keys()).find(k => k.toUpperCase() === nextSchemaName.toUpperCase());
+                const nextKey = Array.from(scopeManager.globalScope.schemas.keys()).find(k => k.toUpperCase().replace(/\s+/g, '') === nextSchemaName.toUpperCase().replace(/\s+/g, ''));
                 currentSchema = nextKey ? scopeManager.globalScope.schemas.get(nextKey) : undefined;
             } else {
                 currentSchema = undefined;

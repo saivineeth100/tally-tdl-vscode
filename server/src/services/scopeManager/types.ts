@@ -1,5 +1,6 @@
-import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, DefinitionSymbol, ActionSymbol, AttributeSymbol, SchemaSymbol } from '../symbolTable';
-import { SemanticTokenTypes } from 'vscode-languageserver';
+import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, DefinitionSymbol, ActionSymbol, AttributeSymbol, SchemaSymbol } from '../../models/symbols';
+import { SemanticTokenTypes, SymbolKind as LSPSymbolKind } from 'vscode-languageserver';
+import { getInterchangeableTypes, normalizeTypeName } from '../utils';
 
 /**
  * Types of scopes in TDL
@@ -9,6 +10,7 @@ export enum ScopeKind {
     Project = 'Project',     // User defined global definitions (Collection, Report, etc.)
     File = 'File',           // File-level definitions (if any explicit local scope exists)
     Definition = 'Definition', // Inside a definition ([Report: ...])
+    Function = 'Function',   // Function specific scope
     Block = 'Block',         // Inside a block (e.g. Function body)
     Local = 'Local'          // Specific local context
 }
@@ -24,26 +26,79 @@ export interface OffsetRange {
 /**
  * Represents a scope in the symbol hierarchy
  */
-export interface Scope {
-    /** Unique ID for the scope */
+export interface BaseScope {
     id: string;
-    /** Kind of scope */
     kind: ScopeKind;
-    /** Parent scope (undefined for Global) */
     parent?: Scope;
-    /** Child scopes */
-    children: Scope[];
-    /** Grouped symbols by kind */
+    childScopes: Scope[];
     variables: Map<string, VariableSymbol>;
+    range?: OffsetRange;
+    uri?: string;
+}
+
+export interface GlobalScope extends BaseScope {
+    kind: ScopeKind.Global;
     functions: Map<string, FunctionSymbol>;
     actions: Map<string, ActionSymbol>;
     attributes: Map<string, Map<string, AttributeSymbol>>; // Outer key: definitionType (e.g. 'Field'), Inner key: attribute name
     schemas: Map<string, SchemaSymbol>;
     definitions: Map<string, Map<string, DefinitionSymbol>>; // Outer key: definitionType (e.g. 'Form'), Inner key: name
-    /** Range in the document where this scope is valid (undefined for Global/Project) */
-    range?: OffsetRange;
-    /** Optional URI if tied to a file */
-    uri?: string;
+}
+
+export interface ProjectScope extends BaseScope {
+    kind: ScopeKind.Project;
+    definitions: Map<string, Map<string, DefinitionSymbol>>;
+}
+
+export interface FileScope extends BaseScope {
+    kind: ScopeKind.File;
+}
+
+export interface DefinitionScope extends BaseScope {
+    kind: ScopeKind.Definition;
+    definition?: DefinitionSymbol;
+    structuralChildren: Map<string, Set<string>>;
+    uses: Set<string>;
+}
+
+export interface FunctionScope extends BaseScope {
+    kind: ScopeKind.Function;
+    definition?: DefinitionSymbol;
+}
+
+export interface BlockScope extends BaseScope {
+    kind: ScopeKind.Block;
+}
+
+export interface LocalScope extends BaseScope {
+    kind: ScopeKind.Local;
+}
+
+export type Scope = GlobalScope | ProjectScope | FileScope | DefinitionScope | FunctionScope | BlockScope | LocalScope;
+
+export function hasDefinitions(scope: Scope): scope is GlobalScope | ProjectScope {
+    return scope.kind === ScopeKind.Global || scope.kind === ScopeKind.Project;
+}
+
+export function hasFunctionsAndActions(scope: Scope): scope is GlobalScope {
+    return scope.kind === ScopeKind.Global;
+}
+
+export function hasAttributes(scope: Scope): scope is GlobalScope {
+    return scope.kind === ScopeKind.Global;
+}
+
+export function hasSchemas(scope: Scope): scope is GlobalScope {
+    return scope.kind === ScopeKind.Global;
+}
+
+export interface ModifierContribution {
+    targetDefinitionId: string;
+    modifierKind: '#' | '!' | '*';
+    uri: string;
+    range: OffsetRange;
+    scope: Scope;
+    order: number;
 }
 
 export interface ScopeNodeDTO {
@@ -84,7 +139,21 @@ export interface SymbolRequestDTO {
  * Helper to map TDL definition type string to SymbolKind
  */
 export function definitionTypeToSymbolKind(defType: string): SymbolKind {
-    switch (defType.toLowerCase()) {
+    const normalizedType = normalizeTypeName(defType);
+    const typesToCheck = getInterchangeableTypes(normalizedType);
+
+    for (const type of typesToCheck) {
+        const kind = definitionTypeToSymbolKindDirect(type);
+        if (kind !== SymbolKind.Unknown) {
+            return kind;
+        }
+    }
+
+    return SymbolKind.Unknown;
+}
+
+function definitionTypeToSymbolKindDirect(defType: string): SymbolKind {
+    switch (defType) {
         case 'collection': return SymbolKind.Collection;
         case 'report': return SymbolKind.Report;
         case 'field': return SymbolKind.Field;
@@ -92,13 +161,22 @@ export function definitionTypeToSymbolKind(defType: string): SymbolKind {
         case 'part': return SymbolKind.Part;
         case 'line': return SymbolKind.Line;
         case 'menu': return SymbolKind.Menu;
+        case 'function': return SymbolKind.Function;
         case 'button': return SymbolKind.Button;
         case 'key': return SymbolKind.Key;
+        case 'border': return SymbolKind.Border;
+        case 'style': return SymbolKind.Style;
+        case 'color': return SymbolKind.Color;
+        case 'colour': return SymbolKind.Color;
+        case 'object': return SymbolKind.Object;
         case 'import': return SymbolKind.Unknown; // Import is special
         case 'variable': return SymbolKind.Variable;
+        case 'variables': return SymbolKind.Variable;
+        case 'formula': return SymbolKind.Variable;
+        case 'formulae': return SymbolKind.Variable;
+        case 'formulas': return SymbolKind.Variable;
         case 'system': return SymbolKind.Variable; // System variables
-        // Add other mappings as needed
-        default: return SymbolKind.Variable; // Generic fallback
+        default: return SymbolKind.Unknown;
     }
 }
 
@@ -124,5 +202,30 @@ export function getSemanticTypeFromSymbol(symbol: SymbolInfo): string {
         case SymbolKind.Function: return SemanticTokenTypes.function;
         case SymbolKind.Variable: return SemanticTokenTypes.variable;
         default: return SemanticTokenTypes.variable;
+    }
+}
+
+/**
+ * Canonical mapping from internal SymbolKind to LSP SymbolKind.
+ * All features should use this instead of maintaining separate switch statements.
+ */
+export function symbolKindToLSPSymbolKind(kind: SymbolKind): LSPSymbolKind {
+    switch (kind) {
+        case SymbolKind.Collection: return LSPSymbolKind.Array;
+        case SymbolKind.Report: return LSPSymbolKind.Class;
+        case SymbolKind.Form: return LSPSymbolKind.Interface;
+        case SymbolKind.Part: return LSPSymbolKind.Struct;
+        case SymbolKind.Line: return LSPSymbolKind.Constructor;
+        case SymbolKind.Field: return LSPSymbolKind.Field;
+        case SymbolKind.Menu: return LSPSymbolKind.Enum;
+        case SymbolKind.Button: return LSPSymbolKind.Event;
+        case SymbolKind.Key: return LSPSymbolKind.Key;
+        case SymbolKind.Border: return LSPSymbolKind.Object;
+        case SymbolKind.Style: return LSPSymbolKind.Object;
+        case SymbolKind.Color: return LSPSymbolKind.Constant;
+        case SymbolKind.Function: return LSPSymbolKind.Function;
+        case SymbolKind.Variable: return LSPSymbolKind.Variable;
+        case SymbolKind.Object: return LSPSymbolKind.Class;
+        default: return LSPSymbolKind.Object;
     }
 }

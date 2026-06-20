@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser/parser';
 import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from '../definition';
+import { ScopeManager } from '../scopeManager';
+import { ScopeKind } from '../scopeManager/types';
+import { SymbolTable, SymbolKind } from '../symbolTable';
+import { resolveVariable } from '../scopeManager/scopeResolver';
 
 describe('Definition Service - Modifier References', () => {
     /**
@@ -229,6 +233,79 @@ describe('Definition Service - Modifier References', () => {
                 expect(loc.start).toBe(10);
                 expect(tdl.charAt(loc.start)).toBe('[');
             }
+        });
+    });
+
+    describe('Modifier Scope Lookup & Inheritance', () => {
+        it('should correctly link modifier to base definition and inherit attributes', () => {
+            const fileA = `[Report: BaseReport]
+    Variable: BaseVar`;
+            const fileB = `[#Report: BaseReport]
+    Variable: ModVar`;
+
+            const manager = new ScopeManager(new SymbolTable());
+            
+            const parserA = new Parser(fileA);
+            const sourceA = parserA.parse();
+            manager.buildFileScope('file://A.tdl', sourceA);
+
+            const parserB = new Parser(fileB);
+            const sourceB = parserB.parse();
+            manager.buildFileScope('file://B.tdl', sourceB);
+
+            const baseScope = manager.findDefinitionScope('Report:BaseReport');
+            expect(baseScope).toBeDefined();
+
+            // Verify modifier contribution is registered
+            const contributions = manager.modifierContributions.get('report:basereport');
+            expect(contributions).toBeDefined();
+            expect(contributions?.length).toBe(1);
+            expect(contributions![0].uri).toBe('file://B.tdl');
+
+            // Verify inheritance resolving
+            const resolvedBaseVar = resolveVariable(manager, 'BaseVar', baseScope!);
+            expect(resolvedBaseVar).toBeDefined();
+            
+            const resolvedModVar = resolveVariable(manager, 'ModVar', baseScope!);
+            expect(resolvedModVar).toBeDefined();
+        });
+
+        it('should remove modifier contribution when file is removed', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            // Create base definition
+            const baseSource = new Parser(`[Report: SomeReport]`).parse();
+            manager.buildFileScope('file://base.tdl', baseSource);
+
+            const source = new Parser(`[#Report: SomeReport]\n Variable: X`).parse();
+            
+            manager.buildFileScope('file://mod.tdl', source);
+            expect(manager.modifierContributions.get('report:somereport')?.length).toBe(1);
+            
+            manager.removeFileScope('file://mod.tdl');
+            expect(manager.modifierContributions.get('report:somereport')).toBeUndefined();
+        });
+
+        it('should resolve modifier applied to a default tally definition (metadata)', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            
+            // Mock metadata for default definition 'Daybook'
+            manager.existingDefinitions.set('report', new Set(['daybook']));
+
+            // User modifies the default definition
+            const parser = new Parser(`[#Report: Daybook]\n Variable: MyVar`);
+            const source = parser.parse();
+            
+            manager.buildFileScope('file://workspace.tdl', source);
+
+            // Because 'Daybook' is not in the workspace, the modifier creates a new local scope for it
+            const scope = manager.findDefinitionScope('Report:Daybook');
+            expect(scope).toBeDefined();
+            expect(scope?.kind).toBe(ScopeKind.Definition);
+            
+            // We should be able to resolve variables from this modifier scope directly
+            const resolvedVar = resolveVariable(manager, 'MyVar', scope!);
+            expect(resolvedVar).toBeDefined();
+            expect(resolvedVar?.name).toBe('MyVar');
         });
     });
 });

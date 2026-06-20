@@ -54,7 +54,9 @@ export function provideSignatureHelp(
     }
     
     if (foundDollar && functionNameStr) {
-        const func = scopeManager.globalScope.functions.get(normalizeTypeName(functionNameStr));
+        const scope = scopeManager.getScopeAt(doc.uri, offset);
+        const func = scope ? scopeManager.resolveFunction(functionNameStr, scope) : 
+                             scopeManager.globalScope.functions.get(normalizeTypeName(functionNameStr));
         if (func) {
             const parameters: ParameterInformation[] = (func.parameters || []).map(p => ({
                 label: p.ParameterType || 'Parameter',

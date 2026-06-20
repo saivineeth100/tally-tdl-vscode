@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ScopeManager, ScopeKind } from '../scopeManager';
+import { ScopeManager, ScopeKind, definitionTypeToSymbolKind, symbolKindToLSPSymbolKind, hasFunctionsAndActions, hasDefinitions, hasAttributes, hasSchemas } from '../scopeManager';
+import { SymbolKind as LSPSymbolKind } from 'vscode-languageserver';
 import { SymbolTable, SymbolKind } from '../symbolTable';
 import { SourceFile, SyntaxKind } from '../../parser/ast';
 
@@ -30,7 +31,7 @@ describe('ScopeManager', () => {
         } as any);
 
         // Create a dummy file scope to start search from
-        const fileScope = manager.createScope(ScopeKind.File, 'test', undefined); // Parent will be set to project scope internally? 
+        const fileScope = manager.createFileScope('test', manager.projectScope, {start: 0, end: 100}, 'file://test.tdl'); // Parent will be set to project scope internally? 
         // Wait, createScope takes parent explicitly. 
         // We need to validly attach it to the tree or just search `globalScope` directly if we exposed it.
 
@@ -128,7 +129,7 @@ describe('ScopeManager', () => {
         const scope = manager.buildFileScope('file://test.tdl', mockSourceFile);
         
         // Find defScope for MyColl
-        const defScope = scope.children[0];
+        const defScope = scope.childScopes[0];
         expect(defScope).toBeDefined();
 
         // Check if $Name and $Parent are in symbols
@@ -218,5 +219,368 @@ describe('ScopeManager', () => {
         expect(resolved).toBeDefined();
         expect(resolved?.name).toBe('MyVarFormula');
         expect(resolved?.definitionType).toBe('Formula');
+    });
+
+    describe('Scope graph cleanup on rebuild', () => {
+        it('should remove stale childDefinitions after removing Form from Report', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const uri = 'file://test.tdl';
+            
+            // Build with Report -> Form
+            const source1 = {
+                definitions: [{
+                    type: { text: 'Report' }, name: { text: 'R' },
+                    attributes: [{
+                        name: { text: 'Form' },
+                        value: [{ kind: SyntaxKind.Identifier, text: 'F' }]
+                    }]
+                }],
+                start: 0, end: 100
+            } as unknown as SourceFile;
+            manager.buildFileScope(uri, source1);
+            
+            expect(manager.childDefinitions.get('report:r')?.has('form:f')).toBe(true);
+            expect(manager.parentDefinitions.get('form:f')?.has('report:r')).toBe(true);
+            
+            // Rebuild without Form
+            const source2 = {
+                definitions: [{
+                    type: { text: 'Report' }, name: { text: 'R' },
+                    attributes: []
+                }],
+                start: 0, end: 100
+            } as unknown as SourceFile;
+            manager.buildFileScope(uri, source2);
+            
+            expect(manager.childDefinitions.get('report:r')).toBeUndefined();
+            expect(manager.parentDefinitions.get('form:f')).toBeUndefined();
+        });
+
+        it('should remove stale useInheritance after removing Use attribute', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const uri = 'file://test.tdl';
+            
+            const source1 = {
+                definitions: [{
+                    type: { text: 'Report' }, name: { text: 'R' },
+                    attributes: [{
+                        name: { text: 'Use' },
+                        value: [{ kind: SyntaxKind.Identifier, text: 'BaseReport' }]
+                    }]
+                }],
+                start: 0, end: 100
+            } as unknown as SourceFile;
+            manager.buildFileScope(uri, source1);
+            
+            expect(manager.useInheritance.get('report:r')?.has('report:basereport')).toBe(true);
+            
+            const source2 = {
+                definitions: [{
+                    type: { text: 'Report' }, name: { text: 'R' },
+                    attributes: []
+                }],
+                start: 0, end: 100
+            } as unknown as SourceFile;
+            manager.buildFileScope(uri, source2);
+            
+            expect(manager.useInheritance.get('report:r')).toBeUndefined();
+        });
+
+        it('should clean nested projectScope.definitions maps correctly', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const uri = 'file://test.tdl';
+            
+            // Simulate adding a definition to projectScope
+            const defMap = new Map();
+            defMap.set('myreport', { uri, name: 'MyReport', kind: SymbolKind.Report });
+            manager.projectScope.definitions.set('report', defMap);
+            
+            expect(manager.projectScope.definitions.get('report')?.has('myreport')).toBe(true);
+            
+            manager.removeFileScope(uri);
+            
+            expect(manager.projectScope.definitions.get('report')).toBeUndefined(); // map should be deleted if empty
+        });
+
+        it('should preserve other URIs project definitions on single file removal', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            
+            const defMap = new Map();
+            defMap.set('myreport1', { uri: 'file://a.tdl', name: 'MyReport1', kind: SymbolKind.Report });
+            defMap.set('myreport2', { uri: 'file://b.tdl', name: 'MyReport2', kind: SymbolKind.Report });
+            manager.projectScope.definitions.set('report', defMap);
+            
+            manager.removeFileScope('file://a.tdl');
+            
+            expect(manager.projectScope.definitions.get('report')?.has('myreport1')).toBe(false);
+            expect(manager.projectScope.definitions.get('report')?.has('myreport2')).toBe(true);
+        });
+
+        it('should not share mutable maps between base and modifier scopes', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            
+            const baseSource = {
+                definitions: [{
+                    type: { text: 'Report' }, name: { text: 'R' },
+                    attributes: [{
+                        name: { text: 'Variable' },
+                        value: [{ kind: SyntaxKind.Identifier, text: 'X' }]
+                    }],
+                    start: 0, end: 100
+                }],
+                start: 0, end: 100
+            } as unknown as SourceFile;
+            manager.buildFileScope('file://base.tdl', baseSource);
+            
+            const baseScope = manager.findDefinitionScope('Report:R');
+            expect(baseScope?.variables.has('x')).toBe(true);
+            
+            const modSource = {
+                definitions: [{
+                    modifier: true,
+                    type: { text: 'Report' }, name: { text: 'R' },
+                    attributes: [{
+                        name: { text: 'Variable' },
+                        value: [{ kind: SyntaxKind.Identifier, text: 'Y' }]
+                    }],
+                    start: 0, end: 100
+                }],
+                start: 0, end: 100
+            } as unknown as SourceFile;
+            manager.buildFileScope('file://mod.tdl', modSource);
+            
+            const modScope = manager.getScopeAt('file://mod.tdl', 50);
+            
+            // X should not be in the modScope's OWN variables map anymore because maps aren't shared
+            // and buildFileScope doesn't copy from base
+            expect(modScope?.variables.has('x')).toBe(false); 
+            expect(modScope?.variables.has('y')).toBe(true);
+            
+            expect(baseScope?.variables.has('x')).toBe(true);
+            expect(baseScope?.variables.has('y')).toBe(false); // No pollution!
+        });
+
+        it('should remove includedFiles entries on file removal', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const uri = 'file://test.tdl';
+            
+            const source1 = {
+                definitions: [{
+                    type: { text: 'Include' }, name: { text: '"common.tdl"' },
+                    attributes: []
+                }],
+                start: 0, end: 100
+            } as unknown as SourceFile;
+            manager.buildFileScope(uri, source1);
+            
+            expect(manager.includedFiles.has('common.tdl')).toBe(true);
+            
+            manager.removeFileScope(uri);
+            expect(manager.includedFiles.has('common.tdl')).toBe(false);
+        });
+    });
+
+    describe('Symbol kind consolidation', () => {
+        it('maps Colour and Color to same SymbolKind', () => {
+            expect(definitionTypeToSymbolKind('color')).toBe(definitionTypeToSymbolKind('colour'));
+            expect(definitionTypeToSymbolKind('color')).toBe(SymbolKind.Color);
+        });
+
+        it('maps Formula, Formulae, Formulas to Variable', () => {
+            expect(definitionTypeToSymbolKind('formula')).toBe(SymbolKind.Variable);
+            expect(definitionTypeToSymbolKind('formulae')).toBe(SymbolKind.Variable);
+            expect(definitionTypeToSymbolKind('formulas')).toBe(SymbolKind.Variable);
+        });
+
+        it('maps unknown definition type to Unknown', () => {
+            expect(definitionTypeToSymbolKind('nonexistent_type')).toBe(SymbolKind.Unknown);
+        });
+
+        it('maps System definitions to Variable', () => {
+            expect(definitionTypeToSymbolKind('system')).toBe(SymbolKind.Variable);
+        });
+
+        it('LSP mapping is consistent', () => {
+            expect(symbolKindToLSPSymbolKind(SymbolKind.Button)).toBe(LSPSymbolKind.Event);
+            expect(symbolKindToLSPSymbolKind(SymbolKind.Report)).toBe(LSPSymbolKind.Class);
+        });
+    });
+
+    describe('Discriminated scope model', () => {
+        it('GlobalScope has functions/actions/attributes/schemas maps', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const globalScope = manager.globalScope;
+            
+            expect(globalScope.kind).toBe(ScopeKind.Global);
+            expect(hasFunctionsAndActions(globalScope)).toBe(true);
+            expect(hasAttributes(globalScope)).toBe(true);
+            expect(hasSchemas(globalScope)).toBe(true);
+            expect(hasDefinitions(globalScope)).toBe(true);
+            
+            expect(globalScope.functions).toBeDefined();
+            expect(globalScope.actions).toBeDefined();
+            expect(globalScope.attributes).toBeDefined();
+            expect(globalScope.schemas).toBeDefined();
+            expect(globalScope.definitions).toBeDefined();
+        });
+
+        it('ProjectScope has definitions map but not functions/actions', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const projectScope = manager.projectScope;
+            
+            expect(projectScope.kind).toBe(ScopeKind.Project);
+            expect(hasDefinitions(projectScope)).toBe(true);
+            expect(hasFunctionsAndActions(projectScope)).toBe(false);
+            
+            expect(projectScope.definitions).toBeDefined();
+            expect((projectScope as any).functions).toBeUndefined();
+        });
+
+        it('DefinitionScope has structuralChildren and uses', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const defScope = manager.createDefinitionScope('test', manager.projectScope, {start: 0, end: 1}, 'uri');
+            
+            expect(defScope.kind).toBe(ScopeKind.Definition);
+            expect(defScope.structuralChildren).toBeDefined();
+            expect(defScope.uses).toBeDefined();
+            expect(hasDefinitions(defScope)).toBe(false);
+            expect((defScope as any).definitions).toBeUndefined();
+        });
+
+        it('BlockScope only has variables', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const blockScope = manager.createBlockScope('test', manager.projectScope, {start: 0, end: 1}, 'uri');
+            
+            expect(blockScope.kind).toBe(ScopeKind.Block);
+            expect(blockScope.variables).toBeDefined();
+            expect((blockScope as any).functions).toBeUndefined();
+            expect((blockScope as any).definitions).toBeUndefined();
+        });
+
+        it('every scope can store variables via BaseScope.variables', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const scopes = [
+                manager.globalScope,
+                manager.projectScope,
+                manager.createFileScope('testFile', manager.projectScope, {start: 0, end: 1}, 'uri'),
+                manager.createDefinitionScope('testDef', manager.projectScope, {start: 0, end: 1}, 'uri'),
+                manager.createFunctionScope('testFunc', manager.projectScope, {start: 0, end: 1}, 'uri'),
+                manager.createBlockScope('testBlock', manager.projectScope, {start: 0, end: 1}, 'uri')
+            ];
+            
+            for (const scope of scopes) {
+                expect(scope.variables).toBeDefined();
+                expect(scope.variables instanceof Map).toBe(true);
+            }
+        });
+    });
+
+    describe('Resolution context', () => {
+        it('resolves variable with caller context from Report→Function', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            
+            // Create a report scope with a variable
+            const reportScope = manager.createDefinitionScope('report:MyReport', manager.projectScope, {start: 0, end: 100}, 'test.tdl');
+            reportScope.variables.set('myvar', { name: 'MyVar', kind: SymbolKind.Variable } as any);
+            
+            // Create a function scope that has no variables of its own
+            const funcScope = manager.createFunctionScope('MyFunction', manager.projectScope, {start: 0, end: 100}, 'test.tdl');
+            
+            // Attempt to resolve MyVar inside funcScope without caller context (should fail)
+            let resolved = manager.resolveVariable('MyVar', funcScope);
+            expect(resolved).toBeUndefined();
+            
+            // Attempt to resolve with caller context
+            const callerContext = { visitedScopes: new Set<string>(), state: manager, initialScope: reportScope };
+            resolved = manager.resolveVariable('MyVar', funcScope, undefined, callerContext);
+            expect(resolved).toBeDefined();
+            expect(resolved?.name).toBe('MyVar');
+        });
+
+        it('resolves attribute with spaces in name', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const reportScope = manager.createDefinitionScope('report:MyReport', manager.projectScope, {start: 0, end: 10}, 'test.tdl');
+            
+            manager.globalScope.attributes.set('report', new Map());
+            manager.globalScope.attributes.get('report')?.set('myattribute', { name: 'My Attribute', kind: SymbolKind.Unknown } as any);
+            
+            const resolved = manager.resolveAttribute('My Attribute', 'Report', reportScope);
+            expect(resolved).toBeDefined();
+            expect(resolved?.name).toBe('My Attribute');
+            
+            const resolvedNoSpace = manager.resolveAttribute('MyAttribute', 'Report', reportScope);
+            expect(resolvedNoSpace).toBeDefined();
+        });
+
+        it('resolves action by alias without linear scan', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            // Add action with normalized alias directly
+            manager.globalScope.actions.set('myactionalias', { name: 'My Action', kind: SymbolKind.Function } as any);
+            
+            const resolved = manager.resolveAction('My Action Alias', manager.projectScope);
+            expect(resolved).toBeDefined();
+            expect(resolved?.name).toBe('My Action');
+        });
+    });
+
+    describe('Definition Registration', () => {
+        it('should register definitions in projectScope', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const mockSourceFile = {
+                start: 0, end: 100,
+                definitions: [
+                    {
+                        kind: SyntaxKind.Definition,
+                        type: { text: 'Report', start: 1, end: 7, kind: SyntaxKind.Identifier },
+                        name: { text: 'MyReport', start: 9, end: 17, kind: SyntaxKind.Identifier },
+                        attributes: [],
+                        start: 0,
+                        end: 20
+                    }
+                ]
+            } as unknown as SourceFile;
+
+            manager.buildFileScope('file:///test.tdl', mockSourceFile);
+
+            const reportDefs = manager.projectScope.definitions.get('report');
+            expect(reportDefs).toBeDefined();
+            
+            const myReport = reportDefs?.get('myreport');
+            expect(myReport).toBeDefined();
+            expect(myReport?.name).toBe('MyReport');
+            expect(myReport?.definitionType).toBe('Report');
+        });
+
+        it('should not register modifiers or incomplete definitions', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const mockSourceFile = {
+                start: 0, end: 100,
+                definitions: [
+                    {
+                        kind: SyntaxKind.Definition,
+                        modifier: { text: '#', start: 1, end: 2, kind: SyntaxKind.Identifier },
+                        type: { text: 'Report', start: 2, end: 8, kind: SyntaxKind.Identifier },
+                        name: { text: 'MyReport', start: 10, end: 18, kind: SyntaxKind.Identifier },
+                        attributes: [],
+                        start: 0,
+                        end: 20
+                    },
+                    {
+                        kind: SyntaxKind.Definition,
+                        isIncomplete: true,
+                        type: { text: 'Report', start: 2, end: 8, kind: SyntaxKind.Identifier },
+                        attributes: [],
+                        start: 0,
+                        end: 20
+                    }
+                ]
+            } as unknown as SourceFile;
+
+            manager.buildFileScope('file:///test2.tdl', mockSourceFile);
+
+            const reportDefs = manager.projectScope.definitions.get('report');
+            expect(reportDefs?.has('myreport')).toBeFalsy();
+            expect(manager.projectScope.definitions.size).toBe(0);
+        });
     });
 });

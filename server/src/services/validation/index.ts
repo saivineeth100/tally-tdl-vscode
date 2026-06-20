@@ -1,17 +1,18 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { SourceFile, SyntaxKind, IdentifierNode, FunctionCallNode, BinaryExpressionNode, Node, BreakNode, ContinueNode, ReturnNode, SetNode, ExchangeNode, IncrementNode, DecrementNode, WhileNode, WalkNode, ForNode, DoIfNode } from "../../parser/ast";
+import { SourceFile, SyntaxKind, IdentifierNode, FunctionCallNode, BinaryExpressionNode, Node, BreakNode, ContinueNode, ReturnNode, SetNode, ExchangeNode, IncrementNode, DecrementNode, WhileNode, WalkNode, ForNode, DoIfNode, BlockStatementNode } from "../../parser/ast";
 import { SymbolTable, definitionTypeToSymbolKind } from "../symbolTable";
 import { normalizeTypeName } from "../utils";
 import { ScopeManager } from "../scopeManager";
 import { validateLabelSequences } from "../sequenceValidator";
 import { validateDefinitionAttributes, validateSchemaObject } from "./attributeValidation";
-import { DiagnosticRules, createDiagnostic } from "../../diagnostics";
+import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, MissingEndStatementData } from "../../diagnostics";
 
 export * from '../../diagnostics';
 export * from './validationUtils';
 export * from './attributeValidation';
 export * from './expressionValidation';
+import { validateActionArity } from './arityValidation';
 
 /**
  * Validate an entire source file
@@ -40,9 +41,8 @@ export async function validateSourceFile(
     for (const def of sourceFile.definitions) {
         if (def.type) {
             const normalizedType = normalizeTypeName(def.type.text);
-            const typeUpper = def.type.text.toUpperCase();
             
-            if (scopeManager.globalScope.schemas.has(typeUpper)) {
+            if (scopeManager.globalScope.schemas.has(normalizedType)) {
                 validateSchemaObject(def, def.type.text, doc, scopeManager, diagnostics);
                 continue;
             }
@@ -60,8 +60,8 @@ export async function validateSourceFile(
                 }
             }
 
-            // Disable validation for specific definition types as requested
-            if (['collection', 'field', 'system','object'].includes(normalizedType)) {
+            // System definitions use a different attribute structure, skip them
+            if (normalizedType === 'system') {
                 continue;
             }
         }
@@ -81,7 +81,7 @@ export async function validateSourceFile(
                 const typeMap = scopeManager.existingDefinitions.get(normalizeTypeName(defType));
                 const existsInMetadata = typeMap ? typeMap.has(normalizeTypeName(defName)) : false;
 
-                if (!def.modifier || def.modifier.Text === '!') {
+                if (!def.modifier) {
                 // Rule 1: No duplicate new definitions allowed
                 // Check against Default TDL
                 if (existsInMetadata) {
@@ -93,12 +93,13 @@ export async function validateSourceFile(
                         { start: startPos, end: endPos },
                         defName
                     ));
-                } else if (symbolTable) {
+                } else if (scopeManager) {
                     // Check against Workspace (excluding modifiers)
-                    const allSymbols = symbolTable.findAllByName(defName, projectNodes);
-                    const originalDefs = allSymbols.filter(s => s.kind === kind && !s.isModifier);
+                    const existingDefMap = scopeManager.projectScope.definitions.get(normalizeTypeName(defType));
+                    const existingDef = existingDefMap?.get(normalizeTypeName(defName));
                     
-                    const isDuplicateInWorkspace = originalDefs.some(s => s.uri !== doc.uri || s.start !== def.start);
+                    // projectScope.definitions only contains original definitions (no modifiers/incomplete)
+                    const isDuplicateInWorkspace = existingDef && (existingDef.uri !== doc.uri || existingDef.start !== def.start);
                     
                     if (isDuplicateInWorkspace) {
                         const startPos = doc.positionAt(def.name.start);
@@ -113,9 +114,9 @@ export async function validateSourceFile(
                 }
             } else {
                 // Rule 2: Modifiers must modify an existing definition
-                if (symbolTable) {
-                    const allSymbols = symbolTable.findAllByName(defName, projectNodes);
-                    const existsInWorkspace = allSymbols.some(s => s.kind === kind && !s.isModifier);
+                if (scopeManager) {
+                    const existingDefMap = scopeManager.projectScope.definitions.get(normalizeTypeName(defType));
+                    const existsInWorkspace = existingDefMap ? existingDefMap.has(normalizeTypeName(defName)) : false;
                     
                     if (!existsInMetadata && !existsInWorkspace) {
                         diagnostics.push(createDiagnostic(
@@ -248,19 +249,8 @@ export async function validateSourceFile(
 
                     if (stmt.action) {
                         const actionName = stmt.action.text;
-                        const actionDef = scopeManager.globalScope.actions.get(normalizeTypeName(actionName));
-                        // It might have an alias, but action definition symbol name matching handles it. Wait, the ScopeManager normalizes aliases too? No, wait. We can just use the global scope action map. If it's not found, maybe check aliases?
-                        // ScopeManager stores aliases in `action.aliases`, but `actions` map might not map aliases to the same action.
-                        // I'll iterate through `actions` map for now or rely on the fact that aliases might not be widely used for actions or I can just iterate over `actions.values()`.
-                        let foundAction = actionDef;
-                        if (!foundAction) {
-                            for (const a of scopeManager.globalScope.actions.values()) {
-                                if (a.aliases && a.aliases.split(',').map(al => normalizeTypeName(al.trim())).includes(normalizeTypeName(actionName))) {
-                                    foundAction = a;
-                                    break;
-                                }
-                            }
-                        }
+                        // Actions are already indexed by alias key in metadataLoader
+                        const foundAction = scopeManager.globalScope.actions.get(normalizeTypeName(actionName));
 
                         if (!foundAction) {
                             diagnostics.push(createDiagnostic(
@@ -268,6 +258,8 @@ export async function validateSourceFile(
                                 { start: doc.positionAt(stmt.action.start), end: doc.positionAt(stmt.action.end) },
                                 actionName
                             ));
+                        } else {
+                            validateActionArity(stmt, doc, scopeManager, diagnostics);
                         }
                     }
                     
@@ -290,8 +282,8 @@ export async function validateSourceFile(
                     if (stmt instanceof DoIfNode && stmt.actionStatement) {
                         checkStatement(stmt.actionStatement, inLoop);
                     }
-                    if (stmt.statements !== undefined && 'endStatement' in stmt) {
-                        const blockStmt = stmt as any;
+                    if (stmt instanceof BlockStatementNode) {
+                        const blockStmt = stmt;
                         if (!blockStmt.endStatement) {
                             let expectedEnd = 'End Block';
                             const actText = stmt.action.text.toLowerCase();
@@ -301,12 +293,12 @@ export async function validateSourceFile(
                             else if (actText.startsWith('for ')) expectedEnd = 'End For';
                             else if (actText === 'start block') expectedEnd = 'End Block';
                             
-                            const diag = createDiagnostic(
+                            const diag = createDiagnosticWithData<MissingEndStatementData>(
                                 DiagnosticRules.MissingEndStatement,
                                 { start: doc.positionAt(stmt.start), end: doc.positionAt(stmt.end) },
+                                { expectedEnd },
                                 expectedEnd.replace('End ', '')
                             );
-                            (diag as any).data = { expectedEnd };
                             diagnostics.push(diag);
                         }
                     }

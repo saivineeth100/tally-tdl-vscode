@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import * as fs from 'fs';
 import { findReferences } from '../references';
 import { DocManager } from '../../docManager';
 import { TextDocuments } from 'vscode-languageserver';
@@ -6,6 +7,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Parser } from '../../parser/parser';
 import { ScopeManager } from '../scopeManager';
 import { SymbolTable } from '../symbolTable';
+import { buildFileScope } from '../scopeManager/scopeBuilder';
 
 function setupMocks(files: Record<string, string>) {
     const docs = new Map<string, TextDocument>();
@@ -41,7 +43,6 @@ function setupMocks(files: Record<string, string>) {
     const scopeManager = new ScopeManager(symbolTable);
 
     // Build scopes
-    const { buildFileScope } = require('../scopeBuilder');
     for (const [uri, state] of docStates.entries()) {
         buildFileScope(scopeManager, uri, state.sourceFile);
     }
@@ -149,5 +150,38 @@ describe('References Service', () => {
         expect(refs).toBeDefined();
         // Variables might not have strict definition tracking without scope manager returning proper scope, but test basic
         expect(refs.length).toBeGreaterThan(0);
+    });
+    it('should find references in closed files', async () => {
+        const { mockDocs, mockDocManager, targetUri, offset } = setupMocks({
+            'file:///test.tdl': `
+                [Report: |BaseReport]
+            `,
+            'file:///closed.tdl': `
+                [Report: ChildReport]
+                Use: BaseReport
+            `
+        });
+        
+        // Simulate closed.tdl being closed
+        const closedUri = 'file:///closed.tdl';
+        const closedContent = (mockDocs as any).get(closedUri).getText();
+        const originalGet = mockDocs.get;
+        (mockDocs as any).get = (uri: string) => uri === closedUri ? undefined : originalGet(uri); // It is not open
+        
+        // Since we mock docStates in mockDocManager.get, it still returns the indexed state for closed.tdl.
+        // We must mock fs.promises.readFile so references.ts can read it.
+        const readFileSpy = vi.spyOn(fs.promises, 'readFile').mockImplementation(async (path: any) => {
+            if (path.replace(/\\/g, '/').endsWith('closed.tdl')) {
+                return Buffer.from(closedContent, 'utf-8');
+            }
+            throw new Error('File not found');
+        });
+        
+        const refs = await findReferences(mockDocManager, mockDocs, targetUri, offset, true);
+        
+        expect(refs).toBeDefined();
+        expect(refs.length).toBe(2); // Definition + 1 usage
+        
+        readFileSpy.mockRestore();
     });
 });

@@ -16,7 +16,9 @@ describe('Workspace Symbols', () => {
         
         mockDocManager = {
             tdlSymbolTable,
-            xmlSymbolTable
+            xmlSymbolTable,
+            tdlScopeManager: { searchWorkspaceSymbols: (q: string, f?: string, m?: number) => tdlSymbolTable.searchSymbols(q, f, m) },
+            xmlScopeManager: { searchWorkspaceSymbols: (q: string, f?: string, m?: number) => xmlSymbolTable.searchSymbols(q, f, m) }
         };
 
         const doc = TextDocument.create('file:///test.tdl', 'tdl', 1, '');

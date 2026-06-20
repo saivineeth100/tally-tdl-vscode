@@ -140,7 +140,7 @@ export function registerCompletion(
                     if (actionDef && actionDef.parameters && actionDef.parameters.length > context.paramIndex) {
                         const param = actionDef.parameters[context.paramIndex];
                         if (param.Keywords) {
-                            const keywords = param.Keywords.split(',').map(k => k.trim());
+                            const keywords = param.Keywords.map((k: string) => k.trim());
                             for (const keyword of keywords) {
                                 if (context.partial === '' || keyword.toLowerCase().includes(context.partial.toLowerCase())) {
                                     items.push({

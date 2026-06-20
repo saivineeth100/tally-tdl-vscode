@@ -1,7 +1,9 @@
 import { SymbolInformation, SymbolKind as LSPSymbolKind, WorkspaceSymbolParams, TextDocuments, CancellationToken } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { DocManager } from '../docManager';
+import { DocManager, readFileWithEncoding } from '../docManager';
 import { SymbolKind } from './symbolTable';
+import { symbolKindToLSPSymbolKind } from './scopeManager/types';
+import { offsetToPosition } from '../utils/positionUtils';
 
 import * as fs from 'fs';
 import { URI } from 'vscode-uri';
@@ -35,8 +37,8 @@ export async function getWorkspaceSymbols(
     const result: SymbolInformation[] = [];
     const MAX_RESULTS = 100;
     
-    const tdlSymbols = docManager.tdlSymbolTable.searchSymbols(query, typeFilter, MAX_RESULTS);
-    const xmlSymbols = docManager.xmlSymbolTable.searchSymbols(query, typeFilter, MAX_RESULTS);
+    const tdlSymbols = docManager.tdlScopeManager.searchWorkspaceSymbols(query, typeFilter, MAX_RESULTS);
+    const xmlSymbols = docManager.xmlScopeManager.searchWorkspaceSymbols(query, typeFilter, MAX_RESULTS);
     const matchedSymbols = [...tdlSymbols, ...xmlSymbols].slice(0, MAX_RESULTS);
 
     for (const sym of matchedSymbols) {
@@ -56,13 +58,14 @@ export async function getWorkspaceSymbols(
             // Document not open, read from disk to compute position
             try {
                 const filePath = URI.parse(sym.uri).fsPath;
-                const content = await fs.promises.readFile(filePath, "utf-8");
+                const content = await readFileWithEncoding(filePath);
                 range = {
-                    start: getPositionAt(content, sym.start),
-                    end: getPositionAt(content, sym.end)
+                    start: offsetToPosition(content, sym.start),
+                    end: offsetToPosition(content, sym.end)
                 };
-            } catch (e) {
+            } catch (err) {
                 // Ignore errors reading closed files, default to 0,0
+                console.warn(`[workspaceSymbol] Error reading file ${sym.uri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
             }
         }
 
@@ -79,7 +82,7 @@ export async function getWorkspaceSymbols(
 
         result.push({
             name: finalName,
-            kind: mapToLspSymbolKind(sym.kind),
+            kind: symbolKindToLSPSymbolKind(sym.kind),
             containerName: sym.definitionType,
             location: {
                 uri: sym.uri,
@@ -91,37 +94,5 @@ export async function getWorkspaceSymbols(
     return result;
 }
 
-/**
- * Computes line and character position from offset for a given text content.
- */
-function getPositionAt(content: string, offset: number): { line: number, character: number } {
-    let line = 0;
-    let character = 0;
-    const limit = Math.min(offset, content.length);
-    for (let i = 0; i < limit; i++) {
-        if (content[i] === '\n') {
-            line++;
-            character = 0;
-        } else {
-            character++;
-        }
-    }
-    return { line, character };
-}
 
-function mapToLspSymbolKind(kind: SymbolKind): LSPSymbolKind {
-    switch (kind) {
-        case SymbolKind.Collection: return LSPSymbolKind.Class;
-        case SymbolKind.Report: return LSPSymbolKind.Class;
-        case SymbolKind.Field: return LSPSymbolKind.Field;
-        case SymbolKind.Form: return LSPSymbolKind.Class;
-        case SymbolKind.Part: return LSPSymbolKind.Class;
-        case SymbolKind.Line: return LSPSymbolKind.Class;
-        case SymbolKind.Menu: return LSPSymbolKind.Class;
-        case SymbolKind.Button: return LSPSymbolKind.Method;
-        case SymbolKind.Key: return LSPSymbolKind.Event;
-        case SymbolKind.Function: return LSPSymbolKind.Function;
-        case SymbolKind.Variable: return LSPSymbolKind.Variable;
-        default: return LSPSymbolKind.Object;
-    }
-}
+

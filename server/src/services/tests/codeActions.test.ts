@@ -24,7 +24,16 @@ describe('Code Actions', () => {
         const reportAttrs = new Map<string, any>();
         reportAttrs.set('form', { name: 'Form' });
         reportAttrs.set('title', { name: 'Title' });
-        mockScopeManager.globalScope.attributes.set('REPORT', reportAttrs);
+        mockScopeManager.globalScope.attributes.set('report', reportAttrs);
+
+        // Setup mock schemas
+        const voucherSchema: any = {
+            name: 'Voucher',
+            properties: new Map([
+                ['Party Ledger Name', { Name: 'Party Ledger Name' }]
+            ])
+        };
+        mockScopeManager.globalScope.schemas.set('voucher', voucherSchema);
 
         mockDocManager = {
             get: vi.fn().mockReturnValue({ sourceFile }),
@@ -104,6 +113,7 @@ describe('Code Actions', () => {
             { start: pos, end: document.positionAt(offset + 2) },
             '20'
         );
+        diagnostic.data = { expectedLabel: '20' };
 
         const params: CodeActionParams = {
             textDocument: { uri },
@@ -113,7 +123,7 @@ describe('Code Actions', () => {
 
         const actions = provideCodeActions(params, mockDocManager, mockDocuments);
 
-        expect(actions.length).toBe(1);
+        expect(actions.length).toBe(2);
         expect(actions[0].kind).toBe(CodeActionKind.QuickFix);
         expect(actions[0].title).toBe("Fix downstream label sequence");
         const edits = actions[0].edit?.changes?.[uri];
@@ -142,5 +152,32 @@ describe('Code Actions', () => {
 
         const actions = provideCodeActions(params, mockDocManager, mockDocuments);
         expect(actions.length).toBe(0);
+    });
+
+    it('QuickFix for unknown schema property suggests closest match', () => {
+        const tdl = `[Voucher: Test]\nPartyLederName: "Test"`;
+        const { uri } = setup(tdl);
+
+        const diagnostic: Diagnostic = {
+            range: Range.create(1, 0, 1, 14),
+            message: 'Unknown schema property PartyLederName',
+            severity: DiagnosticSeverity.Error,
+            code: DiagnosticRules.UnknownSchemaProperty.code,
+            data: { attrName: 'PartyLederName', schemaName: 'Voucher' }
+        };
+
+        const params: CodeActionParams = {
+            textDocument: { uri },
+            range: diagnostic.range,
+            context: { diagnostics: [diagnostic] }
+        };
+
+        const actions = provideCodeActions(params, mockDocManager, mockDocuments);
+
+        expect(actions.length).toBe(2); // One for QuickFix, one for Disable Diagnostic
+        expect(actions[0].kind).toBe(CodeActionKind.QuickFix);
+        expect(actions[0].title).toBe("Change to 'Party Ledger Name'");
+        expect(actions[0].edit?.changes?.[uri]).toBeDefined();
+        expect(actions[0].edit?.changes?.[uri][0].newText).toBe('Party Ledger Name');
     });
 });

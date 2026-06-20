@@ -89,6 +89,7 @@ describe('TDL Suggestions Tests', () => {
     let mockConnection: any;
     let mockDocuments: any;
     let mockManager: any;
+    let defaultCreateConnection: () => void;
     let completionCallback: Function;
 
     it('returns formula names for @@ context', async () => {

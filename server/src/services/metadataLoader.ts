@@ -2,11 +2,11 @@ import * as fsasync from 'fs/promises';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ScopeManager } from './scopeManager/index';
-import { 
-    SymbolKind, 
-    FunctionSymbol, 
-    ActionSymbol, 
-    AttributeSymbol, 
+import {
+    SymbolKind,
+    FunctionSymbol,
+    ActionSymbol,
+    AttributeSymbol,
     SchemaSymbol,
     TDLParameter,
     TDLSchemaProperty
@@ -74,7 +74,7 @@ async function loadFunctions(versionPath: string, manager: ScopeManager) {
                     aliases: json.Meta?.Aliases
                 };
                 manager.globalScope.functions.set(normalizeTypeName(symbol.name), symbol);
-                
+
                 if (symbol.aliases) {
                     for (const alias of symbol.aliases.split(',')) {
                         const normalized = normalizeTypeName(alias);
@@ -200,8 +200,9 @@ async function loadDefinitionAttributes(versionPath: string, manager: ScopeManag
                 // Cache Keyword Sets
                 for (const param of symbol.parameters) {
                     if (param.KeywordSet && param.Keywords) {
-                        if (!manager.keywordSets.has(param.KeywordSet)) {
-                            manager.keywordSets.set(param.KeywordSet, param.Keywords.split(',').map(k => k.trim()));
+                        const normalizedKey = normalizeTypeName(param.KeywordSet);
+                        if (!manager.keywordSets.has(normalizedKey)) {
+                            manager.keywordSets.set(normalizedKey, param.Keywords.map(k => k.trim()));
                         }
                     }
                 }
@@ -292,11 +293,11 @@ function parseParameter(json: any): TDLParameter {
     return {
         ParameterType: json["Parameter Type"],
         IsConstant: json["Is Constant"] === "Yes",
-        DataType: json.Datatype || json.DataType,
+        DataType: (json.Datatype || json.DataType || '').trim(),
         IsMandatory: json["Is Mandatory"] === "Yes",
-        RefersTo: json["Refers To"],
-        KeywordSet: json["Keyword Set"],
-        Keywords: json.Keywords,
+        RefersTo: (json["Refers To"] || '').trim(),
+        KeywordSet: (json["Keyword Set"] || '').trim(),
+        Keywords: json.Keywords?.split(","),
         IsList: json["Is List"] === "Yes",
         IsVariableArgument: json["Variable Argument"] === "Yes",
         DimensionExpression: json["Dimension Expression"] === "Yes"

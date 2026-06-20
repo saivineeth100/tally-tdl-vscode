@@ -69,7 +69,7 @@ export function provideAttributeValueCompletions(
 
         // 1. If parameter has Keywords, suggest them
         if (param.Keywords) {
-            const keywords = param.Keywords.split(',').map(k => k.trim());
+            const keywords = param.Keywords.map((k: string) => k.trim());
             for (const keyword of keywords) {
                 if (context.partial === '' || keyword.toLowerCase().includes(context.partial.toLowerCase())) {
                     items.push({

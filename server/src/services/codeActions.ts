@@ -5,7 +5,7 @@ import { TextDocuments } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { findClosestMatch } from "../utils/stringUtils";
 import { StatementNode, BlockStatementNode, IdentifierNode, LiteralNode, SyntaxKind } from "../parser/ast";
-import { DiagnosticRules } from "../diagnostics";
+import { DiagnosticRules, LabelSequenceData, MissingDefinitionData, MissingEndStatementData, UnknownDefinitionTypeData, UnknownAttributeData, UnknownSchemaPropertyData } from "../diagnostics";
 import { incrementLabel, matchesSequencePattern } from "../utils/labelUtils";
 import { normalizeTypeName } from "./utils";
 
@@ -22,8 +22,8 @@ export function provideCodeActions(
     if (!doc || !docState) return actions;
 
     for (const diagnostic of params.context.diagnostics) {
-        if (diagnostic.code === DiagnosticRules.DuplicateLabel.code) {
-            const expectedLabel = (diagnostic.data as any)?.expectedLabel;
+        if (diagnostic.code === DiagnosticRules.DuplicateLabel.code || diagnostic.code === DiagnosticRules.BrokenLabelSeqence.code) {
+            const expectedLabel = (diagnostic.data as LabelSequenceData | undefined)?.expectedLabel;
             if (expectedLabel) {
                 const offset = doc.offsetAt(diagnostic.range.start);
                 let targetDef = null;
@@ -120,7 +120,7 @@ export function provideCodeActions(
                 }
             }
         } else if (diagnostic.code === DiagnosticRules.MissingDefinition.code) {
-            const data = diagnostic.data as any;
+            const data = diagnostic.data as MissingDefinitionData | undefined;
             if (data && data.name && data.type) {
                 // Determine the end of the document to append the new definition
                 const endPos = doc.positionAt(doc.getText().length);
@@ -140,7 +140,7 @@ export function provideCodeActions(
                 });
             }
         } else if (diagnostic.code === DiagnosticRules.MissingEndStatement.code) {
-            const expectedEnd = (diagnostic.data as any)?.expectedEnd;
+            const expectedEnd = (diagnostic.data as MissingEndStatementData | undefined)?.expectedEnd;
             if (expectedEnd) {
                 actions.push({
                     title: `Insert '${expectedEnd}'`,
@@ -156,9 +156,9 @@ export function provideCodeActions(
                 });
             }
         } else if (diagnostic.code === DiagnosticRules.UnknownDefinitionType.code) {
-            const defTypeName = (diagnostic.data as any)?.defTypeName;
+            const defTypeName = (diagnostic.data as UnknownDefinitionTypeData | undefined)?.defTypeName;
             if (defTypeName && scopeManager) {
-                const types = Array.from(scopeManager.existingDefinitions.keys() as IterableIterator<string>);
+                const types = Array.from(scopeManager.existingDefinitions.keys());
                 const closest = findClosestMatch(defTypeName, types);
                 if (closest) {
                     actions.push({
@@ -176,7 +176,7 @@ export function provideCodeActions(
                 }
             }
         } else if (diagnostic.code === DiagnosticRules.UnknownAttribute.code) {
-            const data = diagnostic.data as any;
+            const data = diagnostic.data as UnknownAttributeData | undefined;
             if (data?.attrName && data?.defTypeName && scopeManager) {
                 let attrs = scopeManager.globalScope.attributes.get(normalizeTypeName(data.defTypeName));
                 
@@ -204,11 +204,11 @@ export function provideCodeActions(
                 }
             }
         } else if (diagnostic.code === DiagnosticRules.UnknownSchemaProperty.code) {
-            const data = diagnostic.data as any;
+            const data = diagnostic.data as UnknownSchemaPropertyData | undefined;
             if (data?.attrName && data?.schemaName && scopeManager) {
-                const schema = scopeManager.globalScope.schemas.get(data.schemaName.toUpperCase());
+                const schema = scopeManager.globalScope.schemas.get(normalizeTypeName(data.schemaName));
                 if (schema) {
-                    const props = Array.from(schema.properties.keys() as IterableIterator<string>);
+                    const props = Array.from(schema.properties.keys());
                     const closest = findClosestMatch(data.attrName, props);
                     if (closest) {
                         actions.push({

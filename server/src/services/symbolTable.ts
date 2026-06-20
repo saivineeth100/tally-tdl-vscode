@@ -1,6 +1,7 @@
 import { normalizeTypeName } from './utils';
 
 export * from '../models/symbols';
+export { definitionTypeToSymbolKind } from './scopeManager/types';
 import { SymbolInfo, SymbolKind } from '../models/symbols';
 
 
@@ -243,29 +244,3 @@ export class SymbolTable {
     }
 }
 
-/**
- * Map TDL definition type string to SymbolKind
- * @param definitionType The definition type from the AST
- * @returns Corresponding SymbolKind
- */
-export function definitionTypeToSymbolKind(definitionType: string): SymbolKind {
-    const upperType = definitionType.toUpperCase();
-    switch (upperType) {
-        case 'REPORT': return SymbolKind.Report;
-        case 'FORM': return SymbolKind.Form;
-        case 'PART': return SymbolKind.Part;
-        case 'LINE': return SymbolKind.Line;
-        case 'FIELD': return SymbolKind.Field;
-        case 'MENU': return SymbolKind.Menu;
-        case 'COLLECTION': return SymbolKind.Collection;
-        case 'FUNCTION': return SymbolKind.Function;
-        case 'VARIABLE': return SymbolKind.Variable;
-        case 'BUTTON': return SymbolKind.Button;
-        case 'KEY': return SymbolKind.Key;
-        case 'BORDER': return SymbolKind.Border;
-        case 'STYLE': return SymbolKind.Style;
-        case 'COLOR': return SymbolKind.Color;
-        case 'OBJECT': return SymbolKind.Object;
-        default: return SymbolKind.Unknown;
-    }
-}

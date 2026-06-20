@@ -28,3 +28,14 @@ export function createDiagnostic(rule: DiagnosticRule, range: { start: any, end:
         source: 'tdl'
     };
 }
+
+export function createDiagnosticWithData<T>(
+    rule: DiagnosticRule,
+    range: { start: any, end: any },
+    data: T,
+    ...args: any[]
+) {
+    const diag = createDiagnostic(rule, range, ...args) as ReturnType<typeof createDiagnostic> & { data: T };
+    diag.data = data;
+    return diag;
+}

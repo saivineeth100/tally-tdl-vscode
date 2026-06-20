@@ -33,7 +33,7 @@ describe('XML Schema Validation', () => {
             isPrimary: true
         };
         
-        mockScopeManager.globalScope.schemas.set('VOUCHER', voucherSchema);
+        mockScopeManager.globalScope.schemas.set('voucher', voucherSchema);
         
         const ledgerSchema: SchemaSymbol = {
             name: 'Ledger Entry',
@@ -49,7 +49,7 @@ describe('XML Schema Validation', () => {
             isPrimary: false
         };
         
-        mockScopeManager.globalScope.schemas.set('LEDGERENTRY', ledgerSchema);
+        mockScopeManager.globalScope.schemas.set('ledgerentry', ledgerSchema);
     });
 
     const createDummyDoc = () => ({
@@ -112,5 +112,31 @@ describe('XML Schema Validation', () => {
         const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), undefined, mockScopeManager);
         expect(diagnostics.length).toBe(1);
         expect(diagnostics[0].code).toBe(DiagnosticRules.InvalidLogicalValue.code);
+    });
+
+    it('should validate schema with mixed-case name: vOuChEr', async () => {
+        const sourceFile = new SourceFile(0, 100);
+        const def = new DefinitionNode(0, 50, new Token(TokenKind.OpenSquareBracketToken, 0, 0, 1), new IdentifierNode([], 'vOuChEr'), new Token(TokenKind.CloseSquareBracketToken, 10, 10, 1));
+        sourceFile.definitions.push(def);
+        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), undefined, mockScopeManager);
+        expect(diagnostics.length).toBe(0);
+    });
+
+    it('should validate schema with original case: Voucher', async () => {
+        const sourceFile = new SourceFile(0, 100);
+        const def = new DefinitionNode(0, 50, new Token(TokenKind.OpenSquareBracketToken, 0, 0, 1), new IdentifierNode([], 'Voucher'), new Token(TokenKind.CloseSquareBracketToken, 10, 10, 1));
+        sourceFile.definitions.push(def);
+        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), undefined, mockScopeManager);
+        expect(diagnostics.length).toBe(0);
+    });
+
+    it('should resolve schema properties with .LIST suffix normalization', async () => {
+        const sourceFile = new SourceFile(0, 100);
+        const def = new DefinitionNode(0, 50, new Token(TokenKind.OpenSquareBracketToken, 0, 0, 1), new IdentifierNode([], 'VOUCHER'), new Token(TokenKind.CloseSquareBracketToken, 10, 10, 1));
+        const attr = new AttributeNode(10, 20, new IdentifierNode([], 'PARTY LEDGER NAME.LIST'), new Token(TokenKind.ColonToken, 0, 0, 1), []);
+        def.attributes.push(attr);
+        sourceFile.definitions.push(def);
+        const diagnostics = await validateSourceFile(sourceFile, createDummyDoc(), undefined, mockScopeManager);
+        expect(diagnostics.length).toBe(0);
     });
 });

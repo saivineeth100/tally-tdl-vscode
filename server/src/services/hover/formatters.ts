@@ -62,7 +62,9 @@ export function createAttributeHover(attrSym: AttributeSymbol): string {
             if (param.IsMandatory) parts.push('**Required**');
             if (param.DataType) parts.push(`Type: ${param.DataType}`);
             if (param.RefersTo) parts.push(`Refers to: ${param.RefersTo.trim()}`);
-            if (param.Keywords) parts.push(`Keywords: ${param.Keywords}`);
+            if (!(param.KeywordSet && param.KeywordSet === 'tdlActions') && param.Keywords) {
+                parts.push(`Keywords: ${param.Keywords.join(", ")}`);
+            }
             lines.push(`${idx + 1}. ${parts.join(', ') || 'Value'}`);
         });
     }
@@ -99,13 +101,10 @@ export function createParameterHover(param: TDLParameter, paramIndex: number): s
         infoLines.push(`- Refers to: \`${param.RefersTo.trim()}\` definition`);
     }
 
-    if (param.KeywordSet) {
-        infoLines.push(`- Keyword Set: ${param.KeywordSet}`);
-    }
-
-    if (param.Keywords) {
+    if (!(param.KeywordSet && param.KeywordSet === 'tdlActions') && param.Keywords) {
         infoLines.push(`- Valid values: ${param.Keywords}`);
     }
+
 
     if (param.DataType?.toLowerCase() === 'logical') {
         infoLines.push('- Valid values: `Yes`, `No`');
@@ -127,9 +126,9 @@ export function createFunctionHover(func: FunctionSymbol | ActionSymbol): string
         if (!p.IsMandatory) pStr = `[${pStr}]`;
         return pStr;
     });
-    
+
     const sig = `$$${func.name}(${paramStrings.join(', ')})${func.returnType ? ': ' + func.returnType : ''}`;
-    
+
     lines.push('```tdl');
     lines.push(sig);
     lines.push('```');
@@ -149,8 +148,8 @@ export function createFunctionHover(func: FunctionSymbol | ActionSymbol): string
             if (param.DataType) parts.push(`Type: \`${param.DataType}\``);
             if (param.RefersTo) parts.push(`Refers to: \`${param.RefersTo.trim()}\``);
             if (param.Keywords) parts.push(`Keywords: \`${param.Keywords}\``);
-            
-            lines.push(`- \`${param.ParameterType || 'param' + (idx+1)}\` &mdash; ${parts.join(', ')}`);
+
+            lines.push(`- \`${param.ParameterType || 'param' + (idx + 1)}\` &mdash; ${parts.join(', ')}`);
         });
     }
 
@@ -158,7 +157,7 @@ export function createFunctionHover(func: FunctionSymbol | ActionSymbol): string
     const actionFunc = func as ActionSymbol;
     if (actionFunc.category) metaParts.push(`Category: **${actionFunc.category}**`);
     if (actionFunc.mode) metaParts.push(`Mode: **${actionFunc.mode}**`);
-    
+
     if (metaParts.length > 0) {
         lines.push('___');
         lines.push(metaParts.join(' | '));

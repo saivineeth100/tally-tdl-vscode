@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renameSymbol, prepareRename } from '../rename';
 import { DocManager } from '../../docManager';
 import { TextDocuments, Position, RenameParams, PrepareRenameParams } from 'vscode-languageserver';
@@ -6,6 +6,8 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Parser } from '../../parser/parser';
 import { ScopeManager } from '../scopeManager';
 import { SymbolTable } from '../symbolTable';
+import { buildFileScope } from '../scopeManager/scopeBuilder';
+import * as fs from 'fs';
 
 function setupMocks(files: Record<string, string>) {
     const docs = new Map<string, TextDocument>();
@@ -53,7 +55,6 @@ function setupMocks(files: Record<string, string>) {
     const scopeManager = new ScopeManager(symbolTable);
 
     // Build scopes
-    const { buildFileScope } = require('../scopeBuilder');
     for (const [uri, state] of docStates.entries()) {
         buildFileScope(scopeManager, uri, state.sourceFile);
     }
@@ -62,11 +63,11 @@ function setupMocks(files: Record<string, string>) {
     const reportAttrs = new Map<string, any>();
     reportAttrs.set('use', { name: 'Use', parameters: [{ RefersTo: 'Report' }] });
     reportAttrs.set('set', { name: 'Set', parameters: [{ RefersTo: 'Variable' }, { RefersTo: 'Expression' }] });
-    scopeManager.globalScope.attributes.set('REPORT', reportAttrs);
+    scopeManager.globalScope.attributes.set('report', reportAttrs);
 
     const formAttrs = new Map<string, any>();
     formAttrs.set('parts', { name: 'Parts', parameters: [{ IsList: true, RefersTo: 'Part' }] });
-    scopeManager.globalScope.attributes.set('FORM', formAttrs);
+    scopeManager.globalScope.attributes.set('form', formAttrs);
 
 
     const mockDocManager = {
@@ -201,6 +202,9 @@ Use: BaseReport
         it('should exclude prefix from range for variables', () => {
             const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
                 'file:///test.tdl': `
+[System: Variable]
+MyVar : String
+
 [Report: Test]
 Local: Field: Default: Set as: ##|MyVar
 `
@@ -217,6 +221,83 @@ Local: Field: Default: Set as: ##|MyVar
             const doc = mockDocs.get(targetUri)!;
             const rangeText = doc.getText(range);
             expect(rangeText).toBe('MyVar');
+        });
+    });
+    describe('Cross-file rename in closed files', () => {
+        it('should preserve # prefix in closed files', async () => {
+            const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
+                'file:///test.tdl': `
+[Field: |MyField]
+Set as: "Hello"
+`,
+                'file:///closed.tdl': `
+[Report: Test]
+Local: Field: Default: Set as: #MyField
+`
+            });
+            
+            const closedUri = 'file:///closed.tdl';
+            const closedContent = (mockDocs as any).get(closedUri).getText();
+            const originalGet1 = mockDocs.get;
+            (mockDocs as any).get = (uri: string) => uri === closedUri ? undefined : originalGet1(uri);
+            
+            const readFileSpy = vi.spyOn(fs.promises, 'readFile').mockImplementation(async (path: any) => {
+                if (path.replace(/\\/g, '/').endsWith('closed.tdl')) {
+                    return Buffer.from(closedContent, 'utf-8');
+                }
+                throw new Error('File not found');
+            });
+            
+            const params: RenameParams = {
+                textDocument: { uri: targetUri },
+                position,
+                newName: 'NewField'
+            };
+            
+            const edit = await renameSymbol(params, mockDocManager, mockDocs);
+            expect(edit).toBeDefined();
+            expect(edit?.changes?.[closedUri]?.[0]?.newText).toBe('NewField');
+            expect(edit?.changes?.[closedUri]?.[0]?.range.start.character).toBe(32); 
+            
+            readFileSpy.mockRestore();
+        });
+
+        it('should preserve ## prefix in closed files', async () => {
+            const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
+                'file:///test.tdl': `
+[System: Variable]
+|MyVar : String
+`,
+                'file:///closed.tdl': `
+[Report: Test]
+Local: Field: Default: Set as: ##MyVar
+`
+            });
+            
+            const closedUri = 'file:///closed.tdl';
+            const closedContent = (mockDocs as any).get(closedUri).getText();
+            const originalGet2 = mockDocs.get;
+            (mockDocs as any).get = (uri: string) => uri === closedUri ? undefined : originalGet2(uri);
+            
+            const readFileSpy = vi.spyOn(fs.promises, 'readFile').mockImplementation(async (path: any) => {
+                if (path.replace(/\\/g, '/').endsWith('closed.tdl')) {
+                    return Buffer.from(closedContent, 'utf-8');
+                }
+                throw new Error('File not found');
+            });
+            
+            const params: RenameParams = {
+                textDocument: { uri: targetUri },
+                position,
+                newName: 'NewVar'
+            };
+            
+            const edit = await renameSymbol(params, mockDocManager, mockDocs);
+            expect(edit).toBeDefined();
+            expect(edit?.changes?.[closedUri]?.[0]?.newText).toBe('NewVar');
+            expect(edit?.changes?.[closedUri]?.[0]?.range.start.character).toBe(33); // Skip `##`
+            
+            readFileSpy.mockRestore();
         });
     });
 });

@@ -315,10 +315,21 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
 
     const scope = scopeMgr.getScopeAt(params.textDocument.uri, offset);
     const projectScope = docManager.getProjectNodes(params.textDocument.uri);
+    
     if (scope) {
-        const resolved = scopeMgr.resolve(ref.name, scope, projectScope);
+        const resolved = scopeMgr.resolveDefinition(
+            ref.name,
+            ref.expectedType,
+            scope,
+            projectScope
+        );
+
         if (resolved) {
-            // Found via ScopeManager!
+            // Don't navigate to metadata-only definitions
+            if (resolved.uri === 'global:metadata' || (resolved.start === 0 && resolved.end === 0)) {
+                return null; // Let hover provider show info instead
+            }
+
             const targetDoc = docs.get(resolved.uri);
             if (targetDoc) {
                 return {
@@ -328,7 +339,7 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
                         end: targetDoc.positionAt(resolved.end)
                     }
                 };
-            } else if (resolved.uri !== 'global:metadata') {
+            } else {
                 // Read from disk
                 try {
                     const filePath = URI.parse(resolved.uri).fsPath;
@@ -346,97 +357,10 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
                 } catch (e) {
                     connection.console.error(`Error reading file for definition: ${e}`);
                 }
-            } else if (resolved.uri === 'global:metadata') {
-                connection.window.showInformationMessage(`Definition '${ref.name}' is part of default TDL source.`);
-                return null;
-            }
-        }
-    }
 
-    // Look up the ORIGINAL definition in the same file (skip modifier definitions)
-    let targetDef = findDefinitionByName(docState.sourceFile, ref.name, ref.expectedType, true);
-
-    // If not found in current file, look in symbol table (cross-file)
-    if (!targetDef) {
-        const symbols = docManager.getSymbolTable(params.textDocument.uri).findAllByName(ref.name);
-        // connection.console.log(`  Symbol table lookup: found ${symbols?.length || 0} symbols`);
-
-        if (symbols && symbols.length > 0) {
-            // Find matching symbol with correct type
-            for (const symbol of symbols) {
-                if (symbol.definitionType?.toLowerCase() === ref.expectedType.toLowerCase()) {
-                    // Get the target document to convert offset to position
-                    const targetDoc = docs.get(symbol.uri);
-                    if (targetDoc) {
-                        return {
-                            uri: symbol.uri,
-                            range: {
-                                start: targetDoc.positionAt(symbol.start),
-                                end: targetDoc.positionAt(symbol.end)
-                            }
-                        };
-                    } else {
-                        // Document not open - read from disk to calculate position
-                        try {
-                            const filePath = URI.parse(symbol.uri).fsPath;
-                            if (fs.existsSync(filePath)) {
-                                const content = fs.readFileSync(filePath, 'utf-8');
-                                const tempDoc = TextDocument.create(symbol.uri, 'tally', 1, content);
-                                return {
-                                    uri: symbol.uri,
-                                    range: {
-                                        start: tempDoc.positionAt(symbol.start),
-                                        end: tempDoc.positionAt(symbol.end)
-                                    }
-                                };
-                            }
-                        } catch (e) {
-                            connection.console.error(`Error reading file for definition: ${e}`);
-                        }
-
-                        // Fallback
-                        return {
-                            uri: symbol.uri,
-                            range: {
-                                start: { line: 0, character: 0 },
-                                end: { line: 0, character: 0 }
-                            }
-                        };
-                    }
-                }
-            }
-            // If no exact type match, return first match
-            const symbol = symbols[0];
-            const targetDoc = docs.get(symbol.uri);
-            if (targetDoc) {
+                // Fallback
                 return {
-                    uri: symbol.uri,
-                    range: {
-                        start: targetDoc.positionAt(symbol.start),
-                        end: targetDoc.positionAt(symbol.end)
-                    }
-                };
-            } else {
-                // Document not open - read from disk to calculate position
-                try {
-                    const filePath = URI.parse(symbol.uri).fsPath;
-                    if (fs.existsSync(filePath)) {
-                        const content = fs.readFileSync(filePath, 'utf-8');
-                        const tempDoc = TextDocument.create(symbol.uri, 'tally', 1, content);
-                        return {
-                            uri: symbol.uri,
-                            range: {
-                                start: tempDoc.positionAt(symbol.start),
-                                end: tempDoc.positionAt(symbol.end)
-                            }
-                        };
-                    }
-                } catch (e) {
-                    connection.console.error(`Error reading file for definition: ${e}`);
-                }
-
-                return {
-                    uri: symbol.uri,
+                    uri: resolved.uri,
                     range: {
                         start: { line: 0, character: 0 },
                         end: { line: 0, character: 0 }
@@ -444,27 +368,9 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
                 };
             }
         }
-
-        // Check Default TDL
-        if (ref.expectedType) {
-            const defs = scopeMgr.existingDefinitions.get(normalizeTypeName(ref.expectedType));
-            if (defs && defs.has(normalizeTypeName(ref.name))) {
-                connection.window.showInformationMessage(`Definition '${ref.name}' is part of default TDL source.`);
-            }
-        }
-
-        return null;
     }
 
-    // Get the location of the definition from current file
-    const loc = getDefinitionLocation(targetDef);
-    return {
-        uri: params.textDocument.uri,
-        range: {
-            start: offsetToPosition(doc, loc.start),
-            end: offsetToPosition(doc, loc.end)
-        }
-    };
+    return null;
 });
 
 // Handle semantic tokens request

@@ -1,7 +1,7 @@
-import { SourceFile, SyntaxKind, IdentifierNode, FunctionCallNode } from '../../parser/ast';
+import { SourceFile, SyntaxKind, IdentifierNode, FunctionCallNode, Node } from '../../parser/ast';
 import { ScopeManager } from '../scopeManager';
 import { findFunctionCallAtOffset } from './astResolver';
-import { getDefinitionAtOffset } from '../definition';
+import { findDefinitionAtOffset, findNodeAtOffset, findAttributeAtOffset, findStatementAtOffset } from '../../parser/astQuery';
 import { 
     createHoverContent, 
     createAttributeHover, 
@@ -42,38 +42,24 @@ export function getHoverInfo(
             let foundIdent: IdentifierNode | null = null;
             let foundText = '';
             
-            // A simple traversal of definitions and attributes to find the node at offset
-            for (const def of sourceFile.definitions) {
-                if (offset >= def.start && offset <= def.end) {
-                    for (const attr of def.attributes) {
-                        if (offset >= attr.start && offset <= attr.end) {
-                            for (const val of attr.value) {
-                                if (val.kind === SyntaxKind.Identifier && offset >= val.start && offset <= val.end) {
-                                    foundIdent = val as IdentifierNode;
-                                    foundText = foundIdent.text;
-                                } else if (val.kind === SyntaxKind.FunctionCall) {
-                                    const fn = val as FunctionCallNode;
-                                    for (const arg of fn.arguments) {
-                                        if (arg.kind === SyntaxKind.Identifier && offset >= arg.start && offset <= arg.end) {
-                                            foundIdent = arg as IdentifierNode;
-                                            foundText = foundIdent.text;
-                                        }
-                                    }
-                                }
-                            }
-                        }
+            const def = findDefinitionAtOffset(sourceFile, offset);
+            if (def) {
+                let searchNodes: Node[] = [];
+                const attr = findAttributeAtOffset(def, offset);
+                if (attr) {
+                    searchNodes = attr.value;
+                } else {
+                    const stmt = findStatementAtOffset(def, offset);
+                    if (stmt) {
+                        searchNodes = stmt.args;
                     }
-                    if (def.statements) {
-                        for (const stmt of def.statements) {
-                            if (offset >= stmt.start && offset <= stmt.end) {
-                                for (const arg of stmt.args) {
-                                    if (arg.kind === SyntaxKind.Identifier && offset >= arg.start && offset <= arg.end) {
-                                        foundIdent = arg as IdentifierNode;
-                                        foundText = foundIdent.text;
-                                    }
-                                }
-                            }
-                        }
+                }
+                
+                if (searchNodes.length > 0) {
+                    const node = findNodeAtOffset(searchNodes, offset);
+                    if (node?.kind === SyntaxKind.Identifier) {
+                        foundIdent = node as IdentifierNode;
+                        foundText = foundIdent.text;
                     }
                 }
             }
@@ -82,10 +68,17 @@ export function getHoverInfo(
                 const varName = foundText.replace(/^##?/, '');
                 const resolved = scopeManager.resolveVariable(varName, scope, projectScope);
                 if (resolved) {
-                    return {
-                        type: 'attribute', // legacy type naming
-                        content: `**${foundText}**\n\n*Type: ${resolved.definitionType}*\n*Scope: ${resolved.uri === uri ? 'Local' : 'Project/Global'}*\n*Source: ${resolved.uri}*`
-                    };
+                    if (resolved.uri === 'global:metadata' || (resolved.start === 0 && resolved.end === 0)) {
+                        return {
+                            type: 'attribute',
+                            content: `**${foundText}**\n\n*Type: ${resolved.definitionType || 'Variable'}*\n*Built-in System Variable*`
+                        };
+                    } else {
+                        return {
+                            type: 'attribute', // legacy type naming
+                            content: `**${foundText}**\n\n*Type: ${resolved.definitionType}*\n*Scope: ${resolved.uri === uri ? 'Local' : 'Project/Global'}*\n*Source: ${resolved.uri}*`
+                        };
+                    }
                 } else {
                     return {
                         type: 'attribute',
@@ -97,7 +90,7 @@ export function getHoverInfo(
     }
 
     // Find definition at offset
-    const def = getDefinitionAtOffset(sourceFile, offset);
+    const def = findDefinitionAtOffset(sourceFile, offset);
     if (!def) {
         return null;
     }

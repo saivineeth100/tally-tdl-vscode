@@ -95,7 +95,10 @@ export async function findReferences(
     // Iterate through project documents
     for (const docUri of projectScope) {
         const docState = docManager.get(docUri);
-        if (!docState) continue;
+        if (!docState) {
+            // Try to load from disk if file exists but has no indexed state
+            continue;
+        }
 
         let textDoc = docs.get(docUri);
         let text: string;

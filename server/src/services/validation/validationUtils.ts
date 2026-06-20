@@ -8,6 +8,9 @@ import { ScopeManager } from "../scopeManager";
  * Some types can be used interchangeably or are subsets of others
  */
 export function areTypesCompatible(expected: string, actual: string): boolean {
+    expected = normalizeTypeName(expected || '');
+    actual = normalizeTypeName(actual || '');
+
     // Same type after normalization
     if (expected === actual) return true;
 

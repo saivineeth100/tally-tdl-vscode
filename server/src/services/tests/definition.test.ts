@@ -6,29 +6,28 @@ import { TokenKind } from '../../parser/tokenKind';
 
 import { Parser } from '../../parser/parser';
 
-// Mock Metadata
-const mockMetadata = {
-    findDefinitionAttribute: (name: string, type?: string) => {
-        if (name.toLowerCase() === 'parts') {
-            return {
-                Name: 'Part',
-                Parameters: [
-                    { IsList: true, RefersTo: 'Part' }
-                ]
-            };
-        }
-        if (name.toLowerCase() === 'use') {
-            return {
-                Name: 'Use',
-                Parameters: [
-                    { RefersTo: 'Report' } // Alias for Report/Form/etc inheritance
-                ]
-            };
-        }
-        return undefined;
-    },
-    actions: []
-} as any;
+import { ScopeManager } from '../scopeManager';
+import { SymbolTable } from '../symbolTable';
+
+// Mock ScopeManager
+const symbolTable = new SymbolTable();
+const mockScopeManager = new ScopeManager(symbolTable);
+
+// Add 'Form' attribute 'parts'
+const formAttrs = new Map<string, any>();
+formAttrs.set('parts', {
+    name: 'Part',
+    parameters: [
+        { IsList: true, RefersTo: 'Part' }
+    ]
+});
+formAttrs.set('use', {
+    name: 'Use',
+    parameters: [
+        { RefersTo: 'Report' }
+    ]
+});
+mockScopeManager.globalScope.attributes.set('FORM', formAttrs);
 
 function createMockSourceFile(tdl: string): { sourceFile: SourceFile, offset: number } {
     const parser = new Parser(tdl);
@@ -50,7 +49,7 @@ describe('Definition Service - References', () => {
 
         const { sourceFile } = createMockSourceFile(text);
 
-        const ref = findReferenceAtOffset(sourceFile, offset, text, mockMetadata);
+        const ref = findReferenceAtOffset(sourceFile, offset, text, mockScopeManager);
 
         expect(ref).toBeDefined();
         expect(ref?.name).toBe('P2');
@@ -64,7 +63,7 @@ describe('Definition Service - References', () => {
 
         const { sourceFile } = createMockSourceFile(text);
 
-        const ref = findReferenceAtOffset(sourceFile, offset, text, mockMetadata);
+        const ref = findReferenceAtOffset(sourceFile, offset, text, mockScopeManager);
 
         expect(ref).toBeDefined();
         expect(ref?.name).toBe('MyPart');
@@ -78,10 +77,28 @@ describe('Definition Service - References', () => {
         const offset = text.indexOf('My Part Name') + 4; // inside "Part"
 
         const { sourceFile } = createMockSourceFile(text);
-        const ref = findReferenceAtOffset(sourceFile, offset, text, mockMetadata);
+        const ref = findReferenceAtOffset(sourceFile, offset, text, mockScopeManager);
 
         expect(ref).toBeDefined();
         expect(ref?.name).toBe('My Part Name');
         expect(ref?.expectedType).toBe('Part');
+    });
+
+    it('early-exits for offsets outside definition range', () => {
+        const text = `[Form: Test1]
+            Part: P1
+        [Form: Test2]
+            Part: P2`;
+        const { sourceFile } = createMockSourceFile(text);
+        
+        // Offset inside Test2
+        const offset = text.indexOf('P2') + 1;
+        
+        // We can't directly assert the early exit since it's an internal optimization,
+        // but we can ensure it still correctly finds the reference.
+        const ref = findReferenceAtOffset(sourceFile, offset, text, mockScopeManager);
+        
+        expect(ref).toBeDefined();
+        expect(ref?.name).toBe('P2');
     });
 });

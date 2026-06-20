@@ -5,6 +5,7 @@ import { normalizeTypeName } from "../utils";
 import { areTypesCompatible, inferExpressionType } from "./validationUtils";
 import { DiagnosticRules, createDiagnostic } from "../../diagnostics";
 import { ScopeManager } from "../scopeManager";
+import { validateFunctionArity } from "./arityValidation";
 
 /**
  * Recursively validate function calls - checks return type and validates nested function arguments
@@ -13,13 +14,15 @@ import { ScopeManager } from "../scopeManager";
  * @param doc The text document for position calculation
  * @param scopeManager ScopeManager containing function definitions
  * @param diagnostics Array to push diagnostics into
+ * @param projectScope Optional project scope for user-defined function validation
  */
 export function validateFunctionCall(
     funcNode: FunctionCallNode,
     expectedType: string | undefined,
     doc: TextDocument,
     scopeManager: ScopeManager,
-    diagnostics: Diagnostic[]
+    diagnostics: Diagnostic[],
+    projectScope?: Set<string>
 ): void {
     const funcName = funcNode.functionName?.text;
     if (!funcName) return;
@@ -58,11 +61,15 @@ export function validateFunctionCall(
                     paramDef.DataType,
                     doc,
                     scopeManager,
-                    diagnostics
+                    diagnostics,
+                    projectScope
                 );
             }
         }
     }
+
+    // 3. Validate Function Arity
+    validateFunctionArity(funcNode, doc, scopeManager, diagnostics, projectScope);
 }
 
 /**

@@ -11,5 +11,6 @@ export const StatementRules = {
     InvalidExchangeArgument: { code: 'TDL4007', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "Action 'Exchange' requires variables as arguments.", description: "Exchange arguments must be variables." },
     DuplicateLabel: { code: 'TDL4008', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "Duplicate label '{0}'.", description: "Label is already defined." },
     BrokenLabelSeqence: { code: 'TDL4009', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Broken procedural sequence detected. Expected: '{0}'.", description: "Broken sequence" },
-    UnknownAction: { code: 'TDL4010', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Unknown action '{0}'.", description: "Action is not recognized." }
+    UnknownAction: { code: 'TDL4010', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "Unknown action '{0}'.", description: "Action is not recognized." },
+    UnknownKeyword: { code: 'TDL4011', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "Unknown Keyword '{0}'.", description: "Keyword is not recognized." }
 } as const;

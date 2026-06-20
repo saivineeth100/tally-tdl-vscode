@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser/parser';
 import { findReferenceAtOffset } from '../definition';
 import { ScopeManager } from '../scopeManager';
-import { SymbolTable } from '../symbolTable';
+import { SymbolKind, SymbolTable } from '../symbolTable';
 
 describe('Statement Definition Range', () => {
     it('should find reference for multi-word argument in statement', () => {
@@ -27,7 +27,7 @@ describe('Statement Definition Range', () => {
             ],
             totalParameters: 2,
             totalMandatoryParameters: 2,
-            kind: SymbolTable.SymbolKind.Variable // Action
+            kind: SymbolKind.Object // Action
         } as any);
 
         const refMy = findReferenceAtOffset(sourceFile, offsetMy, tdl, mockScopeManager);

@@ -1,8 +1,9 @@
 import { WorkspaceEdit, TextEdit, RenameParams, PrepareRenameParams, Range, TextDocuments } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { DocManager } from '../docManager';
+import { DocManager, readFileWithEncoding } from '../docManager';
 import { findReferences } from './references';
 import { findReferenceAtOffset } from './definition';
+import { URI } from 'vscode-uri';
 
 export async function renameSymbol(
     params: RenameParams,
@@ -62,8 +63,29 @@ export async function renameSymbol(
 
             changes[loc.uri].push(TextEdit.replace(adjustedRange, newName));
         } else {
-            // Document not open, assume direct replacement
-            changes[loc.uri].push(TextEdit.replace(loc.range, newName));
+            // Document not open — read from disk to preserve prefixes
+            try {
+                const fsPath = URI.parse(loc.uri).fsPath;
+                const content = await readFileWithEncoding(fsPath);
+                const closedDoc = TextDocument.create(loc.uri, 'tally', 1, content);
+                let startOff = closedDoc.offsetAt(loc.range.start);
+                const endOff = closedDoc.offsetAt(loc.range.end);
+                const originalText = closedDoc.getText(loc.range);
+
+                if (originalText.startsWith('$$')) startOff += 2;
+                else if (originalText.startsWith('##')) startOff += 2;
+                else if (originalText.startsWith('#')) startOff += 1;
+                else if (originalText.startsWith('$')) startOff += 1;
+
+                const adjustedRange = {
+                    start: closedDoc.positionAt(startOff),
+                    end: closedDoc.positionAt(endOff)
+                };
+                changes[loc.uri].push(TextEdit.replace(adjustedRange, newName));
+            } catch (err) {
+                console.warn(`[rename] Error reading file ${loc.uri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+                changes[loc.uri].push(TextEdit.replace(loc.range, newName));
+            }
         }
     }
 

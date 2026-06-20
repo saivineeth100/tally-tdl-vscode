@@ -1,8 +1,10 @@
 import { beforeAll } from 'vitest';
 import { ScopeManager } from './services/scopeManager/index';
 import { SymbolTable } from './services/symbolTable';
-import { loadMetadata } from './services/metadataLoader';
 import * as path from 'path';
+
+import * as v8 from 'v8';
+import * as fs from 'fs';
 
 /**
  * Global ScopeManager instance shared across all tests
@@ -15,14 +17,20 @@ export let testScopeManager: ScopeManager | undefined;
  */
 beforeAll(async () => {
     try {
-        console.log('Loading TDL metadata for tests...');
-        const metadataPath = path.join(__dirname, '..', 'data');
-        const dummyTable = new SymbolTable();
-        testScopeManager = new ScopeManager(dummyTable);
-        await loadMetadata(metadataPath, "7.0", testScopeManager);
-        console.log('✓ TDL metadata loaded successfully');
+        const cachePath = path.join(__dirname, '..', 'data', 'test-metadata-cache.bin');
+        
+        if (fs.existsSync(cachePath)) {
+            const buffer = fs.readFileSync(cachePath);
+            const deserialized = v8.deserialize(buffer);
+            Object.setPrototypeOf(deserialized, ScopeManager.prototype);
+            if (deserialized.symbolTable) {
+                Object.setPrototypeOf(deserialized.symbolTable, SymbolTable.prototype);
+            }
+            testScopeManager = deserialized;
+        } else {
+            console.error('Test Setup Error: TDL metadata cache not found! Run "npm run test:setup" first.');
+        }
     } catch (error) {
-        console.warn('⚠ Failed to load metadata, tests will run without it:', error);
-        testScopeManager = undefined;
+        console.error('Test Setup Error:', error);
     }
-}, 60000); // Increase timeout to 60s for slow environments
+}, 30000);

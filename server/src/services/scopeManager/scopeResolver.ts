@@ -1,5 +1,5 @@
 import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, DefinitionSymbol, AttributeSymbol, ActionSymbol, SchemaSymbol } from '../symbolTable';
-import { Scope, ScopeKind, definitionTypeToSymbolKind } from './types';
+import { Scope, ScopeKind, definitionTypeToSymbolKind, hasFunctionsAndActions, hasDefinitions, hasAttributes, hasSchemas } from './types';
 import { normalizeTypeName, getInterchangeableTypes } from '../utils';
 
 export interface IScopeResolverState {
@@ -7,6 +7,7 @@ export interface IScopeResolverState {
     parentDefinitions: Map<string, Set<string>>;
     childDefinitions: Map<string, Set<string>>;
     metadata?: any;
+    modifierContributions?: Map<string, import('./types').ModifierContribution[]>;
     
     findDefinitionScope(id: string): Scope | undefined;
     findGlobalSymbolsByName(name: string, projectScope?: Set<string>): SymbolInfo[];
@@ -16,6 +17,9 @@ export interface ResolutionContext {
     visitedScopes: Set<string>;
     state: IScopeResolverState;
     initialScope: Scope;
+    caller?: ResolutionContext;
+    invocationKind?: 'function' | 'report' | 'collection' | 'action' | 'block' | 'root';
+    visitedDefinitions?: Set<string>;
 }
 
 type SearchStrategy<T> = (scope: Scope) => T | undefined;
@@ -41,6 +45,19 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
                 const useScope = state.findDefinitionScope(useId);
                 if (useScope) {
                     const res = searchScopeAndParents(useScope);
+                    if (res !== undefined) return res;
+                }
+            }
+        }
+        
+        // Check Modifier contributions
+        if (state.modifierContributions) {
+            const modifiers = state.modifierContributions.get(scope.id.toLowerCase());
+            if (modifiers) {
+                // Sort by order so earlier modifiers are visited first
+                const sortedMods = [...modifiers].sort((a, b) => a.order - b.order);
+                for (const mod of sortedMods) {
+                    const res = searchScopeAndParents(mod.scope);
                     if (res !== undefined) return res;
                 }
             }
@@ -73,6 +90,12 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
         }
         current = current.parent;
     }
+
+    // Follow caller context if provided
+    if (context.caller) {
+        return traverseScopes(context.caller, strategy);
+    }
+
     return undefined;
 }
 
@@ -95,6 +118,17 @@ function visitScopes(context: ResolutionContext, visitor: VisitorStrategy): void
                 const useScope = state.findDefinitionScope(useId);
                 if (useScope) {
                     walkScopeAndParents(useScope);
+                }
+            }
+        }
+
+        // Check Modifier contributions
+        if (state.modifierContributions) {
+            const modifiers = state.modifierContributions.get(scope.id.toLowerCase());
+            if (modifiers) {
+                const sortedMods = [...modifiers].sort((a, b) => a.order - b.order);
+                for (const mod of sortedMods) {
+                    walkScopeAndParents(mod.scope);
                 }
             }
         }
@@ -122,47 +156,107 @@ function visitScopes(context: ResolutionContext, visitor: VisitorStrategy): void
         }
         current = current.parent;
     }
+
+    // Follow caller context if provided
+    if (context.caller) {
+        visitScopes(context.caller, visitor);
+    }
 }
 
 // ---- SPECIFIC RESOLVERS ----
 
-export function resolveVariable(state: IScopeResolverState, name: string, initialScope: Scope, projectScope?: Set<string>): VariableSymbol | undefined {
-    const lowerName = name.toLowerCase();
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope };
+export function resolveVariable(
+    state: IScopeResolverState, 
+    name: string, 
+    initialScope: Scope, 
+    projectScope?: Set<string>,
+    callerContext?: ResolutionContext
+): VariableSymbol | undefined {
+    const normalizedName = normalizeTypeName(name);
+    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
     
     // 1. Traverse structured scopes
-    const match = traverseScopes(context, scope => scope.variables.get(lowerName));
+    const match = traverseScopes(context, scope => scope.variables.get(normalizedName));
     if (match) return match;
 
     // 2. Global fallback
     return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Variable) as VariableSymbol | undefined;
 }
 
-export function resolveFunction(state: IScopeResolverState, name: string, initialScope: Scope, projectScope?: Set<string>): FunctionSymbol | ActionSymbol | undefined {
-    const lowerName = name.toLowerCase();
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope };
-    
-    const match = traverseScopes(context, scope => scope.functions.get(lowerName) || scope.actions.get(lowerName));
-    if (match) return match;
-
-    return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Function) as FunctionSymbol | ActionSymbol | undefined;
-}
-
-export function resolveDefinition(state: IScopeResolverState, name: string, defType: string, initialScope: Scope, projectScope?: Set<string>): DefinitionSymbol | undefined {
-    const lowerName = name.toLowerCase();
-    const normalizedType = normalizeTypeName(defType);
-    const typesToCheck = getInterchangeableTypes(normalizedType);
-
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope };
+export function resolveFunction(
+    state: IScopeResolverState, 
+    name: string, 
+    initialScope: Scope, 
+    projectScope?: Set<string>,
+    callerContext?: ResolutionContext
+): FunctionSymbol | undefined {
+    const normalizedName = normalizeTypeName(name);
+    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
     
     const match = traverseScopes(context, scope => {
-        for (const t of typesToCheck) {
-            const sym = scope.definitions.get(t)?.get(lowerName);
-            if (sym) return sym;
+        if (hasFunctionsAndActions(scope)) {
+            return scope.functions.get(normalizedName);
         }
         return undefined;
     });
     if (match) return match;
+
+    return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Function) as FunctionSymbol | undefined;
+}
+
+export function resolveAction(
+    state: IScopeResolverState, 
+    name: string, 
+    initialScope: Scope, 
+    projectScope?: Set<string>,
+    callerContext?: ResolutionContext
+): ActionSymbol | undefined {
+    const normalizedName = normalizeTypeName(name);
+    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
+    
+    const match = traverseScopes(context, scope => {
+        if (hasFunctionsAndActions(scope)) {
+            return scope.actions.get(normalizedName);
+        }
+        return undefined;
+    });
+    if (match) return match;
+
+    // Action definitions in Global fallback
+    return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Function) as ActionSymbol | undefined; // SymbolKind is shared for now
+}
+
+export function resolveDefinition(
+    state: IScopeResolverState, 
+    name: string, 
+    defType: string, 
+    initialScope: Scope, 
+    projectScope?: Set<string>,
+    callerContext?: ResolutionContext
+): DefinitionSymbol | undefined {
+    const normalizedName = normalizeTypeName(name);
+    const normalizedType = normalizeTypeName(defType);
+    const typesToCheck = getInterchangeableTypes(normalizedType);
+
+    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
+    
+    const match = traverseScopes(context, scope => {
+        if (hasDefinitions(scope)) {
+            for (const t of typesToCheck) {
+                const sym = scope.definitions.get(t)?.get(normalizedName);
+                if (sym) return sym;
+            }
+        }
+        return undefined;
+    });
+    if (match) return match;
+
+    // SymbolTable fallback (user definitions)
+    const globalMatch = state.findGlobalSymbolsByName(name, projectScope).find(s => {
+        if (!s.definitionType) return false;
+        return typesToCheck.includes(normalizeTypeName(s.definitionType));
+    });
+    if (globalMatch) return globalMatch as DefinitionSymbol;
 
     // Metadata fallback for existing system definitions
     if (state.metadata && state.metadata.existingDefinitions) {
@@ -181,23 +275,29 @@ export function resolveDefinition(state: IScopeResolverState, name: string, defT
         }
     }
 
-    return state.findGlobalSymbolsByName(name, projectScope).find(s => {
-        if (!s.definitionType) return false;
-        return typesToCheck.includes(normalizeTypeName(s.definitionType));
-    }) as DefinitionSymbol | undefined;
+    return undefined;
 }
 
-export function resolveAttribute(state: IScopeResolverState, name: string, defType: string, initialScope: Scope, projectScope?: Set<string>): AttributeSymbol | undefined {
-    const lowerName = name.toLowerCase();
+export function resolveAttribute(
+    state: IScopeResolverState, 
+    name: string, 
+    defType: string, 
+    initialScope: Scope, 
+    projectScope?: Set<string>,
+    callerContext?: ResolutionContext
+): AttributeSymbol | undefined {
+    const normalizedName = normalizeTypeName(name);
     const normalizedType = normalizeTypeName(defType);
     const typesToCheck = getInterchangeableTypes(normalizedType);
 
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope };
+    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
     
     const match = traverseScopes(context, scope => {
-        for (const t of typesToCheck) {
-            const sym = scope.attributes.get(t)?.get(lowerName);
-            if (sym) return sym;
+        if (hasAttributes(scope)) {
+            for (const t of typesToCheck) {
+                const sym = scope.attributes.get(t)?.get(normalizedName);
+                if (sym) return sym;
+            }
         }
         return undefined;
     });
@@ -206,36 +306,64 @@ export function resolveAttribute(state: IScopeResolverState, name: string, defTy
     return undefined; // Attributes are fully cached in scopes, no global SymbolTable fallback needed
 }
 
-export function resolveSchema(state: IScopeResolverState, name: string, initialScope: Scope, projectScope?: Set<string>): SchemaSymbol | undefined {
-    const lowerName = name.toLowerCase();
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope };
-    
-    const match = traverseScopes(context, scope => scope.schemas.get(lowerName));
-    if (match) return match;
-
-    return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Object && s.definitionType === 'Schema') as SchemaSymbol | undefined;
-}
-
-export function resolveSymbol(state: IScopeResolverState, name: string, initialScope: Scope, projectScope?: Set<string>): SymbolInfo | undefined {
-    // Legacy generic resolve method when the exact type is unknown
-    const lowerName = name.toLowerCase();
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope };
+export function resolveSchema(
+    state: IScopeResolverState, 
+    name: string, 
+    initialScope: Scope, 
+    projectScope?: Set<string>,
+    callerContext?: ResolutionContext
+): SchemaSymbol | undefined {
+    const normalizedName = normalizeTypeName(name);
+    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
     
     const match = traverseScopes(context, scope => {
-        const sym = scope.variables.get(lowerName) 
-            || scope.functions.get(lowerName)
-            || scope.actions.get(lowerName)
-            || scope.schemas.get(lowerName);
+        if (hasSchemas(scope)) {
+            return scope.schemas.get(normalizedName);
+        }
+        return undefined;
+    });
+    if (match) return match;
+
+    return undefined; // Schemas are fully indexed in scope maps
+}
+
+export function resolveSymbol(
+    state: IScopeResolverState, 
+    name: string, 
+    initialScope: Scope, 
+    projectScope?: Set<string>,
+    callerContext?: ResolutionContext
+): SymbolInfo | undefined {
+    // Legacy generic resolve method when the exact type is unknown
+    const normalizedName = normalizeTypeName(name);
+    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
+    
+    const match = traverseScopes(context, scope => {
+        let sym: SymbolInfo | undefined = scope.variables.get(normalizedName);
         if (sym) return sym;
 
-        for (const attrMap of scope.attributes.values()) {
-            const attrSym = attrMap.get(lowerName);
-            if (attrSym) return attrSym;
+        if (hasFunctionsAndActions(scope)) {
+            sym = scope.functions.get(normalizedName) || scope.actions.get(normalizedName);
+            if (sym) return sym;
+        }
+
+        if (hasSchemas(scope)) {
+            sym = scope.schemas.get(normalizedName);
+            if (sym) return sym;
+        }
+
+        if (hasAttributes(scope)) {
+            for (const attrMap of scope.attributes.values()) {
+                const attrSym = attrMap.get(normalizedName);
+                if (attrSym) return attrSym;
+            }
         }
         
-        for (const defMap of scope.definitions.values()) {
-            const defSym = defMap.get(lowerName);
-            if (defSym) return defSym;
+        if (hasDefinitions(scope)) {
+            for (const defMap of scope.definitions.values()) {
+                const defSym = defMap.get(normalizedName);
+                if (defSym) return defSym;
+            }
         }
         return undefined;
     });
@@ -264,9 +392,13 @@ export function resolveSymbol(state: IScopeResolverState, name: string, initialS
     return undefined;
 }
 
-export function getAllVariablesInScope(state: IScopeResolverState, initialScope: Scope): Map<string, VariableSymbol> {
+export function getAllVariablesInScope(
+    state: IScopeResolverState, 
+    initialScope: Scope,
+    callerContext?: ResolutionContext
+): Map<string, VariableSymbol> {
     const variables = new Map<string, VariableSymbol>();
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope };
+    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
 
     visitScopes(context, scope => {
         for (const [key, sym] of scope.variables) {

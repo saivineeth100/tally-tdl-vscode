@@ -1,5 +1,3 @@
-import { normalizeTypeName, getInterchangeableTypes } from '../services/utils';
-
 /**
  * Enumeration of symbol kinds for TDL definitions
  */
@@ -54,7 +52,7 @@ export interface TDLParameter {
     IsMandatory: boolean;
     RefersTo?: string;
     KeywordSet?: string;
-    Keywords?: string;
+    Keywords?: string[];
     IsList: boolean;
     IsVariableArgument: boolean;
     DimensionExpression: boolean;
@@ -109,41 +107,4 @@ export interface DefinitionSymbol extends SymbolInfo {
     // Specific fields for TDL Definitions (e.g., Form, Report) can go here
     isDiscrete?: boolean;
     parameters?: TDLParameter[];
-}
-
-const typeToKindMap = new Map<string, SymbolKind>([
-    ['report', SymbolKind.Report],
-    ['form', SymbolKind.Form],
-    ['part', SymbolKind.Part],
-    ['line', SymbolKind.Line],
-    ['field', SymbolKind.Field],
-    ['menu', SymbolKind.Menu],
-    ['collection', SymbolKind.Collection],
-    ['function', SymbolKind.Function],
-    ['variable', SymbolKind.Variable],
-    ['button', SymbolKind.Button],
-    ['key', SymbolKind.Key],
-    ['border', SymbolKind.Border],
-    ['style', SymbolKind.Style],
-    ['color', SymbolKind.Color],
-    ['object', SymbolKind.Object]
-]);
-
-/**
- * Map TDL definition type string to SymbolKind
- * @param definitionType The definition type from the AST
- * @returns Corresponding SymbolKind
- */
-export function definitionTypeToSymbolKind(definitionType: string): SymbolKind {
-    const normalized = normalizeTypeName(definitionType);
-    const interchangeable = getInterchangeableTypes(normalized);
-    
-    for (const type of interchangeable) {
-        const kind = typeToKindMap.get(type);
-        if (kind !== undefined) {
-            return kind;
-        }
-    }
-    
-    return SymbolKind.Unknown;
 }

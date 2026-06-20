@@ -36,6 +36,9 @@ export interface DocState {
 export class DocManager {
     private docs = new Map<string, DocState>();
 
+    /** Indexed document state for closed files (parsed but not open) */
+    private indexedDocs = new Map<string, DocState>();
+
     /** Global symbol table for TDL documents */
     public readonly tdlSymbolTable = new SymbolTable();
     /** Global symbol table for XML documents */
@@ -68,7 +71,10 @@ export class DocManager {
         private documents: TextDocuments<TextDocument>,
         public resolveIncludePath?: (currentPath: string, name: string) => string | null
     ) {
-        documents.onDidOpen(e => this.rebuild(e.document));
+        documents.onDidOpen(e => {
+            this.indexedDocs.delete(e.document.uri);
+            this.rebuild(e.document);
+        });
         documents.onDidChangeContent(e => {
             const uri = e.document.uri;
             const existing = this.rebuildTimers.get(uri);
@@ -80,8 +86,16 @@ export class DocManager {
         });
         documents.onDidClose(e => {
             this.docs.delete(e.document.uri);
-            this.getSymbolTable(e.document.uri).clearDocument(e.document.uri);
-            this.getScopeManager(e.document.uri).removeFileScope(e.document.uri);
+            // Re-index from disk so closed file remains available for cross-file features
+            const fsPath = URI.parse(e.document.uri).fsPath;
+            if (fs.existsSync(fsPath)) {
+                this.indexFile(fsPath, new Set()).catch(err => {
+                    this.connection.console.warn(`Failed to re-index closed file: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+                });
+            } else {
+                this.getSymbolTable(e.document.uri).clearDocument(e.document.uri);
+                this.getScopeManager(e.document.uri).removeFileScope(e.document.uri);
+            }
             this.connection.sendDiagnostics({ uri: e.document.uri, diagnostics: [] });
         });
     }
@@ -100,7 +114,17 @@ export class DocManager {
      * Get document state for a URI
      */
     get(uri: string): DocState | undefined {
+        return this.docs.get(uri) || this.indexedDocs.get(uri);
+    }
+
+    /** Get only open document state */
+    getOpen(uri: string): DocState | undefined {
         return this.docs.get(uri);
+    }
+
+    /** Get only indexed document state */
+    getIndexed(uri: string): DocState | undefined {
+        return this.indexedDocs.get(uri);
     }
 
     /**
@@ -128,13 +152,16 @@ export class DocManager {
 
         // If no open documents, fall back to re-indexing all currently tracked/indexed files in the graph
         if (openDocs.length === 0) {
-            const allTrackedUris = new Set<string>([...this.includeGraph.keys(), ...this.parentGraph.keys()]);
+            const allTrackedUris = [...new Set<string>([...this.includeGraph.keys(), ...this.parentGraph.keys()])];
             for (const uriStr of allTrackedUris) {
                 const fsPath = URI.parse(uriStr).fsPath;
-                if (fs.existsSync(fsPath)) {
+                try {
+                    await fs.promises.access(fsPath);
                     this.indexFile(fsPath, new Set()).catch(err => {
-                        this.connection.console.error(`Error indexing file ${fsPath}: ${err}`);
+                        this.connection.console.error(`Error indexing file ${fsPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
                     });
+                } catch {
+                    // File no longer exists, skip
                 }
             }
             return;
@@ -143,7 +170,7 @@ export class DocManager {
         // 2. Rebuild open documents
         for (const doc of openDocs) {
             this.rebuild(doc).catch(err => {
-                this.connection.console.error(`Error rebuilding doc ${doc.uri}: ${err}`);
+                this.connection.console.error(`Error rebuilding doc ${doc.uri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
             });
         }
 
@@ -151,10 +178,13 @@ export class DocManager {
         for (const uriStr of allKnownUris) {
             // indexFile internally skips if this.docs.has(uriStr)
             const fsPath = URI.parse(uriStr).fsPath;
-            if (fs.existsSync(fsPath)) {
+            try {
+                await fs.promises.access(fsPath);
                 this.indexFile(fsPath, new Set()).catch(err => {
-                    this.connection.console.error(`Error indexing file ${fsPath}: ${err}`);
+                    this.connection.console.error(`Error indexing file ${fsPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
                 });
+            } catch {
+                // File no longer exists, skip
             }
         }
     }
@@ -170,8 +200,8 @@ export class DocManager {
         }
         this.scanningInProgress = true;
 
-        // Use setImmediate to not block the event loop
-        setImmediate(async () => {
+        // Use setTimeout to not block the event loop
+        setTimeout(async () => {
             try {
                 for (const folderUri of workspaceFolders) {
                     await this.scanFolder(folderUri);
@@ -188,7 +218,7 @@ export class DocManager {
                     this.scanWorkspaceFolders(nextScan);
                 }
             }
-        });
+        }, 0);
     }
 
     /**
@@ -197,11 +227,40 @@ export class DocManager {
     clearFolderSymbols(folderPath: string): void {
         this.tdlSymbolTable.clearFolder(folderPath);
         this.xmlSymbolTable.clearFolder(folderPath);
+        // Clean ScopeManager state for all URIs in this folder
+        const removeURIs: string[] = [];
+        for (const [uri] of this.tdlScopeManager.fileMap) {
+            if (URI.parse(uri).fsPath.startsWith(folderPath)) removeURIs.push(uri);
+        }
+        for (const [uri] of this.xmlScopeManager.fileMap) {
+            if (URI.parse(uri).fsPath.startsWith(folderPath)) removeURIs.push(uri);
+        }
+        for (const uri of removeURIs) {
+            this.getScopeManager(uri).removeFileScope(uri);
+        }
         
         // Also clear include graph entries matching this folder
-        for (const [uri, _] of this.includeGraph.entries()) {
+        for (const [uri, children] of this.includeGraph.entries()) {
             if (URI.parse(uri).fsPath.startsWith(folderPath)) {
                 this.includeGraph.delete(uri);
+            } else {
+                // Clean parent graph entries pointing to removed files
+                for (const childUri of children) {
+                    if (URI.parse(childUri).fsPath.startsWith(folderPath)) {
+                        children.delete(childUri);
+                    }
+                }
+            }
+        }
+        for (const [uri] of this.docs.entries()) {
+            if (URI.parse(uri).fsPath.startsWith(folderPath)) {
+                this.docs.delete(uri);
+            }
+        }
+        
+        for (const [uri] of this.indexedDocs.entries()) {
+            if (URI.parse(uri).fsPath.startsWith(folderPath)) {
+                this.indexedDocs.delete(uri);
             }
         }
         for (const [uri, _] of this.parentGraph.entries()) {
@@ -217,7 +276,8 @@ export class DocManager {
     private async scanFolder(folderUri: string): Promise<void> {
         const folderPath = URI.parse(folderUri).fsPath;
         try {
-            await this.scanDirectory(folderPath);
+            const visited = new Set<string>();
+            await this.scanDirectory(folderPath, visited);
         } catch (error) {
             this.connection.console.error(`Error scanning ${folderPath}: ${error}`);
         }
@@ -226,7 +286,7 @@ export class DocManager {
     /**
      * Recursively scan a directory for TDL files
      */
-    private async scanDirectory(dirPath: string): Promise<void> {
+    private async scanDirectory(dirPath: string, visited: Set<string>): Promise<void> {
         const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
 
         for (const entry of entries) {
@@ -235,12 +295,17 @@ export class DocManager {
             if (entry.isDirectory()) {
                 // Skip node_modules, .git, etc.
                 if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
-                    await this.scanDirectory(fullPath);
+                    await this.scanDirectory(fullPath, visited);
                 }
             } else if (entry.isFile()) {
                 const ext = path.extname(entry.name).toLowerCase();
                 if (ext === '.tpj') {
-                    await this.parseProjectFile(fullPath);
+                    await this.parseProjectFile(fullPath, visited);
+                } else if (['.tdl', '.txt', '.xml', '.tdlxml'].includes(ext)) {
+                    // Index standalone files not referenced by any .tpj
+                    await this.indexFile(fullPath, visited).catch(err => {
+                        this.connection.console.error(`Error indexing standalone file ${fullPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+                    });
                 }
             }
         }
@@ -249,12 +314,12 @@ export class DocManager {
     /**
      * Parse a .tpj file and index its entries
      */
-    private async parseProjectFile(tpjPath: string): Promise<void> {
+    private async parseProjectFile(tpjPath: string, visited: Set<string>): Promise<void> {
         try {
             const content = await readFileWithEncoding(tpjPath);
             const lines = content.split(/\r?\n/);
             const dirPath = path.dirname(tpjPath);
-            const visited = new Set<string>();
+            
             for (let line of lines) {
                 line = line.trim();
                 if (!line || line.startsWith(';') || line.startsWith('[') || line.startsWith(']')) {
@@ -279,24 +344,23 @@ export class DocManager {
                 }
             }
         } catch (err) {
-            this.connection.console.warn(`Error parsing .tpj file ${tpjPath}: ${err}`);
+            this.connection.console.warn(`Error parsing .tpj file ${tpjPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
         }
     }
 
     /**
      * Index a single file for symbols (without storing full doc state)
      */
-    public async indexFile(filePath: string, visited: Set<string> = new Set()): Promise<void> {
+    public async indexFile(filePath: string, indexed: Set<string> = new Set()): Promise<void> {
+        if (indexed.has(filePath)) return;
+        indexed.add(filePath);
+
+        const uri = URI.file(filePath).toString();
+        
+        // If file is open in editor, skip indexing as it's handled by rebuild()
+        if (this.docs.has(uri)) return;
+
         try {
-            const uri = URI.file(filePath).toString();
-            
-            // Prevent circular/duplicate processing in the same scan chain
-            if (visited.has(uri)) return;
-            visited.add(uri);
-
-            // Skip if already in docs (open in editor)
-            if (this.docs.has(uri)) return;
-
             const content = await readFileWithEncoding(filePath);
             const ext = path.extname(filePath).toLowerCase();
             const isXml = ext === '.xml' || ext === '.tdlxml';
@@ -324,7 +388,7 @@ export class DocManager {
                         start: def.start,
                         end: def.end,
                         definitionType: def.type.text,
-                        isModifier: !!def.modifier && def.modifier.Text !== '!'
+                        isModifier: !!def.modifier
                     };
                     symTable.addSymbol(symbolInfo);
                 }
@@ -338,7 +402,7 @@ export class DocManager {
             
             // Recursively index included files FIRST so their symbols exist
             for (const incUri of includes) {
-                await this.indexFile(URI.parse(incUri).fsPath, visited);
+                await this.indexFile(URI.parse(incUri).fsPath, indexed);
             }
             
             // Run validation and send diagnostics
@@ -379,10 +443,16 @@ export class DocManager {
                 return true;
             }) : [];
 
-            this.connection.sendDiagnostics({ uri, diagnostics: finalDiagnostics });
+            this.connection.sendDiagnostics({
+                uri,
+                diagnostics: finalDiagnostics
+            });
+            
+            // Store parsed state for cross-file features (references, rename)
+            this.indexedDocs.set(uri, { sourceFile, diagnostics: finalDiagnostics });
         } catch (err) {
             // Silently skip files that can't be read, but log error
-            this.connection.console.warn(`Error indexing file ${filePath}: ${err}`);
+            this.connection.console.warn(`Error indexing file ${filePath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
         }
     }
 
@@ -547,7 +617,7 @@ export class DocManager {
                     start: def.start,
                     end: def.end,
                     definitionType: def.type.text,
-                    isModifier: !!def.modifier && def.modifier.Text !== '!'
+                    isModifier: !!def.modifier
                 };
                 symTable.addSymbol(symbolInfo);
             }
@@ -564,7 +634,7 @@ export class DocManager {
         for (const incUri of includes) {
             if (!this.docs.has(incUri) && !this.includeGraph.has(incUri)) {
                 this.indexFile(URI.parse(incUri).fsPath, visited).catch(err => {
-                    this.connection.console.warn(`Failed to index new include ${incUri}: ${err}`);
+                    this.connection.console.warn(`Failed to index new include ${incUri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
                 });
             }
         }
