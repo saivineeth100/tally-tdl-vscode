@@ -15,7 +15,8 @@
         "sax": "^1.6.0",
         "vscode-languageserver": "^9.0.1",
         "vscode-languageserver-textdocument": "^1.0.12",
-        "vscode-uri": "^3.1.0"
+        "vscode-uri": "^3.1.0",
+        "tally-tdl-shared": "*"
     },
     "scripts": {
         "test": "vitest run",

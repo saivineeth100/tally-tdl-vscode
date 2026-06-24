@@ -51,8 +51,19 @@ describe('Definition Validation (Mocked)', () => {
         expect(diagnostics.length).toBe(0);
     });
 
-    it('should allow modified definition (!)', async () => {
+    it('should NOT allow ! modifier for existing definition (acts like no modifier)', async () => {
         const tdl = `[!Report: Balance Sheet]`;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
+
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
+        expect(diagnostics.length).toBe(1);
+        expect(diagnostics[0].code).toBe(DiagnosticRules.DuplicateDefinition.code);
+    });
+
+    it('should NOT report ModifierMissingTarget for ! modifier if definition does not exist', async () => {
+        const tdl = `[!Report: New Report]`;
         const parser = new Parser(tdl);
         const sourceFile = parser.parse();
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);

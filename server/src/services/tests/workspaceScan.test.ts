@@ -123,6 +123,8 @@ describe('Workspace scan and Folder cleanup', () => {
             const uri1 = URI.file('d:\\test-workspace\\exists.tdl').toString();
             const uri2 = URI.file('d:\\test-workspace\\deleted.tdl').toString();
             
+            (docManager as any).tpjFiles.add(uri1);
+            (docManager as any).tpjFiles.add(uri2);
             (docManager as any).includeGraph.set(uri1, new Set());
             (docManager as any).includeGraph.set(uri2, new Set());
             

@@ -57,6 +57,9 @@ export class DocManager {
     /** Workspace root folders */
     public workspaceFolders: string[] = [];
 
+    /** Files explicitly mentioned in .tpj files */
+    public tpjFiles = new Set<string>();
+
     /** Directed graph of inclusions: URI -> Set of URIs it includes */
     private includeGraph = new Map<string, Set<string>>();
 
@@ -149,22 +152,12 @@ export class DocManager {
                 allKnownUris.add(node);
             }
         }
-
-        // If no open documents, fall back to re-indexing all currently tracked/indexed files in the graph
-        if (openDocs.length === 0) {
-            const allTrackedUris = [...new Set<string>([...this.includeGraph.keys(), ...this.parentGraph.keys()])];
-            for (const uriStr of allTrackedUris) {
-                const fsPath = URI.parse(uriStr).fsPath;
-                try {
-                    await fs.promises.access(fsPath);
-                    this.indexFile(fsPath, new Set()).catch(err => {
-                        this.connection.console.error(`Error indexing file ${fsPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
-                    });
-                } catch {
-                    // File no longer exists, skip
-                }
+        
+        for (const tpj of this.tpjFiles) {
+            const projectNodes = this.getProjectNodes(tpj);
+            for (const node of projectNodes) {
+                allKnownUris.add(node);
             }
-            return;
         }
 
         // 2. Rebuild open documents
@@ -339,6 +332,8 @@ export class DocManager {
                     entryFile = entryFile.replace(/^["']|["']$/g, '');
                     const targetPath = path.resolve(dirPath, entryFile);
                     if (fs.existsSync(targetPath)) {
+                        const targetUri = URI.file(targetPath).toString();
+                        this.tpjFiles.add(targetUri);
                         await this.indexFile(targetPath, visited);
                     }
                 }
@@ -370,7 +365,16 @@ export class DocManager {
             if (isXml) {
                 sourceFile = parseXmlToAst(content, scopeMgr);
             } else {
-                const parser = new Parser(content);
+                const getFunctionArity = (name: string): number | null => {
+                    const func = scopeMgr.globalScope.functions.get(name.toLowerCase());
+                    if (!func || !func.parameters) return null;
+                    let hasVarArgs = false;
+                    for (const p of func.parameters) {
+                        if (p.IsList || p.IsVariableArgument) hasVarArgs = true;
+                    }
+                    return hasVarArgs ? null : func.parameters.length;
+                };
+                const parser = new Parser(content, undefined, getFunctionArity);
                 sourceFile = parser.parse();
             }
 
@@ -405,10 +409,19 @@ export class DocManager {
                 await this.indexFile(URI.parse(incUri).fsPath, indexed);
             }
             
+            // Check if file should be validated
+            const shouldValidate = this.isUriActive(uri);
+
             // Run validation and send diagnostics
             const languageId = isXml ? 'xml' : 'tdl';
             const doc = TextDocument.create(uri, languageId, 1, content);
             
+            if (!shouldValidate) {
+                this.connection.sendDiagnostics({ uri, diagnostics: [] });
+                this.indexedDocs.set(uri, { sourceFile, diagnostics: [] });
+                return;
+            }
+
             const diagnostics: Diagnostic[] = sourceFile.errors.map(error => ({
                 severity: DiagnosticSeverity.Error,
                 range: { start: doc.positionAt(error.start), end: doc.positionAt(error.end) },
@@ -528,6 +541,49 @@ export class DocManager {
     }
 
     /**
+     * Determine if a URI is part of the active validation set.
+     * A URI is active if it is:
+     * 1. An open file or mentioned in a .tpj file
+     * 2. An included file of an active file (reachable by going UP parentGraph)
+     * 3. A file that includes an active file (reachable by going DOWN includeGraph)
+     */
+    public isUriActive(targetUri: string): boolean {
+        if (this.docs.has(targetUri) || this.tpjFiles.has(targetUri)) return true;
+
+        // Check if it's included by an active file (traverse UP parentGraph)
+        const visitedParents = new Set<string>();
+        const queueParents = [targetUri];
+        while (queueParents.length > 0) {
+            const curr = queueParents.shift()!;
+            if (!visitedParents.has(curr)) {
+                visitedParents.add(curr);
+                if (this.docs.has(curr) || this.tpjFiles.has(curr)) {
+                    return true;
+                }
+                const parents = this.parentGraph.get(curr);
+                if (parents) queueParents.push(...parents);
+            }
+        }
+
+        // Check if it includes an active file (traverse DOWN includeGraph)
+        const visitedChildren = new Set<string>();
+        const queueChildren = [targetUri];
+        while (queueChildren.length > 0) {
+            const curr = queueChildren.shift()!;
+            if (!visitedChildren.has(curr)) {
+                visitedChildren.add(curr);
+                if (this.docs.has(curr) || this.tpjFiles.has(curr)) {
+                    return true;
+                }
+                const children = this.includeGraph.get(curr);
+                if (children) queueChildren.push(...children);
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get all URIs that are in the same project as targetUri.
      * A project is defined as the set of all files reachable from any root that can reach targetUri.
      */
@@ -588,7 +644,16 @@ export class DocManager {
         if (isXml) {
             sourceFile = parseXmlToAst(text, scopeMgr);
         } else {
-            const parser = new Parser(text, oldSourceFile);
+            const getFunctionArity = (name: string): number | null => {
+                const func = scopeMgr.globalScope.functions.get(name.toLowerCase());
+                if (!func || !func.parameters) return null;
+                let hasVarArgs = false;
+                for (const p of func.parameters) {
+                    if (p.IsList || p.IsVariableArgument) hasVarArgs = true;
+                }
+                return hasVarArgs ? null : func.parameters.length;
+            };
+            const parser = new Parser(text, oldSourceFile, getFunctionArity);
             sourceFile = parser.parse();
         }
 

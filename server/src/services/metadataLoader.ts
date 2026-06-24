@@ -296,7 +296,7 @@ function parseParameter(json: any): TDLParameter {
         DataType: (json.Datatype || json.DataType || '').trim(),
         IsMandatory: json["Is Mandatory"] === "Yes",
         RefersTo: (json["Refers To"] || '').trim(),
-        KeywordSet: (json["Keyword Set"] || '').trim(),
+        KeywordSet: normalizeTypeName(json["Keyword Set"] || ''),
         Keywords: json.Keywords?.split(","),
         IsList: json["Is List"] === "Yes",
         IsVariableArgument: json["Variable Argument"] === "Yes",

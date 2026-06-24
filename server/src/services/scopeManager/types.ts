@@ -1,4 +1,4 @@
-import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, DefinitionSymbol, ActionSymbol, AttributeSymbol, SchemaSymbol } from '../../models/symbols';
+import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, FormulaSymbol, DefinitionSymbol, ActionSymbol, AttributeSymbol, SchemaSymbol } from '../../models/symbols';
 import { SemanticTokenTypes, SymbolKind as LSPSymbolKind } from 'vscode-languageserver';
 import { getInterchangeableTypes, normalizeTypeName } from '../utils';
 
@@ -15,13 +15,8 @@ export enum ScopeKind {
     Local = 'Local'          // Specific local context
 }
 
-/**
- * Interface for Offset-based Range (simpler than vscode Range)
- */
-export interface OffsetRange {
-    start: number;
-    end: number;
-}
+import { ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, SymbolRequestDTO, OffsetRange } from 'tally-tdl-shared';
+export { ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, SymbolRequestDTO, OffsetRange };
 
 /**
  * Represents a scope in the symbol hierarchy
@@ -32,6 +27,7 @@ export interface BaseScope {
     parent?: Scope;
     childScopes: Scope[];
     variables: Map<string, VariableSymbol>;
+    formulas: Map<string, FormulaSymbol>;
     range?: OffsetRange;
     uri?: string;
 }
@@ -101,40 +97,6 @@ export interface ModifierContribution {
     order: number;
 }
 
-export interface ScopeNodeDTO {
-    id: string;
-    kind: string;
-    range?: OffsetRange;
-    structuralParents?: string[];
-    structuralChildren?: string[];
-    usedDefinitions?: string[];
-    symbolGroups: { kind: string, count: number }[];
-    children: ScopeNodeDTO[];
-}
-
-export interface ScopeTreeDTO {
-    globalScope: ScopeNodeDTO;
-    projectScope: ScopeNodeDTO;
-}
-
-export interface PaginatedSymbolsDTO {
-    symbols: SymbolInfo[];
-    totalCount: number;
-    page: number;
-    limit: number;
-    kind: string;
-}
-
-export interface SymbolRequestDTO {
-    uri: string;
-    scopeId: string;
-    kind: string;
-    page: number;
-    limit: number;
-    query?: string;
-}
-
-
 /**
  * Helper to map TDL definition type string to SymbolKind
  */
@@ -172,9 +134,9 @@ function definitionTypeToSymbolKindDirect(defType: string): SymbolKind {
         case 'import': return SymbolKind.Unknown; // Import is special
         case 'variable': return SymbolKind.Variable;
         case 'variables': return SymbolKind.Variable;
-        case 'formula': return SymbolKind.Variable;
-        case 'formulae': return SymbolKind.Variable;
-        case 'formulas': return SymbolKind.Variable;
+        case 'formula': return SymbolKind.Formula;
+        case 'formulae': return SymbolKind.Formula;
+        case 'formulas': return SymbolKind.Formula;
         case 'system': return SymbolKind.Variable; // System variables
         default: return SymbolKind.Unknown;
     }
@@ -200,7 +162,9 @@ export function getSemanticTypeFromSymbol(symbol: SymbolInfo): string {
         case SymbolKind.Object:
             return SemanticTokenTypes.class;
         case SymbolKind.Function: return SemanticTokenTypes.function;
-        case SymbolKind.Variable: return SemanticTokenTypes.variable;
+        case SymbolKind.Variable: 
+        case SymbolKind.Formula:
+            return SemanticTokenTypes.variable;
         default: return SemanticTokenTypes.variable;
     }
 }

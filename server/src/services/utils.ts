@@ -47,3 +47,24 @@ export function registerInterchangeableTypes(types: string[]) {
 export function getInterchangeableTypes(normalizedType: string): string[] {
     return INTERCHANGEABLE_TYPES_MAP[normalizedType] || [normalizedType];
 }
+
+/**
+ * Map of interchangeable attributes, mapping plural/singular aliases to a canonical capitalized string
+ * representing the underlying Definition Type.
+ */
+export const INTERCHANGEABLE_ATTRIBUTES_MAP: Record<string, string> = {
+    'form': 'Form', 'forms': 'Form',
+    'part': 'Part', 'parts': 'Part',
+    'line': 'Line', 'lines': 'Line',
+    'field': 'Field', 'fields': 'Field',
+    'button': 'Button', 'buttons': 'Button',
+    'key': 'Key', 'keys': 'Key'
+};
+
+/**
+ * Returns the canonical Definition Type for a given attribute name if it represents
+ * a structural child relationship (e.g., 'parts' -> 'Part').
+ */
+export function getCanonicalAttributeName(normalizedAttributeName: string): string | undefined {
+    return INTERCHANGEABLE_ATTRIBUTES_MAP[normalizedAttributeName];
+}

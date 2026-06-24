@@ -275,8 +275,8 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
-        "compile": "tsc -b",
-        "watch": "tsc -b -w", 
+        "compile": "tsc -b && npm run build -w webview-ui",
+        "watch": "npm run build -w webview-ui && tsc -b -w", 
         "lint": "eslint .",
         "test": "npm run test -w server"
     },
@@ -293,7 +293,9 @@
     },
     "workspaces": [
         "client",
-        "server"
+        "server",
+        "shared",
+        "webview-ui"
     ],
     "dependencies": {
         "sax": "^1.6.0"

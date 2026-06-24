@@ -22,8 +22,8 @@ import { TokenKind } from "./tokenKind";
 export class Parser extends DefinitionsParser {
   private _oldSourceFile?: SourceFile;
 
-  constructor(text: string, oldSourceFile?: SourceFile) {
-    super(text);
+  constructor(text: string, oldSourceFile?: SourceFile, getFunctionArity?: (name: string) => number | null) {
+    super(text, getFunctionArity);
     this._oldSourceFile = oldSourceFile;
   }
 

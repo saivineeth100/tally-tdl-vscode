@@ -55,7 +55,7 @@ describe('Completion Attribute Value Context', () => {
 
         const context = detectCompletionContext(textBefore, sourceFile, cursor, currentDef);
 
-        expect(context.type).toBe('formula');
+        expect(context.type).toBe('global_formula');
         expect(context.partial).toBe('My');
     });
 });

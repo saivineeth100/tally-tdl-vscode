@@ -3,8 +3,9 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { SourceFile } from '../parser/ast';
 import { DocManager } from '../docManager';
 import { findReferences } from './references';
+import { ScopeManager } from './scopeManager';
 
-export function provideCodeLens(sourceFile: SourceFile, doc: TextDocument): CodeLens[] {
+export function provideCodeLens(sourceFile: SourceFile, doc: TextDocument, scopeManager: ScopeManager): CodeLens[] {
     const lenses: CodeLens[] = [];
     for (const def of sourceFile.definitions) {
         const isSystem = def.type?.text?.toLowerCase() === 'system';
@@ -35,6 +36,22 @@ export function provideCodeLens(sourceFile: SourceFile, doc: TextDocument): Code
                     },
                     data: { uri: doc.uri, name: def.name.text, position: doc.positionAt(def.name.start) }
                 });
+
+                // Also check for local formulas defined within this definition
+                const scope = scopeManager.getScopeAt(doc.uri, def.start);
+                if (scope && 'formulas' in scope) {
+                    for (const formulaDef of scope.formulas.values()) {
+                        if (formulaDef.uri === doc.uri && formulaDef.start >= def.start && formulaDef.end <= def.end) {
+                            lenses.push({
+                                range: {
+                                    start: doc.positionAt(formulaDef.start),
+                                    end: doc.positionAt(formulaDef.end)
+                                },
+                                data: { uri: doc.uri, name: formulaDef.name, position: doc.positionAt(formulaDef.start) }
+                            });
+                        }
+                    }
+                }
             }
         }
     }

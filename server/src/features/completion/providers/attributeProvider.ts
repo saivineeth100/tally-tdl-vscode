@@ -68,7 +68,24 @@ export function provideAttributeValueCompletions(
         const param = attrDef.parameters[context.paramIndex];
 
         // 1. If parameter has Keywords, suggest them
-        if (param.Keywords) {
+         if (param.KeywordSet  && param.KeywordSet === 'tdlactions') {
+                const added = new Set<string>();
+                for (const [key, action] of scopeManager.globalScope.actions) {
+                    if (added.has(action.name)) continue;
+                    
+                    if (context.partial === '' || action.name.toLowerCase().includes(context.partial.toLowerCase())) {
+                        added.add(action.name);
+                        items.push({
+                            label: action.name,
+                            kind: CompletionItemKind.Function,
+                            detail: action.description || 'Action',
+                            insertText: action.name,
+                            sortText: '0_' + action.name.toLowerCase(),
+                        });
+                    }
+                }
+            }
+        else if (param.Keywords) {
             const keywords = param.Keywords.map((k: string) => k.trim());
             for (const keyword of keywords) {
                 if (context.partial === '' || keyword.toLowerCase().includes(context.partial.toLowerCase())) {
@@ -99,23 +116,7 @@ export function provideAttributeValueCompletions(
             }
 
             // 1.5. If Datatype is Action, ALSO suggest all actions from metadata
-            if (normalizeTypeName(param.KeywordSet) === 'tdlactions') {
-                const added = new Set<string>();
-                for (const [key, action] of scopeManager.globalScope.actions) {
-                    if (added.has(action.name)) continue;
-                    
-                    if (context.partial === '' || action.name.toLowerCase().includes(context.partial.toLowerCase())) {
-                        added.add(action.name);
-                        items.push({
-                            label: action.name,
-                            kind: CompletionItemKind.Function,
-                            detail: action.description || 'Action',
-                            insertText: action.name,
-                            sortText: '1_' + action.name.toLowerCase(),
-                        });
-                    }
-                }
-            }
+
         }
 
         // 2. If Datatype is Logical, suggest Yes/No

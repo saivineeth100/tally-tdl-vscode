@@ -1,7 +1,7 @@
 import { SourceFile, SyntaxKind, IdentifierNode, LiteralNode } from '../../parser/ast';
 import { ScopeManager } from '../scopeManager';
 import { normalizeTypeName } from '../utils';
-import { findDefinitionAtOffset, findAttributeAtOffset, findStatementAtOffset } from '../../parser/astQuery';
+import { findDefinitionAtOffset, findAttributeAtOffset, findStatementAtOffset, findNodeAtOffset } from '../../parser/astQuery';
 
 /**
  * Information about a reference to a definition
@@ -230,21 +230,25 @@ export function findReferenceAtOffset(
         }
 
         if (foundValueNode) {
+            // Find the deepest node at this offset, in case foundValueNode is a complex expression
+            const deepestNode = findNodeAtOffset([foundValueNode], offset) || foundValueNode;
+            
             let name: string = '';
-            if (foundValueNode.kind === SyntaxKind.List) {
-                name = (foundValueNode as any).values.map((v: any) => v.text || v.value || '').join(' ');
-            } else if (foundValueNode.kind === SyntaxKind.VariableReference) {
-                name = '##' + (foundValueNode as any).variableName.text;
-            } else if (foundValueNode.kind === SyntaxKind.FieldReference) {
-                name = '#' + (foundValueNode as any).fieldName.text;
-            } else if (foundValueNode.kind === SyntaxKind.MethodReference) {
-                name = '$' + (foundValueNode as any).methodName.text;
-            } else if (foundValueNode.kind === SyntaxKind.FormulaReference) {
-                name = '$$' + (foundValueNode as any).formulaName.text;
-            } else if ('text' in foundValueNode) {
-                name = (foundValueNode as IdentifierNode).text;
-            } else if ('value' in foundValueNode) {
-                name = String((foundValueNode as LiteralNode).value);
+            if (deepestNode.kind === SyntaxKind.List) {
+                name = (deepestNode as any).values.map((v: any) => v.text || v.value || '').join(' ');
+            } else if (deepestNode.kind === SyntaxKind.VariableReference) {
+                name = '##' + (deepestNode as any).variableName.text;
+            } else if (deepestNode.kind === SyntaxKind.FieldReference) {
+                name = '#' + (deepestNode as any).fieldName.text;
+            } else if (deepestNode.kind === SyntaxKind.MethodReference) {
+                name = '$' + (deepestNode as any).methodName.text;
+            } else if (deepestNode.kind === SyntaxKind.FormulaReference) {
+                const node = deepestNode as any;
+                name = (node.isGlobal ? '@@' : '@') + node.formulaName.text;
+            } else if ('text' in deepestNode) {
+                name = (deepestNode as IdentifierNode).text;
+            } else if ('value' in deepestNode) {
+                name = String((deepestNode as LiteralNode).value);
             }
 
             name = name.replace(/^"|"$|^'|'$/g, '');
@@ -261,8 +265,8 @@ export function findReferenceAtOffset(
                             return {
                                 name: varName,
                                 expectedType: resolved.definitionType || 'Variable',
-                                start: foundValueNode.start,
-                                end: foundValueNode.end
+                                start: deepestNode.start,
+                                end: deepestNode.end
                             };
                         }
                     }
@@ -270,18 +274,26 @@ export function findReferenceAtOffset(
                     return {
                         name: varName,
                         expectedType: 'Field',
-                        start: foundValueNode.start,
-                        end: foundValueNode.end
+                        start: deepestNode.start,
+                        end: deepestNode.end
                     };
                 }
+            } else if (name.startsWith('@@') || name.startsWith('@')) {
+                const formulaName = name.replace(/^@@?/, '');
+                return {
+                    name: formulaName,
+                    expectedType: 'Formula',
+                    start: deepestNode.start,
+                    end: deepestNode.end
+                };
             }
 
             if (expectedType) {
                 return {
                     name,
                     expectedType,
-                    start: foundValueNode.start,
-                    end: foundValueNode.end
+                    start: deepestNode.start,
+                    end: deepestNode.end
                 };
             }
 

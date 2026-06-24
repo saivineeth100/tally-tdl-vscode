@@ -376,7 +376,20 @@ export class ExpressionsParser extends ParserState {
             } else if ((this.CurrentToken.Kind as TokenKind) === TokenKind.ColonToken) {
               // Colon separated arguments $$Func:Arg:Arg
 
+              const funcNameText = funcNode.functionName?.text?.replace(/^\$\$/, '');
+              let expectedArity: number | null = null;
+              if (funcNameText && this._getFunctionArity) {
+                 expectedArity = this._getFunctionArity(funcNameText);
+              }
+
+              let argsCount = 0;
               while ((this.CurrentToken.Kind as TokenKind) === TokenKind.ColonToken) {
+                // If we've already parsed the required number of parameters, stop splitting.
+                // The subsequent tokens belong to the parent statement/expression.
+                if (expectedArity !== null && argsCount >= expectedArity) {
+                  break;
+                }
+
                 this.EatToken(); // Eat :
 
                 // Parse argument (Expression, Literal, or Identifier)
@@ -388,9 +401,11 @@ export class ExpressionsParser extends ParserState {
                 if (arg) {
                   funcNode.arguments.push(arg);
                   funcNode.end = arg.end;
+                  argsCount++;
                 } else {
                   // Empty argument $$Func::Arg
                   if ((this.CurrentToken.Kind as TokenKind) === TokenKind.ColonToken) {
+                    argsCount++;
                     continue;
                   }
                   break;

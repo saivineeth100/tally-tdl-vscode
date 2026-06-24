@@ -46,37 +46,55 @@ export function provideFormulaCompletions(
     uri: string,
     offset: number,
     partial: string,
-    symbolTable?: SymbolTable
+    symbolTable?: SymbolTable,
+    isLocal: boolean = true
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     const scopeMgr = manager.getScopeManager(uri);
-    const currentScope = scopeMgr.getScopeAt(uri, offset);
     
-    if (currentScope) {
-        const reachableVars = scopeMgr.getAllVariablesInScope(currentScope);
-        for (const [varName, varInfo] of reachableVars.entries()) {
-            if (varInfo.definitionType === 'Formula' || varInfo.definitionType === 'System Formula') {
+    if (isLocal) {
+        const currentScope = scopeMgr.getScopeAt(uri, offset);
+        if (currentScope) {
+            // Only fetch formulas defined directly in the current scope chain
+            const reachableVars = scopeMgr.getAllFormulasInScope(currentScope, undefined, true);
+            for (const [varName, varInfo] of reachableVars.entries()) {
+                if (varInfo.definitionType === 'Formula' || varInfo.definitionType === 'System Formula') {
+                    if (partial === '' || varName.toLowerCase().includes(partial.toLowerCase())) {
+                        items.push({
+                            label: varInfo.name || varName, // Use original casing if available
+                            kind: CompletionItemKind.Value,
+                            detail: `Formula`,
+                            insertText: varInfo.name || varName,
+                            sortText: '0_' + varName.toLowerCase()
+                        });
+                    }
+                }
+            }
+        }
+    } else {
+        // Global formula definitions (for @@)
+        // These are stored in projectScope and globalScope directly via [System: Formula] processing
+        const addGlobalFormulas = (formulas: Map<string, import('../../../models/symbols').FormulaSymbol>) => {
+            for (const [varName, varInfo] of formulas.entries()) {
                 if (partial === '' || varName.toLowerCase().includes(partial.toLowerCase())) {
                     items.push({
-                        label: varInfo.name || varName, // Use original casing if available
+                        label: varInfo.name || varName,
                         kind: CompletionItemKind.Value,
-                        detail: `Formula`,
+                        detail: `Global Formula`,
                         insertText: varInfo.name || varName,
                         sortText: '0_' + varName.toLowerCase()
                     });
                 }
             }
+        };
+
+        if (scopeMgr.projectScope) {
+            addGlobalFormulas(scopeMgr.projectScope.formulas);
+        }
+        if (scopeMgr.globalScope) {
+            addGlobalFormulas(scopeMgr.globalScope.formulas);
         }
     }
-    
-    // 2. Global formula definitions
-    const projectScope = manager.getProjectNodes(uri);
-    items.push(...getSuggestionsForDefinitionType('Formula', partial, scopeMgr, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('Formulae', partial, scopeMgr, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('Formulas', partial, scopeMgr, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('System Formula', partial, scopeMgr, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('System Formulae', partial, scopeMgr, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('System Formulas', partial, scopeMgr, symbolTable, projectScope));
 
     return items;
 }

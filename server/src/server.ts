@@ -256,7 +256,7 @@ connection.onCodeLens((params) => {
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return null;
 
-    return provideCodeLens(docState.sourceFile, doc);
+    return provideCodeLens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri));
 });
 
 connection.onCodeLensResolve((lens) => {
@@ -317,12 +317,23 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
     const projectScope = docManager.getProjectNodes(params.textDocument.uri);
     
     if (scope) {
-        const resolved = scopeMgr.resolveDefinition(
-            ref.name,
-            ref.expectedType,
-            scope,
-            projectScope
-        );
+        let resolved: any;
+        if (ref.expectedType === 'Variable' || ref.expectedType === 'Field' || ref.expectedType === 'Method') {
+            resolved = scopeMgr.resolve(ref.name, scope, projectScope);
+        } else if (ref.expectedType === 'Formula') {
+            resolved = scopeMgr.resolveFormula(ref.name, scope, projectScope);
+        } else if (ref.expectedType === 'Function') {
+            resolved = scopeMgr.resolveFunction(ref.name, scope, projectScope);
+        } else if (ref.expectedType === 'Action') {
+            resolved = scopeMgr.resolveAction(ref.name, scope, projectScope);
+        } else {
+            resolved = scopeMgr.resolveDefinition(
+                ref.name,
+                ref.expectedType,
+                scope,
+                projectScope
+            );
+        }
 
         if (resolved) {
             // Don't navigate to metadata-only definitions
@@ -477,12 +488,17 @@ import { findReferences } from "./services/references";
 // Handle Scope Tree Debug Request
 connection.onRequest("tdl/getScopeTreeDebug", async (params: { uri: string }) => {
     const scopeMgr = docManager.getScopeManager(params.uri);
-    return scopeMgr.serializeScopeTree(params.uri);
+    return scopeMgr.viewer.serializeScopeTree(params.uri);
+});
+
+connection.onRequest("tdl/getScopeChildren", async (params: { uri: string, scopeId: string }) => {
+    const scopeMgr = docManager.getScopeManager(params.uri);
+    return scopeMgr.viewer.getScopeChildren(params.scopeId);
 });
 
 connection.onRequest("tdl/getScopeSymbols", async (params: { uri: string, scopeId: string, kind: string, page: number, limit: number, query?: string }) => {
     const scopeMgr = docManager.getScopeManager(params.uri);
-    return scopeMgr.getSymbolsPaginated(params.scopeId, params.kind, params.page, params.limit, params.query);
+    return scopeMgr.viewer.getSymbolsPaginated(params.scopeId, params.kind, params.page, params.limit, params.query);
 });
 
 connection.onRequest("tdl/convertToXml", async (params: { uri: string }) => {

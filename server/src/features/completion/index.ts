@@ -83,8 +83,13 @@ export function registerCompletion(
                 items.push(...provideVariableCompletions(manager, params.textDocument.uri, offset, context.partial, symbolTable));
                 break;
 
-            case 'formula':
-                items.push(...provideFormulaCompletions(manager, params.textDocument.uri, offset, context.partial, symbolTable));
+            case 'formula': // Legacy
+            case 'local_formula':
+                items.push(...provideFormulaCompletions(manager, params.textDocument.uri, offset, context.partial, symbolTable, true));
+                break;
+
+            case 'global_formula':
+                items.push(...provideFormulaCompletions(manager, params.textDocument.uri, offset, context.partial, symbolTable, false));
                 break;
 
             case 'attribute':

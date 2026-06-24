@@ -53,30 +53,53 @@ export function validateDefinitionAttributes(
         const attrDef = allowedAttrs.get(attrNameLower);
 
         if (!attrDef) {
-            const startPos = doc.positionAt(attr.name.start);
-            const endPos = doc.positionAt(attr.name.end);
-
-            const diag = createDiagnosticWithData<UnknownAttributeData>(
-                DiagnosticRules.UnknownAttribute,
-                { start: startPos, end: endPos },
-                { attrName, defTypeName },
-                attrName
-            );
-            diagnostics.push(diag);
+            // In TDL, any unknown attribute is implicitly treated as a Local Formula declaration.
+            // Therefore, we do not emit an UnknownAttribute diagnostic.
             continue;
         }
 
         // Check for discrete attribute duplicates
         if (attrDef.isDiscrete) {
-            const prevCount = seenAttributes.get(attrNameLower) || 0;
-            if (prevCount > 0) {
-                diagnostics.push(createDiagnostic(
-                    DiagnosticRules.DuplicateDiscreteAttribute,
-                    { start: doc.positionAt(attr.name.start), end: doc.positionAt(attr.name.end) },
-                    attrName
-                ));
+            let hasParameters = attrDef.parameters && attrDef.parameters.length > 0;
+            let valuesToCheck: { text: string, start: number, end: number }[] = [];
+
+            if (hasParameters && attr.value && attr.value.length > 0) {
+                // If the first parameter is a list or variable argument and it's the only parameter,
+                // or if the attribute itself is a 'Single List', all values belong to it.
+                // Otherwise, only the first value belongs to it.
+                let firstParam = attrDef.parameters![0];
+                let isOnlyParamList = attrDef.parameters!.length === 1 && 
+                    (firstParam.IsList || firstParam.IsVariableArgument || attrDef.type?.toLowerCase() === 'single list');
+
+                let maxIndex = isOnlyParamList ? attr.value.length : 1;
+                for (let i = 0; i < maxIndex; i++) {
+                    if (attr.value[i].kind !== SyntaxKind.Empty) {
+                        const valStart = doc.positionAt(attr.value[i].start);
+                        const valEnd = doc.positionAt(attr.value[i].end);
+                        const text = doc.getText({ start: valStart, end: valEnd });
+                        valuesToCheck.push({ text: text, start: attr.value[i].start, end: attr.value[i].end });
+                    }
+                }
+            } else {
+                // For attributes without parameters or if no value is provided
+                valuesToCheck.push({ text: attrName, start: attr.name.start, end: attr.name.end });
             }
-            seenAttributes.set(attrNameLower, prevCount + 1);
+
+            for (const val of valuesToCheck) {
+                const normalizedVal = val.text.toLowerCase();
+                const uniqueKey = `${attrNameLower}:${normalizedVal}`;
+                const prevCount = seenAttributes.get(uniqueKey) || 0;
+                
+                if (prevCount > 0) {
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.DuplicateDiscreteAttribute,
+                        { start: doc.positionAt(val.start), end: doc.positionAt(val.end) },
+                        attrName,
+                        val.text
+                    ));
+                }
+                seenAttributes.set(uniqueKey, prevCount + 1);
+            }
         }
 
         // Validate Parameters
@@ -180,7 +203,7 @@ export function validateDefinitionAttributes(
 
                 // Action Validation (if it's not a Keyword ParameterType but still DataType is Action)
                 if (paramDef.KeywordSet) {
-                    if (paramDef.KeywordSet === 'tdlActions') {
+                    if (paramDef.KeywordSet === 'tdlactions') {
                         const isValidAction = scopeManager.globalScope.actions.has(normalizeTypeName(cleanValue));
                         // Check aliases too? It's fine for now.
                         if (!isValidAction) {
@@ -243,7 +266,8 @@ export function validateDefinitionAttributes(
                             DiagnosticRules.MissingDefinition,
                             { start: startPos, end: endPos },
                             { name: cleanValue, type: refersToType },
-                            cleanValue
+                            cleanValue,
+                            refersToType
                         );
                         diagnostics.push(diag);
                     } else if (resolvedDef.uri !== 'global:metadata' && projectNodes) {
@@ -253,7 +277,8 @@ export function validateDefinitionAttributes(
                                 DiagnosticRules.MissingDefinition,
                                 { start: startPos, end: endPos },
                                 { name: cleanValue, type: refersToType },
-                                cleanValue
+                                cleanValue,
+                                refersToType
                             );
                             diag.message = `Definition '${cleanValue}' is used from a file that is not included in the project`;
                             diagnostics.push(diag);

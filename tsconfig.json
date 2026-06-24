@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "ES2024",
+        "target": "ES2022",
         "lib": [
-            "ES2024",
+            "ES2022",
             "ESNext.Disposable"
         ],
         "outDir": "out",
@@ -28,6 +28,9 @@
         },
         {
             "path": "./server"
+        },
+        {
+            "path": "./shared"
         }
     ]
 }

@@ -4,7 +4,7 @@ import { DefinitionNode, SourceFile } from '../../parser/ast';
  * Context for completion
  */
 export interface CompletionContext {
-    type: 'schema_type' | 'definition_type' | 'definition_name' | 'attribute' | 'attribute_value' | 'function' | 'variable' | 'formula' | 'field' | 'function_action' | 'function_action_parameter' | 'modifier_value' | 'xml_schema_attribute' | 'unknown';
+    type: 'schema_type' | 'definition_type' | 'definition_name' | 'attribute' | 'attribute_value' | 'function' | 'variable' | 'formula' | 'local_formula' | 'global_formula' | 'field' | 'function_action' | 'function_action_parameter' | 'modifier_value' | 'xml_schema_attribute' | 'unknown';
     partial: string;
     hasModifier: boolean;
     modifier?: string;
@@ -74,12 +74,19 @@ export function detectCompletionContext(
         }
     }
 
-    // 3. Check for @@ (formula context)
-    const atIdx = trimmed.lastIndexOf('@@');
-    if (atIdx !== -1 && (dollarIdx === -1 || atIdx > dollarIdx) && (hashIdx === -1 || atIdx > hashIdx)) {
-        const afterAt = trimmed.slice(atIdx + 2);
+    // 3. Check for @@ or @ (formula context)
+    const atAtIdx = trimmed.lastIndexOf('@@');
+    const singleAtIdx = trimmed.lastIndexOf('@');
+    
+    if (atAtIdx !== -1 && (dollarIdx === -1 || atAtIdx > dollarIdx) && (hashIdx === -1 || atAtIdx > hashIdx)) {
+        const afterAt = trimmed.slice(atAtIdx + 2);
         if (!afterAt.includes(':')) {
-            return { type: 'formula', partial: afterAt.trim(), hasModifier: false };
+            return { type: 'global_formula', partial: afterAt.trim(), hasModifier: false };
+        }
+    } else if (singleAtIdx !== -1 && (dollarIdx === -1 || singleAtIdx > dollarIdx) && (hashIdx === -1 || singleAtIdx > hashIdx)) {
+        const afterAt = trimmed.slice(singleAtIdx + 1);
+        if (!afterAt.includes(':')) {
+            return { type: 'local_formula', partial: afterAt.trim(), hasModifier: false };
         }
     }
 

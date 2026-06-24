@@ -20,15 +20,18 @@ export class ParserState {
   /** Collection of syntax errors encountered during parsing */
   public errors: DiagnosticError[] = [];
 
+  public _getFunctionArity?: (name: string) => number | null;
+
   /**
    * Initializes the ParserState by running the Lexer on the provided input text.
    * @param input The raw TDL source code string.
    */
-  constructor(input: string) {
+  constructor(input: string, getFunctionArity?: (name: string) => number | null) {
     this._text = input;
     const lexer = new Lexer(input);
     this._tokens = lexer.Generate();
     this._tokensLength = this._tokens.length;
+    this._getFunctionArity = getFunctionArity;
   }
 
   /**

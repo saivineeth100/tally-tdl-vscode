@@ -52,12 +52,6 @@ export function validateFunctionArity(
             { start: doc.positionAt(funcNode.start), end: doc.positionAt(funcNode.end) },
             `$$${func.name}`, min, actual
         ));
-    } else if (max !== null && actual > max) {
-        diagnostics.push(createDiagnostic(
-            DiagnosticRules.TooManyParameters,
-            { start: doc.positionAt(funcNode.start), end: doc.positionAt(funcNode.end) },
-            `$$${func.name}`, max, actual
-        ));
     }
 }
 

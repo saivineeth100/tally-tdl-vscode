@@ -180,7 +180,7 @@ describe('ScopeManager', () => {
         expect(resolved).toBeDefined();
         expect(resolved?.name).toBe('MyURL');
         expect(resolved?.definitionType).toBe('Formula');
-        expect(resolved?.kind).toBe(SymbolKind.Variable);
+        expect(resolved?.kind).toBe(SymbolKind.Formula);
     });
 
     it('should parse [System: Formulae] and add to global project scope', () => {
@@ -386,10 +386,199 @@ describe('ScopeManager', () => {
             expect(definitionTypeToSymbolKind('color')).toBe(SymbolKind.Color);
         });
 
-        it('maps Formula, Formulae, Formulas to Variable', () => {
-            expect(definitionTypeToSymbolKind('formula')).toBe(SymbolKind.Variable);
-            expect(definitionTypeToSymbolKind('formulae')).toBe(SymbolKind.Variable);
-            expect(definitionTypeToSymbolKind('formulas')).toBe(SymbolKind.Variable);
+        it('maps Formula, Formulae, Formulas to Formula', () => {
+            expect(definitionTypeToSymbolKind('formula')).toBe(SymbolKind.Formula);
+            expect(definitionTypeToSymbolKind('formulae')).toBe(SymbolKind.Formula);
+            expect(definitionTypeToSymbolKind('formulas')).toBe(SymbolKind.Formula);
+        });
+
+        it('maps unknown definition type to Unknown', () => {
+            expect(definitionTypeToSymbolKind('nonexistent_type')).toBe(SymbolKind.Unknown);
+        });
+
+        it('maps System definitions to Variable', () => {
+            expect(definitionTypeToSymbolKind('system')).toBe(SymbolKind.Variable);
+        });
+
+        it('LSP mapping is consistent', () => {
+            expect(symbolKindToLSPSymbolKind(SymbolKind.Button)).toBe(LSPSymbolKind.Event);
+            expect(symbolKindToLSPSymbolKind(SymbolKind.Report)).toBe(LSPSymbolKind.Class);
+        });
+    });
+
+    describe('Discriminated scope model', () => {
+        it('GlobalScope has functions/actions/attributes/schemas maps', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const globalScope = manager.globalScope;
+            
+            expect(globalScope.kind).toBe(ScopeKind.Global);
+            expect(hasFunctionsAndActions(globalScope)).toBe(true);
+            expect(hasAttributes(globalScope)).toBe(true);
+            expect(hasSchemas(globalScope)).toBe(true);
+            expect(hasDefinitions(globalScope)).toBe(true);
+            
+            expect(globalScope.functions).toBeDefined();
+            expect(globalScope.actions).toBeDefined();
+            expect(globalScope.attributes).toBeDefined();
+            expect(globalScope.schemas).toBeDefined();
+            expect(globalScope.definitions).toBeDefined();
+        });
+
+        it('ProjectScope has definitions map but not functions/actions', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const projectScope = manager.projectScope;
+            
+            expect(projectScope.kind).toBe(ScopeKind.Project);
+            expect(hasDefinitions(projectScope)).toBe(true);
+            expect(hasFunctionsAndActions(projectScope)).toBe(false);
+            
+            expect(projectScope.definitions).toBeDefined();
+            expect((projectScope as any).functions).toBeUndefined();
+        });
+
+        it('DefinitionScope has structuralChildren and uses', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const defScope = manager.createDefinitionScope('test', manager.projectScope, {start: 0, end: 1}, 'uri');
+            
+            expect(defScope.kind).toBe(ScopeKind.Definition);
+            expect(defScope.structuralChildren).toBeDefined();
+            expect(defScope.uses).toBeDefined();
+            expect(hasDefinitions(defScope)).toBe(false);
+            expect((defScope as any).definitions).toBeUndefined();
+        });
+
+        it('BlockScope only has variables', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const blockScope = manager.createBlockScope('test', manager.projectScope, {start: 0, end: 1}, 'uri');
+            
+            expect(blockScope.kind).toBe(ScopeKind.Block);
+            expect(blockScope.variables).toBeDefined();
+            expect((blockScope as any).functions).toBeUndefined();
+            expect((blockScope as any).definitions).toBeUndefined();
+        });
+
+        it('every scope can store variables via BaseScope.variables', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const scopes = [
+                manager.globalScope,
+                manager.projectScope,
+                manager.createFileScope('testFile', manager.projectScope, {start: 0, end: 1}, 'uri'),
+                manager.createDefinitionScope('testDef', manager.projectScope, {start: 0, end: 1}, 'uri'),
+                manager.createFunctionScope('testFunc', manager.projectScope, {start: 0, end: 1}, 'uri'),
+                manager.createBlockScope('testBlock', manager.projectScope, {start: 0, end: 1}, 'uri')
+            ];
+            
+            for (const scope of scopes) {
+                expect(scope.variables).toBeDefined();
+                expect(scope.variables instanceof Map).toBe(true);
+            }
+        });
+    });
+
+    describe('Resolution context', () => {
+        it('resolves variable with caller context from Report→Function', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            
+            // Create a report scope with a variable
+            const reportScope = manager.createDefinitionScope('report:MyReport', manager.projectScope, {start: 0, end: 100}, 'test.tdl');
+            reportScope.variables.set('myvar', { name: 'MyVar', kind: SymbolKind.Variable } as any);
+            
+            // Create a function scope that has no variables of its own
+            const funcScope = manager.createFunctionScope('MyFunction', manager.projectScope, {start: 0, end: 100}, 'test.tdl');
+            
+            // Attempt to resolve MyVar inside funcScope without caller context (should fail)
+            let resolved = manager.resolveVariable('MyVar', funcScope);
+            expect(resolved).toBeUndefined();
+            
+            // Attempt to resolve with caller context
+            const callerContext = { visitedScopes: new Set<string>(), state: manager, initialScope: reportScope };
+            resolved = manager.resolveVariable('MyVar', funcScope, undefined, callerContext);
+            expect(resolved).toBeDefined();
+            expect(resolved?.name).toBe('MyVar');
+        });
+
+        it('resolves attribute with spaces in name', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const reportScope = manager.createDefinitionScope('report:MyReport', manager.projectScope, {start: 0, end: 10}, 'test.tdl');
+            
+            manager.globalScope.attributes.set('report', new Map());
+            manager.globalScope.attributes.get('report')?.set('myattribute', { name: 'My Attribute', kind: SymbolKind.Unknown } as any);
+            
+            const resolved = manager.resolveAttribute('My Attribute', 'Report', reportScope);
+            expect(resolved).toBeDefined();
+            expect(resolved?.name).toBe('My Attribute');
+            
+            const resolvedNoSpace = manager.resolveAttribute('MyAttribute', 'Report', reportScope);
+            expect(resolvedNoSpace).toBeDefined();
+        });
+
+        it('resolves action by alias without linear scan', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            // Add action with normalized alias directly
+            manager.globalScope.actions.set('myactionalias', { name: 'My Action', kind: SymbolKind.Function } as any);
+            
+            const resolved = manager.resolveAction('My Action Alias', manager.projectScope);
+            expect(resolved).toBeDefined();
+            expect(resolved?.name).toBe('My Action');
+        });
+    });
+
+    describe('Definition Registration', () => {
+        it('should register definitions in projectScope', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const mockSourceFile = {
+                start: 0, end: 100,
+                definitions: [
+                    {
+                        kind: SyntaxKind.Definition,
+                        type: { text: 'Report', start: 1, end: 7, kind: SyntaxKind.Identifier },
+                        name: { text: 'MyReport', start: 9, end: 17, kind: SyntaxKind.Identifier },
+                        attributes: [],
+                        start: 0,
+                        end: 20
+                    }
+                ]
+            } as unknown as SourceFile;
+
+            manager.buildFileScope('file:///test.tdl', mockSourceFile);
+
+            const reportDefs = manager.projectScope.definitions.get('report');
+            expect(reportDefs).toBeDefined();
+            
+            const myReport = reportDefs?.get('myreport');
+            expect(myReport).toBeDefined();
+            expect(myReport?.name).toBe('MyReport');
+            expect(myReport?.definitionType).toBe('Report');
+        });
+
+        it('should not register modifiers or incomplete definitions', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            const mockSourceFile = {
+                start: 0, end: 100,
+                definitions: [
+                    {
+                        kind: SyntaxKind.Definition,
+                        modifier: { text: '#', start: 1, end: 2, kind: SyntaxKind.Identifier },
+                        type: { text: 'Report', start: 2, end: 8, kind: SyntaxKind.Identifier },
+                        name: { text: 'MyReport', start: 10, end: 18, kind: SyntaxKind.Identifier },
+                        attributes: [],
+                        start: 0,
+                        end: 20
+                    }]}
+            expect(manager.includedFiles.has('common.tdl')).toBe(false);
+        });
+    });
+
+    describe('Symbol kind consolidation', () => {
+        it('maps Colour and Color to same SymbolKind', () => {
+            expect(definitionTypeToSymbolKind('color')).toBe(definitionTypeToSymbolKind('colour'));
+            expect(definitionTypeToSymbolKind('color')).toBe(SymbolKind.Color);
+        });
+
+        it('maps Formula, Formulae, Formulas to Formula', () => {
+            expect(definitionTypeToSymbolKind('formula')).toBe(SymbolKind.Formula);
+            expect(definitionTypeToSymbolKind('formulae')).toBe(SymbolKind.Formula);
+            expect(definitionTypeToSymbolKind('formulas')).toBe(SymbolKind.Formula);
         });
 
         it('maps unknown definition type to Unknown', () => {
@@ -581,6 +770,165 @@ describe('ScopeManager', () => {
             const reportDefs = manager.projectScope.definitions.get('report');
             expect(reportDefs?.has('myreport')).toBeFalsy();
             expect(manager.projectScope.definitions.size).toBe(0);
+        });
+    });
+
+    describe('getSymbolsPaginated Search and Filtering', () => {
+        it('should return schema with serialized properties', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            
+            const schemaProps = new Map();
+            schemaProps.set('MyProp', { Name: 'MyProp', DataType: 'String', IsComplex: false, IsRepeated: false });
+            
+            manager.globalScope.schemas.set('company', {
+                name: 'Company',
+                kind: SymbolKind.Object,
+                uri: 'test.tdl',
+                start: 0,
+                end: 10,
+                definitionType: 'Schema',
+                properties: schemaProps,
+                isPrimary: true,
+                complexProperties: new Map()
+            });
+
+            const result = manager.viewer.getSymbolsPaginated('global', 'Schema_Company', 1, 10);
+            expect(result.symbols.length).toBe(1);
+            expect(result.symbols[0].name).toBe('Company');
+            const serialized = (result.symbols[0] as any).serializedProperties;
+            expect(serialized).toBeDefined();
+            expect(serialized.length).toBe(1);
+            expect(serialized[0].name).toBe('MyProp');
+            expect(serialized[0].DataType).toBe('String');
+        });
+
+        it('should filter schema properties by query, handling edge cases', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            
+            const schemaProps = new Map();
+            schemaProps.set('Name', { Name: 'Name', DataType: 'String', IsComplex: false, IsRepeated: false });
+            schemaProps.set('Age', { Name: 'Age', DataType: 'Number', IsComplex: false, IsRepeated: false });
+            schemaProps.set('Address', { Name: 'Address', ObjectName: 'AddressObj', IsComplex: true, IsRepeated: false });
+            schemaProps.set('EdgeCase', { Name: 'EdgeCase', IsComplex: false, IsRepeated: false }); // Missing DataType/ObjectName
+            
+            manager.globalScope.schemas.set('employee', {
+                name: 'Employee',
+                kind: SymbolKind.Object,
+                uri: 'test.tdl',
+                start: 0,
+                end: 10,
+                definitionType: 'Schema',
+                properties: schemaProps,
+                isPrimary: true,
+                complexProperties: new Map()
+            });
+
+            // Search by exact property name
+            const result1 = manager.viewer.getSymbolsPaginated('global', 'Schema_Employee', 1, 10, 'Age');
+            expect((result1.symbols[0] as any).serializedProperties.length).toBe(1);
+            expect((result1.symbols[0] as any).serializedProperties[0].name).toBe('Age');
+
+            // Search by DataType
+            const result2 = manager.viewer.getSymbolsPaginated('global', 'Schema_Employee', 1, 10, 'Number');
+            expect((result2.symbols[0] as any).serializedProperties.length).toBe(1);
+            expect((result2.symbols[0] as any).serializedProperties[0].name).toBe('Age');
+
+            // Search by ObjectName
+            const result3 = manager.viewer.getSymbolsPaginated('global', 'Schema_Employee', 1, 10, 'AddressObj');
+            expect((result3.symbols[0] as any).serializedProperties.length).toBe(1);
+            expect((result3.symbols[0] as any).serializedProperties[0].name).toBe('Address');
+            
+            // Search no match
+            const result4 = manager.viewer.getSymbolsPaginated('global', 'Schema_Employee', 1, 10, 'NonExistent');
+            expect(result4.symbols.length).toBe(0);
+
+            // Empty query should return all 4 properties
+            const result5 = manager.viewer.getSymbolsPaginated('global', 'Schema_Employee', 1, 10, '');
+            expect((result5.symbols[0] as any).serializedProperties.length).toBe(4);
+            
+            // Search matching missing DataType edgecase by name
+            const result6 = manager.viewer.getSymbolsPaginated('global', 'Schema_Employee', 1, 10, 'EdgeCase');
+            expect((result6.symbols[0] as any).serializedProperties.length).toBe(1);
+        });
+
+        it('should return all schemas when requesting SchemasCategory', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            
+            manager.globalScope.schemas.set('schema1', { name: 'Schema1', kind: SymbolKind.Object } as any);
+            manager.globalScope.schemas.set('schema2', { name: 'Schema2', kind: SymbolKind.Object } as any);
+            
+            const result = manager.viewer.getSymbolsPaginated('global', 'SchemasCategory', 1, 10);
+            expect(result.symbols.length).toBe(2);
+            expect(result.symbols.map((s: any) => s.name).sort()).toEqual(['Schema1', 'Schema2']);
+        });
+
+        it('should handle attributes search and empty states', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            
+            // Empty AttributesCategory
+            const emptyResult = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10);
+            expect(emptyResult.symbols.length).toBe(0);
+
+            manager.globalScope.attributes.set('report', new Map());
+            manager.globalScope.attributes.get('report')?.set('format', {
+                name: 'Format',
+                kind: SymbolKind.Unknown,
+                definitionType: 'Report',
+                uri: 'test.tdl',
+                start: 0,
+                end: 10,
+                parameters: [],
+                isDiscrete: false
+            });
+            
+            manager.globalScope.attributes.set('form', new Map());
+            manager.globalScope.attributes.get('form')?.set('width', {
+                name: 'Width',
+                kind: SymbolKind.Unknown,
+                definitionType: 'Form',
+                uri: 'test.tdl',
+                start: 0,
+                end: 10,
+                parameters: [],
+                isDiscrete: false
+            });
+
+            // Return all attributes when query is empty
+            const allResult = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, '');
+            expect(allResult.symbols.length).toBe(2);
+
+            // Search by Attribute Name
+            const result1 = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, 'Format');
+            expect(result1.symbols.length).toBe(1);
+            expect(result1.symbols[0].name).toBe('Format');
+
+            // Search by Definition Type (Form matches "Format" (attribute name) and "Form" (definition type))
+            const result2 = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, 'Form');
+            expect(result2.symbols.length).toBe(2);
+
+            // Search by specific Definition Type
+            const result3 = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, 'Report');
+            expect(result3.symbols.length).toBe(1);
+            expect(result3.symbols[0].name).toBe('Format');
+            
+            // Search no match
+            const result4 = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, 'XYZ');
+            expect(result4.symbols.length).toBe(0);
+        });
+        
+        it('should extract correct scope ID when passed Category suffix', () => {
+            const manager = new ScopeManager(new SymbolTable());
+            
+            manager.globalScope.schemas.set('schema1', { name: 'Schema1', kind: SymbolKind.Object } as any);
+            
+            // The fake scopeId "global_Schemas" should be resolved to "global"
+            const result = manager.viewer.getSymbolsPaginated('global_Schemas', 'SchemasCategory', 1, 10);
+            expect(result.symbols.length).toBe(1);
+            expect(result.symbols[0].name).toBe('Schema1');
+            
+            // The fake scopeId "global_Attributes" should be resolved to "global"
+            const resultAttr = manager.viewer.getSymbolsPaginated('global_Attributes', 'AttributesCategory', 1, 10);
+            expect(resultAttr.symbols.length).toBe(0); // Works, just returns 0 since no attributes registered
         });
     });
 });

@@ -81,8 +81,8 @@ export async function validateSourceFile(
                 const typeMap = scopeManager.existingDefinitions.get(normalizeTypeName(defType));
                 const existsInMetadata = typeMap ? typeMap.has(normalizeTypeName(defName)) : false;
 
-                if (!def.modifier) {
-                // Rule 1: No duplicate new definitions allowed
+                if (!def.modifier || def.modifier.Text === '!') {
+                // Rule 1: No duplicate new definitions allowed (including optional '!' modifiers)
                 // Check against Default TDL
                 if (existsInMetadata) {
                     const startPos = doc.positionAt(def.name.start);

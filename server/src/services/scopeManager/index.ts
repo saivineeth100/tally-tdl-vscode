@@ -1,9 +1,10 @@
-import { SymbolInfo, SymbolKind, SymbolTable } from '../symbolTable';
+import { SymbolInfo, SymbolKind, SymbolTable, VariableSymbol } from '../symbolTable';
 import { SourceFile } from '../../parser/ast';
 import { getInterchangeableTypes, normalizeTypeName } from '../utils';
 import { Scope, ScopeKind, OffsetRange, ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, getSemanticTypeFromSymbol, ModifierContribution, GlobalScope, ProjectScope, FileScope, DefinitionScope, FunctionScope, BlockScope, hasDefinitions, hasFunctionsAndActions, hasAttributes, hasSchemas } from './types';
+import { ScopeViewerService } from './scopeViewerService';
 import { IScopeManager, buildFileScope } from './scopeBuilder';
-import { IScopeResolverState, resolveSymbol, resolveVariable, resolveFunction, resolveAction, resolveDefinition, resolveAttribute, resolveSchema, getAllVariablesInScope, getReachableChildren, ResolutionContext } from './scopeResolver';
+import { IScopeResolverState, resolveSymbol, resolveVariable, resolveFormula, resolveFunction, resolveAction, resolveDefinition, resolveAttribute, resolveSchema, getAllVariablesInScope, getAllFormulasInScope, getReachableChildren, ResolutionContext } from './scopeResolver';
 
 export * from './types';
 export * from './scopeBuilder';
@@ -14,12 +15,21 @@ export * from './scopeResolver';
  */
 export class ScopeManager implements IScopeManager, IScopeResolverState {
     public globalScope: GlobalScope;
-    public projectScope: ProjectScope;
+    public readonly projectScope: ProjectScope;
     public fileMap = new Map<string, Scope>(); // URI -> FileScope
     public metadata: any;
     public existingDefinitions = new Map<string, Set<string>>();
     public keywordSets = new Map<string, string[]>();
     public primarySchemaNames: string[] = [];
+
+    private _viewer?: ScopeViewerService;
+
+    public get viewer(): ScopeViewerService {
+        if (!this._viewer) {
+            this._viewer = new ScopeViewerService(this);
+        }
+        return this._viewer;
+    }
 
     /** Tracks structural usage graph (childDefinitionId -> Set of parentDefinitionIds) */
     public parentDefinitions = new Map<string, Set<string>>();
@@ -64,6 +74,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             kind: ScopeKind.Global,
             childScopes: [],
             variables: new Map(),
+            formulas: new Map(),
             functions: new Map(),
             actions: new Map(),
             attributes: new Map(),
@@ -79,9 +90,9 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             parent,
             childScopes: [],
             variables: new Map(),
+            formulas: new Map(),
             definitions: new Map()
         };
-        parent.childScopes.push(scope);
         return scope;
     }
 
@@ -92,6 +103,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             parent,
             childScopes: [],
             variables: new Map(),
+            formulas: new Map(),
             range,
             uri
         };
@@ -106,6 +118,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             parent,
             childScopes: [],
             variables: new Map(),
+            formulas: new Map(),
             structuralChildren: new Map(),
             uses: new Set(),
             range,
@@ -122,6 +135,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             parent,
             childScopes: [],
             variables: new Map(),
+            formulas: new Map(),
             range,
             uri
         };
@@ -136,6 +150,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             parent,
             childScopes: [],
             variables: new Map(),
+            formulas: new Map(),
             range,
             uri
         };
@@ -296,8 +311,12 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         return resolveSymbol(this, name, initialScope, projectScope, callerContext);
     }
 
-    public resolveVariable(name: string, initialScope: Scope, projectScope?: Set<string>, callerContext?: ResolutionContext) {
+    public resolveVariable(name: string, initialScope: Scope, projectScope?: Set<string>, callerContext?: ResolutionContext): VariableSymbol | undefined {
         return resolveVariable(this, name, initialScope, projectScope, callerContext);
+    }
+
+    public resolveFormula(name: string, initialScope: Scope, projectScope?: Set<string>, callerContext?: ResolutionContext): import('../../models/symbols').FormulaSymbol | undefined {
+        return resolveFormula(this, name, initialScope, projectScope, callerContext);
     }
 
     public resolveFunction(name: string, initialScope: Scope, projectScope?: Set<string>, callerContext?: ResolutionContext) {
@@ -323,8 +342,12 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     /**
      * Get all variables reachable from a specific scope (for completion)
      */
-    public getAllVariablesInScope(initialScope: Scope, callerContext?: ResolutionContext): Map<string, SymbolInfo> {
+    public getAllVariablesInScope(initialScope: Scope, callerContext?: ResolutionContext): Map<string, VariableSymbol> {
         return getAllVariablesInScope(this, initialScope, callerContext);
+    }
+
+    public getAllFormulasInScope(initialScope: Scope, callerContext?: ResolutionContext, localOnly?: boolean): Map<string, import('../../models/symbols').FormulaSymbol> {
+        return getAllFormulasInScope(this, initialScope, callerContext, localOnly);
     }
 
     /**
@@ -334,118 +357,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         return getReachableChildren(this, scope, targetType);
     }
 
-    /**
-     * Serialize the entire scope hierarchy relevant to a file for debugging/visualization
-     */
-    public serializeScopeTree(uri: string): ScopeTreeDTO {
-        const fileScope = this.fileMap.get(uri);
 
-        const serializeNode = (node: Scope): ScopeNodeDTO => {
-            const symbolGroups: { kind: string, count: number }[] = [];
-            if (node.variables.size > 0) symbolGroups.push({ kind: 'Variables', count: node.variables.size });
-            if (hasFunctionsAndActions(node)) {
-                if (node.functions.size > 0) symbolGroups.push({ kind: 'Functions', count: node.functions.size });
-                if (node.actions.size > 0) symbolGroups.push({ kind: 'Actions', count: node.actions.size });
-            }
-            if (hasAttributes(node)) {
-                let attrCount = 0;
-                for (const attrMap of node.attributes.values()) {
-                    attrCount += attrMap.size;
-                }
-                if (attrCount > 0) symbolGroups.push({ kind: 'Attributes', count: attrCount });
-            }
-            if (hasSchemas(node) && node.schemas.size > 0) symbolGroups.push({ kind: 'Schemas', count: node.schemas.size });
-            if (hasDefinitions(node)) {
-                for (const [defType, defMap] of node.definitions.entries()) {
-                    if (defMap.size > 0) {
-                        symbolGroups.push({ kind: defType, count: defMap.size });
-                    }
-                }
-            }
-
-            let children = node.childScopes;
-            if (node.kind === ScopeKind.Project && fileScope) {
-                children = children.filter(c => c === fileScope);
-            }
-
-            const parentIds = this.parentDefinitions.get(node.id.toLowerCase());
-            const structuralParents = parentIds ? Array.from(parentIds) : undefined;
-
-            const childIds = this.childDefinitions.get(node.id.toLowerCase());
-            const structuralChildren = childIds ? Array.from(childIds) : undefined;
-
-            const useIds = this.useInheritance.get(node.id.toLowerCase());
-            const usedDefinitions = useIds ? Array.from(useIds) : undefined;
-
-            return {
-                id: node.id,
-                kind: node.kind,
-                range: node.range,
-                structuralParents,
-                structuralChildren,
-                usedDefinitions,
-                symbolGroups,
-                children: children.map(c => serializeNode(c))
-            };
-        };
-
-        return {
-            globalScope: serializeNode(this.globalScope),
-            projectScope: serializeNode(this.projectScope)
-        };
-    }
-
-    /**
-     * Get paginated symbols for a specific scope and kind
-     */
-    public getSymbolsPaginated(scopeId: string, kind: string, page: number, limit: number, query?: string): PaginatedSymbolsDTO {
-        const scope = this.getScopeById(scopeId) || (scopeId === 'global' ? this.globalScope : this.projectScope);
-        let symbols: SymbolInfo[] = [];
-
-        if (scope) {
-            const lowerKind = kind.toLowerCase();
-            if (lowerKind === 'variables') {
-                symbols = Array.from(scope.variables.values());
-            } else if (lowerKind === 'functions' && hasFunctionsAndActions(scope)) {
-                symbols = Array.from(scope.functions.values());
-            } else if (lowerKind === 'actions' && hasFunctionsAndActions(scope)) {
-                symbols = Array.from(scope.actions.values());
-            } else if (lowerKind === 'attributes' && hasAttributes(scope)) {
-                for (const attrMap of scope.attributes.values()) {
-                    symbols.push(...Array.from(attrMap.values()));
-                }
-            } else if (lowerKind === 'schemas' && hasSchemas(scope)) {
-                symbols = Array.from(scope.schemas.values());
-            } else if (hasDefinitions(scope)) {
-                // Check definitions
-                for (const [defType, defMap] of scope.definitions.entries()) {
-                    if (defType.toLowerCase() === lowerKind || defType === kind) {
-                        symbols.push(...Array.from(defMap.values()));
-                    }
-                }
-            }
-        }
-
-        if (query) {
-            const lowerQuery = query.toLowerCase();
-            symbols = symbols.filter(s => s.name.toLowerCase().includes(lowerQuery));
-        }
-
-        // Sort by name for consistent pagination
-        symbols.sort((a, b) => a.name.localeCompare(b.name));
-
-        const totalCount = symbols.length;
-        const startIndex = (page - 1) * limit;
-        const paginatedSymbols = symbols.slice(startIndex, startIndex + limit);
-
-        return {
-            symbols: paginatedSymbols,
-            totalCount,
-            page,
-            limit,
-            kind
-        };
-    }
 
     /**
      * Search for symbols matching a query and optional type filter
@@ -474,6 +386,29 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
                 }
             }
         }
+
+        // Search attributes
+        if (!lowerTypeFilter || lowerTypeFilter === 'attribute') {
+            for (const attrMap of this.globalScope.attributes.values()) {
+                for (const [name, sym] of attrMap.entries()) {
+                    if (!lowerQuery || name.toLowerCase().includes(lowerQuery)) {
+                        result.push(sym);
+                        if (result.length >= maxResults) return result;
+                    }
+                }
+            }
+        }
+
+        // Search schemas
+        if (!lowerTypeFilter || lowerTypeFilter === 'schema') {
+            for (const [name, sym] of this.globalScope.schemas.entries()) {
+                if (!lowerQuery || name.toLowerCase().includes(lowerQuery)) {
+                    result.push(sym);
+                    if (result.length >= maxResults) return result;
+                }
+            }
+        }
+
         return result;
     }
 }

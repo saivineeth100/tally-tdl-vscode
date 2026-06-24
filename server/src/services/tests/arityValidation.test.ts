@@ -42,31 +42,6 @@ describe('Function arity validation', () => {
         expect(diagnostics[0].code).toBe('TDL021'); // MissingParameters
     });
 
-    it('reports too many args for function', () => {
-        const symbolTable = new SymbolTable();
-        const scopeManager = new ScopeManager(symbolTable);
-        scopeManager.getScopeAt = () => scopeManager.globalScope as any;
-        scopeManager.globalScope.functions.set('myfunc', {
-            name: 'myfunc',
-            parameters: [
-                { ParameterType: 'P1', IsMandatory: true } as any
-            ]
-        } as any);
-
-        const doc = createMockDoc();
-        const diagnostics: any[] = [];
-        const funcNode: FunctionCallNode = {
-            kind: SyntaxKind.FunctionCall,
-            start: 0, end: 10,
-            functionName: { text: '$$MyFunc', start: 0, end: 8 } as any,
-            arguments: [{} as any, {} as any] // 2 arguments
-        };
-
-        validateFunctionArity(funcNode, doc, scopeManager, diagnostics);
-        
-        expect(diagnostics.length).toBe(1);
-        expect(diagnostics[0].code).toBe('TDL020'); // TooManyParameters
-    });
 });
 
 describe('Action arity validation', () => {

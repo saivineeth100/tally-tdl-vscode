@@ -1,0 +1,10 @@
+{
+    "name": "tally-tdl-shared",
+    "version": "0.0.1",
+    "description": "Shared types for Tally TDL",
+    "main": "out/index.js",
+    "types": "out/index.d.ts",
+    "scripts": {
+        "compile": "tsc -b"
+    }
+}

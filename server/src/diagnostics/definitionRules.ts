@@ -1,7 +1,7 @@
 import { DiagnosticSeverity } from "vscode-languageserver-types";
 
 export const DefinitionRules = {
-    MissingDefinition: { code: 'TDL2000', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Cannot find definition for '{0}'.", description: "Referenced definition does not exist." },
+    MissingDefinition: { code: 'TDL2000', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Cannot find {1} definition for '{0}'.", description: "Referenced definition does not exist." },
     DuplicateDefinition: { code: 'TDL2001', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "Duplicate definition '{0}'.", description: "Definition name is already used." },
     ModifierMissingTarget: { code: 'TDL2002', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "Modifier cannot find target definition '{0}'.", description: "Modifying an undefined target." },
     UnknownAttribute: { code: 'TDL2003', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Unknown attribute '{0}'.", description: "Attribute does not exist on this definition." },

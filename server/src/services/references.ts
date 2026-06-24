@@ -81,6 +81,32 @@ export async function findReferences(
                     });
                 }
                 break;
+            } else {
+                // Check if cursor is on an attribute name (like an implicit local formula)
+                for (const attr of def.attributes) {
+                    if (attr.name && offset >= attr.name.start && offset <= attr.name.end) {
+                        const scopeMgr = docManager.getScopeManager(uri);
+                        const scope = scopeMgr.getScopeAt(uri, offset);
+                        if (scope) {
+                            const formulaDef = scopeMgr.resolveFormula(attr.name.text, scope);
+                            if (formulaDef && formulaDef.uri === uri && formulaDef.start === attr.name.start) {
+                                targetName = attr.name.text;
+                                targetType = 'Formula';
+                                if (includeDeclaration) {
+                                    locations.push({
+                                        uri: uri,
+                                        range: {
+                                            start: sourceDoc.positionAt(attr.name.start),
+                                            end: sourceDoc.positionAt(attr.name.end)
+                                        }
+                                    });
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (targetName) break;
             }
         }
     }

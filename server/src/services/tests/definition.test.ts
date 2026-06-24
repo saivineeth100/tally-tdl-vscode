@@ -56,6 +56,42 @@ describe('Definition Service - References', () => {
         expect(ref?.expectedType).toBe('Part'); // Resolved via List param in mock
     });
 
+    it('should find local formula reference inside an expression (@LF1 + @LF2)', () => {
+        const text = `[Field: Local Formula]
+            Set As: @LF1 + @LF2
+            LF1: "Hello"
+            LF2: "World"`;
+        
+        const { sourceFile } = createMockSourceFile(text);
+        
+        // Offset inside @LF1
+        const offsetLF1 = text.indexOf('@LF1') + 2; 
+        const refLF1 = findReferenceAtOffset(sourceFile, offsetLF1, text, mockScopeManager);
+        expect(refLF1).toBeDefined();
+        expect(refLF1?.name).toBe('LF1');
+        expect(refLF1?.expectedType).toBe('Formula');
+
+        // Offset inside @LF2
+        const offsetLF2 = text.indexOf('@LF2') + 2;
+        const refLF2 = findReferenceAtOffset(sourceFile, offsetLF2, text, mockScopeManager);
+        expect(refLF2).toBeDefined();
+        expect(refLF2?.name).toBe('LF2');
+        expect(refLF2?.expectedType).toBe('Formula');
+    });
+
+    it('should find global formula reference (@@GlobalFormula)', () => {
+        const text = `[Field: Local Formula]
+            Set As: @@GlobalFormula`;
+        
+        const { sourceFile } = createMockSourceFile(text);
+        const offset = text.indexOf('@@GlobalFormula') + 5;
+        
+        const ref = findReferenceAtOffset(sourceFile, offset, text, mockScopeManager);
+        expect(ref).toBeDefined();
+        expect(ref?.name).toBe('GlobalFormula');
+        expect(ref?.expectedType).toBe('Formula');
+    });
+
     it('should find reference using alias (Parts -> Part fallback)', () => {
         const text = `[Form: Test]
             Parts: MyPart`;

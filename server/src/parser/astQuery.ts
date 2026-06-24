@@ -83,6 +83,46 @@ export function findNodeAtOffset(nodes: Node[], offset: number): Node | undefine
             }
         }
         
+        if (node.kind === SyntaxKind.BinaryExpression) {
+            const bin = node as any;
+            const children = [];
+            if (bin.left) children.push(bin.left);
+            if (bin.right) children.push(bin.right);
+            const deeper = findNodeAtOffset(children, offset);
+            if (deeper) return deeper;
+        }
+
+        if (node.kind === SyntaxKind.UnaryExpression) {
+            const un = node as any;
+            if (un.right) {
+                const deeper = findNodeAtOffset([un.right], offset);
+                if (deeper) return deeper;
+            }
+        }
+        
+        if (node.kind === SyntaxKind.MethodReference) {
+            const m = node as any;
+            if (m.primaryObject && m.primaryObject.identifier) {
+                const deeper = findNodeAtOffset([m.primaryObject.identifier], offset);
+                if (deeper) return deeper;
+            }
+            if (m.pathSpecs) {
+                for (const spec of m.pathSpecs) {
+                    if (spec.index) {
+                        const deeper = findNodeAtOffset([spec.index], offset);
+                        if (deeper) return deeper;
+                    }
+                    if (spec.condition) {
+                        const deeper = findNodeAtOffset([spec.condition], offset);
+                        if (deeper) return deeper;
+                    }
+                }
+            }
+            if (m.methodName && offset >= m.methodName.start && offset <= m.methodName.end) {
+                return m.methodName;
+            }
+        }
+        
         return node;
     }
     return undefined;

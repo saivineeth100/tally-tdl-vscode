@@ -149,6 +149,15 @@ export function getHoverInfo(
                 if (offset >= attr.start && offset <= attr.end) {
                     // Check if on attribute name (before colon)
                     if (offset < attr.colon.Start) {
+                        // First check if it's an implicit local formula defined right here
+                        const formulaDef = scopeManager.resolveFormula(attr.name.text, scope, projectScope);
+                        if (formulaDef && formulaDef.uri === uri && formulaDef.start === attr.name.start) {
+                            return {
+                                type: 'attribute',
+                                content: `**${attr.name.text}**\n\n*Local Formula*`
+                            };
+                        }
+
                         // On attribute name - show attribute info
                         const attrDef = scopeManager.resolveAttribute(attr.name.text, def.type.text, scope, projectScope);
                         if (attrDef) {

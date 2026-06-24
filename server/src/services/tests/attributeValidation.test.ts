@@ -107,6 +107,55 @@ describe('Attribute Validation', () => {
             const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeDefined();
         });
+
+        it('should validate reference to existing global function', async () => {
+            // Set up a global function
+            testScopeManager!.globalScope.functions.set('myglobalfunc', {
+                name: 'MyGlobalFunc',
+                kind: SymbolKind.Function,
+                definitionType: 'Function',
+                uri: 'global:metadata',
+                start: 0,
+                end: 10
+            } as any);
+
+            // Set up an attribute that refers to a Function
+            let typeMap = testScopeManager!.globalScope.attributes.get('report');
+            typeMap!.set('myfuncattr', {
+                name: 'MyFuncAttr',
+                parameters: [{ RefersTo: 'Function' }]
+            } as any);
+
+            const tdl = `[Report: FuncRefReport]
+                MyFuncAttr: MyGlobalFunc
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!, symbolTable);
+            const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
+            expect(refError).toBeUndefined();
+        });
+
+        it('should validate reference to existing system definition', async () => {
+            // Set up existing system definitions
+            if (!testScopeManager!.existingDefinitions) testScopeManager!.existingDefinitions = new Map();
+            let sysDefMap = testScopeManager!.existingDefinitions.get('form');
+            if (!sysDefMap) { sysDefMap = new Set(); testScopeManager!.existingDefinitions.set('form', sysDefMap); }
+            sysDefMap.add('systemform');
+
+            const tdl = `[Report: SysRefReport]
+                Form: SystemForm
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!, symbolTable);
+            const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
+            expect(refError).toBeUndefined();
+        });
     });
 
     describe('List Modifier Validation', () => {
@@ -251,7 +300,7 @@ describe('Attribute Validation', () => {
             expect(diag).toBeUndefined();
         });
 
-        it('reports unknown attributes on Field', () => {
+        it('treats unknown attributes on Field as implicit local formulas (no error)', () => {
             const tdl = `[Field: MyField]
                 NonExistentAttr: Yes
             `;
@@ -261,15 +310,15 @@ describe('Attribute Validation', () => {
 
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const diag = diagnostics.find(d => d.code === DiagnosticRules.UnknownAttribute.code);
-            expect(diag).toBeDefined();
+            expect(diag).toBeUndefined();
         });
     });
 
     describe('Discrete attribute validation', () => {
-        it('reports duplicate discrete attribute', () => {
+        it('reports duplicate discrete attribute values across declarations', () => {
             const tdl = `[Report: MyRep]
                 Form: Form1
-                Form: Form2
+                Form: Form1
             `;
             const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
             const parser = new Parser(tdl);
@@ -278,6 +327,33 @@ describe('Attribute Validation', () => {
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const diag = diagnostics.filter(d => d.code === 'TDL021'); // DuplicateDiscreteAttribute
             expect(diag.length).toBeGreaterThan(0);
+        });
+
+        it('reports duplicate discrete attribute values within a single list declaration', () => {
+            const tdl = `[Form: MyForm]
+                Part: Part1, Part2, Part1
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const diag = diagnostics.filter(d => d.code === 'TDL021'); // DuplicateDiscreteAttribute
+            expect(diag.length).toBeGreaterThan(0);
+        });
+
+        it('allows multiple discrete attributes with unique values', () => {
+            const tdl = `[Form: MyForm]
+                Part: Part1, Part2
+                Part: Part3
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const diag = diagnostics.filter(d => d.code === 'TDL021'); // DuplicateDiscreteAttribute
+            expect(diag.length).toBe(0);
         });
 
         it('allows multiple non-discrete attributes', () => {

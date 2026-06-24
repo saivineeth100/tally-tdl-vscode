@@ -4,6 +4,7 @@
         "target": "ES2024",
         "lib": [
             "ES2024",
+            "DOM",
             "ESNext.Disposable"
         ],
         "outDir": "out",
@@ -19,5 +20,10 @@
         "node_modules",
         ".vscode-test",
         "out"
+    ],
+    "references": [
+        {
+            "path": "../shared"
+        }
     ]
 }

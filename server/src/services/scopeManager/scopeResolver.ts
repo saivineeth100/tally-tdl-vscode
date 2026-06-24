@@ -1,4 +1,4 @@
-import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, DefinitionSymbol, AttributeSymbol, ActionSymbol, SchemaSymbol } from '../symbolTable';
+import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, FormulaSymbol, DefinitionSymbol, AttributeSymbol, ActionSymbol, SchemaSymbol } from '../symbolTable';
 import { Scope, ScopeKind, definitionTypeToSymbolKind, hasFunctionsAndActions, hasDefinitions, hasAttributes, hasSchemas } from './types';
 import { normalizeTypeName, getInterchangeableTypes } from '../utils';
 
@@ -7,6 +7,7 @@ export interface IScopeResolverState {
     parentDefinitions: Map<string, Set<string>>;
     childDefinitions: Map<string, Set<string>>;
     metadata?: any;
+    existingDefinitions?: Map<string, Set<string>>;
     modifierContributions?: Map<string, import('./types').ModifierContribution[]>;
     
     findDefinitionScope(id: string): Scope | undefined;
@@ -102,7 +103,7 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
 /**
  * Core traversal engine for aggregations (collecting all matches).
  */
-function visitScopes(context: ResolutionContext, visitor: VisitorStrategy): void {
+function visitScopes(context: ResolutionContext, visitor: VisitorStrategy, localOnly: boolean = false): void {
     const { visitedScopes, state, initialScope } = context;
 
     const walkScopeAndParents = (scope: Scope): void => {
@@ -110,6 +111,8 @@ function visitScopes(context: ResolutionContext, visitor: VisitorStrategy): void
         visitedScopes.add(scope.id);
 
         visitor(scope);
+
+        if (localOnly) return;
 
         // Check Use inheritance
         const uses = state.useInheritance.get(scope.id.toLowerCase());
@@ -149,6 +152,10 @@ function visitScopes(context: ResolutionContext, visitor: VisitorStrategy): void
 
     let current: Scope | undefined = initialScope;
     while (current) {
+        if (localOnly && (current.kind === ScopeKind.File || current.kind === ScopeKind.Project || current.kind === ScopeKind.Global)) {
+            break;
+        }
+
         if (current.kind === ScopeKind.Definition) {
             walkScopeAndParents(current);
         } else {
@@ -181,6 +188,29 @@ export function resolveVariable(
 
     // 2. Global fallback
     return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Variable) as VariableSymbol | undefined;
+}
+
+export function resolveFormula(
+    state: IScopeResolverState, 
+    name: string, 
+    initialScope: Scope, 
+    projectScope?: Set<string>,
+    callerContext?: ResolutionContext
+): FormulaSymbol | undefined {
+    const normalizedName = normalizeTypeName(name);
+    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
+    
+    // 1. Traverse structured scopes
+    const match = traverseScopes(context, scope => {
+        if ('formulas' in scope) {
+            return scope.formulas.get(normalizedName);
+        }
+        return undefined;
+    });
+    if (match) return match;
+
+    // 2. Global fallback (not typically applicable for formulas as they are all cached in scopes, but check global definitions)
+    return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Formula) as FormulaSymbol | undefined;
 }
 
 export function resolveFunction(
@@ -247,6 +277,16 @@ export function resolveDefinition(
                 if (sym) return sym;
             }
         }
+        if (hasFunctionsAndActions(scope)) {
+            if (typesToCheck.includes('function')) {
+                const sym = scope.functions.get(normalizedName);
+                if (sym) return sym as unknown as DefinitionSymbol;
+            }
+            if (typesToCheck.includes('action')) {
+                const sym = scope.actions.get(normalizedName);
+                if (sym) return sym as unknown as DefinitionSymbol;
+            }
+        }
         return undefined;
     });
     if (match) return match;
@@ -259,10 +299,10 @@ export function resolveDefinition(
     if (globalMatch) return globalMatch as DefinitionSymbol;
 
     // Metadata fallback for existing system definitions
-    if (state.metadata && state.metadata.existingDefinitions) {
+    if (state.existingDefinitions) {
         const checkName = normalizeTypeName(name);
         for (const t of typesToCheck) {
-            const typeSet = state.metadata.existingDefinitions.get(t);
+            const typeSet = state.existingDefinitions.get(t);
             if (typeSet && typeSet.has(checkName)) {
                 return {
                     name: name,
@@ -342,6 +382,11 @@ export function resolveSymbol(
         let sym: SymbolInfo | undefined = scope.variables.get(normalizedName);
         if (sym) return sym;
 
+        if ('formulas' in scope) {
+            sym = scope.formulas.get(normalizedName);
+            if (sym) return sym;
+        }
+
         if (hasFunctionsAndActions(scope)) {
             sym = scope.functions.get(normalizedName) || scope.actions.get(normalizedName);
             if (sym) return sym;
@@ -373,9 +418,9 @@ export function resolveSymbol(
     if (globalSymbols.length > 0) return globalSymbols[0];
 
     // Check Metadata Definitions if not found
-    if (state.metadata && state.metadata.existingDefinitions) {
+    if (state.existingDefinitions) {
         const normalizedName = normalizeTypeName(name);
-        for (const [defType, names] of state.metadata.existingDefinitions) {
+        for (const [defType, names] of state.existingDefinitions) {
             if (names.has(normalizedName)) {
                 return {
                     name: name,
@@ -409,6 +454,28 @@ export function getAllVariablesInScope(
     });
 
     return variables;
+}
+
+export function getAllFormulasInScope(
+    state: IScopeResolverState, 
+    initialScope: Scope,
+    callerContext?: ResolutionContext,
+    localOnly: boolean = false
+): Map<string, FormulaSymbol> {
+    const formulas = new Map<string, FormulaSymbol>();
+    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
+
+    visitScopes(context, scope => {
+        if ('formulas' in scope) {
+            for (const [key, sym] of scope.formulas) {
+                if (!formulas.has(key)) {
+                    formulas.set(key, sym);
+                }
+            }
+        }
+    }, localOnly);
+
+    return formulas;
 }
 
 export function getReachableChildren(state: IScopeResolverState, scope: Scope, targetType: string): SymbolInfo[] {

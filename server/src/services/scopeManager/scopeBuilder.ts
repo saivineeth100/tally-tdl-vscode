@@ -1,10 +1,11 @@
 import { SourceFile, SyntaxKind, IdentifierNode, StatementNode, BlockStatementNode, ForNode, WalkNode, IfNode, WhileNode } from '../../parser/ast';
-import { SymbolInfo, SymbolKind, VariableSymbol, DefinitionSymbol } from '../symbolTable';
+import { SymbolInfo, SymbolKind, VariableSymbol, DefinitionSymbol, FormulaSymbol } from '../symbolTable';
 import { Scope, ScopeKind, definitionTypeToSymbolKind } from './types';
-import { normalizeTypeName } from '../utils';
+import { normalizeTypeName, getCanonicalAttributeName } from '../utils';
 // We need to interface with ScopeManager without a circular dependency if possible,
 // or just use any/duck typing. Let's define the interface needed from ScopeManager:
 export interface IScopeManager {
+    globalScope: import('./types').GlobalScope;
     projectScope: import('./types').ProjectScope;
     fileMap: Map<string, Scope>;
     parentDefinitions: Map<string, Set<string>>;
@@ -49,7 +50,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
         // Handle Definition Modifiers (#, !, *)
         let defScope: Scope;
         const isFunction = def.type?.text?.toLowerCase() === 'function';
-        if (def.modifier) {
+        if (def.modifier && def.modifier.Text !== '!') {
             // Find original definition scope in current file or project
             const existing = fileScope.childScopes.find(c => c.id.toLowerCase() === defId.toLowerCase()) || 
                              manager.findDefinitionScope(defId);
@@ -80,8 +81,8 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                 : manager.createDefinitionScope(defId, fileScope, { start: def.start, end: def.end }, uri);
         }
 
-        // Register non-incomplete, non-modifier definitions in projectScope.definitions
-        if (!def.isIncomplete && def.name && !def.modifier) {
+        // Register non-incomplete definitions in projectScope.definitions (including ! modifiers)
+        if (!def.isIncomplete && def.name && (!def.modifier || def.modifier.Text === '!')) {
             const defTypeLower = normalizeTypeName(def.type?.text || '');
             let typeMap = manager.projectScope.definitions.get(defTypeLower);
             if (!typeMap) {
@@ -107,12 +108,13 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
             const attrNameLower = attr.name.text.toLowerCase().replace(/\s+/g, '');
             
             // Track structural hierarchy (Report -> Form -> Part -> Line -> Field)
-            if (['form', 'part', 'line', 'field'].includes(attrNameLower)) {
+            const targetType = getCanonicalAttributeName(attrNameLower);
+            if (targetType) {
                 if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
                     for (const val of attr.value) {
                         if (val.kind === SyntaxKind.Identifier) {
                             const childName = (val as IdentifierNode).text;
-                            const childId = `${attrNameLower.charAt(0).toUpperCase() + attrNameLower.slice(1)}:${childName}`;
+                            const childId = `${targetType}:${childName}`;
                             
                             let parents = manager.parentDefinitions.get(childId.toLowerCase());
                             if (!parents) {
@@ -131,10 +133,10 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                             }
                             children.add(childId.toLowerCase());
                             if (defScope.kind === ScopeKind.Definition) {
-                                let localStructChildren = defScope.structuralChildren.get(attrNameLower);
+                                let localStructChildren = defScope.structuralChildren.get(targetType);
                                 if (!localStructChildren) {
                                     localStructChildren = new Set<string>();
-                                    defScope.structuralChildren.set(attrNameLower, localStructChildren);
+                                    defScope.structuralChildren.set(targetType, localStructChildren);
                                 }
                                 localStructChildren.add(childName);
                             }
@@ -211,15 +213,15 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                 } else if (systemDefName === 'formula' || systemDefName === 'formulae' || systemDefName === 'formulas') {
                     // [System: Formula] MyURL : "" -> MyURL is the formula!
                     const formulaName = attr.name.text;
-                    const symbol: VariableSymbol = {
+                    const symbol: FormulaSymbol = {
                         name: formulaName,
-                        kind: SymbolKind.Variable, // Treat formula as variable reference
+                        kind: SymbolKind.Formula,
                         uri: uri,
                         start: attr.name.start,
                         end: attr.name.end,
                         definitionType: 'Formula'
                     };
-                    manager.projectScope.variables.set(formulaName.toLowerCase(), symbol);
+                    manager.projectScope.formulas.set(formulaName.toLowerCase(), symbol);
                 }
             } else if (def.type?.text?.toLowerCase() === 'function' && attrNameLower === 'parameter') {
                 // Parse function parameters
@@ -269,6 +271,39 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                                 }
                             }
                         }
+                    }
+                }
+            } else if (attrNameLower === 'localformula' || attrNameLower === 'localformulae') {
+                if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
+                    const formulaName = (attr.value[0] as IdentifierNode).text;
+                    const symbol: FormulaSymbol = {
+                        name: formulaName,
+                        kind: SymbolKind.Formula,
+                        uri: uri,
+                        start: attr.value[0].start,
+                        end: attr.value[0].end,
+                        definitionType: 'Formula'
+                    };
+                    if (defScope.kind === ScopeKind.Definition) {
+                        defScope.formulas.set(formulaName.toLowerCase(), symbol);
+                    }
+                }
+            } else if (def.type?.text) {
+                // Implicit local formula if it's not a known attribute
+                const defTypeMetadata = manager.globalScope.attributes.get(def.type.text.toLowerCase());
+                // Only treat as implicit formula if we know the definition type and the attribute is unknown
+                if (defTypeMetadata && !defTypeMetadata.has(attrNameLower)) {
+                    const formulaName = attr.name.text;
+                    const symbol: FormulaSymbol = {
+                        name: formulaName,
+                        kind: SymbolKind.Formula,
+                        uri: uri,
+                        start: attr.name.start,
+                        end: attr.name.end,
+                        definitionType: 'Formula'
+                    };
+                    if (defScope.kind === ScopeKind.Definition) {
+                        defScope.formulas.set(formulaName.toLowerCase(), symbol);
                     }
                 }
             }

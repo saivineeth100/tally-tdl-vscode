@@ -4,7 +4,7 @@ export const AttributeRules = {
     DuplicateDiscreteAttribute: {
         code: 'TDL021', // Note: ArityRules used TDL021 as well, I should use TDL022 to avoid conflict
         defaultSeverity: DiagnosticSeverity.Warning,
-        messageFormat: "Attribute '{0}' is discrete and should only appear once in a definition",
+        messageFormat: "Discrete attribute '{0}' cannot have repeated value '{1}'",
         description: "Discrete attribute duplicated."
     }
 } as const;
