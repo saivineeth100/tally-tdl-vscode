@@ -51,11 +51,15 @@ function setupMocks(files: Record<string, string>) {
     const reportAttrs = new Map<string, any>();
     reportAttrs.set('use', { name: 'Use', parameters: [{ RefersTo: 'Report' }] });
     reportAttrs.set('set', { name: 'Set', parameters: [{ RefersTo: 'Variable' }, { RefersTo: 'Expression' }] });
-    scopeManager.globalScope.attributes.set('REPORT', reportAttrs);
+    scopeManager.globalScope.attributes.set('report', reportAttrs);
 
     const formAttrs = new Map<string, any>();
     formAttrs.set('parts', { name: 'Parts', parameters: [{ IsList: true, RefersTo: 'Part' }] });
-    scopeManager.globalScope.attributes.set('FORM', formAttrs);
+    scopeManager.globalScope.attributes.set('form', formAttrs);
+
+    const fieldAttrs = new Map<string, any>();
+    fieldAttrs.set('setas', { name: 'Set as', parameters: [{ RefersTo: 'Expression' }] });
+    scopeManager.globalScope.attributes.set('field', fieldAttrs);
 
     const mockDocManager = {
         get: (uri: string) => docStates.get(uri),
@@ -183,5 +187,23 @@ describe('References Service', () => {
         expect(refs.length).toBe(2); // Definition + 1 usage
         
         readFileSpy.mockRestore();
+    });
+
+    it('should find references in Local attributes', async () => {
+        const { mockDocs, mockDocManager, targetUri, offset } = setupMocks({
+            'file:///test.tdl': `
+                [Field: |MyField]
+                Set as: "Hello"
+                
+                [Report: MyReport]
+                Local: Field: MyField: Set as: "World"
+            `
+        });
+        
+        const refs = await findReferences(mockDocManager, mockDocs, targetUri, offset, true);
+        
+        expect(refs).toBeDefined();
+        // Should find the definition (1) and the reference inside the Local attribute (1) = 2
+        expect(refs.length).toBe(2);
     });
 });

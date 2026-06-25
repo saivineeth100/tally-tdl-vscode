@@ -14,11 +14,11 @@ describe('Definition Validation (Mocked)', () => {
     const mockScopeManager = new ScopeManager(symbolTable);
     
     // Add existing definitions directly to the scope manager
-    mockScopeManager.existingDefinitions = new Map<string, Set<string>>([
-        ['report', new Set(['balancesheet', 'trialbalance'])],
-        ['field', new Set(['name', 'amount'])],
-        ['menu', new Set()],
-        ['form', new Set()]
+    mockScopeManager.existingDefinitions = new Map<string, Map<string, string>>([
+        ['report', new Map([['balancesheet', 'balancesheet'], ['trialbalance', 'trialbalance']])],
+        ['field', new Map([['name', 'name'], ['amount', 'amount']])],
+        ['menu', new Map()],
+        ['form', new Map()]
     ]);
 
     // Mock definitions map for attributes using attributes map in globalScope
@@ -90,7 +90,7 @@ describe('Definition Validation (Mocked)', () => {
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
         // Add Menu to mock metadata
-        mockScopeManager.existingDefinitions.get('menu')?.add('gatewayoftally');
+        mockScopeManager.existingDefinitions.get('menu')?.set('gatewayoftally', 'gatewayoftally');
 
         const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
         const error = diagnostics.find(d => d.code === DiagnosticRules.DuplicateDefinition.code);

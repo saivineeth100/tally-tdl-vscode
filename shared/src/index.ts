@@ -134,6 +134,8 @@ export interface ScopeNodeDTO {
     structuralParents?: string[];
     structuralChildren?: string[];
     usedDefinitions?: string[];
+    objectScope?: string;
+    collectionScope?: string;
     symbolGroups: { kind: string, count: number }[];
     children: ScopeNodeDTO[];
     hasChildren?: boolean;

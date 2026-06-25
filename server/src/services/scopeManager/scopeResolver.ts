@@ -8,7 +8,7 @@ export interface IScopeResolverState {
     parentDefinitions: Map<string, Set<string>>;
     childDefinitions: Map<string, Set<string>>;
     metadata?: any;
-    existingDefinitions?: Map<string, Set<string>>;
+    existingDefinitions?: Map<string, Map<string, string>>;
     modifierContributions?: Map<string, import('./types').ModifierContribution[]>;
     
     findDefinitionScope(id: string): Scope | undefined;
@@ -77,6 +77,16 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
             }
         }
         
+        // Check collectionScope link
+        if ('collectionScope' in scope && scope.collectionScope) {
+            const collId = `collection:${scope.collectionScope}`.toLowerCase();
+            const collScope = state.findDefinitionScope(collId);
+            if (collScope) {
+                const res = searchScopeAndParents(collScope);
+                if (res !== undefined) return res;
+            }
+        }
+        
         // Structurally search upwards
         if (scope.kind === ScopeKind.Definition) {
             const parentIds = state.parentDefinitions.get(scope.id.toLowerCase());
@@ -114,14 +124,12 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
 }
 
 /**
- * Resolves all available Fields that are "in scope" for a given context.
- * Useful for resolving `#FieldName` references.
- * Traverses UP to the structural roots (e.g., Form, Report) then DOWN to collect all Fields.
- * If the current definition is a Collection/Function, falls back to all fields in the project.
+ * Resolves all available definitions of a specific type that are "in scope" for a given context.
+ * Traverses UP to the structural roots (e.g., Form, Report) then DOWN to collect all matches.
  */
-export function getFieldsInScope(context: ResolutionContext, globalScope?: GlobalScope, projectScope?: ProjectScope): SymbolInfo[] {
+export function getDefinitionsInScope(context: ResolutionContext, targetDefType: string, globalScope?: GlobalScope, projectScope?: ProjectScope): SymbolInfo[] {
     const { state, initialScope } = context;
-    const fields = new Map<string, SymbolInfo>();
+    const definitions = new Map<string, SymbolInfo>();
     const visitedParents = new Set<string>();
     const roots = new Set<string>();
     
@@ -158,43 +166,127 @@ export function getFieldsInScope(context: ResolutionContext, globalScope?: Globa
         findRoots(currentDefId);
 
         const visitedChildren = new Set<string>();
-        const collectFields = (id: string) => {
+        const targetDefTypeLower = targetDefType.toLowerCase() + ':';
+        const collectDefinitions = (id: string) => {
             if (visitedChildren.has(id)) return;
             visitedChildren.add(id);
 
-            if (id.startsWith('field:')) {
+            if (id.startsWith(targetDefTypeLower)) {
                 const scope = state.findDefinitionScope(id);
                 if (scope && scope.kind === ScopeKind.Definition && (scope as import('./types').DefinitionScope).definition) {
-                    fields.set(id, (scope as import('./types').DefinitionScope).definition!);
+                    definitions.set(id, (scope as import('./types').DefinitionScope).definition!);
                 }
             }
 
             const children = state.childDefinitions.get(id);
             if (children) {
                 for (const childId of children) {
-                    collectFields(childId);
+                    collectDefinitions(childId);
                 }
             }
 
             const uses = state.useInheritance.get(id);
             if (uses) {
                 for (const useId of uses) {
-                    collectFields(useId);
+                    collectDefinitions(useId);
                 }
             }
 
             const inUses = state.inUseInheritance.get(id);
             if (inUses) {
                 for (const useId of inUses) {
-                    collectFields(useId);
+                    collectDefinitions(useId);
                 }
             }
         };
 
         for (const root of roots) {
-            collectFields(root);
+            collectDefinitions(root);
         }
     }
+
+    return Array.from(definitions.values());
+}
+
+/**
+ * Resolves all available Fields that are "in scope" for a given context.
+ * Useful for resolving `#FieldName` references.
+ * Traverses UP to the structural roots (e.g., Form, Report) then DOWN to collect all Fields.
+ * If the current definition is a Collection/Function, falls back to all fields in the project.
+ */
+export function getFieldsInScope(context: ResolutionContext, globalScope?: GlobalScope, projectScope?: ProjectScope): SymbolInfo[] {
+    const { state, initialScope } = context;
+    const fieldsArray = getDefinitionsInScope(context, 'field', globalScope, projectScope);
+    const fields = new Map<string, SymbolInfo>();
+    
+    for (const field of fieldsArray) {
+        fields.set(`field:${field.name.toLowerCase()}`, field);
+    }
+
+
+    // Also collect schema properties from objectScope/collectionScope
+    traverseScopes(context, scope => {
+        if ('objectScope' in scope && scope.objectScope) {
+            const schema = resolveSchema(state, scope.objectScope, initialScope, undefined, context);
+            if (schema) {
+                const isFetched = (fieldName: string, fetchedFields?: Set<string>, computedFields?: Set<string>) => {
+                    if (!fetchedFields && !computedFields) return true;
+                    if (computedFields?.has(fieldName)) return true;
+                    if (fetchedFields?.has(fieldName)) return true;
+                    if (fetchedFields) {
+                        for (const f of fetchedFields) {
+                            if (f === '*') return true;
+                            if (f.endsWith('.*') && fieldName.toLowerCase().startsWith(f.substring(0, f.length - 2).toLowerCase())) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+
+                for (const [propName, prop] of schema.properties.entries()) {
+                    if (isFetched(prop.Name, (scope as any).fetchedFields, (scope as any).computedFields) || 
+                        isFetched('$' + prop.Name, (scope as any).fetchedFields, (scope as any).computedFields)) {
+                        
+                        fields.set(`schema:${propName}`, {
+                            name: '$' + prop.Name, // Field references use $ prefix
+                            kind: SymbolKind.Field,
+                            uri: schema.uri,
+                            start: schema.start,
+                            end: schema.end,
+                            definitionType: 'SchemaProperty'
+                        });
+                    }
+                }
+            }
+            
+            // Add #Object extensions
+            const globalSymbols = state.findGlobalSymbolsByName(scope.objectScope, undefined);
+            const objDefs = globalSymbols.filter(s => s.definitionType?.toLowerCase() === 'object' || s.kind === SymbolKind.Object);
+            for (const objDef of objDefs) {
+                const objScope = state.findDefinitionScope(`object:${objDef.name}`.toLowerCase());
+                if (objScope) {
+                    if (objScope.formulas) {
+                        for (const [formulaName, sym] of objScope.formulas.entries()) {
+                            // formulas in #Object act as fields
+                            fields.set(`objExt:${formulaName}`, {
+                                name: '$' + (sym.name || formulaName),
+                                kind: SymbolKind.Field,
+                                uri: sym.uri,
+                                start: sym.start,
+                                end: sym.end,
+                                definitionType: 'ObjectExtension'
+                            });
+                        }
+                    }
+                    for (const [varName, sym] of objScope.variables.entries()) {
+                        fields.set(`objExtVar:${varName}`, sym);
+                    }
+                }
+            }
+        }
+        return undefined; // Continue traversal to find all scopes
+    });
 
     return Array.from(fields.values());
 }
@@ -292,12 +384,101 @@ export function resolveVariable(
     const normalizedName = normalizeTypeName(name);
     const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
     
+    const isFetched = (fieldName: string, fetchedFields?: Set<string>, computedFields?: Set<string>) => {
+        if (!fetchedFields && !computedFields) return true;
+        if (computedFields?.has(fieldName)) return true;
+        if (fetchedFields?.has(fieldName)) return true;
+        
+        if (fetchedFields) {
+            for (const f of fetchedFields) {
+                if (f === '*') return true;
+                if (f.endsWith('.*') && fieldName.toLowerCase().startsWith(f.substring(0, f.length - 2).toLowerCase())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
     // 1. Traverse structured scopes
-    const match = traverseScopes(context, scope => scope.variables.get(normalizedName));
+    const match = traverseScopes(context, scope => {
+        let sym = scope.variables.get(normalizedName);
+        if (sym) return sym;
+
+        if ('objectScope' in scope && scope.objectScope) {
+            const fieldNameWithoutDollar = normalizedName.startsWith('$') ? normalizedName.substring(1) : normalizedName;
+            
+            if (isFetched(fieldNameWithoutDollar, (scope as any).fetchedFields, (scope as any).computedFields) || 
+                isFetched(normalizedName, (scope as any).fetchedFields, (scope as any).computedFields)) {
+                
+                // 1. Schema properties
+                const schema = resolveSchema(state, scope.objectScope, initialScope, projectScope, callerContext);
+                if (schema && schema.properties.has(fieldNameWithoutDollar)) {
+                    return {
+                        name: name,
+                        kind: SymbolKind.Field,
+                        uri: schema.uri,
+                        start: schema.start,
+                        end: schema.end,
+                        definitionType: 'SchemaProperty'
+                    } as VariableSymbol;
+                }
+
+                // 2. #Object extensions
+                const globalSymbols = state.findGlobalSymbolsByName(scope.objectScope, projectScope);
+                const objDefs = globalSymbols.filter(s => s.definitionType?.toLowerCase() === 'object' || s.kind === SymbolKind.Object);
+                for (const objDef of objDefs) {
+                    const objScope = state.findDefinitionScope(`object:${objDef.name}`.toLowerCase());
+                    if (objScope) {
+                        if (objScope.variables.has(normalizedName)) return objScope.variables.get(normalizedName);
+                        if (objScope.formulas && objScope.formulas.has(fieldNameWithoutDollar)) {
+                            return {
+                                name: name,
+                                kind: SymbolKind.Field,
+                                uri: objDef.uri,
+                                start: objDef.start,
+                                end: objDef.end,
+                                definitionType: 'ObjectExtension'
+                            } as VariableSymbol;
+                        }
+                    }
+                }
+            }
+        }
+        return undefined;
+    });
     if (match) return match;
 
     // 2. Global fallback
-    return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Variable) as VariableSymbol | undefined;
+    const varTypes = getInterchangeableTypes('variable');
+    const globalMatch = state.findGlobalSymbolsByName(name, projectScope).find(s => {
+        if (s.kind !== SymbolKind.Variable) return false;
+        if (s.definitionType) {
+            return varTypes.includes(normalizeTypeName(s.definitionType));
+        }
+        return true;
+    }) as VariableSymbol | undefined;
+    if (globalMatch) return globalMatch;
+
+    // 3. Metadata fallback for existing system definitions
+    if (state.existingDefinitions) {
+        const checkName = normalizeTypeName(name);
+        const typesToCheck = [...varTypes, 'system_variable', 'system_variables'];
+        for (const t of typesToCheck) {
+            const typeSet = state.existingDefinitions.get(t);
+            if (typeSet && typeSet.has(checkName)) {
+                return {
+                    name: name,
+                    kind: SymbolKind.Variable,
+                    uri: 'global:metadata',
+                    start: 0, end: 0,
+                    definitionType: t
+                } as VariableSymbol;
+            }
+        }
+    }
+    
+    return undefined;
 }
 
 export function resolveFormula(
@@ -313,14 +494,43 @@ export function resolveFormula(
     // 1. Traverse structured scopes
     const match = traverseScopes(context, scope => {
         if ('formulas' in scope) {
-            return scope.formulas.get(normalizedName);
+            let sym = scope.formulas.get(normalizedName);
+            if (sym) return sym;
         }
         return undefined;
     });
     if (match) return match;
 
-    // 2. Global fallback (not typically applicable for formulas as they are all cached in scopes, but check global definitions)
-    return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Formula) as FormulaSymbol | undefined;
+    // 2. Global fallback
+    const formTypes = getInterchangeableTypes('formula');
+    const globalMatch = state.findGlobalSymbolsByName(name, projectScope).find(s => {
+        if (s.kind !== SymbolKind.Formula) return false;
+        if (s.definitionType) {
+            return formTypes.includes(normalizeTypeName(s.definitionType));
+        }
+        return true;
+    }) as FormulaSymbol | undefined;
+    if (globalMatch) return globalMatch;
+
+    // 3. Metadata fallback for existing system definitions
+    if (state.existingDefinitions) {
+        const checkName = normalizeTypeName(name);
+        const typesToCheck = [...formTypes, 'system_formula', 'system_formulae', 'system_formulas'];
+        for (const t of typesToCheck) {
+            const typeSet = state.existingDefinitions.get(t);
+            if (typeSet && typeSet.has(checkName)) {
+                return {
+                    name: name,
+                    kind: SymbolKind.Formula,
+                    uri: 'global:metadata',
+                    start: 0, end: 0,
+                    definitionType: t
+                } as FormulaSymbol;
+            }
+        }
+    }
+    
+    return undefined;
 }
 
 export function resolveFunction(

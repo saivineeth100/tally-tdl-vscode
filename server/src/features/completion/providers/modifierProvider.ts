@@ -3,7 +3,7 @@ import { DocManager } from '../../../docManager';
 import { Scope } from '../../../services/scopeManager';
 import { CompletionContext } from '../contextAnalyzer';
 import { getDefinitionTypes } from '../utils';
-import { getSuggestionsForDefinitionType } from './definitionProvider';
+import { getSuggestionsForDefinitionType, provideDefinitionTypeCompletions } from './definitionProvider';
 import { normalizeTypeName } from '../../../services/utils';
 import { DefinitionNode } from '../../../parser/ast';
 import { SymbolTable } from '../../../services/symbolTable';
@@ -25,101 +25,89 @@ export function provideModifierValueCompletions(
     const scopeManager = manager.getScopeManager(uri);
     
     if (modName === 'local') {
-        let state = 0; // 0: Type, 1: Name, 2: Attribute, 3: Value
-        let currentMod = 'local';
-        let targetDefType = '';
-        let targetDefName = '';
-        let effectiveDefType: string | undefined = currentDef.type?.text;
-        
+        let currentScopeDefType = currentDef.type?.text || '';
+        let currentScopeDefName = currentDef.name?.text || '';
         let effectiveScope: Scope | undefined = scopeManager.getScopeAt(uri, offset);
         
         const parts = context.modifierParts || [];
-        let lastAttribute = '';
         
-        // Parse all parts except the very last one (which is what we are currently typing)
+        // Dynamic state resolution
+        // We evaluate all parts except the very last one (which is the one being typed)
+        let expectingDefNameFor: string | undefined = undefined;
+        let isAttribute = false;
+        let attributeName: string | undefined = undefined;
+        let valuePartIndex = -1;
+
         for (let i = 0; i < parts.length - 1; i++) {
             const p = parts[i].trim();
             
-            if (state === 0) {
-                targetDefType = p;
-                state = 1;
-            } else if (state === 1) {
-                targetDefName = p;
-                // We resolved a definition. Update effective scope!
-                if (effectiveScope && targetDefType && targetDefName) {
-                    const exactScope = scopeManager.getScopeById(`${targetDefType}:${targetDefName}`);
+            if (expectingDefNameFor) {
+                const targetDefName = p;
+                // Update effective scope context
+                if (effectiveScope && targetDefName) {
+                    const dummyScopeId = `${expectingDefNameFor.toLowerCase()}:${targetDefName}`;
+                    const exactScope = scopeManager.findDefinitionScope(dummyScopeId);
                     if (exactScope) {
                         effectiveScope = exactScope;
-                        effectiveDefType = targetDefType;
                     }
                 }
-                state = 2;
-            } else if (state === 2) {
-                lastAttribute = p;
-                const lowerP = p.toLowerCase();
-                if (lowerP === 'local') {
-                    // It's a nested Local modifier! Reset state!
-                    currentMod = lowerP;
-                    state = 0;
-                } else if (['add', 'delete', 'replace', 'option'].includes(lowerP)) {
-                    // It transitioned to Add/Delete/Replace, which takes an Attribute next.
-                    currentMod = lowerP;
-                    state = 4; // State 4 expects an Attribute for the nested modifier
+                currentScopeDefType = expectingDefNameFor;
+                currentScopeDefName = targetDefName;
+                expectingDefNameFor = undefined;
+            } else if (!isAttribute) {
+                // Check if p is a known definition type
+                const pLower = p.toLowerCase();
+                if (scopeManager.globalScope.attributes.has(normalizeTypeName(pLower))) {
+                    expectingDefNameFor = pLower;
                 } else {
-                    state = 3; // We are in value state
+                    // Not a definition type, so it must be the attribute!
+                    isAttribute = true;
+                    attributeName = p;
+                    valuePartIndex = i + 1;
                 }
-            } else if (state === 3) {
-                // Value can contain colons.
-            } else if (state === 4) {
-                // We were expecting an attribute for Add/Delete/Replace
-                lastAttribute = p;
-                state = 5; // State 5 is value for Add/Delete/Replace
-            } else if (state === 5) {
-                // Value
+            } else {
+                // Already found attribute, we are traversing values
             }
         }
 
         // Now what are we suggesting?
-        if (state === 0) {
-            // Typing <Definition Type> for Local
-            const defTypes = Array.from(scopeManager.existingDefinitions.keys());
-            const normalizedPartial = normalizeTypeName(partial);
+        if (expectingDefNameFor) {
+            const suffix = context.hasTrailingColon ? '' : ' : ';
+            // Typing <Definition Name> for expectingDefNameFor
+            items.push({
+                label: 'Default',
+                kind: CompletionItemKind.Keyword,
+                detail: 'Wildcard',
+                insertText: `Default${suffix}`,
+                sortText: '0_default'
+            });
 
-            for (const defType of defTypes) {
-                if (normalizedPartial === '' || normalizeTypeName(defType).includes(normalizedPartial)) {
-                    items.push({
-                        label: defType,
-                        kind: CompletionItemKind.Class,
-                        detail: 'TDL Definition Type',
-                        insertText: `${defType} : `,
-                        sortText: defType.toLowerCase(),
-                    });
-                }
-            }
-        } else if (state === 1) {
-            // Typing <Definition Name> for Local
-            if (targetDefType && effectiveScope) {
-                const reachable = scopeManager.getReachableChildren(effectiveScope, targetDefType);
+            if (effectiveScope) {
+                const reachable = scopeManager.getDefinitionsInScope(effectiveScope, expectingDefNameFor);
                 for (const sym of reachable) {
                     if (partial === '' || sym.name.toLowerCase().includes(partial)) {
                         items.push({
                             label: sym.name,
                             kind: CompletionItemKind.Class,
-                            detail: `Reachable ${targetDefType}`,
-                            insertText: `${sym.name} : `
+                            detail: `Reachable ${expectingDefNameFor}`,
+                            insertText: `${sym.name}${suffix}`
                         });
                     }
                 }
                 
-                // Fallback to global if nothing found or to complement
                 if (reachable.length === 0) {
-                    items.push(...getSuggestionsForDefinitionType(targetDefType, context.partial, scopeManager, symbolTable));
+                    items.push(...getSuggestionsForDefinitionType(expectingDefNameFor, context.partial, scopeManager, symbolTable));
                 }
             }
-        } else if (state === 2 || state === 4) {
-            // Typing <Attribute> for the effective Definition Type
-            if (effectiveDefType) {
-                const normalizedDefType = normalizeTypeName(effectiveDefType);
+        } else if (!isAttribute) {
+            // Typing either a <Definition Type> OR an <Attribute> for currentScopeDefType
+            // 1. Suggest Definition Types
+            const defTypes = Array.from(scopeManager.existingDefinitions.keys());
+            items.push(...provideDefinitionTypeCompletions(partial, isXml, defTypes, scopeManager, undefined, context.hasTrailingColon));
+
+            // 2. Suggest Attributes for currentScopeDefType
+            if (currentScopeDefType) {
+                const normalizedDefType = normalizeTypeName(currentScopeDefType);
                 const matchingDefAttributes = scopeManager.globalScope.attributes.get(normalizedDefType);
 
                 if (matchingDefAttributes) {
@@ -131,16 +119,22 @@ export function provideModifierValueCompletions(
                             items.push({
                                 label: displayAttr,
                                 kind: CompletionItemKind.Property,
-                                detail: `${effectiveDefType} attribute`,
-                                insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr} : `,
+                                detail: `${currentScopeDefType} attribute`,
+                                insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr}${context.hasTrailingColon ? '' : ' : '}`,
                                 insertTextFormat: isXml ? 2 : undefined,
-                                data: { type: 'attribute', defType: effectiveDefType, name: attr.name },
-                                sortText: attr.name.toLowerCase(),
+                                data: { type: 'attribute', defType: currentScopeDefType, name: attr.name },
+                                sortText: '2_' + attr.name.toLowerCase(),
                             });
                         }
                     }
                 }
             }
+        } else if (isAttribute && attributeName) {
+            // We are typing the value for the attribute!
+            // We can delegate to provideAttributeValueCompletions by creating a mock context
+            // But modifierProvider usually delegates back or handles it.
+            // Since modifierProvider doesn't import provideAttributeValueCompletions, we can just let it fall back or we can implement the value logic.
+            // For now, since modifier values can be complex, we just return empty, or we can add basic suggestions.
         }
     } else if (['add', 'delete', 'replace'].includes(modName)) {
         if (context.paramIndex === 0) {
@@ -159,7 +153,7 @@ export function provideModifierValueCompletions(
                             label: displayAttr,
                             kind: CompletionItemKind.Property,
                             detail: `${defTypeName} attribute`,
-                            insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr} : `,
+                            insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr}${context.hasTrailingColon ? '' : ' : '}`,
                             insertTextFormat: isXml ? 2 : undefined,
                             data: { type: 'attribute', defType: defTypeName, name: attr.name },
                             sortText: attr.name.toLowerCase(),

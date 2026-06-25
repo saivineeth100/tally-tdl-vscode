@@ -5,12 +5,16 @@ import { getFunctionSuggestions } from './functionProvider';
 import { getSuggestionsForDefinitionType } from './definitionProvider';
 import { SymbolTable } from '../../../services/symbolTable';
 import { CompletionContext } from '../contextAnalyzer';
+import { Scope } from '../../../services/scopeManager/types';
+import { resolveSchema } from '../../../services/scopeManager/scopeResolver';
+import { SymbolKind } from '../../../models/symbols';
 
 export function provideAttributeCompletions(
     scopeManager: ScopeManager,
     defTypeName: string,
     partial: string,
-    isXml: boolean
+    isXml: boolean,
+    hasTrailingColon?: boolean
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     const normalizedDefType = normalizeTypeName(defTypeName);
@@ -33,7 +37,7 @@ export function provideAttributeCompletions(
                     label: displayAttr,
                     kind: CompletionItemKind.Property,
                     detail: `${defTypeName} attribute`,
-                    insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr} : `,
+                    insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr}${hasTrailingColon ? '' : ' : '}`,
                     insertTextFormat: isXml ? 2 : undefined,
                     data: { type: 'attribute', defType: defTypeName, name: attr.name },
                     sortText: '1_' + attr.name.toLowerCase(),
@@ -49,7 +53,8 @@ export function provideAttributeValueCompletions(
     defTypeName: string,
     context: CompletionContext,
     symbolTable?: SymbolTable,
-    scope?: Set<string>
+    scope?: Set<string>,
+    currentScope?: Scope
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     if (!context.attributeName || context.paramIndex === undefined) return items;
@@ -60,6 +65,149 @@ export function provideAttributeValueCompletions(
     const normalizedAttr = normalizeTypeName(context.attributeName);
 
     const attrMap = scopeManager.globalScope.attributes.get(normalizedDefType);
+
+    // Collection Fetch/Compute autocomplete
+    if (normalizedDefType === 'collection' && (normalizedAttr === 'fetch' || normalizedAttr === 'compute') && currentScope) {
+        let objectScopeName: string | undefined;
+        if ('objectScope' in currentScope) {
+            objectScopeName = (currentScope as any).objectScope;
+        }
+
+        if (objectScopeName) {
+            const schema = resolveSchema({
+                useInheritance: scopeManager.useInheritance,
+                inUseInheritance: scopeManager.inUseInheritance,
+                parentDefinitions: scopeManager.parentDefinitions,
+                childDefinitions: scopeManager.childDefinitions,
+                findDefinitionScope: (id) => scopeManager.findDefinitionScope(id),
+                findGlobalSymbolsByName: (n, s) => scopeManager.findGlobalSymbolsByName(n, s)
+            }, objectScopeName, currentScope, scope);
+
+            if (schema) {
+                for (const prop of schema.properties.values()) {
+                    // Support nested property completion if the user typed "Ledger."
+                    const typedPath = context.partial.split('.');
+                    if (typedPath.length > 1) {
+                        const rootProp = typedPath[0].toLowerCase();
+                        if (prop.Name.toLowerCase() === rootProp && prop.IsComplex && prop.ObjectName) {
+                            const subSchema = resolveSchema({
+                                useInheritance: scopeManager.useInheritance,
+                                inUseInheritance: scopeManager.inUseInheritance,
+                                parentDefinitions: scopeManager.parentDefinitions,
+                                childDefinitions: scopeManager.childDefinitions,
+                                findDefinitionScope: (id) => scopeManager.findDefinitionScope(id),
+                                findGlobalSymbolsByName: (n, s) => scopeManager.findGlobalSymbolsByName(n, s)
+                            }, prop.ObjectName, currentScope, scope);
+                            if (subSchema) {
+                                for (const subProp of subSchema.properties.values()) {
+                                    const fullSubPath = `${prop.Name}.${subProp.Name}`;
+                                    if (context.partial === '' || fullSubPath.toLowerCase().includes(context.partial.toLowerCase())) {
+                                        items.push({
+                                            label: fullSubPath,
+                                            kind: CompletionItemKind.Field,
+                                            detail: 'Nested Schema Property',
+                                            insertText: fullSubPath,
+                                            sortText: '0_' + fullSubPath.toLowerCase()
+                                        });
+                                    }
+                                }
+                                items.push({
+                                    label: `${prop.Name}.*`,
+                                    kind: CompletionItemKind.Keyword,
+                                    detail: 'All Nested Properties',
+                                    insertText: `${prop.Name}.*`,
+                                    sortText: '0_' + prop.Name.toLowerCase() + '.*'
+                                });
+                            }
+                        }
+                    } else if (context.partial === '' || prop.Name.toLowerCase().includes(context.partial.toLowerCase())) {
+                        items.push({
+                            label: prop.Name,
+                            kind: CompletionItemKind.Field,
+                            detail: 'Schema Property',
+                            insertText: prop.Name,
+                            sortText: '0_' + prop.Name.toLowerCase()
+                        });
+                    }
+                }
+                
+                // Add * for fetch
+                if (normalizedAttr === 'fetch') {
+                    items.push({
+                        label: '*',
+                        kind: CompletionItemKind.Keyword,
+                        detail: 'All Properties',
+                        insertText: '*',
+                        sortText: '0_*'
+                    });
+                }
+            }
+
+            // Also add #Object extensions
+            const globalSymbols = scopeManager.findGlobalSymbolsByName(objectScopeName, scope);
+            const objDefs = globalSymbols.filter(s => s.definitionType?.toLowerCase() === 'object' || s.kind === SymbolKind.Object);
+            for (const objDef of objDefs) {
+                const objScope = scopeManager.findDefinitionScope(`object:${objDef.name}`.toLowerCase());
+                if (objScope) {
+                    if (objScope.formulas) {
+                        for (const [formulaName, sym] of objScope.formulas.entries()) {
+                            if (context.partial === '' || formulaName.toLowerCase().includes(context.partial.toLowerCase())) {
+                                items.push({
+                                    label: sym.name || formulaName,
+                                    kind: CompletionItemKind.Field,
+                                    detail: 'Object Extension Property',
+                                    insertText: sym.name || formulaName,
+                                    sortText: '0_' + formulaName.toLowerCase()
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if ((normalizedDefType === 'collection' && normalizedAttr === 'type') || normalizedAttr === 'object') {
+        const addedSchemas = new Set<string>();
+        // Suggest Schema names
+        for (const [schemaName, schema] of scopeManager.globalScope.schemas.entries()) {
+            if (context.partial === '' || schemaName.toLowerCase().includes(context.partial.toLowerCase())) {
+                addedSchemas.add(schemaName.toLowerCase());
+                items.push({
+                    label: schema.name || schemaName,
+                    kind: CompletionItemKind.Class,
+                    detail: 'Schema',
+                    insertText: schema.name || schemaName,
+                    sortText: '0_' + schemaName.toLowerCase()
+                });
+            }
+        }
+        
+        // Also suggest Object definitions
+        const addObjects = (defs: Map<string, Map<string, import('../../../models/symbols').DefinitionSymbol>>) => {
+            const objects = defs.get('object');
+            if (objects) {
+                for (const [objName, objDef] of objects.entries()) {
+                    if (!addedSchemas.has(objName.toLowerCase())) {
+                        if (context.partial === '' || objName.toLowerCase().includes(context.partial.toLowerCase())) {
+                            addedSchemas.add(objName.toLowerCase());
+                            items.push({
+                                label: objDef.name || objName,
+                                kind: CompletionItemKind.Class,
+                                detail: 'Object Definition',
+                                insertText: objDef.name || objName,
+                                sortText: '1_' + objName.toLowerCase()
+                            });
+                        }
+                    }
+                }
+            }
+        };
+
+        addObjects(scopeManager.globalScope.definitions);
+        if (scopeManager.projectScope) addObjects(scopeManager.projectScope.definitions);
+    }
+
     if (!attrMap) return items;
 
     const attrDef = attrMap.get(normalizedAttr);
@@ -137,7 +285,23 @@ export function provideAttributeValueCompletions(
         // 3. If parameter refers to a definition, suggest matching definitions
         else if (param.RefersTo) {
             const refersToType = param.RefersTo.trim();
-            if (refersToType) {
+            if (refersToType.toLowerCase() === 'system formulae') {
+                const addGlobalFormulas = (formulas: Map<string, import('../../../models/symbols').FormulaSymbol>) => {
+                    for (const [formulaName, formula] of formulas.entries()) {
+                        if (context.partial === '' || formulaName.toLowerCase().includes(context.partial.toLowerCase())) {
+                            items.push({
+                                label: formula.name || formulaName,
+                                kind: CompletionItemKind.Value,
+                                detail: 'Global Formula',
+                                insertText: formula.name || formulaName,
+                                sortText: '0_' + formulaName.toLowerCase()
+                            });
+                        }
+                    }
+                };
+                if (scopeManager.projectScope) addGlobalFormulas(scopeManager.projectScope.formulas);
+                if (scopeManager.globalScope) addGlobalFormulas(scopeManager.globalScope.formulas);
+            } else if (refersToType) {
                 items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, scopeManager, symbolTable, scope));
             }
         }

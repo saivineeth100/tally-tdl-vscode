@@ -31,6 +31,105 @@ export function validateDefinitionAttributes(
         const attrName = attr.name.text;
         const attrNameLower = normalizeTypeName(attrName);
 
+        if (attrNameLower === 'local') {
+            // Validate Local targets dynamically
+            let currentScopeDefType = defTypeName;
+            let currentScopeDefName = def.name?.text || '';
+            let validSoFar = true;
+            let i = 0;
+            let targetAttribute: IdentifierNode | undefined;
+            let targetAttributeIndex = -1;
+
+            while (i < attr.value.length) {
+                const val = attr.value[i];
+                if (val.kind !== SyntaxKind.Identifier) {
+                    break;
+                }
+
+                const tDefTypeNode = val as IdentifierNode;
+                const tDefType = tDefTypeNode.text.toLowerCase();
+                
+                // Check if tDefType is a known definition type in the global scope
+                if (scopeManager.globalScope.attributes.has(normalizeTypeName(tDefType))) {
+                    if (i + 1 < attr.value.length && attr.value[i + 1].kind === SyntaxKind.Identifier) {
+                        const tDefNameNode = attr.value[i + 1] as IdentifierNode;
+                        const tDefName = tDefNameNode.text;
+
+                        if (tDefName.toLowerCase() === 'default' || tDefName.toLowerCase() === 'd') {
+                            // Wildcards are valid
+                        } else if (validSoFar) {
+                            const dummyScopeId = `${currentScopeDefType.toLowerCase()}:${currentScopeDefName}`;
+                            const dummyScope = scopeManager.findDefinitionScope(dummyScopeId);
+
+                            if (dummyScope) {
+                                const reachableChildren = scopeManager.getDefinitionsInScope(dummyScope, tDefType);
+                                let found = false;
+                                for (const child of reachableChildren) {
+                                    if (child.name.toLowerCase() === tDefName.toLowerCase()) {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!found) {
+                                    diagnostics.push(createDiagnosticWithData(
+                                        DiagnosticRules.MissingDefinition,
+                                        { start: doc.positionAt(tDefNameNode.start), end: doc.positionAt(tDefNameNode.end) },
+                                        { type: tDefType, name: tDefName } as MissingDefinitionData,
+                                        tDefType,
+                                        tDefName
+                                    ));
+                                    validSoFar = false; // Stop validating deeper if parent is broken
+                                }
+                            } else {
+                                validSoFar = false;
+                            }
+                        }
+
+                        currentScopeDefType = tDefType;
+                        currentScopeDefName = tDefName;
+                        i += 2;
+                        continue;
+                    }
+                }
+
+                // If not a definition type or no paired name, it's the target attribute
+                targetAttribute = val as IdentifierNode;
+                targetAttributeIndex = i;
+                break;
+            }
+
+            // Once targets are validated, validate the target attribute
+            if (targetAttribute && validSoFar) {
+                const targetAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
+                const targetAttrName = targetAttribute.text;
+                const targetAttrNameLower = normalizeTypeName(targetAttrName);
+                
+                if (targetAttrs && !targetAttrs.has(targetAttrNameLower)) {
+                    // Implicitly Local Formula, no unknown attribute warning
+                } else if (targetAttrs && targetAttrs.has(targetAttrNameLower)) {
+                    // We need a mock attribute node that uses targetAttribute as name and the rest as value
+                    const mockAttr = {
+                        ...attr,
+                        name: targetAttribute,
+                        value: attr.value.slice(targetAttributeIndex + 1)
+                    };
+                    validateAttributeParameters(
+                        mockAttr, 
+                        targetAttrs.get(targetAttrNameLower)!, 
+                        doc, 
+                        diagnostics, 
+                        scopeManager, 
+                        currentScopeDefType, 
+                        currentScopeDefName, 
+                        projectNodes
+                    );
+                }
+            }
+
+            continue;
+        }
+
         // Check for duplicate variables
         if (attrNameLower === 'variable' || attrNameLower === 'listvariable') {
             if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
@@ -104,189 +203,220 @@ export function validateDefinitionAttributes(
 
         // Validate Parameters
         if (attrDef.parameters && attrDef.parameters.length > 0) {
-            // 1. Mandatory Parameter Validation
-            let lastMandatoryIndex = -1;
-            for (let i = 0; i < attrDef.parameters.length; i++) {
-                if (attrDef.parameters[i].IsMandatory) {
-                    lastMandatoryIndex = i;
-                }
-            }
-            const minRequired = lastMandatoryIndex + 1;
-            const providedCount = attr.value.length;
+            validateAttributeParameters(
+                attr as import('../../parser/ast').AttributeNode,
+                attrDef,
+                doc,
+                diagnostics,
+                scopeManager,
+                defTypeName,
+                def.name?.text || '',
+                projectNodes
+            );
+        }
+    }
 
-            if (providedCount < minRequired) {
-                const startPos = doc.positionAt(attr.name.start);
-                const endPos = doc.positionAt(attr.name.end);
-                diagnostics.push(createDiagnostic(
-                    DiagnosticRules.MissingParameters,
-                    { start: startPos, end: endPos },
-                    attrDef.name, minRequired, providedCount
-                ));
-            } else {
-                // Check if any mandatory parameter is skipped (EmptyNode)
-                for (let i = 0; i <= lastMandatoryIndex; i++) {
-                    if (i < attr.value.length) {
-                        const node = attr.value[i];
-                        if (node.kind === SyntaxKind.Empty) {
-                            const startPos = doc.positionAt(node.start);
-                            const endPos = doc.positionAt(node.end);
-                            diagnostics.push(createDiagnostic(
-                                DiagnosticRules.MissingMandatoryParameter,
-                                { start: startPos, end: endPos },
-                                attrDef.parameters[i].ParameterType || `at position ${i + 1}`
-                            ));
-                        }
-                    }
-                }
-            }
+    return diagnostics;
+}
 
-            // 2. Datatype Validation (always runs)
-            for (let i = 0; i < attr.value.length; i++) {
-                if (i >= attrDef.parameters.length) break;
+export function validateAttributeParameters(
+    attr: { name: IdentifierNode, value: any[] },
+    attrDef: import('../../models/symbols').AttributeSymbol,
+    doc: TextDocument,
+    diagnostics: Diagnostic[],
+    scopeManager: ScopeManager,
+    defTypeName: string,
+    defName: string,
+    projectNodes?: Set<string>
+) {
+    // 1. Mandatory Parameter Validation
+    let lastMandatoryIndex = -1;
+    for (let i = 0; i < attrDef.parameters!.length; i++) {
+        if (attrDef.parameters![i].IsMandatory) {
+            lastMandatoryIndex = i;
+        }
+    }
+    const minRequired = lastMandatoryIndex + 1;
+    const providedCount = attr.value.length;
 
-                const paramDef = attrDef.parameters[i];
-                const paramNode = attr.value[i];
-
-                if (paramNode.kind === SyntaxKind.Empty) continue;
-
-                // Expression Type Validation
-                const inferredType = inferExpressionType(paramNode, scopeManager);
-                if (inferredType && paramDef.DataType) {
-                    const normalizedExpected = normalizeTypeName(paramDef.DataType || '');
-                    const normalizedInferred = normalizeTypeName(inferredType);
-
-                    if (normalizedExpected !== normalizedInferred && !areTypesCompatible(normalizedExpected, normalizedInferred)) {
-                        const startPos = doc.positionAt(paramNode.start);
-                        const endPos = doc.positionAt(paramNode.end);
-                        diagnostics.push(createDiagnostic(
-                            DiagnosticRules.TypeMismatch,
-                            { start: startPos, end: endPos },
-                            paramDef.DataType, inferredType
-                        ));
-                    }
-                }
-
-                // Validate nested binary expressions
-                validateBinaryExpression(paramNode, doc, scopeManager, diagnostics);
-
-                // Use the new AST walker to recursively validate nested function calls and field references
-                walkAndValidateExpression(
-                    paramNode,
-                    doc,
-                    scopeManager,
-                    diagnostics,
-                    defTypeName + ':' + (def.name?.text || ''),
-                    projectNodes
-                );
-                
-                // If it's another expression (binary/unary), we skip keyword/logical validation for the node itself
-                if ('operator' in paramNode) {
-                    continue;
-                }
-
-                let paramValue = '';
-                if (paramNode.kind === SyntaxKind.Identifier) {
-                    paramValue = (paramNode as IdentifierNode).text;
-                } else if (paramNode.kind === SyntaxKind.Literal) {
-                    paramValue = (paramNode as LiteralNode).value.toString();
-                } else {
-                    continue;
-                }
-
-                if (!paramValue || paramValue.startsWith('##') || paramValue.startsWith('$') || paramValue.startsWith('@')) continue;
-
-                const cleanValue = paramValue.replace(/^["']|["']$/g, '');
-                if (!cleanValue) continue;
-
-                // Action Validation (if it's not a Keyword ParameterType but still DataType is Action)
-                if (paramDef.KeywordSet) {
-                    if (paramDef.KeywordSet === 'tdlactions') {
-                        const isValidAction = scopeManager.globalScope.actions.has(normalizeTypeName(cleanValue));
-                        // Check aliases too? It's fine for now.
-                        if (!isValidAction) {
-                            const startPos = doc.positionAt(paramNode.start);
-                            const endPos = doc.positionAt(paramNode.end);
-                            diagnostics.push(createDiagnostic(
-                                DiagnosticRules.UnknownAction,
-                                { start: startPos, end: endPos },
-                                cleanValue
-                            ));
-                        }
-                    }
-                    else {
-
-                        let isValidKeyword = paramDef.Keywords?.some(k => k.toLowerCase() === cleanValue.toLowerCase());
-                        if (!isValidKeyword) {
-                            const cachedKeywords = scopeManager.keywordSets.get(normalizeTypeName(paramDef.KeywordSet || ''));
-                            isValidKeyword = cachedKeywords?.some(k => k.toLowerCase() === cleanValue.toLowerCase());
-                        }
-                        if (!isValidKeyword) {
-                            const startPos = doc.positionAt(paramNode.start);
-                            const endPos = doc.positionAt(paramNode.end);
-                            diagnostics.push(createDiagnostic(
-                                DiagnosticRules.InvalidKeyword,
-                                { start: startPos, end: endPos },
-                                cleanValue
-                            ));
-                        }
-                    }
-                }
-                // Logical Datatype Validation
-                if (paramDef.DataType?.toLowerCase() === 'logical') {
-                    const validLogical = ['yes', 'no', 'true', 'false', 'on', 'off', '0', '1'];
-                    if (!validLogical.includes(cleanValue.toLowerCase())) {
-                        const startPos = doc.positionAt(paramNode.start);
-                        const endPos = doc.positionAt(paramNode.end);
-                        diagnostics.push(createDiagnostic(
-                            DiagnosticRules.InvalidLogicalValue,
-                            { start: startPos, end: endPos },
-                            cleanValue
-                        ));
-                    }
-                }
-
-                // Reference Validation (uses scopeManager)
-                if (paramDef.RefersTo && !paramDef.KeywordSet) {
-                    // Skip reference validation for Function Parameters as they define the variable
-                    if (defTypeName.toLowerCase() === 'function' && attrDef.name.toLowerCase() === 'parameter' && i === 0) {
-                        continue;
-                    }
-
-                    const refersToType = paramDef.RefersTo.trim();
-                    const startPos = doc.positionAt(paramNode.start);
-                    const endPos = doc.positionAt(paramNode.end);
-
-                    const resolvedDef = scopeManager.resolveDefinition(cleanValue, refersToType, scopeManager.projectScope, projectNodes);
-                    
-                    if (!resolvedDef) {
-                        const diag = createDiagnosticWithData<MissingDefinitionData>(
-                            DiagnosticRules.MissingDefinition,
-                            { start: startPos, end: endPos },
-                            { name: cleanValue, type: refersToType },
-                            cleanValue,
-                            refersToType
-                        );
-                        diagnostics.push(diag);
-                    } else if (resolvedDef.uri !== 'global:metadata' && projectNodes) {
-                        // Check if the resolved definition is within the project
-                        if (!projectNodes.has(resolvedDef.uri)) {
-                            const diag = createDiagnosticWithData<MissingDefinitionData>(
-                                DiagnosticRules.MissingDefinition,
-                                { start: startPos, end: endPos },
-                                { name: cleanValue, type: refersToType },
-                                cleanValue,
-                                refersToType
-                            );
-                            diag.message = `Definition '${cleanValue}' is used from a file that is not included in the project`;
-                            diagnostics.push(diag);
-                        }
-                    }
+    if (providedCount < minRequired) {
+        const startPos = doc.positionAt(attr.name.start);
+        const endPos = doc.positionAt(attr.name.end);
+        diagnostics.push(createDiagnostic(
+            DiagnosticRules.MissingParameters,
+            { start: startPos, end: endPos },
+            attrDef.name, minRequired, providedCount
+        ));
+    } else {
+        // Check if any mandatory parameter is skipped (EmptyNode)
+        for (let i = 0; i <= lastMandatoryIndex; i++) {
+            if (i < attr.value.length) {
+                const node = attr.value[i];
+                if (node.kind === SyntaxKind.Empty) {
+                    const startPos = doc.positionAt(node.start);
+                    const endPos = doc.positionAt(node.end);
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.MissingMandatoryParameter,
+                        { start: startPos, end: endPos },
+                        attrDef.parameters![i].ParameterType || `at position ${i + 1}`
+                    ));
                 }
             }
         }
     }
 
-    return diagnostics;
+    // 2. Datatype Validation (always runs)
+    for (let i = 0; i < attr.value.length; i++) {
+        if (i >= attrDef.parameters!.length) break;
+
+        const paramDef = attrDef.parameters![i];
+        const paramNode = attr.value[i];
+
+        if (paramNode.kind === SyntaxKind.Empty) continue;
+
+        // Expression Type Validation
+        const inferredType = inferExpressionType(paramNode, scopeManager);
+        if (inferredType && paramDef.DataType) {
+            const normalizedExpected = normalizeTypeName(paramDef.DataType || '');
+            const normalizedInferred = normalizeTypeName(inferredType);
+
+            if (normalizedExpected !== normalizedInferred && !areTypesCompatible(normalizedExpected, normalizedInferred)) {
+                const startPos = doc.positionAt(paramNode.start);
+                const endPos = doc.positionAt(paramNode.end);
+                diagnostics.push(createDiagnostic(
+                    DiagnosticRules.TypeMismatch,
+                    { start: startPos, end: endPos },
+                    paramDef.DataType, inferredType
+                ));
+            }
+        }
+
+        // Validate nested binary expressions
+        validateBinaryExpression(paramNode, doc, scopeManager, diagnostics);
+
+        // Use the new AST walker to recursively validate nested function calls and field references
+        walkAndValidateExpression(
+            paramNode,
+            doc,
+            scopeManager,
+            diagnostics,
+            defTypeName + ':' + defName,
+            projectNodes
+        );
+        
+        // If it's another expression (binary/unary), we skip keyword/logical validation for the node itself
+        if ('operator' in paramNode) {
+            continue;
+        }
+
+        let paramValue = '';
+        if (paramNode.kind === SyntaxKind.Identifier) {
+            paramValue = (paramNode as IdentifierNode).text;
+        } else if (paramNode.kind === SyntaxKind.Literal) {
+            paramValue = (paramNode as LiteralNode).value.toString();
+        } else {
+            continue;
+        }
+
+        if (!paramValue || paramValue.startsWith('##') || paramValue.startsWith('$') || paramValue.startsWith('@')) continue;
+
+        const cleanValue = paramValue.replace(/^["']|["']$/g, '');
+        if (!cleanValue) continue;
+
+        // Action Validation (if it's not a Keyword ParameterType but still DataType is Action)
+        if (paramDef.KeywordSet) {
+            if (paramDef.KeywordSet === 'tdlactions') {
+                const isValidAction = scopeManager.globalScope.actions.has(normalizeTypeName(cleanValue));
+                if (!isValidAction) {
+                    const startPos = doc.positionAt(paramNode.start);
+                    const endPos = doc.positionAt(paramNode.end);
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.UnknownAction,
+                        { start: startPos, end: endPos },
+                        cleanValue
+                    ));
+                }
+            }
+            else {
+
+                let isValidKeyword = paramDef.Keywords?.some((k: string) => k.toLowerCase() === cleanValue.toLowerCase());
+                if (!isValidKeyword) {
+                    const cachedKeywords = scopeManager.keywordSets.get(normalizeTypeName(paramDef.KeywordSet || ''));
+                    isValidKeyword = cachedKeywords?.some((k: string) => k.toLowerCase() === cleanValue.toLowerCase());
+                }
+                if (!isValidKeyword) {
+                    const startPos = doc.positionAt(paramNode.start);
+                    const endPos = doc.positionAt(paramNode.end);
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.InvalidKeyword,
+                        { start: startPos, end: endPos },
+                        cleanValue
+                    ));
+                }
+            }
+        }
+        // Logical Datatype Validation
+        if (paramDef.DataType?.toLowerCase() === 'logical') {
+            const validLogical = ['yes', 'no', 'true', 'false', 'on', 'off', '0', '1'];
+            if (!validLogical.includes(cleanValue.toLowerCase())) {
+                const startPos = doc.positionAt(paramNode.start);
+                const endPos = doc.positionAt(paramNode.end);
+                diagnostics.push(createDiagnostic(
+                    DiagnosticRules.InvalidLogicalValue,
+                    { start: startPos, end: endPos },
+                    cleanValue
+                ));
+            }
+        }
+
+        // Reference Validation (uses scopeManager)
+        if (paramDef.RefersTo && !paramDef.KeywordSet) {
+            // Skip reference validation for Function Parameters as they define the variable
+            if (defTypeName.toLowerCase() === 'function' && attrDef.name.toLowerCase() === 'parameter' && i === 0) {
+                continue;
+            }
+
+            const refersToType = paramDef.RefersTo.trim();
+            const startPos = doc.positionAt(paramNode.start);
+            const endPos = doc.positionAt(paramNode.end);
+
+            let resolvedDef: any;
+            const refersToLower = refersToType.toLowerCase();
+            const currentScope = scopeManager.getScopeAt(doc.uri, paramNode.start) || scopeManager.projectScope;
+
+            if (refersToLower === 'system formulae' || refersToLower === 'formula' || refersToLower === 'formulae') {
+                resolvedDef = scopeManager.resolveFormula(cleanValue, currentScope, projectNodes);
+            } else if (refersToLower === 'variable' || refersToLower === 'system variable') {
+                resolvedDef = scopeManager.resolveVariable(cleanValue, currentScope, projectNodes);
+            } else {
+                resolvedDef = scopeManager.resolveDefinition(cleanValue, refersToType, currentScope, projectNodes);
+            }
+            
+            if (!resolvedDef) {
+                const diag = createDiagnosticWithData<MissingDefinitionData>(
+                    DiagnosticRules.MissingDefinition,
+                    { start: startPos, end: endPos },
+                    { name: cleanValue, type: refersToType },
+                    cleanValue,
+                    refersToType
+                );
+                diagnostics.push(diag);
+            } else if (resolvedDef.uri !== 'global:metadata' && projectNodes) {
+                // Check if the resolved definition is within the project
+                if (!projectNodes.has(resolvedDef.uri)) {
+                    const diag = createDiagnosticWithData<MissingDefinitionData>(
+                        DiagnosticRules.MissingDefinition,
+                        { start: startPos, end: endPos },
+                        { name: cleanValue, type: refersToType },
+                        cleanValue,
+                        refersToType
+                    );
+                    diag.message = `Definition '${cleanValue}' is used from a file that is not included in the project`;
+                    diagnostics.push(diag);
+                }
+            }
+        }
+    }
 }
 
 /**

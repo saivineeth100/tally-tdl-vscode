@@ -6,6 +6,7 @@
         { "include": "#comments" },
         { "include": "#definition-block" },
         { "include": "#strings" },
+        { "include": "#attributes" },
         { "include": "#numbers" },
         { "include": "#keywords" },
         { "include": "#functions" },
@@ -23,6 +24,12 @@
                 "1": { "name": "keyword.operator.modifier.tdl" },
                 "2": { "name": "keyword.control.definition-type.tdl" },
                 "3": { "name": "entity.name.type.tdl" }
+            }
+        },
+        "attributes": {
+            "match": "(?i)\\b([A-Za-z_][A-Za-z0-9_\\s]*?)\\s*:",
+            "captures": {
+                "1": { "name": "entity.other.attribute-name.tdl" }
             }
         },
         "strings": {

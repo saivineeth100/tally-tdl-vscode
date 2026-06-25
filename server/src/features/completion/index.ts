@@ -48,6 +48,9 @@ export function registerCompletion(
             context = detectCompletionContext(textBefore, sourceFile, offset, currentDef);
         }
 
+        const textAfter = doc.getText({ start: params.position, end: { line: params.position.line, character: 1000 } });
+        context.hasTrailingColon = /^\s*:/.test(textAfter);
+
         switch (context.type) {
             case 'xml_schema_attribute':
                 if (isXml && context.tagPath) {
@@ -61,14 +64,14 @@ export function registerCompletion(
 
             case 'definition_type':
                 const defTypes = Array.from(scopeManager.existingDefinitions.keys());
-                items.push(...provideDefinitionTypeCompletions(context.partial, isXml, defTypes, scopeManager, context.directiveName));
+                items.push(...provideDefinitionTypeCompletions(context.partial, isXml, defTypes, scopeManager, context.directiveName, context.hasTrailingColon));
                 break;
 
             case 'directive_file_level':
                 items.push({
                     label: 'Deftype',
                     kind: CompletionItemKind.Keyword,
-                    insertText: 'Deftype: ',
+                    insertText: `Deftype${context.hasTrailingColon ? '' : ': '}`,
                     documentation: {
                         kind: MarkupKind.Markdown,
                         value: 'Defines the type of the following definition.'
@@ -80,7 +83,7 @@ export function registerCompletion(
                 items.push({
                     label: 'InUse',
                     kind: CompletionItemKind.Keyword,
-                    insertText: 'InUse: ',
+                    insertText: `InUse${context.hasTrailingColon ? '' : ': '}`,
                     documentation: {
                         kind: MarkupKind.Markdown,
                         value: 'Dynamically inherit definitions from another definition.'
@@ -121,8 +124,8 @@ export function registerCompletion(
                 break;
 
             case 'attribute':
-                if (currentDef) {
-                    items.push(...provideAttributeCompletions(scopeManager, currentDef.type.text, context.partial, isXml));
+                if (currentDef && currentDef.type) {
+                    items.push(...provideAttributeCompletions(scopeManager, currentDef.type.text, context.partial, isXml, context.hasTrailingColon));
                 }
                 break;
 
@@ -136,7 +139,8 @@ export function registerCompletion(
                     }
                 }
                 if (!xmlHandled && currentDef) {
-                    items.push(...provideAttributeValueCompletions(scopeManager, currentDef.type.text, context, symbolTable, projectScope));
+                    const currentScope = scopeManager.getScopeAt(params.textDocument.uri, offset);
+                    items.push(...provideAttributeValueCompletions(scopeManager, currentDef.type.text, context, symbolTable, projectScope, currentScope));
                 }
                 break;
 

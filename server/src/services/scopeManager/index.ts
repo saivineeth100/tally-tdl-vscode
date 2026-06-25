@@ -4,7 +4,7 @@ import { getInterchangeableTypes, normalizeTypeName } from '../utils';
 import { Scope, ScopeKind, OffsetRange, ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, getSemanticTypeFromSymbol, ModifierContribution, GlobalScope, ProjectScope, FileScope, DefinitionScope, FunctionScope, BlockScope, hasDefinitions, hasFunctionsAndActions, hasAttributes, hasSchemas } from './types';
 import { ScopeViewerService } from './scopeViewerService';
 import { IScopeManager, buildFileScope } from './scopeBuilder';
-import { IScopeResolverState, resolveSymbol, resolveVariable, resolveFormula, resolveFunction, resolveAction, resolveDefinition, resolveAttribute, resolveSchema, getAllVariablesInScope, getAllFormulasInScope, getReachableChildren, ResolutionContext } from './scopeResolver';
+import { IScopeResolverState, resolveSymbol, resolveVariable, resolveFormula, resolveFunction, resolveAction, resolveDefinition, resolveAttribute, resolveSchema, getAllVariablesInScope, getAllFormulasInScope, getReachableChildren, getDefinitionsInScope, ResolutionContext } from './scopeResolver';
 
 export * from './types';
 export * from './scopeBuilder';
@@ -18,7 +18,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     public readonly projectScope: ProjectScope;
     public fileMap = new Map<string, Scope>(); // URI -> FileScope
     public metadata: any;
-    public existingDefinitions = new Map<string, Set<string>>();
+    public existingDefinitions = new Map<string, Map<string, string>>();
     public definitionTypeLabels = new Map<string, string>(); // normalized -> Original Casing
     public keywordSets = new Map<string, string[]>();
     public primarySchemaNames: string[] = [];
@@ -370,7 +370,10 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         return getReachableChildren(this, scope, targetType);
     }
 
-
+    public getDefinitionsInScope(initialScope: Scope, targetDefType: string, callerContext?: ResolutionContext): SymbolInfo[] {
+        const context: ResolutionContext = { visitedScopes: new Set(), state: this, initialScope, caller: callerContext };
+        return getDefinitionsInScope(context, targetDefType);
+    }
 
     /**
      * Search for symbols matching a query and optional type filter

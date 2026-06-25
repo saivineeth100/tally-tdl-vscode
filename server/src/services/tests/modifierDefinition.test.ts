@@ -289,7 +289,7 @@ describe('Definition Service - Modifier References', () => {
             const manager = new ScopeManager(new SymbolTable());
             
             // Mock metadata for default definition 'Daybook'
-            manager.existingDefinitions.set('report', new Set(['daybook']));
+            manager.existingDefinitions.set('report', new Map([['daybook', 'daybook']]));
 
             // User modifies the default definition
             const parser = new Parser(`[#Report: Daybook]\n Variable: MyVar`);

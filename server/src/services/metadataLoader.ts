@@ -275,20 +275,20 @@ async function loadExistingDefinitions(versionPath: string, manager: ScopeManage
         const defType = existingFile.replace('.json', '');
         const defData = await loadJsonSafe<string[]>(path.join(existingPath, existingFile));
         if (defData && Array.isArray(defData)) {
-            const defSet = new Set<string>();
+            const defMap = new Map<string, string>();
             for (const defName of defData) {
                 if (defName.includes(',')) {
                     for (const part of defName.split(',')) {
-                        defSet.add(normalizeTypeName(part));
+                        defMap.set(normalizeTypeName(part), part.trim());
                     }
                 } else {
-                    defSet.add(normalizeTypeName(defName));
+                    defMap.set(normalizeTypeName(defName), defName.trim());
                 }
             }
             
             
 
-            manager.existingDefinitions.set(normalizeTypeName(defType), defSet);
+            manager.existingDefinitions.set(normalizeTypeName(defType), defMap);
             manager.definitionTypeLabels.set(normalizeTypeName(defType), defType);
         }
     }

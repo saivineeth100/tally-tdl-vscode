@@ -41,7 +41,7 @@ describe('XML Definition Tests', () => {
         const ref = findReferenceAtOffset(sourceFile, offset, xmlContent, mockScopeManager);
         expect(ref).toBeDefined();
         expect(ref?.name).toBe('MyOtherReport');
-        expect(ref?.expectedType).toBe('Report');
+        expect(ref?.expectedType).toBe('REPORT');
     });
 
     it('Finds definition reference for list item in XML', () => {

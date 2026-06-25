@@ -76,6 +76,14 @@ export class ScopeViewerService {
         const useIds = this.manager.useInheritance.get(node.id.toLowerCase());
         const usedDefinitions = useIds ? Array.from(useIds) : undefined;
 
+        let objectScope: string | undefined;
+        let collectionScope: string | undefined;
+        if (node.kind === ScopeKind.Definition) {
+            const defNode = node as DefinitionScope;
+            objectScope = defNode.objectScope;
+            collectionScope = defNode.collectionScope;
+        }
+
         return {
             id: node.id,
             kind: node.kind,
@@ -83,6 +91,8 @@ export class ScopeViewerService {
             structuralParents,
             structuralChildren,
             usedDefinitions,
+            objectScope,
+            collectionScope,
             symbolGroups,
             children,
             hasChildren
@@ -106,6 +116,12 @@ export class ScopeViewerService {
                 let childCount = 0;
                 for (const set of defNode.structuralChildren.values()) childCount += set.size;
                 if (childCount > 0) symbolGroups.push({ kind: 'StructuralChildren', count: childCount });
+            }
+            if (defNode.fetchedFields && defNode.fetchedFields.size > 0) {
+                symbolGroups.push({ kind: 'FetchedFields', count: defNode.fetchedFields.size });
+            }
+            if (defNode.computedFields && defNode.computedFields.size > 0) {
+                symbolGroups.push({ kind: 'ComputedFields', count: defNode.computedFields.size });
             }
         }
     }
@@ -245,6 +261,20 @@ export class ScopeViewerService {
                             if (sym) symbols.push(sym);
                         }
                     }
+                }
+            }
+        } else if (lowerKind === 'fetchedfields' && scope.kind === ScopeKind.Definition) {
+            const defScope = scope as DefinitionScope;
+            if (defScope.fetchedFields) {
+                for (const field of defScope.fetchedFields) {
+                    symbols.push({ name: field, kind: SymbolKind.Field, uri: scope.uri || '', start: 0, end: 0, definitionType: 'Field' });
+                }
+            }
+        } else if (lowerKind === 'computedfields' && scope.kind === ScopeKind.Definition) {
+            const defScope = scope as DefinitionScope;
+            if (defScope.computedFields) {
+                for (const field of defScope.computedFields) {
+                    symbols.push({ name: field, kind: SymbolKind.Field, uri: scope.uri || '', start: 0, end: 0, definitionType: 'Field' });
                 }
             }
         } else if (lowerKind === 'functions' && hasFunctionsAndActions(scope)) {

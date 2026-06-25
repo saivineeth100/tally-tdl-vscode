@@ -17,6 +17,7 @@ export interface CompletionContext {
     tagPath?: string[];
     isInUse?: boolean;
     directiveName?: string;
+    hasTrailingColon?: boolean;
 }
 
 /**

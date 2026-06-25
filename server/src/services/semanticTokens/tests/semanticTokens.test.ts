@@ -83,7 +83,7 @@ describe('Semantic Tokens', () => {
 
         const propToken = tokens.find(t => t.text === 'Title');
         expect(propToken).toBeDefined();
-        expect(propToken!.type).toBe(SemanticTokenTypes.property);
+        expect(propToken!.type).toBe(SemanticTokenTypes.macro);
     });
 
     it('should tokenize multiple attribute values', () => {

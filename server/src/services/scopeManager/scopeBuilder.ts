@@ -210,7 +210,37 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                 }
             }
 
-            if (attrNameLower === 'variable' || attrNameLower === 'listvariable') {
+            if (attrNameLower === 'collection') {
+                if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
+                    if (defScope.kind === ScopeKind.Definition || defScope.kind === ScopeKind.Function) {
+                        defScope.collectionScope = (attr.value[0] as IdentifierNode).text;
+                    }
+                }
+            } else if (attrNameLower === 'type') {
+                if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
+                    if (defScope.kind === ScopeKind.Definition || defScope.kind === ScopeKind.Function) {
+                        defScope.objectScope = (attr.value[0] as IdentifierNode).text;
+                    }
+                }
+            } else if (attrNameLower === 'fetch') {
+                if (attr.value.length > 0) {
+                    if (defScope.kind === ScopeKind.Definition) {
+                        if (!defScope.fetchedFields) defScope.fetchedFields = new Set<string>();
+                        for (const v of attr.value) {
+                            if (v.kind === SyntaxKind.Identifier || v.kind === SyntaxKind.Literal) {
+                                defScope.fetchedFields.add((v as any).text.toLowerCase());
+                            }
+                        }
+                    }
+                }
+            } else if (attrNameLower === 'compute') {
+                if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
+                    if (defScope.kind === ScopeKind.Definition) {
+                        if (!defScope.computedFields) defScope.computedFields = new Set<string>();
+                        defScope.computedFields.add((attr.value[0] as IdentifierNode).text.toLowerCase());
+                    }
+                }
+            } else if (attrNameLower === 'variable' || attrNameLower === 'listvariable') {
                 if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
                     const varNameNode = attr.value[0] as IdentifierNode;
                     const varName = varNameNode.text;

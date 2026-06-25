@@ -318,13 +318,15 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
     
     if (scope) {
         let resolved: any;
-        if (ref.expectedType === 'Variable' || ref.expectedType === 'Method') {
+        const expectedTypeLower = ref.expectedType.toLowerCase();
+        
+        if (expectedTypeLower === 'variable' || expectedTypeLower === 'method' || expectedTypeLower === 'system variable') {
             resolved = scopeMgr.resolve(ref.name, scope, projectScope);
-        } else if (ref.expectedType === 'Formula') {
+        } else if (expectedTypeLower === 'formula' || expectedTypeLower === 'system formulae' || expectedTypeLower === 'formulae') {
             resolved = scopeMgr.resolveFormula(ref.name, scope, projectScope);
-        } else if (ref.expectedType === 'Function') {
+        } else if (expectedTypeLower === 'function') {
             resolved = scopeMgr.resolveFunction(ref.name, scope, projectScope);
-        } else if (ref.expectedType === 'Action') {
+        } else if (expectedTypeLower === 'action') {
             resolved = scopeMgr.resolveAction(ref.name, scope, projectScope);
         } else {
             resolved = scopeMgr.resolveDefinition(
@@ -499,6 +501,12 @@ connection.onRequest("tdl/getScopeChildren", async (params: { uri: string, scope
 connection.onRequest("tdl/getScopeSymbols", async (params: { uri: string, scopeId: string, kind: string, page: number, limit: number, query?: string }) => {
     const scopeMgr = docManager.getScopeManager(params.uri);
     return scopeMgr.viewer.getSymbolsPaginated(params.scopeId, params.kind, params.page, params.limit, params.query);
+});
+
+connection.onRequest("tdl/resolveGlobalSymbol", async (params: { uri: string, name: string, expectedType: string }) => {
+    const scopeMgr = docManager.getScopeManager(params.uri);
+    const projectScope = docManager.getProjectNodes(params.uri);
+    return scopeMgr.resolveDefinition(params.name, params.expectedType, scopeMgr.globalScope, projectScope);
 });
 
 connection.onRequest("tdl/convertToXml", async (params: { uri: string }) => {

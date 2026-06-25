@@ -55,11 +55,17 @@ export interface DefinitionScope extends BaseScope {
     definition?: DefinitionSymbol;
     structuralChildren: Map<string, Set<string>>;
     uses: Set<string>;
+    objectScope?: string;
+    collectionScope?: string;
+    computedFields?: Set<string>;
+    fetchedFields?: Set<string>;
 }
 
 export interface FunctionScope extends BaseScope {
     kind: ScopeKind.Function;
     definition?: DefinitionSymbol;
+    objectScope?: string;
+    collectionScope?: string;
 }
 
 export interface BlockScope extends BaseScope {

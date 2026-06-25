@@ -41,7 +41,40 @@ export class ScopeExplorer {
                         panel.webview.postMessage({ command: 'render', data: scopeTree });
                         return;
                     case 'goToDefinition':
-                        vscode.commands.executeCommand('tdl.goToDefinition', message.text);
+                        try {
+                            let targetUri: string | undefined = message.uri;
+                            let targetStart = message.start;
+                            let targetEnd = message.end;
+
+                            if (!targetUri && message.name && message.expectedType) {
+                                // Resolve definition using server
+                                const resolved = await client.sendRequest<any>('tdl/resolveGlobalSymbol', {
+                                    uri,
+                                    name: message.name,
+                                    expectedType: message.expectedType
+                                });
+                                if (resolved && resolved.uri) {
+                                    targetUri = resolved.uri;
+                                    targetStart = resolved.start;
+                                    targetEnd = resolved.end;
+                                }
+                            }
+
+                            if (targetUri) {
+                                const docUri = vscode.Uri.parse(targetUri);
+                                const doc = await vscode.workspace.openTextDocument(docUri);
+                                const editor = await vscode.window.showTextDocument(doc);
+                                if (targetStart !== undefined && targetEnd !== undefined) {
+                                    const startPos = doc.positionAt(targetStart);
+                                    const endPos = doc.positionAt(targetEnd);
+                                    const range = new vscode.Range(startPos, endPos);
+                                    editor.selection = new vscode.Selection(startPos, endPos);
+                                    editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Error navigating to definition:', err);
+                        }
                         return;
                     case 'getSymbols':
                         try {

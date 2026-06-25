@@ -46,7 +46,7 @@ export function getSuggestionsForDefinitionType(
         // 2. Check ExistingDefinitions (default TDL)
         const defaultNames = scopeManager.existingDefinitions.get(normalizeTypeName(type));
         if (defaultNames) {
-            for (const name of defaultNames) {
+            for (const name of defaultNames.values()) {
                 if (normalizedPartial === '' || normalizeTypeName(name).includes(normalizedPartial)) {
                     if (!addedNames.has(name.toLowerCase())) {
                         addedNames.add(name.toLowerCase());
@@ -66,7 +66,7 @@ export function getSuggestionsForDefinitionType(
     return items;
 }
 
-export function provideDefinitionTypeCompletions(partial: string, isXml: boolean, defTypes: string[], scopeManager: ScopeManager, directiveName?: string): CompletionItem[] {
+export function provideDefinitionTypeCompletions(partial: string, isXml: boolean, defTypes: string[], scopeManager: ScopeManager, directiveName?: string, hasTrailingColon?: boolean): CompletionItem[] {
     const items: CompletionItem[] = [];
     const normalizedPartial = normalizeTypeName(partial);
 
@@ -80,7 +80,7 @@ export function provideDefinitionTypeCompletions(partial: string, isXml: boolean
             const displayType = isXml ? formattedType.toUpperCase().replace(/\s+/g, '') : formattedType;
             
             const isDeftype = directiveName === 'deftype';
-            const insertSuffix = isDeftype ? '' : ': ';
+            const insertSuffix = isDeftype || hasTrailingColon ? '' : ': ';
             const insertText = isXml ? `${displayType} NAME="$1">\n\t$0\n</${displayType}>` : `${displayType}${insertSuffix}`;
             
             // Only trigger auto-suggest if we appended a colon

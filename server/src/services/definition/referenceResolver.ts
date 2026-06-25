@@ -1,6 +1,6 @@
 import { SourceFile, SyntaxKind, IdentifierNode, LiteralNode } from '../../parser/ast';
 import { ScopeManager } from '../scopeManager';
-import { normalizeTypeName } from '../utils';
+import { normalizeTypeName, getCanonicalAttributeName } from '../utils';
 import { findDefinitionAtOffset, findAttributeAtOffset, findStatementAtOffset, findNodeAtOffset } from '../../parser/astQuery';
 
 /**
@@ -35,7 +35,6 @@ export const ATTRIBUTE_REFERENCE_MAP: Record<string, string> = {
     'collections': 'Collection',
     'report': 'Report',
     'reports': 'Report',
-    'use': 'Report',      // [Report: X] Use: OtherReport
     'button': 'Button',
     'buttons': 'Button',
     'key': 'Key',
@@ -56,7 +55,15 @@ export const ATTRIBUTE_REFERENCE_MAP: Record<string, string> = {
  * @returns Expected definition type or undefined
  */
 export function getExpectedTypeForAttribute(attrName: string): string | undefined {
-    return ATTRIBUTE_REFERENCE_MAP[attrName.toLowerCase()];
+    const lower = attrName.toLowerCase();
+    
+    if (lower === 'filter' || lower === 'filters') return 'Formula';
+    
+    // First try static map (reliable casing, available before metadata)
+    if (ATTRIBUTE_REFERENCE_MAP[lower]) return ATTRIBUTE_REFERENCE_MAP[lower];
+    
+    // Fallback to dynamic metadata map if available
+    return getCanonicalAttributeName(lower);
 }
 
 /**
@@ -224,23 +231,91 @@ export function findReferenceAtOffset(
         let expectedType: string | undefined;
         let paramIndex = -1;
         let foundValueNode: any = undefined;
+        let localAttrDef: any = undefined;
 
-        for (let i = 0; i < attr.value.length; i++) {
-            const val = attr.value[i];
-            if (offset >= val.start && offset <= val.end) {
-                paramIndex = i;
-                foundValueNode = val;
-                break;
+        if (attr.name.text.toLowerCase() === 'local' && scopeManager) {
+            let currentScopeDefType = def.type.text;
+            let expectingDefNameFor: string | undefined = undefined;
+            let isAttribute = false;
+            let valuePartIndex = 0;
+
+            for (let i = 0; i < attr.value.length; i++) {
+                const paramNode = attr.value[i];
+                
+                if (offset >= paramNode.start && offset <= paramNode.end) {
+                    if (expectingDefNameFor) {
+                        let name = '';
+                        if (paramNode.kind === SyntaxKind.Identifier) {
+                            name = (paramNode as any).text;
+                        } else if ('text' in paramNode) {
+                            name = (paramNode as any).text;
+                        } else if ('value' in paramNode) {
+                            name = String((paramNode as any).value);
+                        }
+                        name = name.replace(/^"|"$|^'|'$/g, '');
+                        if (name && name.toLowerCase() !== 'default') {
+                            return {
+                                name,
+                                expectedType: expectingDefNameFor,
+                                start: paramNode.start,
+                                end: paramNode.end
+                            };
+                        }
+                        return undefined;
+                    } else if (!isAttribute) {
+                        return undefined; // On Definition Type or Attribute Name (no references)
+                    } else {
+                        paramIndex = valuePartIndex;
+                        foundValueNode = paramNode;
+                    }
+                    break;
+                }
+
+                if (expectingDefNameFor) {
+                    currentScopeDefType = expectingDefNameFor;
+                    expectingDefNameFor = undefined;
+                } else if (!isAttribute) {
+                    let pLower = '';
+                    if (paramNode.kind === SyntaxKind.Identifier) {
+                        pLower = (paramNode as any).text.toLowerCase();
+                    } else if ('text' in paramNode) {
+                        pLower = (paramNode as any).text.toLowerCase();
+                    } else if ('value' in paramNode) {
+                        pLower = String((paramNode as any).value).toLowerCase();
+                    }
+                    
+                    if (scopeManager.globalScope.attributes.has(normalizeTypeName(pLower))) {
+                        expectingDefNameFor = pLower;
+                    } else {
+                        isAttribute = true;
+                        const attrMap = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
+                        if (attrMap) {
+                            localAttrDef = attrMap.get(normalizeTypeName(pLower));
+                        }
+                    }
+                } else {
+                    valuePartIndex++;
+                }
+            }
+        } else {
+            for (let i = 0; i < attr.value.length; i++) {
+                const val = attr.value[i];
+                if (offset >= val.start && offset <= val.end) {
+                    paramIndex = i;
+                    foundValueNode = val;
+                    break;
+                }
             }
         }
 
         if (paramIndex >= 0 && scopeManager) {
-            const defTypeName = normalizeTypeName(def.type.text);
-            const attrMap = scopeManager.globalScope.attributes.get(defTypeName);
-            
-            let attrDef;
-            if (attrMap) {
-                 attrDef = attrMap.get(normalizeTypeName(attr.name.text));
+            let attrDef = localAttrDef;
+            if (!attrDef) {
+                const defTypeName = normalizeTypeName(def.type.text);
+                const attrMap = scopeManager.globalScope.attributes.get(defTypeName);
+                if (attrMap) {
+                    attrDef = attrMap.get(normalizeTypeName(attr.name.text));
+                }
             }
 
             if (attrDef && attrDef.parameters && attrDef.parameters.length > 0) {
@@ -256,6 +331,10 @@ export function findReferenceAtOffset(
                     const refersTo = param.RefersTo;
                     if (refersTo) {
                         expectedType = refersTo.trim();
+                        const lowerType = expectedType?.toLowerCase();
+                        if (lowerType === 'system formulae' || lowerType === 'system formula' || lowerType === 'formulae') {
+                            expectedType = 'Formula';
+                        }
                     }
                 }
             }
@@ -267,6 +346,11 @@ export function findReferenceAtOffset(
 
         if (!expectedType) {
             expectedType = getExpectedTypeForAttribute(attr.name.text);
+        }
+
+        // 'Use' attribute always refers to the same definition type as the current definition
+        if (!expectedType && attr.name.text.toLowerCase() === 'use') {
+            expectedType = def.type.text;
         }
 
         if (foundValueNode) {

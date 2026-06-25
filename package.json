@@ -253,7 +253,6 @@
                     "type": "object",
                     "default": {},
                     "description": "Configure severity for specific diagnostic codes.",
-                  
                     "additionalProperties": {
                         "type": "string",
                         "enum": [
@@ -276,7 +275,7 @@
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -b && npm run build -w webview-ui",
-        "watch": "npm run build -w webview-ui && tsc -b -w", 
+        "watch": "npm run build -w webview-ui && tsc -b -w",
         "lint": "eslint .",
         "test": "npm run test -w server"
     },
@@ -289,7 +288,8 @@
         "eslint": "^9.16.0",
         "globals": "^17.6.0",
         "typescript": "^5.7.2",
-        "typescript-eslint": "^8.59.4"
+        "typescript-eslint": "^8.59.4",
+        "vitest": "^4.1.9"
     },
     "workspaces": [
         "client",

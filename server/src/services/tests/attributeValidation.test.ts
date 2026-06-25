@@ -156,6 +156,37 @@ describe('Attribute Validation', () => {
             const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeUndefined();
         });
+        it('should validate reference to existing system formulae', async () => {
+            // Set up a system formula
+            if (!testScopeManager!.globalScope.formulas) {
+                testScopeManager!.globalScope.formulas = new Map();
+            }
+            testScopeManager!.globalScope.formulas.set('myformula', {
+                name: 'MyFormula',
+                kind: SymbolKind.Formula,
+                uri: 'global:metadata',
+                start: 0,
+                end: 10
+            } as any);
+
+            // Set up an attribute that refers to System Formulae
+            let typeMap = testScopeManager!.globalScope.attributes.get('report');
+            typeMap!.set('myformulaattr', {
+                name: 'MyFormulaAttr',
+                parameters: [{ RefersTo: 'System Formulae' }]
+            } as any);
+
+            const tdl = `[Report: SysFormulaRefReport]
+                MyFormulaAttr: MyFormula
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!, symbolTable);
+            const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
+            expect(refError).toBeUndefined();
+        });
     });
 
     describe('List Modifier Validation', () => {
@@ -400,6 +431,27 @@ describe('Attribute Validation', () => {
             expect(diag).toBeDefined();
             // Should contain "Form" with original casing
             expect(diag?.message).toContain('Form');
+        });
+    });
+
+    describe('Local Attribute Validation', () => {
+        it('validates nested definition types and attributes inside Local', () => {
+            const tdl = `[Report: MyReport]
+                Local: Field: Default: Set as: "LocalValue"
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            
+            // "LocalValue" is valid for "Set as" (Expression). 
+            // The structure Local: Field: Default: Set as should be valid
+            const attrErrors = diagnostics.filter(d => 
+                d.code === DiagnosticRules.UnknownAttribute.code ||
+                d.code === DiagnosticRules.TypeMismatch.code
+            );
+            expect(attrErrors.length).toBe(0);
         });
     });
 });

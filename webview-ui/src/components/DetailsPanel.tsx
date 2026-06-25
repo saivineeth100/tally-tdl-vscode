@@ -81,8 +81,24 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack }) => {
     }
   };
 
-  const handleGoToDefinition = (id: string) => {
-    vscode.postMessage({ command: "goToDefinition", text: id });
+  const handleGoToDefinition = (target: string | any, expectedType?: string) => {
+    if (typeof target === 'string') {
+      const parts = target.split(':');
+      if (parts.length >= 2) {
+          vscode.postMessage({ command: "goToDefinition", name: parts.slice(1).join(':'), expectedType: parts[0] });
+      } else {
+          vscode.postMessage({ command: "goToDefinition", name: target, expectedType: expectedType || 'Unknown' });
+      }
+    } else {
+      vscode.postMessage({ 
+        command: "goToDefinition", 
+        name: target.name,
+        uri: target.uri,
+        start: target.start,
+        end: target.end,
+        expectedType: target.definitionType || target.kind
+      });
+    }
   };
 
   // -----------------------------------------
@@ -133,7 +149,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack }) => {
                     } else if (node.kind === 'AttributesCategory') {
                       window.location.hash = `#${node.scopeId}/Attribute_${s.name}`;
                     } else if (!isSchema) {
-                      handleGoToDefinition(s.name); 
+                      handleGoToDefinition(s); 
                     }
                   }}
                 >
@@ -349,6 +365,18 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack }) => {
             <span className="card-label">TYPE</span>
             <span className="card-value">{kind} Scope</span>
           </div>
+          {node.objectScope && (
+             <div className="card" style={{ cursor: 'pointer', border: '1px solid var(--button-hover)' }} onClick={() => handleGoToDefinition(node.objectScope, 'Schema')}>
+               <span className="card-label">LINKED SCHEMA</span>
+               <span className="card-value" style={{ color: '#9cdcfe' }}>🔗 {node.objectScope}</span>
+             </div>
+          )}
+          {node.collectionScope && (
+             <div className="card" style={{ cursor: 'pointer', border: '1px solid var(--button-hover)' }} onClick={() => handleGoToDefinition(node.collectionScope, 'Collection')}>
+               <span className="card-label">LINKED COLLECTION</span>
+               <span className="card-value" style={{ color: '#9cdcfe' }}>🔗 {node.collectionScope}</span>
+             </div>
+          )}
           <div className="card">
             <span className="card-label">PARENT</span>
             <span className="card-value">

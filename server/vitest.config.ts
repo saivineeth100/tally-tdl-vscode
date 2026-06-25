@@ -1,7 +1,13 @@
 
 import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 export default defineConfig({
+    resolve: {
+        alias: {
+            'tally-tdl-shared': path.resolve(__dirname, '../shared/out/index.js')
+        }
+    },
     test: {
         globals: true,
         environment: 'node',

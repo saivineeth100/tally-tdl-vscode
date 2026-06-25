@@ -77,6 +77,8 @@ function mapMetaTypeToToken(refersTo?: string, dataType?: string, scopeManager?:
 
         // If refers to Function?
         if (refersTo === 'function') return SemanticTokenTypes.function;
+        if (refersTo === 'systemformulae' || refersTo === 'formula' || refersTo === 'formulae') return SemanticTokenTypes.macro;
+        if (refersTo === 'variable' || refersTo === 'systemvariable') return SemanticTokenTypes.variable;
     }
 
     if (dataType) {
@@ -424,7 +426,7 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
                 line: 0,
                 startChar: attr.name.start,
                 length: attr.name.end - attr.name.start,
-                type: SemanticTokenTypes.property,
+                type: SemanticTokenTypes.macro,
                 text: attr.name?.text
             });
 
@@ -457,6 +459,77 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
         }
 
         if (attr.value) {
+            if (attr.name?.text?.toLowerCase() === 'local' && scopeManager) {
+                let currentScopeDefType = defTypeName;
+                let expectingDefNameFor: string | undefined = undefined;
+                let isAttribute = false;
+                let targetDefMeta: any | undefined;
+
+                for (let i = 0; i < attr.value.length; i++) {
+                    const paramNode = attr.value[i];
+
+                    if (expectingDefNameFor) {
+                        // It's a Definition Name
+                        if (paramNode.kind === SyntaxKind.Identifier) {
+                            tokens.push({
+                                line: 0,
+                                startChar: paramNode.start,
+                                length: paramNode.end - paramNode.start,
+                                type: SemanticTokenTypes.class,
+                                text: (paramNode as any).text
+                            });
+                        } else {
+                            traverseNode(paramNode, tokens, scopeManager, uri, SemanticTokenTypes.class);
+                        }
+                        currentScopeDefType = expectingDefNameFor;
+                        expectingDefNameFor = undefined;
+                    } else if (!isAttribute) {
+                        if (paramNode.kind === SyntaxKind.Identifier) {
+                            const pLower = (paramNode as any).text.toLowerCase();
+                            if (scopeManager.globalScope.attributes.has(normalizeTypeName(pLower))) {
+                                // It's a Definition Type
+                                expectingDefNameFor = pLower;
+                                tokens.push({
+                                    line: 0,
+                                    startChar: paramNode.start,
+                                    length: paramNode.end - paramNode.start,
+                                    type: SemanticTokenTypes.keyword,
+                                    text: (paramNode as any).text
+                                });
+                            } else {
+                                // It's the Attribute Name
+                                isAttribute = true;
+                                tokens.push({
+                                    line: 0,
+                                    startChar: paramNode.start,
+                                    length: paramNode.end - paramNode.start,
+                                    type: SemanticTokenTypes.macro,
+                                    text: (paramNode as any).text
+                                });
+                                // Setup defMeta for values
+                                const attrMap = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
+                                if (attrMap) {
+                                    targetDefMeta = attrMap.get(normalizeTypeName((paramNode as any).text));
+                                }
+                            }
+                        } else {
+                            traverseNode(paramNode, tokens, scopeManager, uri);
+                        }
+                    } else {
+                        // We are in values for the target attribute
+                        let argExpectedType: string | undefined;
+                        // For value index, we need to subtract the indices used by targets/attribute
+                        // But since we just want to highlight, we can use the first parameter's type or traverse normally
+                        if (targetDefMeta && targetDefMeta.parameters && targetDefMeta.parameters.length > 0) {
+                            const param = targetDefMeta.parameters[0];
+                            argExpectedType = mapMetaTypeToToken(param.RefersTo, param.DataType, scopeManager);
+                        }
+                        traverseNode(paramNode, tokens, scopeManager, uri, argExpectedType);
+                    }
+                }
+                continue;
+            }
+
             for (let i = 0; i < attr.value.length; i++) {
                 let argExpectedType = expectedType;
                 if (defMeta && defMeta.parameters) {
@@ -611,7 +684,18 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
         if (scopeManager && uri) {
             const scope = scopeManager.getScopeAt(uri, idNode.start);
             if (scope) {
-                const symbol = scopeManager.resolve(idNode?.text || '', scope);
+                let symbol: any = undefined;
+                if (expectedType === SemanticTokenTypes.variable) {
+                    symbol = scopeManager.resolveVariable(idNode?.text || '', scope);
+                } else if (expectedType === SemanticTokenTypes.macro) {
+                    symbol = scopeManager.resolveFormula(idNode?.text || '', scope);
+                } else if (expectedType === SemanticTokenTypes.function) {
+                    symbol = scopeManager.resolveFunction(idNode?.text || '', scope);
+                }
+
+                if (!symbol) {
+                    symbol = scopeManager.resolve(idNode?.text || '', scope);
+                }
                 if (symbol) {
                     const tokenType = getSemanticTypeFromSymbol(symbol);
                     tokens.push({
