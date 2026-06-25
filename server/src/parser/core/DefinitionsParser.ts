@@ -3,6 +3,10 @@ import {
     DefinitionNode,
     IdentifierNode,
     DirectiveNode,
+    InUseDirectiveNode,
+    DefTypeDirectiveNode,
+    UnknownDirectiveNode,
+    InUseTargetNode
 } from "../ast";
 import { Token } from "../token";
 import { TokenKind } from "../tokenKind";
@@ -169,7 +173,10 @@ export class DefinitionsParser extends StatementsParser {
             // Handle Inline Directives
 
             if (this.CurrentToken.Kind === TokenKind.LessThanToken) {
-                this.ConsumeDirective(defNode);
+                const directiveNode = this.ConsumeDirective();
+                if (directiveNode) {
+                    defNode.directives.push(directiveNode);
+                }
 
                 continue;
             }
@@ -232,7 +239,7 @@ export class DefinitionsParser extends StatementsParser {
         }
     }
 
-    protected ConsumeDirective(defNode?: DefinitionNode) {
+    protected ConsumeDirective(): DirectiveNode | undefined {
         const start = this.CurrentToken.Start;
 
         // Consume <
@@ -241,39 +248,108 @@ export class DefinitionsParser extends StatementsParser {
 
         // Consume until > or EOF
 
-        let directiveContent = "";
-
         while (!this.isAtEnd()) {
             if (this.CurrentToken.Kind === TokenKind.GreaterThanToken) {
                 const end = this.CurrentToken.Start + 1;
+                const directiveContent = this._text.substring(start + 1, this.CurrentToken.Start);
 
                 this.EatToken();
 
-                if (defNode) {
+                let directiveNode: DirectiveNode | undefined;
+
+                if (directiveContent.trim().length > 0) {
                     const contentTrimmed = directiveContent.trim();
-
                     const firstColon = contentTrimmed.indexOf(":");
+                    const name = firstColon !== -1 ? contentTrimmed.substring(0, firstColon).trim() : contentTrimmed;
+                    const value = firstColon !== -1 ? contentTrimmed.substring(firstColon + 1).trim() : "";
+                    const baseOffset = start + 1;
 
-                    const name =
-                        firstColon !== -1
-                            ? contentTrimmed.substring(0, firstColon).trim()
-                            : contentTrimmed;
+                    if (name.toLowerCase() === "inuse") {
+                        const targets: InUseTargetNode[] = [];
+                        if (value) {
+                            const parts = value.split(',');
+                            let currentOffset = baseOffset + directiveContent.indexOf(value);
 
-                    const value =
-                        firstColon !== -1
-                            ? contentTrimmed.substring(firstColon + 1).trim()
-                            : "";
+                            for (const part of parts) {
+                                const partTrimmed = part.trim();
+                                if (partTrimmed) {
+                                    const partStart = baseOffset + directiveContent.indexOf(part, currentOffset - baseOffset);
+                                    const partEnd = partStart + part.length;
 
-                    defNode.directives.push(new DirectiveNode(start, end, name, value));
+                                    const colonIdx = part.indexOf(':');
+                                    if (colonIdx !== -1) {
+                                        const tType = part.substring(0, colonIdx);
+                                        const tName = part.substring(colonIdx + 1);
+
+                                        const tTypeTrimmed = tType.trim();
+                                        const tNameTrimmed = tName.trim();
+
+                                        const typeStart = partStart + part.indexOf(tTypeTrimmed);
+                                        const typeEnd = typeStart + tTypeTrimmed.length;
+
+                                        const nameStart = partStart + colonIdx + 1 + tName.indexOf(tNameTrimmed);
+                                        const nameEnd = nameStart + tNameTrimmed.length;
+
+                                        targets.push(new InUseTargetNode(
+                                            partStart, partEnd,
+                                            tTypeTrimmed, typeStart, typeEnd,
+                                            tNameTrimmed, nameStart, nameEnd
+                                        ));
+                                    } else {
+                                        const typeStart = partStart;
+                                        const typeEnd = partStart;
+                                        const nameStart = partStart + part.indexOf(partTrimmed);
+                                        const nameEnd = nameStart + partTrimmed.length;
+                                        
+                                        targets.push(new InUseTargetNode(
+                                            partStart, partEnd,
+                                            '', typeStart, typeEnd,
+                                            partTrimmed, nameStart, nameEnd
+                                        ));
+                                    }
+                                }
+                                currentOffset += part.length + 1;
+                            }
+                        }
+                        directiveNode = new InUseDirectiveNode(start, end, name, targets, directiveContent);
+                    } else if (name.toLowerCase() === "deftype") {
+                        const colonIdx = value.indexOf(':');
+                        let defType = value;
+                        let defName: string | undefined = undefined;
+                        let defTypeStart = 0; let defTypeEnd = 0;
+                        let defNameStart: number | undefined = undefined; let defNameEnd: number | undefined = undefined;
+
+                        if (colonIdx !== -1) {
+                            defType = value.substring(0, colonIdx).trim();
+                            defName = value.substring(colonIdx + 1).trim();
+                        } else {
+                            defType = value.trim();
+                        }
+
+                        const valueStartOffset = baseOffset + directiveContent.indexOf(value);
+                        
+                        if (defType) {
+                            defTypeStart = valueStartOffset + value.indexOf(defType);
+                            defTypeEnd = defTypeStart + defType.length;
+                        }
+
+                        if (defName) {
+                            defNameStart = valueStartOffset + colonIdx + 1 + value.substring(colonIdx + 1).indexOf(defName);
+                            defNameEnd = defNameStart + defName.length;
+                        }
+
+                        directiveNode = new DefTypeDirectiveNode(start, end, name, defType, defTypeStart, defTypeEnd, defName, defNameStart, defNameEnd, directiveContent);
+                    } else {
+                        directiveNode = new UnknownDirectiveNode(start, end, name, value, directiveContent);
+                    }
                 }
 
-                break;
+                return directiveNode;
             }
-
-            directiveContent += this.CurrentToken.Text;
 
             this.MoveToNextToken();
         }
+        return undefined;
     }
 
     protected ParseAttributes(defNode: DefinitionNode) {
@@ -299,7 +375,10 @@ export class DefinitionsParser extends StatementsParser {
             }
 
             if (k === TokenKind.LessThanToken) {
-                this.ConsumeDirective(defNode);
+                const directiveNode = this.ConsumeDirective();
+                if (directiveNode) {
+                    defNode.directives.push(directiveNode);
+                }
                 continue;
             }
 

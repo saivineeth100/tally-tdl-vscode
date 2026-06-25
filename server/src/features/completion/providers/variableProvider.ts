@@ -2,6 +2,7 @@ import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
 import { DocManager } from '../../../docManager';
 import { getSuggestionsForDefinitionType } from './definitionProvider';
 import { SymbolTable } from '../../../services/symbolTable';
+import { getFieldsInScope } from '../../../services/scopeManager';
 
 export function provideVariableCompletions(
     manager: DocManager,
@@ -93,6 +94,39 @@ export function provideFormulaCompletions(
         }
         if (scopeMgr.globalScope) {
             addGlobalFormulas(scopeMgr.globalScope.formulas);
+        }
+    }
+
+    return items;
+}
+
+export function provideFieldReferenceCompletions(
+    manager: DocManager,
+    uri: string,
+    offset: number,
+    partial: string
+): CompletionItem[] {
+    const items: CompletionItem[] = [];
+    const scopeMgr = manager.getScopeManager(uri);
+    
+    const currentScope = scopeMgr.getScopeAt(uri, offset);
+    if (!currentScope) return items;
+
+    const fields = getFieldsInScope(
+        { state: scopeMgr, initialScope: currentScope, visitedScopes: new Set() },
+        scopeMgr.globalScope,
+        scopeMgr.projectScope
+    );
+
+    for (const field of fields) {
+        if (partial === '' || (field.name && field.name.toLowerCase().includes(partial.toLowerCase()))) {
+            items.push({
+                label: field.name,
+                kind: CompletionItemKind.Field,
+                detail: `Field Reference`,
+                insertText: field.name,
+                sortText: '0_' + field.name.toLowerCase()
+            });
         }
     }
 

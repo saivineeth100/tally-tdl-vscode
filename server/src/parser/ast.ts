@@ -21,7 +21,10 @@ export enum SyntaxKind {
     ComplexObject,
     BinaryExpression,
     UnaryExpression,
-    Directive
+    Directive,
+    InUseDirective,
+    DefTypeDirective,
+    UnknownDirective
 }
 
 export interface Node {
@@ -62,6 +65,7 @@ export class SourceFile implements Node {
     tokens: Token[] = [];
     errors: DiagnosticError[] = [];
     lineOffsets: number[] = [];
+    directives: DirectiveNode[] = [];
 
     constructor(start: number, end: number) {
         this.start = start;
@@ -114,21 +118,68 @@ export class DefinitionNode implements Node {
     }
 }
 
-export class DirectiveNode implements Node {
-    kind = SyntaxKind.Directive as const;
-    parent?: Node;
-    start: number;
-    end: number;
-    name: string;
-    value: string;
-
-    constructor(start: number, end: number, name: string, value: string) {
-        this.start = start;
-        this.end = end;
-        this.name = name;
-        this.value = value;
-    }
+export interface BaseDirectiveNode extends Node {
+    rawContent?: string;
 }
+
+export class InUseTargetNode {
+    constructor(
+        public start: number,
+        public end: number,
+        public typeName: string,
+        public typeStart: number,
+        public typeEnd: number,
+        public defName: string,
+        public defNameStart: number,
+        public defNameEnd: number
+    ) {}
+}
+
+export class InUseDirectiveNode implements BaseDirectiveNode {
+    kind = SyntaxKind.InUseDirective as const;
+    parent?: Node;
+    
+    constructor(
+        public start: number,
+        public end: number,
+        public name: string,
+        public targets: InUseTargetNode[],
+        public rawContent?: string
+    ) {}
+}
+
+export class DefTypeDirectiveNode implements BaseDirectiveNode {
+    kind = SyntaxKind.DefTypeDirective as const;
+    parent?: Node;
+
+    constructor(
+        public start: number,
+        public end: number,
+        public name: string,
+        public defType: string,
+        public defTypeStart: number,
+        public defTypeEnd: number,
+        public defName: string | undefined,
+        public defNameStart: number | undefined,
+        public defNameEnd: number | undefined,
+        public rawContent?: string
+    ) {}
+}
+
+export class UnknownDirectiveNode implements BaseDirectiveNode {
+    kind = SyntaxKind.UnknownDirective as const;
+    parent?: Node;
+    
+    constructor(
+        public start: number,
+        public end: number,
+        public name: string,
+        public value: string,
+        public rawContent?: string
+    ) {}
+}
+
+export type DirectiveNode = InUseDirectiveNode | DefTypeDirectiveNode | UnknownDirectiveNode;
 
 export class StatementNode implements Node {
     kind = SyntaxKind.Statement as const;

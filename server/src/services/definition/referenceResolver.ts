@@ -76,8 +76,48 @@ export function findReferenceAtOffset(
     scopeManager?: ScopeManager,
     uri?: string
 ): ReferenceInfo | undefined {
+    // Helper to check directives for reference
+    const checkDirective = (dir: any): ReferenceInfo | undefined => {
+        if (dir.kind === SyntaxKind.InUseDirective) {
+            for (const target of dir.targets) {
+                if (target.defName && offset >= target.defNameStart && offset <= target.defNameEnd) {
+                    return {
+                        name: target.defName,
+                        expectedType: target.typeName || '',
+                        start: target.defNameStart,
+                        end: target.defNameEnd
+                    };
+                }
+            }
+        } else if (dir.kind === SyntaxKind.DefTypeDirective) {
+            if (dir.defName && dir.defNameStart !== undefined && dir.defNameEnd !== undefined) {
+                if (offset >= dir.defNameStart && offset <= dir.defNameEnd) {
+                    return {
+                        name: dir.defName,
+                        expectedType: dir.defType || '',
+                        start: dir.defNameStart,
+                        end: dir.defNameEnd
+                    };
+                }
+            }
+        }
+        return undefined;
+    };
+
+    // First check file-level directives
+    for (const dir of sourceFile.directives) {
+        const ref = checkDirective(dir);
+        if (ref) return ref;
+    }
+
     const def = findDefinitionAtOffset(sourceFile, offset);
     if (!def) return undefined;
+
+    // Check definition-level directives
+    for (const dir of def.directives) {
+        const ref = checkDirective(dir);
+        if (ref) return ref;
+    }
 
     // Check if cursor is on the definition name of a modifier definition (#, !, *)
     if (def.modifier && def.name) {

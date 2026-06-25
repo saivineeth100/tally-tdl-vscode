@@ -62,6 +62,15 @@ export const INTERCHANGEABLE_ATTRIBUTES_MAP: Record<string, string> = {
 };
 
 /**
+ * Register interchangeable attributes dynamically from metadata.
+ */
+export function registerInterchangeableAttributes(canonicalType: string, aliases: string[]) {
+    for (const alias of aliases) {
+        INTERCHANGEABLE_ATTRIBUTES_MAP[normalizeTypeName(alias)] = canonicalType;
+    }
+}
+
+/**
  * Returns the canonical Definition Type for a given attribute name if it represents
  * a structural child relationship (e.g., 'parts' -> 'Part').
  */

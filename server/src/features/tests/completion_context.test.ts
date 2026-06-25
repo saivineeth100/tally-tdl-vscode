@@ -58,4 +58,50 @@ describe('Completion Attribute Value Context', () => {
         expect(context.type).toBe('global_formula');
         expect(context.partial).toBe('My');
     });
+
+    it('should detect InUse type or name context', () => {
+        const input = `[Report: MyReport]\n    <InUse: Mixin`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+        const cursor = input.length;
+        const currentDef = findDefinitionAtCursor(sourceFile, cursor);
+        const textBefore = '    <InUse: Mixin';
+
+        const context = detectCompletionContext(textBefore, sourceFile, cursor, currentDef);
+
+        expect(context.type).toBe('definition_type');
+        expect(context.partial).toBe('Mixin');
+    });
+
+    it('should detect InUse name context with type specified', () => {
+        const input = `[Report: MyReport]\n    <InUse: Form: Mixin`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+        const cursor = input.length;
+        const currentDef = findDefinitionAtCursor(sourceFile, cursor);
+        const textBefore = '    <InUse: Form: Mixin';
+
+        const context = detectCompletionContext(textBefore, sourceFile, cursor, currentDef);
+
+        expect(context.type).toBe('definition_name');
+        expect(context.partial).toBe('Mixin');
+        expect(context.isInUse).toBe(true);
+        expect(context.defType).toBe('Form');
+    });
+
+    it('should detect InUse context after comma', () => {
+        const input = `[Report: MyReport]\n    <InUse: Report: R1, Form: Mixin`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+        const cursor = input.length;
+        const currentDef = findDefinitionAtCursor(sourceFile, cursor);
+        const textBefore = '    <InUse: Report: R1, Form: Mixin';
+
+        const context = detectCompletionContext(textBefore, sourceFile, cursor, currentDef);
+
+        expect(context.type).toBe('definition_name');
+        expect(context.partial).toBe('Mixin');
+        expect(context.isInUse).toBe(true);
+        expect(context.defType).toBe('Form');
+    });
 });

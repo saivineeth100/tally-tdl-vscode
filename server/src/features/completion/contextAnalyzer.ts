@@ -4,7 +4,7 @@ import { DefinitionNode, SourceFile } from '../../parser/ast';
  * Context for completion
  */
 export interface CompletionContext {
-    type: 'schema_type' | 'definition_type' | 'definition_name' | 'attribute' | 'attribute_value' | 'function' | 'variable' | 'formula' | 'local_formula' | 'global_formula' | 'field' | 'function_action' | 'function_action_parameter' | 'modifier_value' | 'xml_schema_attribute' | 'unknown';
+    type: 'schema_type' | 'definition_type' | 'definition_name' | 'attribute' | 'attribute_value' | 'function' | 'variable' | 'formula' | 'local_formula' | 'global_formula' | 'field' | 'field_reference' | 'function_action' | 'function_action_parameter' | 'modifier_value' | 'xml_schema_attribute' | 'directive_file_level' | 'directive_def_level' | 'unknown';
     partial: string;
     hasModifier: boolean;
     modifier?: string;
@@ -15,6 +15,8 @@ export interface CompletionContext {
     modifierName?: string;
     modifierParts?: string[];
     tagPath?: string[];
+    isInUse?: boolean;
+    directiveName?: string;
 }
 
 /**
@@ -56,6 +58,52 @@ export function detectCompletionContext(
 ): CompletionContext {
     const trimmed = textBefore.trimStart();
 
+    if (!currentDef || (currentDef.isIncomplete && offset < currentDef.start + 5)) {
+        // Outside definition or typing a new one
+
+        // Check for file-level directive context: `<`
+        const openDirectiveIdx = textBefore.lastIndexOf('<');
+        const closeDirectiveIdx = textBefore.lastIndexOf('>');
+        if (openDirectiveIdx !== -1 && openDirectiveIdx > closeDirectiveIdx) {
+            const content = textBefore.slice(openDirectiveIdx + 1).trimStart();
+            const lastCommaIdx = content.lastIndexOf(',');
+            
+            // If there's a comma, we are in a subsequent item, which skips the directive name
+            const currentItem = lastCommaIdx !== -1 ? content.slice(lastCommaIdx + 1).trimStart() : content;
+            const colonsCount = (currentItem.match(/:/g) || []).length;
+            
+            if (lastCommaIdx === -1) {
+                // First item (e.g. `<System: Formula: Name`)
+                if (colonsCount === 0) {
+                    return { type: 'directive_file_level', partial: currentItem.trim(), hasModifier: false };
+                } else if (colonsCount === 1) {
+                    const colonIdx = currentItem.indexOf(':');
+                    const directiveName = currentItem.slice(0, colonIdx).trim().toLowerCase();
+                    return { type: 'definition_type', partial: currentItem.slice(colonIdx + 1).trimStart(), hasModifier: false, directiveName };
+                } else if (colonsCount === 2) {
+                    const firstColon = currentItem.indexOf(':');
+                    const secondColon = currentItem.indexOf(':', firstColon + 1);
+                    const defType = currentItem.slice(firstColon + 1, secondColon).trim();
+                    const partial = currentItem.slice(secondColon + 1).trimStart();
+                    return { type: 'definition_name', partial, hasModifier: false, defType, isInUse: true };
+                }
+            } else {
+                // Subsequent items (e.g. `... , Form: MixinF`)
+                if (colonsCount === 0) {
+                    // For subsequent items, we don't strictly have a directiveName on THIS segment,
+                    // but we might want to extract it from the very first segment if needed. 
+                    // However, for Deftype there are no subsequent items, so it's mainly for InUse.
+                    return { type: 'definition_type', partial: currentItem.trim(), hasModifier: false };
+                } else if (colonsCount === 1) {
+                    const colonIdx = currentItem.indexOf(':');
+                    const defType = currentItem.slice(0, colonIdx).trim();
+                    const partial = currentItem.slice(colonIdx + 1).trimStart();
+                    return { type: 'definition_name', partial, hasModifier: false, defType, isInUse: true };
+                }
+            }
+        }
+    }
+
     // 1. Check for $$ (function context)
     const dollarIdx = trimmed.lastIndexOf('$$');
     if (dollarIdx !== -1) {
@@ -71,6 +119,21 @@ export function detectCompletionContext(
         const afterHash = trimmed.slice(hashIdx + 2);
         if (!afterHash.includes(':')) {
             return { type: 'variable', partial: afterHash.trim(), hasModifier: false };
+        }
+    }
+
+    // 2.5. Check for # (field reference context)
+    const singleHashIdx = trimmed.lastIndexOf('#');
+    if (singleHashIdx !== -1 && 
+        (hashIdx === -1 || singleHashIdx > hashIdx + 1) && 
+        (dollarIdx === -1 || singleHashIdx > dollarIdx)) {
+        
+        // Ensure it's not part of ##
+        if (singleHashIdx === 0 || trimmed[singleHashIdx - 1] !== '#') {
+            const afterHash = trimmed.slice(singleHashIdx + 1);
+            if (!afterHash.includes(':')) {
+                return { type: 'field_reference', partial: afterHash.trim(), hasModifier: false };
+            }
         }
     }
 
@@ -162,6 +225,45 @@ export function detectCompletionContext(
                 partial: '',
                 hasModifier: false
             };
+        }
+
+        // Check for definition-level directive context: `<`
+        const openDirectiveIdx = trimmedLine.lastIndexOf('<');
+        const closeDirectiveIdx = trimmedLine.lastIndexOf('>');
+        if (openDirectiveIdx !== -1 && openDirectiveIdx > closeDirectiveIdx) {
+            const content = trimmedLine.slice(openDirectiveIdx + 1).trimStart();
+            const lastCommaIdx = content.lastIndexOf(',');
+            
+            // If there's a comma, we are in a subsequent item, which skips the directive name
+            const currentItem = lastCommaIdx !== -1 ? content.slice(lastCommaIdx + 1).trimStart() : content;
+            const colonsCount = (currentItem.match(/:/g) || []).length;
+            
+            if (lastCommaIdx === -1) {
+                // First item (e.g. `<InUse: Report: Name` or `<Deftype: Report`)
+                if (colonsCount === 0) {
+                    return { type: 'directive_def_level', partial: currentItem.trim(), hasModifier: false };
+                } else if (colonsCount === 1) {
+                    const colonIdx = currentItem.indexOf(':');
+                    const directiveName = currentItem.slice(0, colonIdx).trim().toLowerCase();
+                    return { type: 'definition_type', partial: currentItem.slice(colonIdx + 1).trimStart(), hasModifier: false, directiveName };
+                } else if (colonsCount === 2) {
+                    const firstColon = currentItem.indexOf(':');
+                    const secondColon = currentItem.indexOf(':', firstColon + 1);
+                    const defType = currentItem.slice(firstColon + 1, secondColon).trim();
+                    const partial = currentItem.slice(secondColon + 1).trimStart();
+                    return { type: 'definition_name', partial, hasModifier: true, defType, isInUse: true };
+                }
+            } else {
+                // Subsequent items (e.g. `... , Form: MixinF`)
+                if (colonsCount === 0) {
+                    return { type: 'definition_type', partial: currentItem.trim(), hasModifier: false };
+                } else if (colonsCount === 1) {
+                    const colonIdx = currentItem.indexOf(':');
+                    const defType = currentItem.slice(0, colonIdx).trim();
+                    const partial = currentItem.slice(colonIdx + 1).trimStart();
+                    return { type: 'definition_name', partial, hasModifier: true, defType, isInUse: true };
+                }
+            }
         }
 
         const colonIndex = lineTextBeforeCursor.indexOf(':');

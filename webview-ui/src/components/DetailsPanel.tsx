@@ -111,7 +111,16 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack }) => {
         listHtml = (
           <div className="references-list">
             {symbols.map((s: any, idx: number) => {
-              const isSchema = node.kind.startsWith('Schema_') && s.serializedProperties;
+              const allProps = s.serializedProperties ? [
+                ...s.serializedProperties,
+                ...(s.serializedComplexProperties || []).map((p: any) => ({
+                  name: p.name,
+                  ObjectName: p.type,
+                  IsComplex: true,
+                  IsRepeated: p.name.toUpperCase().endsWith('.LIST')
+                }))
+              ] : [];
+              const isSchema = node.kind.startsWith('Schema_') && allProps.length > 0;
               
               return (
                 <div 
@@ -167,7 +176,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack }) => {
 
                   {isSchema && viewStyle === 'list' && (
                     <div style={{ marginTop: '12px', display: 'grid', gap: '8px' }}>
-                      {s.serializedProperties.map((prop: any, pIdx: number) => (
+                      {allProps.map((prop: any, pIdx: number) => (
                         <div key={pIdx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', background: 'rgba(0,0,0,0.1)', padding: '6px 10px', borderRadius: '4px', borderLeft: '2px solid var(--border-color)' }}>
                           <span style={{ color: '#dcdcaa' }}>{prop.name}</span>
                           <span>
@@ -197,7 +206,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack }) => {
 
                   {isSchema && viewStyle === 'tree' && (
                     <div style={{ marginTop: '12px' }}>
-                      {s.serializedProperties.map((prop: any, pIdx: number) => (
+                      {allProps.map((prop: any, pIdx: number) => (
                         <SchemaTreeNode key={pIdx} prop={prop} scopeId={node.scopeId} />
                       ))}
                     </div>

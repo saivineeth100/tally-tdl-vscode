@@ -11,10 +11,11 @@ const TreeNode: React.FC<{
   depth: number;
   isOpen: boolean;
   parentPath: string[];
+  parentScopeId?: string;
   onSelectNode: (node: any, path: string[]) => void;
   isSymbolGroup?: boolean;
   symbolCount?: number;
-}> = ({ node, depth, isOpen: defaultOpen, parentPath, onSelectNode, isSymbolGroup, symbolCount }) => {
+}> = ({ node, depth, isOpen: defaultOpen, parentPath, parentScopeId, onSelectNode, isSymbolGroup, symbolCount }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   
   const currentId = isSymbolGroup ? node.kind : (node.id || node.name || "Unknown");
@@ -40,9 +41,9 @@ const TreeNode: React.FC<{
       }
     }
     
-    if (isSymbolGroup) {
-      window.location.hash = `#${parentPath[parentPath.length - 1]}/${node.kind}`;
-      onSelectNode({ _type: 'symbol-group', kind: node.kind, scopeId: parentPath[parentPath.length - 1] }, currentPath);
+    if (isSymbolGroup && parentScopeId) {
+      window.location.hash = `#${parentScopeId}/${node.kind}`;
+      onSelectNode({ _type: 'symbol-group', kind: node.kind, scopeId: parentScopeId }, currentPath);
     } else if (node.kind === 'AttributesCategory' || node.kind === 'SchemasCategory') {
       window.location.hash = `#${node.id}/${node.kind}`;
       onSelectNode({ _type: 'symbol-group', kind: node.kind, scopeId: node.id }, currentPath);
@@ -65,6 +66,7 @@ const TreeNode: React.FC<{
             depth={depth + 1} 
             isOpen={false} 
             parentPath={currentPath} 
+            parentScopeId={currentId}
             onSelectNode={onSelectNode} 
           />
         ))
@@ -81,6 +83,7 @@ const TreeNode: React.FC<{
             depth={depth + 1} 
             isOpen={false} 
             parentPath={currentPath} 
+            parentScopeId={currentId}
             onSelectNode={onSelectNode}
             isSymbolGroup={true}
             symbolCount={group.count}
@@ -145,7 +148,7 @@ const TreeNode: React.FC<{
 
 const ScopeTree: React.FC<ScopeTreeProps> = ({ data, onSelectNode }) => {
   if (!data) return null;
-  return <TreeNode node={data} depth={0} isOpen={false} parentPath={[]} onSelectNode={onSelectNode} />;
+  return <TreeNode node={data} depth={0} isOpen={false} parentPath={[]} parentScopeId={data.id || 'global'} onSelectNode={onSelectNode} />;
 };
 
 export default ScopeTree;

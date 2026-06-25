@@ -4,7 +4,7 @@ import { DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNo
 import { SymbolTable, definitionTypeToSymbolKind, SymbolKind } from "../symbolTable";
 import { normalizeTypeName, getInterchangeableTypes } from "../utils";
 import { areTypesCompatible, inferExpressionType } from "./validationUtils";
-import { validateFunctionCall, validateBinaryExpression } from "./expressionValidation";
+import { validateFunctionCall, validateBinaryExpression, walkAndValidateExpression } from "./expressionValidation";
 import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, UnknownAttributeData, MissingDefinitionData, UnknownSchemaPropertyData } from "../../diagnostics";
 import { ScopeManager } from "../scopeManager";
 
@@ -169,19 +169,16 @@ export function validateDefinitionAttributes(
                 // Validate nested binary expressions
                 validateBinaryExpression(paramNode, doc, scopeManager, diagnostics);
 
-                // If it's a function call, validate arguments recursively
-                if (paramNode.kind === SyntaxKind.FunctionCall) {
-                    validateFunctionCall(
-                        paramNode as FunctionCallNode,
-                        undefined, // Return type is already checked above, just validate arguments
-                        doc,
-                        scopeManager,
-                        diagnostics,
-                        projectNodes
-                    );
-                    continue; // Function handled, skip other validations for this node
-                }
-
+                // Use the new AST walker to recursively validate nested function calls and field references
+                walkAndValidateExpression(
+                    paramNode,
+                    doc,
+                    scopeManager,
+                    diagnostics,
+                    defTypeName + ':' + (def.name?.text || ''),
+                    projectNodes
+                );
+                
                 // If it's another expression (binary/unary), we skip keyword/logical validation for the node itself
                 if ('operator' in paramNode) {
                     continue;

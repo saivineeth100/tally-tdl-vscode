@@ -9,7 +9,8 @@
         { "include": "#numbers" },
         { "include": "#keywords" },
         { "include": "#functions" },
-        { "include": "#variables" }
+        { "include": "#variables" },
+        { "include": "#directives" }
     ],
     "repository": {
         "comments": {
@@ -20,7 +21,7 @@
             "match": "\\[(#|!|\\*)?\\s*(Report|Form|Part|Line|Field|Collection|Menu|Button|Key|Variable|Function|Object|Rule|EventHandler)\\s*:\\s*([^\\]]+)\\]",
             "captures": {
                 "1": { "name": "keyword.operator.modifier.tdl" },
-                "2": { "name": "keyword.other.definition-type.tdl" },
+                "2": { "name": "keyword.control.definition-type.tdl" },
                 "3": { "name": "entity.name.type.tdl" }
             }
         },
@@ -43,6 +44,13 @@
         "variables": {
             "match": "##[A-Za-z_][A-Za-z0-9_]*",
             "name": "variable.other.tdl"
+        },
+        "directives": {
+            "match": "<\\s*(?i)(InUse|Deftype|DefType)\\b\\s*:\\s*([^>]+)>",
+            "captures": {
+                "1": { "name": "storage.type.directive.tdl" },
+                "2": { "name": "string.unquoted.directive-value.tdl" }
+            }
         }
     }
 }

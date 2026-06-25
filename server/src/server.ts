@@ -318,7 +318,7 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
     
     if (scope) {
         let resolved: any;
-        if (ref.expectedType === 'Variable' || ref.expectedType === 'Field' || ref.expectedType === 'Method') {
+        if (ref.expectedType === 'Variable' || ref.expectedType === 'Method') {
             resolved = scopeMgr.resolve(ref.name, scope, projectScope);
         } else if (ref.expectedType === 'Formula') {
             resolved = scopeMgr.resolveFormula(ref.name, scope, projectScope);

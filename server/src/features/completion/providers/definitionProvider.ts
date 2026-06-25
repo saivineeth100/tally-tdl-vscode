@@ -66,20 +66,34 @@ export function getSuggestionsForDefinitionType(
     return items;
 }
 
-export function provideDefinitionTypeCompletions(partial: string, isXml: boolean, defTypes: string[]): CompletionItem[] {
+export function provideDefinitionTypeCompletions(partial: string, isXml: boolean, defTypes: string[], scopeManager: ScopeManager, directiveName?: string): CompletionItem[] {
     const items: CompletionItem[] = [];
     const normalizedPartial = normalizeTypeName(partial);
 
     for (const defType of defTypes) {
         if (normalizedPartial === '' || normalizeTypeName(defType).includes(normalizedPartial)) {
-            const displayType = isXml ? defType.toUpperCase().replace(/\s+/g, '') : defType;
+            let formattedType = scopeManager.definitionTypeLabels?.get(defType) || defType;
+            if (formattedType === defType) {
+                // Fallback to title case
+                formattedType = defType.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+            }
+            const displayType = isXml ? formattedType.toUpperCase().replace(/\s+/g, '') : formattedType;
+            
+            const isDeftype = directiveName === 'deftype';
+            const insertSuffix = isDeftype ? '' : ': ';
+            const insertText = isXml ? `${displayType} NAME="$1">\n\t$0\n</${displayType}>` : `${displayType}${insertSuffix}`;
+            
+            // Only trigger auto-suggest if we appended a colon
+            const command = (!isXml && !isDeftype) ? { title: 'Suggest', command: 'editor.action.triggerSuggest' } : undefined;
+
             items.push({
                 label: displayType,
                 kind: CompletionItemKind.Class,
                 detail: 'TDL Definition Type',
-                insertText: isXml ? `${displayType} NAME="$1">\n\t$0\n</${displayType}>` : `${displayType} : `,
+                insertText,
                 insertTextFormat: isXml ? 2 : undefined,
                 sortText: defType.toLowerCase(),
+                command
             });
         }
     }

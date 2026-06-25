@@ -33,6 +33,49 @@ describe('Semantic Tokens', () => {
         expect(classToken!.type).toBe(SemanticTokenTypes.class);
     });
 
+    it('should tokenize Modifiers', () => {
+        const tdl = `[#Report: Test]`;
+        const tokens = parseAndGetTokens(tdl);
+
+        const modifierToken = tokens.find(t => t.text === '#');
+        expect(modifierToken).toBeDefined();
+        expect(modifierToken!.type).toBe(SemanticTokenTypes.keyword);
+    });
+
+    it('should tokenize Directives', () => {
+        const tdl = `<Deftype: Report>
+        [Report: MyReport]
+        <InUse: Report: Balance Sheet>`;
+        const tokens = parseAndGetTokens(tdl);
+
+        const directiveTypeToken = tokens.find(t => t.text === 'Deftype');
+        expect(directiveTypeToken).toBeDefined();
+        expect(directiveTypeToken!.type).toBe(SemanticTokenTypes.macro);
+
+        const inUseToken = tokens.find(t => t.text === 'InUse');
+        expect(inUseToken).toBeDefined();
+        expect(inUseToken!.type).toBe(SemanticTokenTypes.macro);
+    });
+
+    it('should tokenize Directives with spaces in definition types and names', () => {
+        const tdl = `<Deftype: Report Space>
+        [Report: MyReport]
+        <InUse: Report Space: Some Space Name>`;
+        const tokens = parseAndGetTokens(tdl);
+
+        const deftypeTypeToken = tokens.find(t => t.text === 'Report Space');
+        expect(deftypeTypeToken).toBeDefined();
+        expect(deftypeTypeToken!.type).toBe(SemanticTokenTypes.keyword); // Definition type is highlighted as 'keyword' to match headers
+
+        const inUseTypeToken = tokens.find(t => t.text === 'Report Space');
+        expect(inUseTypeToken).toBeDefined();
+        expect(inUseTypeToken!.type).toBe(SemanticTokenTypes.keyword);
+
+        const inUseNameToken = tokens.find(t => t.text === 'Some Space Name');
+        expect(inUseNameToken).toBeDefined();
+        expect(inUseNameToken!.type).toBe(SemanticTokenTypes.class); // Definition name is highlighted as 'class'
+    });
+
     it('should tokenize Property Names', () => {
         const tdl = `[Report: Test]
             Title: "My Title"`;

@@ -262,15 +262,28 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
         });
     }
 
-    // 2. Tokenize Definitions
+    // 1.5. Tokenize File Level Directives
+    for (const dir of sourceFile.directives) {
+        tokenizeDirective(dir, tokens);
+    }
+
     for (const def of sourceFile.definitions) {
         if (token?.isCancellationRequested) return [];
+        if (def.modifier) {
+            tokens.push({
+                line: 0,
+                startChar: def.modifier.Start,
+                length: def.modifier.Length,
+                type: SemanticTokenTypes.keyword,
+                text: def.modifier.Text
+            });
+        }
         if (def.type) {
             tokens.push({
                 line: 0,
                 startChar: def.type.start,
                 length: def.type.end - def.type.start,
-                type: SemanticTokenTypes.function,
+                type: SemanticTokenTypes.keyword,
                 text: def.type?.text
             });
         }
@@ -279,7 +292,7 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 line: 0,
                 startChar: def.closeType.start,
                 length: def.closeType.end - def.closeType.start,
-                type: SemanticTokenTypes.function,
+                type: SemanticTokenTypes.keyword,
                 text: def.closeType?.text
             });
         }
@@ -298,6 +311,10 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
             });
         }
         const defNameText = normalizeTypeName(def.type?.text || '');
+        for (const dir of def.directives) {
+            tokenizeDirective(dir, tokens);
+        }
+
         traverseAttributes(def.attributes, tokens, defNameText, scopeManager, uri);
         if (def.complexObjects) {
             traverseComplexObjects(def.complexObjects, tokens, defNameText, scopeManager, uri);
@@ -312,6 +329,91 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
     return tokens;
 }
 
+function tokenizeDirective(dir: any, tokens: SemanticToken[]) {
+    const startChar = dir.start;
+    const nameStart = startChar + 1;
+    
+    // Tokenize < and >
+    tokens.push({ line: 0, startChar: dir.start, length: 1, type: SemanticTokenTypes.operator, text: '<' });
+    if (dir.end > dir.start) {
+        tokens.push({ line: 0, startChar: dir.end - 1, length: 1, type: SemanticTokenTypes.operator, text: '>' });
+    }
+
+    if (dir.rawContent) {
+        let i = 0;
+        while ((i = dir.rawContent.indexOf(':', i)) !== -1) {
+            tokens.push({ line: 0, startChar: dir.start + 1 + i, length: 1, type: SemanticTokenTypes.operator, text: ':' });
+            i++;
+        }
+    }
+
+    if (dir.name) {
+        let nameOffset = 0;
+        if (dir.rawContent) {
+            nameOffset = dir.rawContent.indexOf(dir.name);
+            if (nameOffset === -1) nameOffset = 0;
+        }
+        tokens.push({
+            line: 0,
+            startChar: nameStart + nameOffset,
+            length: dir.name.length,
+            type: SemanticTokenTypes.macro,
+            text: dir.name
+        });
+    }
+
+    if (dir.kind === SyntaxKind.InUseDirective) {
+        for (const target of dir.targets) {
+            if (target.typeName) {
+                tokens.push({
+                    line: 0,
+                    startChar: target.typeStart,
+                    length: target.typeName.length,
+                    type: SemanticTokenTypes.keyword, // Match the color of definition headers (e.g. [Field: ...])
+                    text: target.typeName
+                });
+            }
+            if (target.defName) {
+                let tokenType = SemanticTokenTypes.class;
+                const lowerType = (target.typeName || '').toLowerCase();
+                if (lowerType === 'variable') {
+                    tokenType = SemanticTokenTypes.variable;
+                } else if (lowerType === 'function') {
+                    tokenType = SemanticTokenTypes.function;
+                } else if (lowerType === 'system formula' || lowerType === 'formula') {
+                    tokenType = SemanticTokenTypes.macro;
+                }
+
+                tokens.push({
+                    line: 0,
+                    startChar: target.defNameStart,
+                    length: target.defName.length,
+                    type: tokenType,
+                    text: target.defName
+                });
+            }
+        }
+    } else if (dir.kind === SyntaxKind.DefTypeDirective) {
+        if (dir.defType) {
+            tokens.push({
+                line: 0,
+                startChar: dir.defTypeStart,
+                length: dir.defType.length,
+                type: SemanticTokenTypes.keyword, // Match the color of definition headers
+                text: dir.defType
+            });
+        }
+        if (dir.defName && dir.defNameStart !== undefined) {
+            tokens.push({
+                line: 0,
+                startChar: dir.defNameStart,
+                length: dir.defName.length,
+                type: SemanticTokenTypes.class,
+                text: dir.defName
+            });
+        }
+    }
+}
 function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[], defTypeName: string, scopeManager?: ScopeManager, uri?: string) {
 
     for (const attr of attributes) {

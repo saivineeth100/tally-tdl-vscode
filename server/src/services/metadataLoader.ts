@@ -11,7 +11,7 @@ import {
     TDLParameter,
     TDLSchemaProperty
 } from '../models/symbols';
-import { normalizeTypeName, registerInterchangeableTypes } from './utils';
+import { normalizeTypeName, registerInterchangeableTypes, registerInterchangeableAttributes } from './utils';
 
 async function loadJsonSafe<T>(filePath: string): Promise<T | null> {
     return fs.existsSync(filePath) ? JSON.parse(await fsasync.readFile(filePath, 'utf-8')) : null;
@@ -42,8 +42,9 @@ async function loadDefinitionAliases(versionPath: string) {
                 const meta = defMetaData[defType].meta;
                 if (meta && meta.Aliases) {
                     const aliases = meta.Aliases.split(',').map((a: string) => a.trim());
-                    if (aliases.length > 1) {
+                    if (aliases.length > 0) {
                         registerInterchangeableTypes(aliases);
+                        registerInterchangeableAttributes(defType, aliases);
                     }
                 }
             }
@@ -284,7 +285,11 @@ async function loadExistingDefinitions(versionPath: string, manager: ScopeManage
                     defSet.add(normalizeTypeName(defName));
                 }
             }
+            
+            
+
             manager.existingDefinitions.set(normalizeTypeName(defType), defSet);
+            manager.definitionTypeLabels.set(normalizeTypeName(defType), defType);
         }
     }
 }

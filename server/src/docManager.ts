@@ -209,6 +209,9 @@ export class DocManager {
                 if (this.scanQueue.length > 0) {
                     const nextScan = this.scanQueue.shift()!;
                     this.scanWorkspaceFolders(nextScan);
+                } else {
+                    // All queued scans complete! Revalidate open docs so initial 'Missing Definition' diagnostics go away.
+                    this.revalidateAll(this.documents.all()).catch(e => this.connection.console.error(`Revalidation failed: ${e}`));
                 }
             }
         }, 0);
@@ -704,8 +707,10 @@ export class DocManager {
             }
         }
 
-        // Run validations
-        diagnostics.push(...(await validateSourceFile(sourceFile, doc, symTable, scopeMgr, this.resolveIncludePath, this)));
+        // Run cross-file validations only if workspace scan is complete
+        if (!this.scanningInProgress) {
+            diagnostics.push(...(await validateSourceFile(sourceFile, doc, symTable, scopeMgr, this.resolveIncludePath, this)));
+        }
 
         // Store document state
         this.docs.set(doc.uri, { sourceFile, diagnostics });

@@ -4,7 +4,7 @@ import { DocManager } from '../../docManager';
 import { detectCompletionContext, detectXmlCompletionContext, findDefinitionAtCursor, CompletionContext } from './contextAnalyzer';
 import { provideDefinitionTypeCompletions, getSuggestionsForDefinitionType } from './providers/definitionProvider';
 import { provideFunctionCompletions, getFunctionSuggestions } from './providers/functionProvider';
-import { provideVariableCompletions, provideFormulaCompletions } from './providers/variableProvider';
+import { provideVariableCompletions, provideFormulaCompletions, provideFieldReferenceCompletions } from './providers/variableProvider';
 import { provideXmlSchemaAttributeCompletions, provideSchemaTypeCompletions, provideXmlAttributeValueCompletions } from './providers/xmlProvider';
 import { provideAttributeCompletions, provideAttributeValueCompletions } from './providers/attributeProvider';
 import { provideModifierValueCompletions } from './providers/modifierProvider';
@@ -61,15 +61,39 @@ export function registerCompletion(
 
             case 'definition_type':
                 const defTypes = Array.from(scopeManager.existingDefinitions.keys());
-                items.push(...provideDefinitionTypeCompletions(context.partial, isXml, defTypes));
+                items.push(...provideDefinitionTypeCompletions(context.partial, isXml, defTypes, scopeManager, context.directiveName));
                 break;
 
+            case 'directive_file_level':
+                items.push({
+                    label: 'Deftype',
+                    kind: CompletionItemKind.Keyword,
+                    insertText: 'Deftype: ',
+                    documentation: {
+                        kind: MarkupKind.Markdown,
+                        value: 'Defines the type of the following definition.'
+                    },
+                    command: { title: 'Suggest', command: 'editor.action.triggerSuggest' }
+                });
+                break;
+            case 'directive_def_level':
+                items.push({
+                    label: 'InUse',
+                    kind: CompletionItemKind.Keyword,
+                    insertText: 'InUse: ',
+                    documentation: {
+                        kind: MarkupKind.Markdown,
+                        value: 'Dynamically inherit definitions from another definition.'
+                    },
+                    command: { title: 'Suggest', command: 'editor.action.triggerSuggest' }
+                });
+                break;
             case 'definition_name':
                 if (context.defType) {
                     const lowerType = context.defType.toLowerCase();
                     if (lowerType === 'include' || lowerType === 'import') {
                         items.push(...(await provideFilePathCompletions(params.textDocument.uri, context.partial, manager.workspaceFolders)));
-                    } else if (context.hasModifier) {
+                    } else if (context.hasModifier || context.isInUse) {
                         items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, symbolTable, projectScope));
                     }
                 }
@@ -81,6 +105,10 @@ export function registerCompletion(
 
             case 'variable':
                 items.push(...provideVariableCompletions(manager, params.textDocument.uri, offset, context.partial, symbolTable));
+                break;
+
+            case 'field_reference':
+                items.push(...provideFieldReferenceCompletions(manager, params.textDocument.uri, offset, context.partial));
                 break;
 
             case 'formula': // Legacy

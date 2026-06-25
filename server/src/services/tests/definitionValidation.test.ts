@@ -17,7 +17,8 @@ describe('Definition Validation (Mocked)', () => {
     mockScopeManager.existingDefinitions = new Map<string, Set<string>>([
         ['report', new Set(['balancesheet', 'trialbalance'])],
         ['field', new Set(['name', 'amount'])],
-        ['menu', new Set()]
+        ['menu', new Set()],
+        ['form', new Set()]
     ]);
 
     // Mock definitions map for attributes using attributes map in globalScope
@@ -153,6 +154,86 @@ describe('Definition Validation (Mocked)', () => {
 
         const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager, undefined, mockDocManager);
         const warning = diagnostics.find(d => d.message.includes('not included in the project'));
+        expect(warning).toBeDefined();
+        expect(warning?.severity).toBe(DiagnosticSeverity.Warning);
+    });
+
+    it('should emit warning for InUse directive with missing definition', async () => {
+        const tdl = `[Report: ChildReport]
+            <InUse: Report: MissingReport>`;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
+
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
+        const warning = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
+        expect(warning).toBeDefined();
+        expect(warning?.severity).toBe(DiagnosticSeverity.Warning);
+    });
+
+    it('should NOT emit warning for InUse directive with valid definition', async () => {
+        const tdl = `[Report: ChildReport]
+            <InUse: Report: Balance Sheet>`;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
+
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
+        expect(diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code)).toBeUndefined();
+    });
+
+    it('should emit warning for InUse directive with unknown type', async () => {
+        const tdl = `[Report: ChildReport]
+            <InUse: InvalidType: Mixin>`;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
+
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
+        const warning = diagnostics.find(d => d.code === DiagnosticRules.UnknownDefinitionType.code);
+        expect(warning).toBeDefined();
+        expect(warning?.severity).toBe(DiagnosticSeverity.Warning);
+    });
+
+    it('should validate multiple comma-separated definitions in InUse directive', async () => {
+        const tdl = `[Report: ChildReport]
+            <InUse: Report: Balance Sheet, Form: MissingForm, MixinReport>`;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
+
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
+        
+        // Report: Balance Sheet -> valid
+        // Form: MissingForm -> invalid (MissingDefinition)
+        // MixinReport -> invalid (MissingDefinition for Report type)
+        const warnings = diagnostics.filter(d => d.code === DiagnosticRules.MissingDefinition.code);
+        expect(warnings.length).toBe(2);
+        expect(warnings[0].message).toContain('MissingForm');
+        expect(warnings[1].message).toContain('MixinReport');
+    });
+
+    it('should validate file-level Deftype directive', async () => {
+        const tdl = `<Deftype: Report>
+        [MyReport]`;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
+
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
+        const warning = diagnostics.find(d => d.code === DiagnosticRules.UnknownDefinitionType.code);
+        expect(warning).toBeUndefined();
+    });
+
+    it('should emit warning for file-level Deftype directive with invalid type', async () => {
+        const tdl = `<Deftype: InvalidDefType>
+        [MyReport]`;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
+
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
+        const warning = diagnostics.find(d => d.code === DiagnosticRules.UnknownDefinitionType.code);
         expect(warning).toBeDefined();
         expect(warning?.severity).toBe(DiagnosticSeverity.Warning);
     });

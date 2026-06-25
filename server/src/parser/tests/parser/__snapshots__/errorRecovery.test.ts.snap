@@ -209,6 +209,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should continue
       },
     },
   ],
+  "directives": [],
   "end": 34,
   "errors": [
     {
@@ -466,6 +467,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should create D
       },
     },
   ],
+  "directives": [],
   "end": 12,
   "errors": [
     {
@@ -619,6 +621,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should create D
       },
     },
   ],
+  "directives": [],
   "end": 8,
   "errors": [
     {
@@ -742,6 +745,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should handle e
       },
     },
   ],
+  "directives": [],
   "end": 2,
   "errors": [
     {
@@ -893,6 +897,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should parse co
       },
     },
   ],
+  "directives": [],
   "end": 18,
   "errors": [],
   "kind": 0,
@@ -1058,6 +1063,7 @@ exports[`Parser Error Recovery > Incomplete Definition Parsing > should parse mo
       },
     },
   ],
+  "directives": [],
   "end": 9,
   "errors": [
     {
@@ -1238,6 +1244,7 @@ exports[`Parser Error Recovery > Modifier Parsing > should parse ! modifier 1`] 
       },
     },
   ],
+  "directives": [],
   "end": 19,
   "errors": [],
   "kind": 0,
@@ -1442,6 +1449,7 @@ exports[`Parser Error Recovery > Modifier Parsing > should parse # modifier 1`] 
       },
     },
   ],
+  "directives": [],
   "end": 19,
   "errors": [],
   "kind": 0,
@@ -1646,6 +1654,7 @@ exports[`Parser Error Recovery > Modifier Parsing > should parse * modifier 1`] 
       },
     },
   ],
+  "directives": [],
   "end": 19,
   "errors": [],
   "kind": 0,
@@ -1794,10 +1803,22 @@ exports[`Parser Error Recovery > Procedural Block Errors > should capture Expect
       "directives": [
         {
           "end": 63,
-          "kind": 18,
+          "kind": 19,
           "name": "InUse",
+          "rawContent": "InUse:Key:License",
           "start": 44,
-          "value": "Key:License",
+          "targets": [
+            {
+              "defName": "License",
+              "defNameEnd": 62,
+              "defNameStart": 55,
+              "end": 62,
+              "start": 51,
+              "typeEnd": 54,
+              "typeName": "Key",
+              "typeStart": 51,
+            },
+          ],
         },
       ],
       "end": 94,
@@ -1956,6 +1977,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should capture Expect
       },
     },
   ],
+  "directives": [],
   "end": 94,
   "errors": [],
   "kind": 0,
@@ -2740,6 +2762,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect mismatc
       },
     },
   ],
+  "directives": [],
   "end": 136,
   "errors": [
     {
@@ -3653,6 +3676,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect mismatc
       },
     },
   ],
+  "directives": [],
   "end": 111,
   "errors": [
     {
@@ -4532,6 +4556,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
       },
     },
   ],
+  "directives": [],
   "end": 112,
   "errors": [
     {
@@ -5318,6 +5343,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
       },
     },
   ],
+  "directives": [],
   "end": 92,
   "errors": [
     {
@@ -6019,6 +6045,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
       },
     },
   ],
+  "directives": [],
   "end": 113,
   "errors": [
     {
@@ -6715,6 +6742,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unclose
       },
     },
   ],
+  "directives": [],
   "end": 84,
   "errors": [
     {
@@ -7372,6 +7400,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should detect unmatch
       },
     },
   ],
+  "directives": [],
   "end": 91,
   "errors": [
     {
@@ -8242,6 +8271,7 @@ exports[`Parser Error Recovery > Procedural Block Errors > should fail gracefull
       },
     },
   ],
+  "directives": [],
   "end": 226,
   "errors": [],
   "kind": 0,

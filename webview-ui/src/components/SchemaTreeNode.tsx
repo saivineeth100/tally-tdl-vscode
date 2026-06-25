@@ -78,7 +78,15 @@ export const SchemaTreeNode: React.FC<SchemaTreeNodeProps> = ({ prop, scopeId })
       
       {expanded && childrenResult && childrenResult.symbols && childrenResult.symbols.length > 0 && (
         <div style={{ marginLeft: '12px', borderLeft: '1px dashed rgba(255,255,255,0.1)' }}>
-          {childrenResult.symbols[0].serializedProperties.map((childProp: any, idx: number) => (
+          {[
+            ...childrenResult.symbols[0].serializedProperties,
+            ...(childrenResult.symbols[0].serializedComplexProperties || []).map((p: any) => ({
+              name: p.name,
+              ObjectName: p.type,
+              IsComplex: true,
+              IsRepeated: p.name.toUpperCase().endsWith('.LIST')
+            }))
+          ].map((childProp: any, idx: number) => (
             <SchemaTreeNode key={idx} prop={childProp} scopeId={scopeId} />
           ))}
         </div>

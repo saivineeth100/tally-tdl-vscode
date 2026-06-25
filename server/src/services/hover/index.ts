@@ -1,5 +1,6 @@
 import { SourceFile, SyntaxKind, IdentifierNode, FunctionCallNode, Node } from '../../parser/ast';
-import { ScopeManager } from '../scopeManager';
+import { ScopeManager, getFieldsInScope } from '../scopeManager';
+import { normalizeTypeName } from '../utils';
 import { findFunctionCallAtOffset } from './astResolver';
 import { findDefinitionAtOffset, findNodeAtOffset, findAttributeAtOffset, findStatementAtOffset } from '../../parser/astQuery';
 import { 
@@ -64,8 +65,8 @@ export function getHoverInfo(
                 }
             }
             
-            if (foundText.startsWith('##') || foundText.startsWith('#')) {
-                const varName = foundText.replace(/^##?/, '');
+            if (foundText.startsWith('##')) {
+                const varName = foundText.substring(2);
                 const resolved = scopeManager.resolveVariable(varName, scope, projectScope);
                 if (resolved) {
                     if (resolved.uri === 'global:metadata' || (resolved.start === 0 && resolved.end === 0)) {
@@ -75,14 +76,36 @@ export function getHoverInfo(
                         };
                     } else {
                         return {
-                            type: 'attribute', // legacy type naming
+                            type: 'attribute',
                             content: `**${foundText}**\n\n*Type: ${resolved.definitionType}*\n*Scope: ${resolved.uri === uri ? 'Local' : 'Project/Global'}*\n*Source: ${resolved.uri}*`
                         };
                     }
                 } else {
                     return {
                         type: 'attribute',
-                        content: `**${foundText}**\n\n*Unknown variable/field*`
+                        content: `**${foundText}**\n\n*Unknown variable*`
+                    };
+                }
+            } else if (foundText.startsWith('#') && !foundText.startsWith('##')) {
+                const fieldName = foundText.substring(1);
+                
+                const inScopeFields = getFieldsInScope({
+                    state: scopeManager,
+                    initialScope: scope,
+                    visitedScopes: new Set()
+                }, scopeManager.globalScope, scopeManager.projectScope);
+
+                const resolvedField = inScopeFields.find(f => normalizeTypeName(f.name) === normalizeTypeName(fieldName));
+
+                if (resolvedField) {
+                    return {
+                        type: 'attribute',
+                        content: `**${foundText}**\n\n*Type: Field*\n*Scope: ${resolvedField.uri === uri ? 'Local' : 'Project/Global'}*\n*Source: ${resolvedField.uri}*`
+                    };
+                } else {
+                    return {
+                        type: 'attribute',
+                        content: `**${foundText}**\n\n*Unknown field reference*`
                     };
                 }
             }

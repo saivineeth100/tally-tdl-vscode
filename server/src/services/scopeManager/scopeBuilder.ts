@@ -11,6 +11,7 @@ export interface IScopeManager {
     parentDefinitions: Map<string, Set<string>>;
     childDefinitions: Map<string, Set<string>>;
     useInheritance: Map<string, Set<string>>;
+    inUseInheritance: Map<string, Set<string>>;
     includedFiles: Set<string>;
     
     createFileScope(id: string, parent: import('./types').ProjectScope, range: import('./types').OffsetRange, uri: string): import('./types').FileScope;
@@ -20,7 +21,7 @@ export interface IScopeManager {
     removeFileScope(uri: string): void;
     findDefinitionScope(id: string): Scope | undefined;
     registerModifierContribution?(contribution: import('./types').ModifierContribution): void;
-    recordGraphContribution?(uri: string, type: 'parentDef' | 'childDef' | 'useInherit' | 'include' | 'modifier', key1: string, key2?: string): void;
+    recordGraphContribution?: (uri: string, type: 'parentDef' | 'childDef' | 'useInherit' | 'inUseInherit' | 'include' | 'modifier', key1: string, key2?: string) => void;
 }
 
 export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: SourceFile): Scope {
@@ -81,6 +82,19 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                 : manager.createDefinitionScope(defId, fileScope, { start: def.start, end: def.end }, uri);
         }
 
+        const defSymbol = {
+            name: def.name?.text || '',
+            kind: definitionTypeToSymbolKind(def.type?.text || ''),
+            uri: uri,
+            start: def.start,
+            end: def.end,
+            definitionType: def.type?.text || ''
+        } as DefinitionSymbol;
+
+        if (defScope.kind === ScopeKind.Definition || defScope.kind === ScopeKind.Function) {
+            defScope.definition = defSymbol;
+        }
+
         // Register non-incomplete definitions in projectScope.definitions (including ! modifiers)
         if (!def.isIncomplete && def.name && (!def.modifier || def.modifier.Text === '!')) {
             const defTypeLower = normalizeTypeName(def.type?.text || '');
@@ -91,14 +105,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
             }
             const defNameLower = normalizeTypeName(def.name.text);
             if (!typeMap.has(defNameLower)) {
-                typeMap.set(defNameLower, {
-                    name: def.name.text,
-                    kind: definitionTypeToSymbolKind(def.type?.text || ''),
-                    uri: uri,
-                    start: def.start,
-                    end: def.end,
-                    definitionType: def.type?.text || ''
-                } as DefinitionSymbol);
+                typeMap.set(defNameLower, defSymbol);
                 // The definition map is automatically cleared on rebuild by ScopeManager.removeFileScope
             }
         }
@@ -168,6 +175,35 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                             }
                             if (manager.recordGraphContribution) {
                                 manager.recordGraphContribution(uri, 'useInherit', defId.toLowerCase(), parentDefId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Process Directives (e.g., <InUse: Collection: RMColl, Report: MixinR>)
+            for (const dir of def.directives || []) {
+                if (dir.kind === SyntaxKind.InUseDirective) {
+                    const inUseDir = dir as any; // Cast as any or properly import InUseDirectiveNode if not done
+                    for (const target of inUseDir.targets) {
+                        let inheritType = target.typeName;
+                        let inheritName = target.defName;
+
+                        if (!inheritType) {
+                            inheritType = def.type?.text || 'Def';
+                        }
+
+                        if (inheritName) {
+                            const parentDefId = `${inheritType}:${inheritName}`.toLowerCase();
+                            let uses = manager.inUseInheritance.get(defId.toLowerCase());
+                            if (!uses) {
+                                uses = new Set<string>();
+                                manager.inUseInheritance.set(defId.toLowerCase(), uses);
+                            }
+                            uses.add(parentDefId);
+                            
+                            if (manager.recordGraphContribution) {
+                                manager.recordGraphContribution(uri, 'inUseInherit', defId.toLowerCase(), parentDefId);
                             }
                         }
                     }

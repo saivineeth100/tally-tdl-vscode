@@ -1,9 +1,10 @@
 import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, FormulaSymbol, DefinitionSymbol, AttributeSymbol, ActionSymbol, SchemaSymbol } from '../symbolTable';
-import { Scope, ScopeKind, definitionTypeToSymbolKind, hasFunctionsAndActions, hasDefinitions, hasAttributes, hasSchemas } from './types';
+import { Scope, ScopeKind, definitionTypeToSymbolKind, hasFunctionsAndActions, hasDefinitions, hasAttributes, hasSchemas, GlobalScope, ProjectScope } from './types';
 import { normalizeTypeName, getInterchangeableTypes } from '../utils';
 
 export interface IScopeResolverState {
     useInheritance: Map<string, Set<string>>;
+    inUseInheritance: Map<string, Set<string>>;
     parentDefinitions: Map<string, Set<string>>;
     childDefinitions: Map<string, Set<string>>;
     metadata?: any;
@@ -43,6 +44,18 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
         const uses = state.useInheritance.get(scope.id.toLowerCase());
         if (uses) {
             for (const useId of uses) {
+                const useScope = state.findDefinitionScope(useId);
+                if (useScope) {
+                    const res = searchScopeAndParents(useScope);
+                    if (res !== undefined) return res;
+                }
+            }
+        }
+        
+        // Check InUse inheritance
+        const inUses = state.inUseInheritance.get(scope.id.toLowerCase());
+        if (inUses) {
+            for (const useId of inUses) {
                 const useScope = state.findDefinitionScope(useId);
                 if (useScope) {
                     const res = searchScopeAndParents(useScope);
@@ -101,6 +114,92 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
 }
 
 /**
+ * Resolves all available Fields that are "in scope" for a given context.
+ * Useful for resolving `#FieldName` references.
+ * Traverses UP to the structural roots (e.g., Form, Report) then DOWN to collect all Fields.
+ * If the current definition is a Collection/Function, falls back to all fields in the project.
+ */
+export function getFieldsInScope(context: ResolutionContext, globalScope?: GlobalScope, projectScope?: ProjectScope): SymbolInfo[] {
+    const { state, initialScope } = context;
+    const fields = new Map<string, SymbolInfo>();
+    const visitedParents = new Set<string>();
+    const roots = new Set<string>();
+    
+    // We start traversal from the definition ID containing the scope
+    let currentDefId = '';
+    
+    // Find the nearest definition scope
+    let currentScope: Scope | undefined = initialScope;
+    while (currentScope && currentScope.kind !== ScopeKind.Definition) {
+        currentScope = currentScope.parent;
+    }
+    
+    if (currentScope && currentScope.kind === ScopeKind.Definition) {
+        currentDefId = currentScope.id.toLowerCase();
+    }
+
+    if (currentDefId) {
+        const findRoots = (id: string) => {
+            if (visitedParents.has(id)) return;
+            visitedParents.add(id);
+            
+            const parents = state.parentDefinitions.get(id);
+            const hasParents = parents && parents.size > 0;
+
+            if (!hasParents) {
+                roots.add(id);
+            } else {
+                for (const parentId of parents) {
+                    findRoots(parentId);
+                }
+            }
+        };
+
+        findRoots(currentDefId);
+
+        const visitedChildren = new Set<string>();
+        const collectFields = (id: string) => {
+            if (visitedChildren.has(id)) return;
+            visitedChildren.add(id);
+
+            if (id.startsWith('field:')) {
+                const scope = state.findDefinitionScope(id);
+                if (scope && scope.kind === ScopeKind.Definition && (scope as import('./types').DefinitionScope).definition) {
+                    fields.set(id, (scope as import('./types').DefinitionScope).definition!);
+                }
+            }
+
+            const children = state.childDefinitions.get(id);
+            if (children) {
+                for (const childId of children) {
+                    collectFields(childId);
+                }
+            }
+
+            const uses = state.useInheritance.get(id);
+            if (uses) {
+                for (const useId of uses) {
+                    collectFields(useId);
+                }
+            }
+
+            const inUses = state.inUseInheritance.get(id);
+            if (inUses) {
+                for (const useId of inUses) {
+                    collectFields(useId);
+                }
+            }
+        };
+
+        for (const root of roots) {
+            collectFields(root);
+        }
+    }
+
+    return Array.from(fields.values());
+}
+
+/**
  * Core traversal engine for aggregations (collecting all matches).
  */
 function visitScopes(context: ResolutionContext, visitor: VisitorStrategy, localOnly: boolean = false): void {
@@ -118,6 +217,17 @@ function visitScopes(context: ResolutionContext, visitor: VisitorStrategy, local
         const uses = state.useInheritance.get(scope.id.toLowerCase());
         if (uses) {
             for (const useId of uses) {
+                const useScope = state.findDefinitionScope(useId);
+                if (useScope) {
+                    walkScopeAndParents(useScope);
+                }
+            }
+        }
+
+        // Check InUse inheritance
+        const inUses = state.inUseInheritance.get(scope.id.toLowerCase());
+        if (inUses) {
+            for (const useId of inUses) {
                 const useScope = state.findDefinitionScope(useId);
                 if (useScope) {
                     walkScopeAndParents(useScope);

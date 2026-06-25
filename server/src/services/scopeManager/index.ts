@@ -19,6 +19,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     public fileMap = new Map<string, Scope>(); // URI -> FileScope
     public metadata: any;
     public existingDefinitions = new Map<string, Set<string>>();
+    public definitionTypeLabels = new Map<string, string>(); // normalized -> Original Casing
     public keywordSets = new Map<string, string[]>();
     public primarySchemaNames: string[] = [];
 
@@ -37,6 +38,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     public childDefinitions = new Map<string, Set<string>>();
     /** Tracks 'Use' inheritance graph (DefinitionId -> Set of ParentDefinitionIds it Uses) */
     public useInheritance = new Map<string, Set<string>>();
+    public inUseInheritance = new Map<string, Set<string>>();
     /** Tracks explicitly included files across the project */
     public includedFiles = new Set<string>();
     
@@ -45,6 +47,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         parentDefs: Set<string>;
         childDefs: Set<string>;
         useInherit: Set<string>;
+        inUseInherit: Set<string>;
         includes: Set<string>;
         modifiers: Set<string>;
     }>();
@@ -214,6 +217,14 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
                     if (set.size === 0) this.useInheritance.delete(defId);
                 }
             }
+            for (const item of contributions.inUseInherit) {
+                const [defId, parentDefId] = item.split('::');
+                const set = this.inUseInheritance.get(defId);
+                if (set) {
+                    set.delete(parentDefId);
+                    if (set.size === 0) this.inUseInheritance.delete(defId);
+                }
+            }
             for (const inc of contributions.includes) {
                 this.includedFiles.delete(inc);
             }
@@ -240,7 +251,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         this.recordGraphContribution(contribution.uri, 'modifier', key);
     }
 
-    public recordGraphContribution(uri: string, type: 'parentDef' | 'childDef' | 'useInherit' | 'include' | 'modifier', key1: string, key2?: string): void {
+    public recordGraphContribution(uri: string, type: 'parentDef' | 'childDef' | 'useInherit' | 'inUseInherit' | 'include' | 'modifier', key1: string, key2?: string): void {
         if (!this.uriGraphContributions) this.uriGraphContributions = new Map();
         let contrib = this.uriGraphContributions.get(uri);
         if (!contrib) {
@@ -248,6 +259,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
                 parentDefs: new Set<string>(),
                 childDefs: new Set<string>(),
                 useInherit: new Set<string>(),
+                inUseInherit: new Set<string>(),
                 includes: new Set<string>(),
                 modifiers: new Set<string>()
             };
@@ -257,6 +269,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         if (type === 'parentDef' && key2) contrib.parentDefs.add(`${key1}::${key2}`);
         if (type === 'childDef' && key2) contrib.childDefs.add(`${key1}::${key2}`);
         if (type === 'useInherit' && key2) contrib.useInherit.add(`${key1}::${key2}`);
+        if (type === 'inUseInherit' && key2) contrib.inUseInherit.add(`${key1}::${key2}`);
         if (type === 'include') contrib.includes.add(key1);
         if (type === 'modifier') contrib.modifiers.add(key1);
     }

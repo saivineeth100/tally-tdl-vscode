@@ -1,6 +1,6 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { SourceFile, SyntaxKind, IdentifierNode, FunctionCallNode, BinaryExpressionNode, Node, BreakNode, ContinueNode, ReturnNode, SetNode, ExchangeNode, IncrementNode, DecrementNode, WhileNode, WalkNode, ForNode, DoIfNode, BlockStatementNode } from "../../parser/ast";
+import { SourceFile, SyntaxKind, IdentifierNode, FunctionCallNode, BinaryExpressionNode, Node, BreakNode, ContinueNode, ReturnNode, SetNode, ExchangeNode, IncrementNode, DecrementNode, WhileNode, WalkNode, ForNode, DoIfNode, BlockStatementNode, InUseDirectiveNode, DefTypeDirectiveNode } from "../../parser/ast";
 import { SymbolTable, definitionTypeToSymbolKind } from "../symbolTable";
 import { normalizeTypeName } from "../utils";
 import { ScopeManager } from "../scopeManager";
@@ -36,6 +36,22 @@ export async function validateSourceFile(
 
     if (!scopeManager) {
         return diagnostics;
+    }
+
+    // Validate file-level directives (Deftype)
+    for (const dir of sourceFile.directives) {
+        if (dir.kind === SyntaxKind.DefTypeDirective) {
+            const defTypeDir = dir as DefTypeDirectiveNode;
+            const normalizedType = normalizeTypeName(defTypeDir.defType);
+            const existingDefMap = scopeManager.existingDefinitions.get(normalizedType);
+            if (!existingDefMap) {
+                diagnostics.push(createDiagnostic(
+                    DiagnosticRules.UnknownDefinitionType,
+                    { start: doc.positionAt(defTypeDir.defTypeStart), end: doc.positionAt(defTypeDir.defTypeEnd) },
+                    defTypeDir.defType
+                ));
+            }
+        }
     }
 
     for (const def of sourceFile.definitions) {
@@ -127,6 +143,49 @@ export async function validateSourceFile(
                     }
                 }
             }
+            }
+        }
+        
+        // Validate directives
+        if (def.directives && scopeManager) {
+            for (const dir of def.directives) {
+                if (dir.kind === SyntaxKind.InUseDirective) {
+                    const inUseDir = dir as InUseDirectiveNode;
+                    for (const target of inUseDir.targets) {
+                        let targetDefType = target.typeName;
+                        let targetDefName = target.defName;
+                        
+                        if (!targetDefType) {
+                            targetDefType = def.type ? def.type.text : '';
+                        }
+                        
+                        if (targetDefType && targetDefName) {
+                            const normalizedType = normalizeTypeName(targetDefType);
+                            const existingDefMap = scopeManager.existingDefinitions.get(normalizedType);
+                            
+                            if (!existingDefMap) {
+                                diagnostics.push(createDiagnostic(
+                                    DiagnosticRules.UnknownDefinitionType,
+                                    { start: doc.positionAt(target.typeStart || dir.start), end: doc.positionAt(target.typeEnd || dir.end) },
+                                    targetDefType
+                                ));
+                            } else {
+                                const resolvedDef = scopeManager.resolveDefinition(targetDefName, targetDefType, scopeManager.projectScope, projectNodes);
+                                let exists = !!resolvedDef;
+                                
+                                if (!exists) {
+                                    // Default severity for MissingDefinition is Warning
+                                    diagnostics.push(createDiagnostic(
+                                        DiagnosticRules.MissingDefinition,
+                                        { start: doc.positionAt(target.defNameStart || dir.start), end: doc.positionAt(target.defNameEnd || dir.end) },
+                                        targetDefName,
+                                        targetDefType
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         

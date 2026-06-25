@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { ScopeManager, ScopeKind, definitionTypeToSymbolKind, symbolKindToLSPSymbolKind, hasFunctionsAndActions, hasDefinitions, hasAttributes, hasSchemas } from '../scopeManager';
+import { ScopeManager, ScopeKind, definitionTypeToSymbolKind, symbolKindToLSPSymbolKind, hasFunctionsAndActions, hasDefinitions, hasAttributes, hasSchemas, getFieldsInScope } from '../scopeManager';
 import { SymbolKind as LSPSymbolKind } from 'vscode-languageserver';
 import { SymbolTable, SymbolKind } from '../symbolTable';
 import { SourceFile, SyntaxKind } from '../../parser/ast';
+import { Parser } from '../../parser/parser';
 
 describe('ScopeManager', () => {
     it('should create root scopes on initialization', () => {
@@ -897,22 +898,22 @@ describe('ScopeManager', () => {
             const allResult = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, '');
             expect(allResult.symbols.length).toBe(2);
 
-            // Search by Attribute Name
+            // Search by Attribute Name should not match inside categories
             const result1 = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, 'Format');
-            expect(result1.symbols.length).toBe(1);
-            expect(result1.symbols[0].name).toBe('Format');
+            expect(result1.symbols.length).toBe(0);
 
-            // Search by Definition Type (Form matches "Format" (attribute name) and "Form" (definition type))
-            const result2 = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, 'Form');
-            expect(result2.symbols.length).toBe(2);
+            // Search by Definition Type (Form)
+            const result2 = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, 'form');
+            expect(result2.symbols.length).toBe(1);
+            expect(result2.symbols[0].name).toBe('form');
 
-            // Search by specific Definition Type
-            const result3 = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, 'Report');
+            // Search within attribute_report
+            const result3 = manager.viewer.getSymbolsPaginated('global', 'attribute_report', 1, 10, 'Format');
             expect(result3.symbols.length).toBe(1);
             expect(result3.symbols[0].name).toBe('Format');
             
             // Search no match
-            const result4 = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10, 'XYZ');
+            const result4 = manager.viewer.getSymbolsPaginated('global', 'attribute_report', 1, 10, 'XYZ');
             expect(result4.symbols.length).toBe(0);
         });
         
@@ -929,6 +930,138 @@ describe('ScopeManager', () => {
             // The fake scopeId "global_Attributes" should be resolved to "global"
             const resultAttr = manager.viewer.getSymbolsPaginated('global_Attributes', 'AttributesCategory', 1, 10);
             expect(resultAttr.symbols.length).toBe(0); // Works, just returns 0 since no attributes registered
+        });
+    });
+
+    describe('getFieldsInScope', () => {
+        it('should return fields from a structural hierarchy', () => {
+            const symbolTable = new SymbolTable();
+            const manager = new ScopeManager(symbolTable);
+            manager.recordGraphContribution = () => {}; // mock graph record
+
+            const tdl = `
+                [Report: MyReport]
+                    Form: MyForm
+                [Form: MyForm]
+                    Part: MyPart
+                [Part: MyPart]
+                    Line: MyLine
+                [Line: MyLine]
+                    Fields: Field1, Field2
+                [Field: Field1]
+                    Set As: "1"
+                [Field: Field2]
+                    Set As: "2"
+            `;
+            
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            manager.buildFileScope('file://test.tdl', sourceFile);
+
+            // Fetch the scope for the Report to start resolution from
+            const reportScope = manager.findDefinitionScope('report:myreport');
+            expect(reportScope).toBeDefined();
+
+            const fields = getFieldsInScope({
+                state: manager,
+                initialScope: reportScope!,
+                visitedScopes: new Set()
+            });
+
+            expect(fields).toHaveLength(2);
+            expect(fields.find(f => f.name.toLowerCase() === 'field1')).toBeDefined();
+            expect(fields.find(f => f.name.toLowerCase() === 'field2')).toBeDefined();
+        });
+
+        it('should return no fields if definition is not in a structural hierarchy with fields', () => {
+            const symbolTable = new SymbolTable();
+            const manager = new ScopeManager(symbolTable);
+            
+            const tdl = `
+                [Line: StandaloneLine]
+                    Local Formula: MyFormula
+            `;
+            
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            manager.buildFileScope('file://test.tdl', sourceFile);
+
+            const lineScope = manager.findDefinitionScope('line:standaloneline');
+            expect(lineScope).toBeDefined();
+
+            const fields = getFieldsInScope({
+                state: manager,
+                initialScope: lineScope!,
+                visitedScopes: new Set()
+            }, manager.globalScope, manager.projectScope);
+
+            // It should NOT fall back to returning the entire project's fields
+            expect(fields).toHaveLength(0);
+        });
+
+        it('should collect fields from inherited definitions via Use attribute and InUse directive', () => {
+            const symbolTable = new SymbolTable();
+            const manager = new ScopeManager(symbolTable);
+            manager.recordGraphContribution = () => {};
+
+            const tdl = `
+[Report: ChildReport]
+    Use: ParentReport
+    <InUse: Report: MixinReport>
+
+[Report: ParentReport]
+    Form: ParentForm
+
+[Form: ParentForm]
+    Part: ParentPart
+
+[Part: ParentPart]
+    Line: ParentLine
+
+[Line: ParentLine]
+    Fields: ParentField
+
+[Field: ParentField]
+    Set As: "Parent"
+
+[Report: MixinReport]
+    Form: MixinForm
+                
+[Form: MixinForm]
+    Part: MixinPart
+                
+[Part: MixinPart]
+    Line: MixinLine
+                
+[Line: MixinLine]
+    Fields: MixinField
+                
+[Field: MixinField]
+    Set As: "Mixin"
+            `;
+
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            manager.buildFileScope('file://test.tdl', sourceFile);
+            
+            const reportScope = manager.findDefinitionScope('report:childreport');
+            expect(reportScope).toBeDefined();
+
+            const fields = getFieldsInScope({
+                state: manager,
+                initialScope: reportScope!,
+                visitedScopes: new Set()
+            });
+
+            // It should find both ParentField (via Use) and MixinField (via InUse)
+            expect(fields).toHaveLength(2);
+            expect(fields.find(f => f.name.toLowerCase() === 'parentfield')).toBeDefined();
+            expect(fields.find(f => f.name.toLowerCase() === 'mixinfield')).toBeDefined();
+
+            // Verify they are kept in separate inheritance maps
+            expect(manager.useInheritance.get('report:childreport')).toContain('report:parentreport');
+            expect(manager.useInheritance.get('report:childreport')).not.toContain('report:mixinreport');
+            expect(manager.inUseInheritance.get('report:childreport')).toContain('report:mixinreport');
         });
     });
 });

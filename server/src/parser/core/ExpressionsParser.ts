@@ -43,10 +43,20 @@ export class ExpressionsParser extends ParserState {
     return this.ParseStringExpression();
   }
 
+  protected CheckNewLineBeforeCurrentToken(): boolean {
+    return (
+      (this.CurrentToken.Kind as TokenKind) === TokenKind.LineFeed ||
+      (this.CurrentToken.Kind as TokenKind) === TokenKind.CarriageReturn ||
+      (this.CurrentToken.Kind as TokenKind) === TokenKind.CarriageReturnLineFeed ||
+      this.HasNewLine(this.PreviousToken, true) ||
+      this.HasNewLine(this.CurrentToken, false)
+    );
+  }
+
   protected ParseStringExpression(): any | undefined {
     let left = this.ParseComparisonExpression();
 
-    while (left && this.IsStringOperator(this.CurrentToken.Kind)) {
+    while (left && !this.CheckNewLineBeforeCurrentToken() && this.IsStringOperator(this.CurrentToken.Kind)) {
       let op = this.CurrentToken;
 
       if (
@@ -102,7 +112,7 @@ export class ExpressionsParser extends ParserState {
   protected ParseComparisonExpression(): any | undefined {
     let left = this.ParseLogicalOrExpression();
 
-    while (left && this.IsComparisonOperator(this.CurrentToken.Kind)) {
+    while (left && !this.CheckNewLineBeforeCurrentToken() && this.IsComparisonOperator(this.CurrentToken.Kind)) {
       const op = this.EatToken();
 
       const right = this.ParseLogicalOrExpression();
@@ -132,7 +142,7 @@ export class ExpressionsParser extends ParserState {
   protected ParseLogicalOrExpression(): any | undefined {
     let left = this.ParseLogicalAndExpression();
 
-    while (left && (this.CurrentToken.Kind as TokenKind) === TokenKind.OrToken) {
+    while (left && !this.CheckNewLineBeforeCurrentToken() && (this.CurrentToken.Kind as TokenKind) === TokenKind.OrToken) {
       const op = this.EatToken();
 
       const right = this.ParseLogicalAndExpression();
@@ -148,7 +158,7 @@ export class ExpressionsParser extends ParserState {
   protected ParseLogicalAndExpression(): any | undefined {
     let left = this.ParseLogicalNotExpression();
 
-    while (left && (this.CurrentToken.Kind as TokenKind) === TokenKind.AndToken) {
+    while (left && !this.CheckNewLineBeforeCurrentToken() && (this.CurrentToken.Kind as TokenKind) === TokenKind.AndToken) {
       const op = this.EatToken();
 
       const right = this.ParseLogicalNotExpression();

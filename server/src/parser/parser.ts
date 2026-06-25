@@ -184,6 +184,14 @@ export class Parser extends DefinitionsParser {
               this.MoveToNextToken();
           }
       } else {
+        if (this.CurrentToken.Kind === TokenKind.LessThanToken) {
+            const directiveNode = this.ConsumeDirective();
+            if (directiveNode) {
+                sourceFile.directives.push(directiveNode);
+            }
+            continue;
+        }
+
         const defNode = this.ParseDefinitionStatement();
         if (defNode) {
           sourceFile.definitions.push(defNode);

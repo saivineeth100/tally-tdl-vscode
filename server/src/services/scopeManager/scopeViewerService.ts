@@ -135,8 +135,8 @@ export class ScopeViewerService {
             const schemaGroups: { kind: string, count: number }[] = [];
             for (const [schemaName, schemaObj] of node.schemas.entries()) {
                 if (schemaObj.isPrimary) {
-                    const propCount = schemaObj.properties.size;
-                    schemaGroups.push({ kind: `Schema_${schemaName}`, count: propCount });
+                    const propCount = schemaObj.properties.size + (schemaObj.complexProperties?.size || 0);
+                    schemaGroups.push({ kind: `Schema_${schemaObj.name}`, count: propCount });
                 }
             }
             children.push({
