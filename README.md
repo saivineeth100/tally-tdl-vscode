@@ -37,6 +37,9 @@ This extension contributes the following settings (which can be configured at th
 
 ## Documentation
 
+- **TDL Features Matrix:** [docs/tdl_feature_matrix.md](docs/tdl_feature_matrix.md)
+- **XML Features Matrix:** [docs/xml_feature_matrix.md](docs/xml_feature_matrix.md)
+
 For detailed documentation, guides, and feature requests, please visit our [GitHub Repository](https://github.com/saivineeth100/tally-tdl-vscode).
 
 ## Known Issues
