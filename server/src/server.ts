@@ -13,12 +13,13 @@ import {
     Location
 } from "vscode-languageserver/node";
 
-import { DocManager } from "./docManager";
+import { DocManager, readFileWithEncoding } from "./docManager";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import * as path from 'path';
 import * as fs from 'fs';
 import { URI } from 'vscode-uri';
-import { loadMetadata as loadNewMetadata } from './services/metadataLoader';
+import { logger } from './logger';
+import { loadMetadata as loadNewMetadata, loadExternalLibraries } from './services/metadataLoader';
 import { registerCompletion, buildFunctionDocumentation, buildAttributeDocumentation } from "./features/completion";
 import { createDocumentSymbols } from "./services/documentSymbol";
 import { getHoverInfo } from "./services/hover";
@@ -26,9 +27,12 @@ import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } fr
 import { provideFoldingRanges } from "./services/foldingRange";
 import { updateSettings } from "./services/settingsManager";
 import { normalizeTypeName } from "./services/utils";
+import { buildCustomLibraryCache } from "./services/cacheBuilder";
 
 // Create LSP connection
 const connection = createConnection(ProposedFeatures.all);
+logger.setConnection(connection);
+
 const docs = new TextDocuments(TextDocument);
 
 // Create document manager
@@ -39,15 +43,24 @@ const docManager = new DocManager(connection, docs, resolveIncludePath);
  * @param version TDL version to load
  */
 async function loadMetadata(version: string) {
-    const dataDir = path.resolve(__dirname, '../data');
+    // When bundled to dist/, __dirname is dist/. When running from src/, __dirname is src/.
+    const dataDir = __dirname.endsWith('src') || __dirname.endsWith('src\\') || __dirname.endsWith('src/')
+        ? path.resolve(__dirname, '../data')
+        : path.resolve(__dirname, 'data');
 
     // Initialize Global Scope in ScopeManagers
     docManager.tdlScopeManager.initializeGlobalScope();
     docManager.xmlScopeManager.initializeGlobalScope();
 
-    // NEW WAY: Load directly into the scope manager
-    await loadNewMetadata(dataDir, version, docManager.tdlScopeManager);
-    await loadNewMetadata(dataDir, version, docManager.xmlScopeManager);
+    // NEW WAY: Load directly into the TDL scope manager
+    await loadNewMetadata(dataDir, version, docManager.tdlScopeManager,false);
+
+    // Share the loaded global read-only metadata with the XML scope manager
+    // to avoid deserializing the massive binary cache twice.
+    docManager.xmlScopeManager.globalScope = docManager.tdlScopeManager.globalScope;
+    docManager.xmlScopeManager.keywordSets = docManager.tdlScopeManager.keywordSets;
+    docManager.xmlScopeManager.primarySchemaNames = docManager.tdlScopeManager.primarySchemaNames;
+    docManager.xmlScopeManager.definitionTypeLabels = docManager.tdlScopeManager.definitionTypeLabels;
 }
 
 /**
@@ -76,8 +89,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
         capabilities.workspace && !!capabilities.workspace.workspaceFolders
     );
 
-    // Block initialization until metadata is loaded to ensure handlers don't fail
-    await loadMetadata("7.0");
+    // Removed blocking loadMetadata from here to speed up LSP startup
 
     return {
         capabilities: {
@@ -101,7 +113,6 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
             referencesProvider: true,
             documentLinkProvider: { resolveProvider: false },
             signatureHelpProvider: { triggerCharacters: [':'] },
-            inlayHintProvider: { resolveProvider: false },
             codeLensProvider: { resolveProvider: true },
             workspaceSymbolProvider: true,
             documentHighlightProvider: true,
@@ -120,8 +131,36 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     };
 });
 
+let currentTargetVersion = "7.0";
+
 // After initialization, scan workspace for TDL files
 connection.onInitialized(async () => {
+    // Sync settings and external libraries first
+    const settings = await connection.workspace.getConfiguration('tallyTDL');
+    if (settings) {
+        updateSettings(settings);
+        if (settings.targetVersion) {
+            currentTargetVersion = settings.targetVersion;
+        }
+    }
+
+    // Load metadata in background so we don't block the initial LSP connection
+    await loadMetadata(currentTargetVersion);
+    docManager.isMetadataLoaded = true;
+    
+    // Tell client to refresh semantic tokens since we now have base symbols
+    connection.languages.semanticTokens.refresh();
+    
+    if (settings) {
+        if (settings.excludePaths && Array.isArray(settings.excludePaths)) {
+            docManager.setExcludePaths(settings.excludePaths);
+        }
+        if (settings.externalLibraries && Array.isArray(settings.externalLibraries)) {
+            await loadExternalLibraries(settings.externalLibraries, docManager.tdlScopeManager);
+            await loadExternalLibraries(settings.externalLibraries, docManager.xmlScopeManager);
+        }
+    }
+
     // Try to get workspace folders (may not be supported by client)
     if (hasWorkspaceFolderCapability) {
         try {
@@ -190,12 +229,14 @@ connection.onDocumentSymbol((params: DocumentSymbolParams) => {
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return [];
 
-    return createDocumentSymbols(docState.sourceFile, doc.getText());
+    return createDocumentSymbols(docState.sourceFile, doc.getText(), docManager.getScopeManager(params.textDocument.uri));
 });
 
 // Handle hover request
 connection.onHover((params: HoverParams): Hover | null => {
-    const doc = docs.get(params.textDocument.uri);
+    try {
+        logger.trace(`[Trace] Server RECEIVED onHover for ${params.textDocument.uri}`);
+        const doc = docs.get(params.textDocument.uri);
     if (!doc) return null;
 
     const docState = docManager.get(params.textDocument.uri);
@@ -208,12 +249,16 @@ connection.onHover((params: HoverParams): Hover | null => {
     const hoverResult = getHoverInfo(docState.sourceFile, offset, docManager.getScopeManager(params.textDocument.uri), params.textDocument.uri, projectScope);
     if (!hoverResult) return null;
 
-    return {
-        contents: {
-            kind: MarkupKind.Markdown,
-            value: hoverResult.content
-        }
-    };
+        return {
+            contents: {
+                kind: MarkupKind.Markdown,
+                value: hoverResult.content
+            }
+        };
+    } catch (e) {
+        logger.error(`Error in onHover for ${params.textDocument.uri}: ${e instanceof Error ? e.stack || e.message : String(e)}`);
+        return null;
+    }
 });
 
 // Handle folding ranges
@@ -283,9 +328,11 @@ export function resolveIncludePath(currentPath: string, includeName: string): st
 }
 
 // Handle go-to-definition request
-connection.onDefinition((params: DefinitionParams): Location | null => {
-    const doc = docs.get(params.textDocument.uri);
-    if (!doc) return null;
+connection.onDefinition(async (params: DefinitionParams): Promise<Location | null> => {
+    try {
+        logger.trace(`[Trace] Server RECEIVED onDefinition for ${params.textDocument.uri}`);
+        const doc = docs.get(params.textDocument.uri);
+        if (!doc) return null;
 
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return null;
@@ -343,6 +390,18 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
                 return null; // Let hover provider show info instead
             }
 
+            if (!docManager.isUriActive(resolved.uri)) {
+                connection.window.showInformationMessage(`Definition '${ref.name}' is part of Default TDL or an External Library. Source navigation is not available.`);
+                return null;
+            }
+
+            if (resolved.selectionRange) {
+                return {
+                    uri: resolved.uri,
+                    range: resolved.selectionRange
+                };
+            }
+
             const targetDoc = docs.get(resolved.uri);
             if (targetDoc) {
                 return {
@@ -353,11 +412,43 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
                     }
                 };
             } else {
-                // Read from disk
+                // Try fast lookup via Symbol Table first to avoid reading file
+                const entries = docManager.tdlSymbolTable.findAllByName(resolved.name);
+                for (const entry of entries) {
+                    if (entry.uri === resolved.uri && entry.selectionRange) {
+                        return {
+                            uri: resolved.uri,
+                            range: entry.selectionRange
+                        };
+                    } else if (entry.uri === resolved.uri && entry.range && entry.range.start.line !== undefined) {
+                        return {
+                            uri: resolved.uri,
+                            range: entry.range
+                        };
+                    }
+                }
+
+                // Try XML Symbol Table
+                const xmlEntries = docManager.xmlSymbolTable.findAllByName(resolved.name);
+                for (const entry of xmlEntries) {
+                    if (entry.uri === resolved.uri && entry.selectionRange) {
+                        return {
+                            uri: resolved.uri,
+                            range: entry.selectionRange
+                        };
+                    } else if (entry.uri === resolved.uri && entry.range && entry.range.start.line !== undefined) {
+                        return {
+                            uri: resolved.uri,
+                            range: entry.range
+                        };
+                    }
+                }
+
+                // Read from disk as fallback
                 try {
                     const filePath = URI.parse(resolved.uri).fsPath;
                     if (fs.existsSync(filePath)) {
-                        const content = fs.readFileSync(filePath, 'utf-8');
+                        const content = await readFileWithEncoding(filePath);
                         const tempDoc = TextDocument.create(resolved.uri, 'tally', 1, content);
                         return {
                             uri: resolved.uri,
@@ -368,7 +459,8 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
                         };
                     }
                 } catch (e) {
-                    connection.console.error(`Error reading file for definition: ${e}`);
+                    logger.error(`Error reading file for definition: ${e}`);
+                    return null;
                 }
 
                 // Fallback
@@ -384,17 +476,28 @@ connection.onDefinition((params: DefinitionParams): Location | null => {
     }
 
     return null;
+    } catch (e) {
+        logger.error(`Error in onDefinition for ${params.textDocument.uri}: ${e instanceof Error ? e.stack || e.message : String(e)}`);
+        return null;
+    }
 });
 
 // Handle semantic tokens request
 import { provideSemanticTokens, provideSemanticTokensEdits, TDL_SEMANTIC_TOKENS_LEGEND } from "./services/semanticTokens/semanticTokens";
 
 connection.languages.semanticTokens.on((params, token) => {
+    const uriStr = typeof params.textDocument.uri === 'string' ? params.textDocument.uri : (params.textDocument as any).uri;
+    logger.trace(`[Trace] Server RECEIVED semanticTokens/full for ${path.basename(uriStr)} at ${new Date().toISOString()}`);
+
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return { data: [] };
 
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return { data: [] };
+
+    if (!docManager.isUriActive(params.textDocument.uri)) {
+        return { data: [] };
+    }
 
     return provideSemanticTokens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri), token);
 });
@@ -405,6 +508,10 @@ connection.languages.semanticTokens.onDelta((params, token) => {
 
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return { edits: [] };
+
+    if (!docManager.isUriActive(params.textDocument.uri)) {
+        return { edits: [] };
+    }
 
     return provideSemanticTokensEdits(docState.sourceFile, doc, params.previousResultId, docManager.getScopeManager(params.textDocument.uri), token);
 });
@@ -438,7 +545,13 @@ connection.onDocumentOnTypeFormatting((params, token) => {
 // Handle Rename Request
 import { renameSymbol, prepareRename } from "./services/rename";
 connection.onRenameRequest(async (params) => {
-    return await renameSymbol(params, docManager, docs);
+    try {
+        logger.trace(`[Trace] Server RECEIVED onRenameRequest for ${params.textDocument.uri}`);
+        return await renameSymbol(params, docManager, docs);
+    } catch (e) {
+        logger.error(`Error in onRenameRequest for ${params.textDocument.uri}: ${e instanceof Error ? e.stack || e.message : String(e)}`);
+        return null;
+    }
 });
 connection.onPrepareRename((params) => {
     return prepareRename(params, docManager, docs);
@@ -446,10 +559,16 @@ connection.onPrepareRename((params) => {
 
 // Provide references
 connection.onReferences(async (params) => {
-    const doc = docs.get(params.textDocument.uri);
-    if (!doc) return null;
-    const offset = doc.offsetAt(params.position);
-    return await findReferences(docManager, docs, params.textDocument.uri, offset, params.context.includeDeclaration);
+    try {
+        logger.trace(`[Trace] Server RECEIVED onReferences for ${params.textDocument.uri}`);
+        const doc = docs.get(params.textDocument.uri);
+        if (!doc) return null;
+        const offset = doc.offsetAt(params.position);
+        return await findReferences(docManager, docs, params.textDocument.uri, offset, params.context.includeDeclaration);
+    } catch (e) {
+        logger.error(`Error in onReferences for ${params.textDocument.uri}: ${e instanceof Error ? e.stack || e.message : String(e)}`);
+        return null;
+    }
 });
 
 // Handle Document Links (for Include statements across the whole document)
@@ -498,6 +617,11 @@ connection.onRequest("tdl/getScopeChildren", async (params: { uri: string, scope
     return scopeMgr.viewer.getScopeChildren(params.scopeId);
 });
 
+connection.onRequest("tdl/getScopeNode", async (params: { uri: string, scopeId: string }) => {
+    const scopeMgr = docManager.getScopeManager(params.uri);
+    return scopeMgr.viewer.getScopeNode(params.scopeId);
+});
+
 connection.onRequest("tdl/getScopeSymbols", async (params: { uri: string, scopeId: string, kind: string, page: number, limit: number, query?: string }) => {
     const scopeMgr = docManager.getScopeManager(params.uri);
     return scopeMgr.viewer.getSymbolsPaginated(params.scopeId, params.kind, params.page, params.limit, params.query);
@@ -506,7 +630,14 @@ connection.onRequest("tdl/getScopeSymbols", async (params: { uri: string, scopeI
 connection.onRequest("tdl/resolveGlobalSymbol", async (params: { uri: string, name: string, expectedType: string }) => {
     const scopeMgr = docManager.getScopeManager(params.uri);
     const projectScope = docManager.getProjectNodes(params.uri);
-    return scopeMgr.resolveDefinition(params.name, params.expectedType, scopeMgr.globalScope, projectScope);
+    const resolved = scopeMgr.resolveDefinition(params.name, params.expectedType, scopeMgr.globalScope, projectScope);
+    
+    if (resolved && !docManager.isUriActive(resolved.uri)) {
+        connection.window.showInformationMessage(`Definition '${resolved.name}' is part of Default TDL or an External Library. Source navigation is not available.`);
+        return null;
+    }
+    
+    return resolved;
 });
 
 connection.onRequest("tdl/convertToXml", async (params: { uri: string }) => {
@@ -516,12 +647,53 @@ connection.onRequest("tdl/convertToXml", async (params: { uri: string }) => {
     return await generateXml(docState.sourceFile, doc.getText(), URI.parse(params.uri).fsPath, resolveIncludePath);
 });
 
+connection.onNotification("tdl/buildCustomLibraryCache", async (params: { folderPath: string }) => {
+    try {
+        const cacheFile = await buildCustomLibraryCache(params.folderPath);
+        connection.window.showInformationMessage(`Successfully generated custom library cache at: ${cacheFile}. You can add this path to 'tallyTDL.externalLibraries' in your settings.`);
+    } catch (err) {
+        connection.window.showErrorMessage(`Failed to build custom library cache: ${err}`);
+    }
+});
+
 // Start listening (Must be at the very end after all handlers are registered)
 docs.listen(connection);
 
-connection.onDidChangeConfiguration(change => {
+connection.onDidChangeConfiguration(async (change) => {
     if (change.settings && change.settings.tallyTDL) {
         updateSettings(change.settings.tallyTDL);
+        
+        if (change.settings.tallyTDL.excludePaths && Array.isArray(change.settings.tallyTDL.excludePaths)) {
+            docManager.setExcludePaths(change.settings.tallyTDL.excludePaths);
+        }
+        
+        let requiresMetadataReload = false;
+        if (change.settings.tallyTDL.targetVersion && change.settings.tallyTDL.targetVersion !== currentTargetVersion) {
+            currentTargetVersion = change.settings.tallyTDL.targetVersion;
+            requiresMetadataReload = true;
+        }
+
+        if (requiresMetadataReload) {
+            connection.window.showInformationMessage(`Tally TDL: Loading metadata for version ${currentTargetVersion}...`);
+            docManager.isMetadataLoaded = false;
+            
+            // Clear existing global scopes
+            docManager.tdlScopeManager.globalScope.definitions.clear();
+            docManager.tdlScopeManager.globalScope.variables.clear();
+            docManager.tdlScopeManager.globalScope.formulas.clear();
+            docManager.xmlScopeManager.globalScope.definitions.clear();
+            
+            await loadMetadata(currentTargetVersion);
+            docManager.isMetadataLoaded = true;
+            connection.languages.semanticTokens.refresh();
+        }
+
+        // Reload external libraries if configured
+        if (change.settings.tallyTDL.externalLibraries && Array.isArray(change.settings.tallyTDL.externalLibraries)) {
+            await loadExternalLibraries(change.settings.tallyTDL.externalLibraries, docManager.tdlScopeManager);
+            await loadExternalLibraries(change.settings.tallyTDL.externalLibraries, docManager.xmlScopeManager);
+        }
+
         // Re-validate all documents (open and indexed)
         docManager.revalidateAll(docs.all());
     }
@@ -561,3 +733,4 @@ connection.onCompletionResolve((item) => {
     }
     return item;
 });
+

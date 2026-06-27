@@ -2,10 +2,10 @@ import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNode } from "../../parser/ast";
 import { SymbolTable, definitionTypeToSymbolKind, SymbolKind } from "../symbolTable";
-import { normalizeTypeName, getInterchangeableTypes } from "../utils";
+import { normalizeTypeName } from "../utils";
 import { areTypesCompatible, inferExpressionType } from "./validationUtils";
 import { validateFunctionCall, validateBinaryExpression, walkAndValidateExpression } from "./expressionValidation";
-import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, UnknownAttributeData, MissingDefinitionData, UnknownSchemaPropertyData } from "../../diagnostics";
+import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, UnknownAttributeData, MissingDefinitionData, DefinitionNotInScopeData, UnknownSchemaPropertyData } from "../../diagnostics";
 import { ScopeManager } from "../scopeManager";
 
 export function validateDefinitionAttributes(
@@ -65,20 +65,33 @@ export function validateDefinitionAttributes(
                                 const reachableChildren = scopeManager.getDefinitionsInScope(dummyScope, tDefType);
                                 let found = false;
                                 for (const child of reachableChildren) {
-                                    if (child.name.toLowerCase() === tDefName.toLowerCase()) {
+                                    if (normalizeTypeName(child.name) === normalizeTypeName(tDefName)) {
                                         found = true;
                                         break;
                                     }
                                 }
 
                                 if (!found) {
-                                    diagnostics.push(createDiagnosticWithData(
-                                        DiagnosticRules.MissingDefinition,
-                                        { start: doc.positionAt(tDefNameNode.start), end: doc.positionAt(tDefNameNode.end) },
-                                        { type: tDefType, name: tDefName } as MissingDefinitionData,
-                                        tDefType,
-                                        tDefName
-                                    ));
+                                    const attrScope = dummyScope || scopeManager.getScopeAt(doc.uri, tDefNameNode.start) || scopeManager.projectScope;
+                                    const existsAnywhere = scopeManager.resolveDefinition(tDefName, tDefType, attrScope, projectNodes) !== undefined;
+
+                                    if (existsAnywhere) {
+                                        diagnostics.push(createDiagnosticWithData(
+                                            DiagnosticRules.DefinitionNotInScope,
+                                            { start: doc.positionAt(tDefNameNode.start), end: doc.positionAt(tDefNameNode.end) },
+                                            { type: tDefType, name: tDefName } as DefinitionNotInScopeData,
+                                            tDefType,
+                                            tDefName
+                                        ));
+                                    } else {
+                                        diagnostics.push(createDiagnosticWithData(
+                                            DiagnosticRules.MissingDefinition,
+                                            { start: doc.positionAt(tDefNameNode.start), end: doc.positionAt(tDefNameNode.end) },
+                                            { type: tDefType, name: tDefName } as MissingDefinitionData,
+                                            tDefType,
+                                            tDefName
+                                        ));
+                                    }
                                     validSoFar = false; // Stop validating deeper if parent is broken
                                 }
                             } else {
@@ -401,7 +414,7 @@ export function validateAttributeParameters(
                     refersToType
                 );
                 diagnostics.push(diag);
-            } else if (resolvedDef.uri !== 'global:metadata' && projectNodes) {
+            } else if (resolvedDef.uri !== 'global:metadata' && !resolvedDef.uri.startsWith('basetdl://') && projectNodes) {
                 // Check if the resolved definition is within the project
                 if (!projectNodes.has(resolvedDef.uri)) {
                     const diag = createDiagnosticWithData<MissingDefinitionData>(

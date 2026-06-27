@@ -1,5 +1,9 @@
-/** Payload for MissingDefinition diagnostic */
 export interface MissingDefinitionData {
+    name: string;
+    type: string;
+}
+
+export interface DefinitionNotInScopeData {
     name: string;
     type: string;
 }

@@ -79,7 +79,7 @@ export function buildFunctionDocumentation(func: FunctionSymbol): string {
  * Get definition types from metadata
  */
 export function getDefinitionTypes(scopeManager: ScopeManager): string[] {
-    const types = Array.from(scopeManager.existingDefinitions.keys());
+    const types = scopeManager.getDefinitionTypes();
     // Include and Import are special system directives parsed as definition types
     types.push('Include');
     return types;

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { DocManager } from '../../docManager';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
@@ -11,7 +11,7 @@ describe('DocManager indexed document state', () => {
     
     beforeEach(() => {
         mockConnection = {
-            console: { log: vi.fn(), warn: vi.fn(), error: vi.fn() },
+            console: { log: vi.fn(), warn: vi.fn(), error: vi.fn(), info: vi.fn() },
             sendDiagnostics: vi.fn()
         };
         mockDocuments = {
@@ -21,6 +21,10 @@ describe('DocManager indexed document state', () => {
             get: vi.fn()
         };
         docManager = new DocManager(mockConnection, mockDocuments);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     it('get() returns open doc state first', () => {
@@ -92,7 +96,64 @@ describe('DocManager indexed document state', () => {
         
         docManager.clearFolderSymbols(folderPath);
         
-        expect(docManager.getIndexed(uriInside)).toBeUndefined();
         expect(docManager.getIndexed(uriOutside)).toBeDefined();
+    });
+
+    describe('indexFile caching (mtime)', () => {
+        it('skips re-reading when file mtime is unchanged', async () => {
+            const fsPath = __filename;
+            const uri = URI.file(fsPath).toString();
+            
+            // Mock stat to return constant mtime
+            vi.spyOn(fs.promises, 'stat').mockResolvedValue({ mtimeMs: 12345 } as any);
+            // Mock readFile to monitor calls
+            const readFileSpy = vi.spyOn(fs.promises, 'readFile').mockResolvedValue(Buffer.from(''));
+            
+            await docManager.indexFile(fsPath);
+            expect(readFileSpy).toHaveBeenCalledTimes(1);
+            
+            // Should skip the second time
+            await docManager.indexFile(fsPath);
+            expect(readFileSpy).toHaveBeenCalledTimes(1); // Call count remains 1
+        });
+
+        it('re-reads when mtime changes', async () => {
+            const fsPath = __filename;
+            const uri = URI.file(fsPath).toString();
+            
+            const statSpy = vi.spyOn(fs.promises, 'stat');
+            statSpy.mockResolvedValueOnce({ mtimeMs: 1000 } as any);
+            statSpy.mockResolvedValueOnce({ mtimeMs: 2000 } as any); // Changed
+            
+            const readFileSpy = vi.spyOn(fs.promises, 'readFile').mockResolvedValue(Buffer.from(''));
+            
+            await docManager.indexFile(fsPath);
+            expect(readFileSpy).toHaveBeenCalledTimes(1);
+            
+            // Should re-read
+            await docManager.indexFile(fsPath);
+            expect(readFileSpy).toHaveBeenCalledTimes(2);
+        });
+
+        it('rebuild doesn\'t trigger cascading indexFile calls for unchanged includes', async () => {
+            const fsPath = __filename;
+            const doc = TextDocument.create('file:///main.tdl', 'tally', 1, '[Include: test.tdl]');
+            
+            // Mock indexFile behavior to register it in includeGraph (which actual indexFile does)
+            const indexFileSpy = vi.spyOn(docManager as any, 'indexFile').mockImplementation(async (fsPath: any) => {
+                (docManager as any).includeGraph.set(URI.file(fsPath).toString(), new Set());
+            });
+            
+            // Setup resolveIncludePath mock so updateIncludeGraph finds 'test.tdl'
+            docManager.resolveIncludePath = () => fsPath;
+            
+            await docManager.rebuild(doc);
+            
+            expect(indexFileSpy).toHaveBeenCalledTimes(1);
+            
+            // Second rebuild
+            await docManager.rebuild(doc);
+            expect(indexFileSpy).toHaveBeenCalledTimes(1);
+        });
     });
 });

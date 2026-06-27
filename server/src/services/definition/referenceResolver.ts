@@ -1,6 +1,6 @@
 import { SourceFile, SyntaxKind, IdentifierNode, LiteralNode } from '../../parser/ast';
 import { ScopeManager } from '../scopeManager';
-import { normalizeTypeName, getCanonicalAttributeName } from '../utils';
+import { normalizeTypeName } from '../utils';
 import { findDefinitionAtOffset, findAttributeAtOffset, findStatementAtOffset, findNodeAtOffset } from '../../parser/astQuery';
 
 /**
@@ -54,7 +54,7 @@ export const ATTRIBUTE_REFERENCE_MAP: Record<string, string> = {
  * @param attrName Attribute name
  * @returns Expected definition type or undefined
  */
-export function getExpectedTypeForAttribute(attrName: string): string | undefined {
+export function getExpectedTypeForAttribute(attrName: string, scopeManager?: ScopeManager): string | undefined {
     const lower = attrName.toLowerCase();
     
     if (lower === 'filter' || lower === 'filters') return 'Formula';
@@ -63,7 +63,7 @@ export function getExpectedTypeForAttribute(attrName: string): string | undefine
     if (ATTRIBUTE_REFERENCE_MAP[lower]) return ATTRIBUTE_REFERENCE_MAP[lower];
     
     // Fallback to dynamic metadata map if available
-    return getCanonicalAttributeName(lower);
+    return scopeManager ? scopeManager.getCanonicalAttributeName(lower) : undefined;
 }
 
 /**
@@ -340,12 +340,12 @@ export function findReferenceAtOffset(
             }
 
             if (!expectedType && attrDef) {
-                expectedType = getExpectedTypeForAttribute(attrDef.name);
+                expectedType = getExpectedTypeForAttribute(attrDef.name, scopeManager);
             }
         }
 
         if (!expectedType) {
-            expectedType = getExpectedTypeForAttribute(attr.name.text);
+            expectedType = getExpectedTypeForAttribute(attr.name.text, scopeManager);
         }
 
         // 'Use' attribute always refers to the same definition type as the current definition

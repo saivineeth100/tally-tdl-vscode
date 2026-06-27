@@ -1,7 +1,7 @@
-import { SourceFile, SyntaxKind, IdentifierNode, StatementNode, BlockStatementNode, ForNode, WalkNode, IfNode, WhileNode } from '../../parser/ast';
+import { SourceFile, SyntaxKind, IdentifierNode, StatementNode, BlockStatementNode, ForNode, WalkNode, IfNode, WhileNode, LiteralNode } from '../../parser/ast';
 import { SymbolInfo, SymbolKind, VariableSymbol, DefinitionSymbol, FormulaSymbol } from '../symbolTable';
 import { Scope, ScopeKind, definitionTypeToSymbolKind } from './types';
-import { normalizeTypeName, getCanonicalAttributeName } from '../utils';
+import { normalizeTypeName } from '../utils';
 // We need to interface with ScopeManager without a circular dependency if possible,
 // or just use any/duck typing. Let's define the interface needed from ScopeManager:
 export interface IScopeManager {
@@ -22,6 +22,9 @@ export interface IScopeManager {
     findDefinitionScope(id: string): Scope | undefined;
     registerModifierContribution?(contribution: import('./types').ModifierContribution): void;
     recordGraphContribution?: (uri: string, type: 'parentDef' | 'childDef' | 'useInherit' | 'inUseInherit' | 'include' | 'modifier', key1: string, key2?: string) => void;
+    indexScope(scope: Scope): void;
+    getCanonicalTypeName(normalizedType: string): string;
+    getCanonicalAttributeName(normalizedAttributeName: string): string | undefined;
 }
 
 export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: SourceFile): Scope {
@@ -42,7 +45,8 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                 manager.recordGraphContribution(uri, 'include', includedFile);
             }
         }
-
+        const rawDefTypeLower = normalizeTypeName(def.type?.text || '');
+        const defTypeLower = manager.getCanonicalTypeName(rawDefTypeLower);
         // Create a scope for each definition (Report, Field, etc.)
         // The definition name identifies the scope
         const defName = def.name ? def.name.text : 'anonymous';
@@ -97,7 +101,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
 
         // Register non-incomplete definitions in projectScope.definitions (including ! modifiers)
         if (!def.isIncomplete && def.name && (!def.modifier || def.modifier.Text === '!')) {
-            const defTypeLower = normalizeTypeName(def.type?.text || '');
+            
             let typeMap = manager.projectScope.definitions.get(defTypeLower);
             if (!typeMap) {
                 typeMap = new Map();
@@ -113,9 +117,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
         // Add definition parameters/variables if any (e.g. from functions)
         for (const attr of def.attributes || []) {
             const attrNameLower = attr.name.text.toLowerCase().replace(/\s+/g, '');
-            
-            // Track structural hierarchy (Report -> Form -> Part -> Line -> Field)
-            const targetType = getCanonicalAttributeName(attrNameLower);
+            const targetType = manager.getCanonicalAttributeName(attrNameLower);
             if (targetType) {
                 if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
                     for (const val of attr.value) {
@@ -227,8 +229,12 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                     if (defScope.kind === ScopeKind.Definition) {
                         if (!defScope.fetchedFields) defScope.fetchedFields = new Set<string>();
                         for (const v of attr.value) {
-                            if (v.kind === SyntaxKind.Identifier || v.kind === SyntaxKind.Literal) {
-                                defScope.fetchedFields.add((v as any).text.toLowerCase());
+                            if (v.kind === SyntaxKind.Identifier) {
+                                defScope.fetchedFields.add((v as IdentifierNode).text.toLowerCase());
+                            } else if (v.kind === SyntaxKind.Literal) {
+                                const literalNode = v as LiteralNode;
+                                const textVal = literalNode.value !== undefined ? String(literalNode.value) : literalNode.token.Text;
+                                defScope.fetchedFields.add(textVal.toLowerCase());
                             }
                         }
                     }
@@ -380,7 +386,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
             buildBlockScopes(manager, def.statements, defScope, uri);
         }
     }
-
+    manager.indexScope(fileScope);
     return fileScope;
 }
 

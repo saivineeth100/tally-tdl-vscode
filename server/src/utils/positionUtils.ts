@@ -7,6 +7,9 @@ export function offsetToPosition(doc: TextDocument | string, offset: number): Po
         let character = 0;
         const limit = Math.min(offset, doc.length);
         for (let i = 0; i < limit; i++) {
+            if (doc[i] === '\r') {
+                continue;
+            }
             if (doc[i] === '\n') {
                 line++;
                 character = 0;
@@ -31,7 +34,15 @@ export function positionToOffset(doc: TextDocument | string, position: Position)
         }
         
         const targetLine = lines[position.line] || '';
-        currentOffset += Math.min(position.character, targetLine.length);
+        
+        let lineLimit = targetLine.length;
+        if (targetLine.endsWith('\r\n')) {
+            lineLimit -= 2;
+        } else if (targetLine.endsWith('\n')) {
+            lineLimit -= 1;
+        }
+
+        currentOffset += Math.min(position.character, lineLimit);
         
         return Math.min(currentOffset, doc.length);
     }

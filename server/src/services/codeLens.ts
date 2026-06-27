@@ -58,12 +58,45 @@ export function provideCodeLens(sourceFile: SourceFile, doc: TextDocument, scope
     return lenses;
 }
 
+interface CacheEntry {
+    count: number;
+    locations: any[];
+    timestamp: number;
+}
+const refCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 5000; // 5 seconds
+
+export function clearCodeLensCache() {
+    refCache.clear();
+}
+
+export function invalidateRefCountCache(uri?: string) {
+    if (uri) {
+        for (const key of refCache.keys()) {
+            if (key.startsWith(uri)) refCache.delete(key);
+        }
+    } else {
+        refCache.clear();
+    }
+}
 export async function resolveCodeLens(lens: CodeLens, docManager: DocManager, docs: any): Promise<CodeLens> {
     const offset = docManager.get(lens.data.uri)?.sourceFile ? docs.get(lens.data.uri)?.offsetAt(lens.data.position) : 0;
-    if (!offset) return lens;
+    if (offset === undefined || offset === null) return lens;
 
-    const references = await findReferences(docManager, docs, lens.data.uri, offset);
-    const count = references ? references.length : 0;
+    const cacheKey = `${lens.data.uri}:${offset}`;
+    const now = Date.now();
+    let references: any[] = [];
+    let count = 0;
+
+    if (refCache.has(cacheKey) && (now - refCache.get(cacheKey)!.timestamp < CACHE_TTL)) {
+        const cached = refCache.get(cacheKey)!;
+        references = cached.locations;
+        count = cached.count;
+    } else {
+        references = await findReferences(docManager, docs, lens.data.uri, offset);
+        count = references ? references.length : 0;
+        refCache.set(cacheKey, { count, locations: references || [], timestamp: now });
+    }
     
     lens.command = {
         title: `${count} reference${count === 1 ? '' : 's'}`,

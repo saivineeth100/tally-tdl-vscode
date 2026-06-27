@@ -24,7 +24,7 @@ export class ScopeExplorer {
                 retainContextWhenHidden: true,
                 localResourceRoots: [
                     vscode.Uri.file(path.join(context.extensionPath, 'client', 'media')),
-                    vscode.Uri.file(path.join(context.extensionPath, 'webview-ui', 'build'))
+                    vscode.Uri.file(path.join(context.extensionPath, 'dist', 'webview-ui'))
                 ]
             }
         );
@@ -110,6 +110,21 @@ export class ScopeExplorer {
                             console.error('Error fetching children:', err);
                         }
                         return;
+                    case 'getScopeNode':
+                        try {
+                            const result = await client.sendRequest<any>('tdl/getScopeNode', {
+                                uri,
+                                scopeId: message.scopeId
+                            });
+                            panel.webview.postMessage({
+                                command: 'scopeNodeResult',
+                                reqId: message.reqId,
+                                data: result
+                            });
+                        } catch (err) {
+                            console.error('Error fetching scope node:', err);
+                        }
+                        return;
                 }
             },
             undefined,
@@ -118,8 +133,8 @@ export class ScopeExplorer {
     }
 
     private static getHtmlForWebview(webview: vscode.Webview, extensionPath: string): string {
-        const stylePathOnDisk = vscode.Uri.file(path.join(extensionPath, 'webview-ui', 'build', 'assets', 'index.css'));
-        const scriptPathOnDisk = vscode.Uri.file(path.join(extensionPath, 'webview-ui', 'build', 'assets', 'index.js'));
+        const stylePathOnDisk = vscode.Uri.file(path.join(extensionPath, 'dist', 'webview-ui', 'assets', 'index.css'));
+        const scriptPathOnDisk = vscode.Uri.file(path.join(extensionPath, 'dist', 'webview-ui', 'assets', 'index.js'));
 
         const styleUri = webview.asWebviewUri(stylePathOnDisk).with({ query: `t=${Date.now()}` });
         const scriptUri = webview.asWebviewUri(scriptPathOnDisk).with({ query: `t=${Date.now()}` });

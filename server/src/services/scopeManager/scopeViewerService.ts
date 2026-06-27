@@ -25,8 +25,11 @@ export class ScopeViewerService {
     }
 
     public getScopeChildren(scopeId: string): ScopeNodeDTO[] {
-        const target = this.findScopeById(this.manager.globalScope, scopeId) || 
-                       this.findScopeById(this.manager.projectScope, scopeId);
+        if (scopeId === 'project_Files') {
+            return this.manager.projectScope.childScopes.map(c => this.serializeNode(c, 0, 0));
+        }
+
+        const target = this.manager.getScopeById(scopeId) || (scopeId === 'global' ? this.manager.globalScope : undefined) || (scopeId === 'project' ? this.manager.projectScope : undefined);
         
         if (target) {
             // Serialize node with maxDepth=1 to get its immediate children
@@ -36,8 +39,17 @@ export class ScopeViewerService {
         return [];
     }
 
+    public getScopeNode(scopeId: string): ScopeNodeDTO | undefined {
+        const target = this.manager.getScopeById(scopeId) || (scopeId === 'global' ? this.manager.globalScope : undefined) || (scopeId === 'project' ? this.manager.projectScope : undefined);
+        
+        if (target) {
+            return this.serializeNode(target, 0, 0);
+        }
+        return undefined;
+    }
+
     private findScopeById(node: Scope, id: string): Scope | undefined {
-        if (node.id === id) return node;
+        if (node.id.toLowerCase() === id.toLowerCase()) return node;
         for (const child of node.childScopes) {
             const found = this.findScopeById(child, id);
             if (found) return found;
@@ -47,31 +59,63 @@ export class ScopeViewerService {
 
     private serializeNode(node: Scope, currentDepth: number, maxDepth: number): ScopeNodeDTO {
         const symbolGroups: { kind: string, count: number }[] = [];
-        let children: ScopeNodeDTO[] = [];
-
         this.addBasicGroups(node, symbolGroups);
         this.addDefinitionGroups(node, symbolGroups);
-        this.addDefinitionsGroups(node, symbolGroups);
+
+        let children: ScopeNodeDTO[] = [];
+
+        const childIds = this.manager.childDefinitions.get(node.id.toLowerCase());
+        const structuralChildren = childIds ? Array.from(childIds) : undefined;
+        const hasStructuralChildrenNode = structuralChildren && structuralChildren.length > 0;
 
         const hasRealChildren = node.childScopes.length > 0;
         const hasAttributesNode = hasAttributes(node);
         const hasSchemasNode = hasSchemas(node);
         const hasDefinitionsNode = hasDefinitions(node);
-        const hasChildren = hasRealChildren || hasAttributesNode || hasSchemasNode || hasDefinitionsNode;
+        const hasChildren = hasRealChildren || hasAttributesNode || hasSchemasNode || hasDefinitionsNode || !!hasStructuralChildrenNode;
 
         if (currentDepth < maxDepth) {
             this.addAttributeGroups(node, children);
             this.addSchemaGroups(node, children);
-            
+            this.addDefinitionsGroups(node, children);
+            if (structuralChildren) {
+                const structuralChildNodes = structuralChildren
+                    .map(id => this.manager.getScopeById(id))
+                    .filter(s => s !== undefined) as Scope[];
+                
+                // Group structural children logically under a "Structural Hierarchy" folder
+                if (structuralChildNodes.length > 0) {
+                    children.push({
+                        id: `${node.id}_Structural`,
+                        kind: `Structural Hierarchy`,
+                        range: undefined,
+                        children: structuralChildNodes.map(c => this.serializeNode(c, currentDepth + 1, maxDepth)),
+                        hasChildren: true,
+                        _childrenLoaded: true,
+                        symbolGroups: []
+                    } as any);
+                }
+            }
+
             const rawChildren = node.childScopes;
-            children.push(...rawChildren.map(c => this.serializeNode(c, currentDepth + 1, maxDepth)));
+            if (node.kind === ScopeKind.Project && rawChildren.length > 0) {
+                children.push({
+                    id: `${node.id}_Files`,
+                    kind: 'FilesCategory',
+                    name: 'Files',
+                    range: undefined,
+                    children: [],
+                    hasChildren: true,
+                    _childrenLoaded: false,
+                    symbolGroups: []
+                } as any);
+            } else {
+                children.push(...rawChildren.map(c => this.serializeNode(c, currentDepth + 1, maxDepth)));
+            }
         }
 
         const parentIds = this.manager.parentDefinitions.get(node.id.toLowerCase());
         const structuralParents = parentIds ? Array.from(parentIds) : undefined;
-
-        const childIds = this.manager.childDefinitions.get(node.id.toLowerCase());
-        const structuralChildren = childIds ? Array.from(childIds) : undefined;
 
         const useIds = this.manager.useInheritance.get(node.id.toLowerCase());
         const usedDefinitions = useIds ? Array.from(useIds) : undefined;
@@ -112,11 +156,6 @@ export class ScopeViewerService {
         if (node.kind === ScopeKind.Definition) {
             const defNode = node as DefinitionScope;
             if (defNode.uses && defNode.uses.size > 0) symbolGroups.push({ kind: 'Uses', count: defNode.uses.size });
-            if (defNode.structuralChildren) {
-                let childCount = 0;
-                for (const set of defNode.structuralChildren.values()) childCount += set.size;
-                if (childCount > 0) symbolGroups.push({ kind: 'StructuralChildren', count: childCount });
-            }
             if (defNode.fetchedFields && defNode.fetchedFields.size > 0) {
                 symbolGroups.push({ kind: 'FetchedFields', count: defNode.fetchedFields.size });
             }
@@ -165,12 +204,22 @@ export class ScopeViewerService {
         }
     }
 
-    private addDefinitionsGroups(node: Scope, symbolGroups: { kind: string, count: number }[]) {
+    private addDefinitionsGroups(node: Scope, children: ScopeNodeDTO[]) {
         if (hasDefinitions(node)) {
+            const defGroups: { kind: string, count: number }[] = [];
             for (const [defType, defMap] of node.definitions.entries()) {
                 if (defMap.size > 0) {
-                    symbolGroups.push({ kind: defType, count: defMap.size });
+                    defGroups.push({ kind: defType, count: defMap.size });
                 }
+            }
+            if (defGroups.length > 0) {
+                children.push({
+                    id: `${node.id}_Definitions`,
+                    kind: 'DefinitionsCategory',
+                    range: undefined,
+                    children: [],
+                    symbolGroups: defGroups
+                } as any);
             }
         }
     }
@@ -182,6 +231,7 @@ export class ScopeViewerService {
         let realScopeId = scopeId;
         if (realScopeId.endsWith('_Attributes')) realScopeId = realScopeId.replace('_Attributes', '');
         if (realScopeId.endsWith('_Schemas')) realScopeId = realScopeId.replace('_Schemas', '');
+        if (realScopeId.endsWith('_Definitions')) realScopeId = realScopeId.replace('_Definitions', '');
         
         const scope = this.manager.getScopeById(realScopeId) || (realScopeId === 'global' ? this.manager.globalScope : this.manager.projectScope);
         let symbols: SymbolInfo[] = [];

@@ -1,101 +1,133 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { getDocumentHighlights } from '../documentHighlight';
-import { DocumentHighlightParams } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DocManager } from '../../docManager';
-import { TextDocuments } from 'vscode-languageserver';
-import { normalizeTypeName } from '../utils';
+import { TextDocuments, Position, DocumentHighlightParams } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import { Parser } from '../../parser/parser';
+import { ScopeManager } from '../scopeManager';
+import { SymbolTable } from '../symbolTable';
+import { buildFileScope } from '../scopeManager/scopeBuilder';
 
-describe('Document Highlights', () => {
-    let mockConnection: any;
-    let mockDocuments: TextDocuments<TextDocument>;
-    let docManager: DocManager;
-
-    beforeEach(() => {
-        mockConnection = {
-            console: { log: vi.fn(), error: vi.fn(), warn: vi.fn() },
-            sendDiagnostics: vi.fn()
-        };
-        mockDocuments = new TextDocuments(TextDocument);
+function setupMocks(files: Record<string, string>) {
+    const docs = new Map<string, TextDocument>();
+    const docStates = new Map<string, any>();
+    let targetUri = '';
+    let position = Position.create(0, 0);
+    
+    for (const [uri, content] of Object.entries(files)) {
+        const lines = content.split('\n');
+        let cursorLine = -1;
+        let cursorChar = -1;
+        for (let i = 0; i < lines.length; i++) {
+            const idx = lines[i].indexOf('|');
+            if (idx !== -1) {
+                cursorLine = i;
+                cursorChar = idx;
+                targetUri = uri;
+                break;
+            }
+        }
         
-        docManager = new DocManager(mockConnection, mockDocuments);
-
-        // Populate scope manager with minimal mock data for the test
-        const tdlScope = docManager.tdlScopeManager.globalScope;
+        const cleanContent = content.replace('|', '');
+        const doc = TextDocument.create(uri, 'tdl', 1, cleanContent);
+        docs.set(uri, doc);
         
-        const reportAttrs = new Map<string, any>();
-        reportAttrs.set('form', { name: 'Form', parameters: [{ RefersTo: 'Form' }] });
-        tdlScope.attributes.set('REPORT', reportAttrs);
-
-        const formAttrs = new Map<string, any>();
-        formAttrs.set('parts', { name: 'Parts', parameters: [{ RefersTo: 'Part' }] });
-        formAttrs.set('part', { name: 'Part', parameters: [{ RefersTo: 'Part' }] });
-        tdlScope.attributes.set('FORM', formAttrs);
-    });
-
-    async function setup(tdl: string) {
-        const uri = 'file:///test.tdl';
-        const document = TextDocument.create(uri, 'tdl', 1, tdl);
+        if (targetUri === uri && cursorLine !== -1) {
+            position = Position.create(cursorLine, cursorChar);
+        }
         
-        mockDocuments.get = vi.fn().mockReturnValue(document);
+        const parser = new Parser(cleanContent);
+        const sourceFile = parser.parse();
         
-        await docManager.rebuild(document);
-        
-        return { uri, document };
+        docStates.set(uri, {
+            sourceFile,
+            diagnostics: []
+        });
     }
 
-    it('Highlights all occurrences of word in document', async () => {
-        const tdl = `[Report: TestReport]\nForm: MyForm\n\n[Form: MyForm]\nPart: SomePart`;
-        const { uri, document } = await setup(tdl);
-        
-        const offset = tdl.indexOf('MyForm');
+    const mockDocs = {
+        get: (uri: string) => docs.get(uri)
+    } as unknown as TextDocuments<TextDocument>;
+
+    const symbolTable = new SymbolTable();
+    const scopeManager = new ScopeManager(symbolTable);
+
+    const reportAttrs = new Map<string, any>();
+    reportAttrs.set('use', { name: 'Use', parameters: [{ RefersTo: 'Report' }] });
+    scopeManager.globalScope.attributes.set('report', reportAttrs);
+
+    for (const [uri, state] of docStates.entries()) {
+        buildFileScope(scopeManager, uri, state.sourceFile);
+    }
+
+    const mockDocManager = {
+        get: (uri: string) => docStates.get(uri),
+        getAllDocs: () => docStates.entries(),
+        getProjectNodes: (uri: string) => new Set(Array.from(docs.keys())),
+        getScopeManager: (uri: string) => scopeManager
+    } as unknown as DocManager;
+    
+    return { mockDocs, mockDocManager, targetUri, position };
+}
+
+describe('Document Highlight Service', () => {
+    it('returns highlights for a definition name and its references within the same file', async () => {
+        const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
+            'file:///test.tdl': `
+[Report: |BaseReport]
+Use: BaseReport
+Use: BaseReport
+`
+        });
         
         const params: DocumentHighlightParams = {
-            textDocument: { uri },
-            position: document.positionAt(offset)
+            textDocument: { uri: targetUri },
+            position
         };
         
-        const highlights = await getDocumentHighlights(params, docManager, mockDocuments);
-        
-        expect(highlights.length).toBe(2);
+        const highlights = await getDocumentHighlights(params, mockDocManager, mockDocs);
+        expect(highlights).toBeDefined();
+        expect(highlights!.length).toBe(3);
     });
 
-    it('No highlights for unmatched words', async () => {
-        const tdl = `;; A comment here`;
-        const { uri, document } = await setup(tdl);
+    it('does NOT return highlights from other files', async () => {
+        const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
+            'file:///file1.tdl': `
+[Report: |TestReport]
+Use: TestReport
+`,
+            'file:///file2.tdl': `
+[Report: AnotherReport]
+Use: TestReport
+`
+        });
         
         const params: DocumentHighlightParams = {
-            textDocument: { uri },
-            position: document.positionAt(5)
+            textDocument: { uri: targetUri },
+            position
         };
         
-        const highlights = await getDocumentHighlights(params, docManager, mockDocuments);
-        
-        expect(highlights.length).toBe(0);
+        const highlights = await getDocumentHighlights(params, mockDocManager, mockDocs);
+        expect(highlights).toBeDefined();
+        expect(highlights!.length).toBe(2); 
     });
 
-    it('Handles cursor at definition vs reference', async () => {
-        const tdl = `[Report: TestReport]\nForm: MyForm\n\n[Form: MyForm]`;
-        const { uri, document } = await setup(tdl);
+    it('returns empty array when cursor is on whitespace/non-symbol position', async () => {
+        const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
+            'file:///test.tdl': `
+[Report: BaseReport]
+|   
+Use: BaseReport
+`
+        });
         
-        const refOffset = tdl.indexOf('MyForm');
-        const refParams: DocumentHighlightParams = {
-            textDocument: { uri },
-            position: document.positionAt(refOffset)
+        const params: DocumentHighlightParams = {
+            textDocument: { uri: targetUri },
+            position
         };
-        const refHighlights = await getDocumentHighlights(refParams, docManager, mockDocuments);
         
-        const defOffset = tdl.lastIndexOf('MyForm');
-        const defParams: DocumentHighlightParams = {
-            textDocument: { uri },
-            position: document.positionAt(defOffset)
-        };
-        const defHighlights = await getDocumentHighlights(defParams, docManager, mockDocuments);
-        
-        expect(refHighlights.length).toBe(2);
-        expect(defHighlights.length).toBe(2);
-        
-        // The ranges might be in different order, but their contents should be the same
-        expect(refHighlights.map(h => h.range.start.line).sort()).toEqual(defHighlights.map(h => h.range.start.line).sort());
+        const highlights = await getDocumentHighlights(params, mockDocManager, mockDocs);
+        expect(highlights).toBeDefined();
+        expect(highlights!.length).toBe(0);
     });
 });

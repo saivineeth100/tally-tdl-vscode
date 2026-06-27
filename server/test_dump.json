@@ -1,0 +1,22 @@
+{
+  "scopeIndexKeys": [
+    "file:test.tdl",
+    "report:myreport",
+    "form:myform",
+    "part:mypart"
+  ],
+  "childDefinitions": [
+    [
+      "report:myreport",
+      [
+        "form:myform"
+      ]
+    ],
+    [
+      "form:myform",
+      [
+        "part:mypart"
+      ]
+    ]
+  ]
+}

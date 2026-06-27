@@ -13,7 +13,8 @@ export async function findReferences(
     docs: TextDocuments<TextDocument>,
     uri: string,
     offset: number,
-    includeDeclaration: boolean = false
+    includeDeclaration: boolean = false,
+    scopeUri?: string
 ): Promise<Location[]> {
     const locations: Location[] = [];
     const sourceDoc = docs.get(uri);
@@ -116,7 +117,7 @@ export async function findReferences(
     const lowerTargetName = targetName.toLowerCase();
     const lowerTargetType = targetType?.toLowerCase();
 
-    const projectScope = docManager.getProjectNodes(uri);
+    const projectScope = scopeUri ? new Set([scopeUri]) : docManager.getProjectNodes(uri);
 
     // Iterate through project documents
     for (const docUri of projectScope) {

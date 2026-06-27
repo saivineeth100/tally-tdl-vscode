@@ -8,8 +8,8 @@ import { offsetToPosition } from '../utils/positionUtils';
  * @param definitionType The TDL definition type (Report, Field, etc.)
  * @returns Corresponding LSP SymbolKind
  */
-export function tdlTypeToLSPSymbolKind(definitionType: string): LSPSymbolKind {
-    return symbolKindToLSPSymbolKind(definitionTypeToSymbolKind(definitionType));
+export function tdlTypeToLSPSymbolKind(definitionType: string, manager?: any): LSPSymbolKind {
+    return symbolKindToLSPSymbolKind(definitionTypeToSymbolKind(definitionType, manager));
 }
 
 
@@ -142,10 +142,11 @@ function statementToDocumentSymbol(stmt: StatementNode, text: string): DocumentS
  * @param text Full document text
  * @returns DocumentSymbol for the definition
  */
-export function definitionToDocumentSymbol(def: DefinitionNode, text: string): DocumentSymbol {
-    const defType = def.type.text;
-    const name = def.name?.text ?? '(unnamed)';
-    const symbolKind = tdlTypeToLSPSymbolKind(defType);
+export function definitionToDocumentSymbol(def: DefinitionNode, text: string, manager?: any): DocumentSymbol {
+    const defName = def.name ? def.name.text : '<anonymous>';
+    const defType = def.type ? def.type.text : 'Unknown';
+    
+    const symbolKind = tdlTypeToLSPSymbolKind(defType, manager);
 
     // Build detail string with modifier if present
     let detail = defType;
@@ -168,7 +169,7 @@ export function definitionToDocumentSymbol(def: DefinitionNode, text: string): D
     }
 
     return {
-        name,
+        name: defName,
         kind: symbolKind,
         detail,
         range,
@@ -183,6 +184,8 @@ export function definitionToDocumentSymbol(def: DefinitionNode, text: string): D
  * @param text Full document text
  * @returns Array of DocumentSymbols
  */
-export function createDocumentSymbols(sourceFile: SourceFile, text: string): DocumentSymbol[] {
-    return sourceFile.definitions.map(def => definitionToDocumentSymbol(def, text));
+export function createDocumentSymbols(sourceFile: SourceFile, text: string, manager?: any): DocumentSymbol[] {
+    return sourceFile.definitions.map(def => definitionToDocumentSymbol(def, text, manager));
 }
+
+

@@ -74,7 +74,8 @@ function setupMocks(files: Record<string, string>) {
         get: (uri: string) => docStates.get(uri),
         getAllDocs: () => docStates.entries(),
         getProjectNodes: (uri: string) => new Set(Array.from(docs.keys())),
-        getScopeManager: (uri: string) => scopeManager
+        getScopeManager: (uri: string) => scopeManager,
+        getSymbolTable: (uri: string) => symbolTable
     } as unknown as DocManager;
     
     return { mockDocs, mockDocManager, targetUri, position };

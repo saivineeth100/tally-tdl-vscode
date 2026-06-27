@@ -13,5 +13,6 @@ export const DefinitionRules = {
     CircularInclude: { code: 'TDL2009', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "Circular include detected: {0}", description: "Include forms a circular reference." },
     UnknownDefinitionType: { code: 'TDL2010', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Unknown definition type '{0}'.", description: "The definition type is not recognized." },
     InvalidKeyword: { code: 'TDL2011', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Invalid keyword '{0}'. Expected one of: {1}.", description: "Keyword is invalid." },
-    UnknownFieldReference: { code: 'TDL2012', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Field '{0}' is not in scope.", description: "Referenced field is not available in the current context." }
+    UnknownFieldReference: { code: 'TDL2012', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Field '{0}' is not in scope.", description: "Referenced field is not available in the current context." },
+    DefinitionNotInScope: { code: 'TDL2013', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "{1} '{0}' is not in scope of current definition.", description: "Referenced definition exists but is not reachable from the current scope." }
 } as const;

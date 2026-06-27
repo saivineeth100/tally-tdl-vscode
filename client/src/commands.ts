@@ -75,6 +75,27 @@ export function registerCommands(
             }
         }),
 
+        commands.registerCommand('tally-tdl.buildCustomLibraryCache', async () => {
+            const options = {
+                canSelectMany: false,
+                openLabel: 'Select Custom TDL Library Folder',
+                canSelectFiles: false,
+                canSelectFolders: true
+            };
+            const fileUri = await window.showOpenDialog(options);
+            if (fileUri && fileUri[0]) {
+                const folderPath = fileUri[0].fsPath;
+                let client = getDefaultClient();
+                // Send notification to language server to build it
+                if (client) {
+                    client.sendNotification('tdl/buildCustomLibraryCache', { folderPath });
+                    window.showInformationMessage(`Building cache for ${folderPath}... Please check the Output window for progress.`);
+                } else {
+                    window.showErrorMessage('TDL Language Server is not running.');
+                }
+            }
+        }),
+
         commands.registerCommand('tally-tdl.convertToXml', async () => {
             const editor = window.activeTextEditor;
             if (!editor) {

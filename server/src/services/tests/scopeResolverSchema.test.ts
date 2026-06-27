@@ -91,8 +91,11 @@ describe('ScopeManager - Schema Integration', () => {
             inUseInheritance: manager.inUseInheritance,
             parentDefinitions: manager.parentDefinitions,
             childDefinitions: manager.childDefinitions,
+            globalScope: manager.globalScope,
+            projectScope: manager.projectScope,
             findDefinitionScope: (id: string) => manager.findDefinitionScope(id),
-            findGlobalSymbolsByName: (n: string, s?: Set<string>) => manager.findGlobalSymbolsByName(n, s)
+            findGlobalSymbolsByName: (n: string, s?: Set<string>) => manager.findGlobalSymbolsByName(n, s),
+            getCanonicalTypeName: (n: string) => manager.getCanonicalTypeName(n)
         };
 
         const resolvedName = resolveVariable(state, '$Name', collScope, undefined);
@@ -158,8 +161,11 @@ describe('ScopeManager - Schema Integration', () => {
             inUseInheritance: manager.inUseInheritance,
             parentDefinitions: manager.parentDefinitions,
             childDefinitions: manager.childDefinitions,
+            globalScope: manager.globalScope,
+            projectScope: manager.projectScope,
             findDefinitionScope: (id: string) => manager.findDefinitionScope(id),
-            findGlobalSymbolsByName: (n: string, s?: Set<string>) => manager.findGlobalSymbolsByName(n, s)
+            findGlobalSymbolsByName: (n: string, s?: Set<string>) => manager.findGlobalSymbolsByName(n, s),
+            getCanonicalTypeName: (n: string) => manager.getCanonicalTypeName(n)
         };
 
         const resolvedParent = resolveVariable(state, '$Parent', collScope, undefined);

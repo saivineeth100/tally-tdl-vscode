@@ -9,6 +9,7 @@ export * from './utils';
 export * from './types';
 export * from './syntaxRules';
 export * from './definitionRules';
+export { MissingDefinitionData, DefinitionNotInScopeData, UnknownAttributeData, UnknownDefinitionTypeData, MissingEndStatementData, UnknownSchemaPropertyData } from './types';
 export * from './schemaRules';
 export * from './statementRules';
 export * from './arityRules';

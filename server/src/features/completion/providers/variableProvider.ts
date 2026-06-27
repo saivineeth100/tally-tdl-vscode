@@ -36,8 +36,8 @@ export function provideVariableCompletions(
     
     // 2. Global definitions
     const projectScope = manager.getProjectNodes(uri);
-    items.push(...getSuggestionsForDefinitionType('Variable', partial, scopeManager, symbolTable, projectScope));
-    items.push(...getSuggestionsForDefinitionType('System Variable', partial, scopeManager, symbolTable, projectScope));
+    items.push(...getSuggestionsForDefinitionType('Variable', partial, scopeManager, projectScope));
+    items.push(...getSuggestionsForDefinitionType('System Variable', partial, scopeManager, projectScope));
 
     return items;
 }

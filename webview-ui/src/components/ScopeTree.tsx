@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { vscode } from "../utilities/vscode";
+import { ScopeNode } from "../types";
 
 interface ScopeTreeProps {
-  data: any;
+  data: ScopeNode;
   onSelectNode: (node: any, path: string[]) => void;
 }
 
 const TreeNode: React.FC<{
-  node: any;
+  node: ScopeNode;
   depth: number;
   isOpen: boolean;
   parentPath: string[];
@@ -47,8 +48,11 @@ const TreeNode: React.FC<{
     } else if (node.kind === 'AttributesCategory' || node.kind === 'SchemasCategory') {
       window.location.hash = `#${node.id}/${node.kind}`;
       onSelectNode({ _type: 'symbol-group', kind: node.kind, scopeId: node.id }, currentPath);
+    } else if (node.kind === 'Structural Hierarchy' || node.kind === 'DefinitionsCategory' || node.kind === 'FilesCategory' || node.kind === 'Folder') {
+      // These are just grouping folders, no need to navigate to them
     } else {
-      onSelectNode(node, currentPath);
+      window.location.hash = `#${node.id}`;
+      onSelectNode({ _type: 'scope', scopeId: node.id }, currentPath);
     }
   };
 
@@ -59,7 +63,7 @@ const TreeNode: React.FC<{
     
     if (node.children) {
       childrenElements = childrenElements.concat(
-        node.children.map((child: any, idx: number) => (
+        node.children.map((child: ScopeNode, idx: number) => (
           <TreeNode 
             key={`child-${idx}`} 
             node={child} 
@@ -114,6 +118,9 @@ const TreeNode: React.FC<{
   let displayNodeId = displayName;
   if (displayNodeId.endsWith('_Attributes')) displayNodeId = 'Attributes';
   if (displayNodeId.endsWith('_Schemas')) displayNodeId = 'Schemas';
+  if (displayNodeId.endsWith('_Definitions')) displayNodeId = 'Definitions';
+  if (displayNodeId.endsWith('_Structural')) displayNodeId = 'Structural Hierarchy';
+  if (displayNodeId.endsWith('_Files')) displayNodeId = 'Files';
   
   if (isSymbolGroup) {
     if (displayNodeId.startsWith('Attribute_')) displayNodeId = displayNodeId.substring(10);

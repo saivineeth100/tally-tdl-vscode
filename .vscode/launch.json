@@ -14,8 +14,7 @@
             "autoAttachChildProcesses": true,
             "sourceMaps": true,
             "outFiles": [
-                "${workspaceRoot}/client/out/**/*.js",
-                "${workspaceRoot}/server/out/**/*.js"
+                "${workspaceRoot}/dist/**/*.js"
             ],
             "preLaunchTask": "npm: watch"
         },

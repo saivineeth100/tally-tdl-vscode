@@ -7,6 +7,7 @@ import { ScopeManager } from "../scopeManager";
 import { validateLabelSequences } from "../sequenceValidator";
 import { validateDefinitionAttributes, validateSchemaObject } from "./attributeValidation";
 import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, MissingEndStatementData } from "../../diagnostics";
+import { URI } from 'vscode-uri';
 
 export * from '../../diagnostics';
 export * from './validationUtils';
@@ -43,7 +44,7 @@ export async function validateSourceFile(
         if (dir.kind === SyntaxKind.DefTypeDirective) {
             const defTypeDir = dir as DefTypeDirectiveNode;
             const normalizedType = normalizeTypeName(defTypeDir.defType);
-            const existingDefMap = scopeManager.existingDefinitions.get(normalizedType);
+            const existingDefMap = scopeManager.globalScope.definitions.get(normalizedType);
             if (!existingDefMap) {
                 diagnostics.push(createDiagnostic(
                     DiagnosticRules.UnknownDefinitionType,
@@ -89,12 +90,12 @@ export async function validateSourceFile(
         if (!isXml && !def.isIncomplete && def.name && def.type) {
             const defType = def.type.text;
             const defName = def.name.text;
-            const kind = definitionTypeToSymbolKind(defType);
+            const kind = definitionTypeToSymbolKind(defType, scopeManager);
             const lowerDefType = defType.toLowerCase();
 
             // Skip duplicate checks for Include and Import
             if (lowerDefType !== 'include' && lowerDefType !== 'import') {
-                const typeMap = scopeManager.existingDefinitions.get(normalizeTypeName(defType));
+                const typeMap = scopeManager.globalScope.definitions.get(normalizeTypeName(defType));
                 const existsInMetadata = typeMap ? typeMap.has(normalizeTypeName(defName)) : false;
 
                 if (!def.modifier || def.modifier.Text === '!') {
@@ -109,15 +110,16 @@ export async function validateSourceFile(
                         { start: startPos, end: endPos },
                         defName
                     ));
-                } else if (scopeManager) {
-                    // Check against Workspace (excluding modifiers)
-                    const existingDefMap = scopeManager.projectScope.definitions.get(normalizeTypeName(defType));
-                    const existingDef = existingDefMap?.get(normalizeTypeName(defName));
+                } else if (symbolTable) {
+                    // Check against Workspace (excluding modifiers) using SymbolTable to flag ALL occurrences
+                    const allOccurrences = symbolTable.findAllByName(defName, projectNodes);
                     
-                    // projectScope.definitions only contains original definitions (no modifiers/incomplete)
-                    const isDuplicateInWorkspace = existingDef && (existingDef.uri !== doc.uri || existingDef.start !== def.start);
+                    const duplicates = allOccurrences.filter(sym => 
+                        !sym.isModifier && 
+                        sym.definitionType.toLowerCase() === lowerDefType
+                    );
                     
-                    if (isDuplicateInWorkspace) {
+                    if (duplicates.length > 1) {
                         const startPos = doc.positionAt(def.name.start);
                         const endPos = doc.positionAt(def.name.end);
 
@@ -161,7 +163,7 @@ export async function validateSourceFile(
                         
                         if (targetDefType && targetDefName) {
                             const normalizedType = normalizeTypeName(targetDefType);
-                            const existingDefMap = scopeManager.existingDefinitions.get(normalizedType);
+                            const existingDefMap = scopeManager.globalScope.definitions.get(normalizedType);
                             
                             if (!existingDefMap) {
                                 diagnostics.push(createDiagnostic(

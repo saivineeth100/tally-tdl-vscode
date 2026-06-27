@@ -96,13 +96,13 @@ export function provideModifierValueCompletions(
                 }
                 
                 if (reachable.length === 0) {
-                    items.push(...getSuggestionsForDefinitionType(expectingDefNameFor, context.partial, scopeManager, symbolTable));
+                    items.push(...getSuggestionsForDefinitionType(expectingDefNameFor, context.partial, scopeManager));
                 }
             }
         } else if (!isAttribute) {
             // Typing either a <Definition Type> OR an <Attribute> for currentScopeDefType
             // 1. Suggest Definition Types
-            const defTypes = Array.from(scopeManager.existingDefinitions.keys());
+            const defTypes = scopeManager.getDefinitionTypes();
             items.push(...provideDefinitionTypeCompletions(partial, isXml, defTypes, scopeManager, undefined, context.hasTrailingColon));
 
             // 2. Suggest Attributes for currentScopeDefType
@@ -180,7 +180,7 @@ export function provideModifierValueCompletions(
         // Use : <Definition Name>
         if (context.paramIndex === 0) {
             const defTypeName = currentDef.type.text;
-            items.push(...getSuggestionsForDefinitionType(defTypeName, context.partial, scopeManager, symbolTable));
+            items.push(...getSuggestionsForDefinitionType(defTypeName, context.partial, scopeManager));
         }
     }
     return items;

@@ -4,7 +4,7 @@ import { DocManager } from '../../../docManager';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { SymbolTable, SymbolKind } from '../../../services/symbolTable';
 
-import { testScopeManager } from '../../../test-setup';
+import { testScopeManager, ensureBaseTdlLoaded } from '../../../test-setup';
 
 describe('XML Suggestions Tests', () => {
     let mockConnection: any;
@@ -13,12 +13,16 @@ describe('XML Suggestions Tests', () => {
     let mockSymbolTable: SymbolTable;
     let completionCallback: Function;
 
+    beforeAll(async () => {
+        await ensureBaseTdlLoaded();
+    }, 60000);
+
     it('returns correct XML definition_type suggestion', async () => {
         const xmlContent = '<TDL><TDLMESSAGE><R';
         
         mockConnection = {
             onCompletion: (cb: any) => { completionCallback = cb; },
-            console: { log: () => {}, error: () => {} }
+            console: { log: () => {}, error: () => {}, info: () => {} }
         };
         
         const doc = TextDocument.create('untitled:Untitled-1', 'xml', 1, xmlContent);
@@ -41,6 +45,8 @@ describe('XML Suggestions Tests', () => {
         });
         
     const reportItem = result.items.find((i: any) => i.label === 'REPORT');
+    console.log('DefTypes length:', testScopeManager?.getDefinitionTypes().length);
+    console.log('Items length:', result.items.length);
 
         expect(reportItem).toBeDefined();
         expect(reportItem.insertTextFormat).toBe(2); // Snippet
@@ -52,7 +58,7 @@ describe('XML Suggestions Tests', () => {
         
         mockConnection = {
             onCompletion: (cb: any) => { completionCallback = cb; },
-            console: { log: () => {}, error: () => {} }
+            console: { log: () => {}, error: () => {}, info: () => {} }
         };
         
         const doc = TextDocument.create('untitled:Untitled-1', 'xml', 1, xmlContent);
@@ -101,7 +107,7 @@ describe('XML Suggestions Tests', () => {
         
         mockConnection = {
             onCompletion: (cb: any) => { completionCallback = cb; },
-            console: { log: () => {}, error: () => {} }
+            console: { log: () => {}, error: () => {}, info: () => {} }
         };
         
         const doc = TextDocument.create('untitled:Untitled-1', 'xml', 1, xmlContent);
@@ -160,7 +166,7 @@ describe('XML Suggestions Tests', () => {
         
         // Mocking TextDocuments and Connection for DocManager
         mockConnection = { 
-            console: { log: () => {}, error: () => {} },
+            console: { log: () => {}, error: () => {}, info: () => {} },
             sendDiagnostics: () => {},
             onCompletion: (cb: any) => { completionCallback = cb; }
         };

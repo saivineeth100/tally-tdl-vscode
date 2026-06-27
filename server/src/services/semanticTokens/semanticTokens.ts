@@ -88,34 +88,6 @@ function mapMetaTypeToToken(refersTo?: string, dataType?: string, scopeManager?:
 }
 
 
-// Map attribute names to expected token types for their values
-const ATTRIBUTE_CONTEXT: Record<string, string> = {
-    'Collection': SemanticTokenTypes.class,
-    'Collections': SemanticTokenTypes.class,
-    'Part': SemanticTokenTypes.class,
-    'Parts': SemanticTokenTypes.class,
-    'Line': SemanticTokenTypes.class,
-    'Lines': SemanticTokenTypes.class,
-    'Field': SemanticTokenTypes.class,
-    'Fields': SemanticTokenTypes.class,
-    'Form': SemanticTokenTypes.class,
-    'Forms': SemanticTokenTypes.class,
-    'Report': SemanticTokenTypes.class,
-    'Reports': SemanticTokenTypes.class,
-    'Menu': SemanticTokenTypes.class,
-    'Menus': SemanticTokenTypes.class,
-    'Button': SemanticTokenTypes.class,
-    'Buttons': SemanticTokenTypes.class,
-    'Key': SemanticTokenTypes.class,
-    'Keys': SemanticTokenTypes.class,
-    'System': SemanticTokenTypes.class,
-    'Object': SemanticTokenTypes.class,
-    'Objects': SemanticTokenTypes.class,
-    // Flexible types
-    'Type': SemanticTokenTypes.keyword,
-    'Mode': SemanticTokenTypes.keyword
-};
-
 // Map function names to expected token types for their arguments (by index)
 const FUNCTION_PARAMETER_CONTEXT: Record<string, string[]> = {
     'CollectionField': [SemanticTokenTypes.class, SemanticTokenTypes.class], // Field, Collection
@@ -132,7 +104,9 @@ const tokenBuilders = new Map<string, SemanticTokensBuilder>();
  * Provide semantic tokens for LSP request
  */
 export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeManager?: ScopeManager, token?: CancellationToken): SemanticTokens {
+    const t0 = Date.now();
     const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, token); // Assuming Doc has URI, or pass explicitly
+    const t1 = Date.now();
 
     let builder = new SemanticTokensBuilder();
     tokenBuilders.set(doc.uri, builder);
@@ -181,11 +155,13 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
         builder.push(s.line, s.char, s.len, s.typeIdx, 0);
     }
 
-    const result = builder.build();
-    if (result.resultId) {
-        builder.previousResult(result.resultId);
+    const res = builder.build();
+    const t2 = Date.now();
+    console.info(`[Perf] provideSemanticTokens for ${doc.uri}: Total=${t2-t0}ms (getSemanticTokens=${t1-t0}ms, build=${t2-t1}ms)`);
+    if (res.resultId) {
+        builder.previousResult(res.resultId);
     }
-    return result;
+    return res;
 }
 
 /**
@@ -441,11 +417,6 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
                     expectedType = mapMetaTypeToToken(param.RefersTo, param.DataType, scopeManager);
                 }
             }
-
-            if (!expectedType) {
-                const key = Object.keys(ATTRIBUTE_CONTEXT).find(k => k.toLowerCase() === (attr.name?.text || '').toLowerCase());
-                if (key) expectedType = ATTRIBUTE_CONTEXT[key];
-            }
         }
 
         if (attr.closeName) {
@@ -680,35 +651,9 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
             return;
         }
 
-        // 2. Scope Resolution (if available)
-        if (scopeManager && uri) {
-            const scope = scopeManager.getScopeAt(uri, idNode.start);
-            if (scope) {
-                let symbol: any = undefined;
-                if (expectedType === SemanticTokenTypes.variable) {
-                    symbol = scopeManager.resolveVariable(idNode?.text || '', scope);
-                } else if (expectedType === SemanticTokenTypes.macro) {
-                    symbol = scopeManager.resolveFormula(idNode?.text || '', scope);
-                } else if (expectedType === SemanticTokenTypes.function) {
-                    symbol = scopeManager.resolveFunction(idNode?.text || '', scope);
-                }
-
-                if (!symbol) {
-                    symbol = scopeManager.resolve(idNode?.text || '', scope);
-                }
-                if (symbol) {
-                    const tokenType = getSemanticTypeFromSymbol(symbol);
-                    tokens.push({
-                        line: 0,
-                        startChar: idNode.start,
-                        length: idNode.end - idNode.start,
-                        type: tokenType,
-                        text: idNode?.text
-                    });
-                    return;
-                }
-            }
-        }
+        // Removed expensive Scope Resolution for semantic tokens.
+        // It was causing 11+ second delays on large files due to deep inheritance tree walks.
+        // We will rely on expectedType (context) which is usually 100% accurate in TDL.
 
         // 3. Fallback: Use Context (expectedType) if available, otherwise Variable
         tokens.push({

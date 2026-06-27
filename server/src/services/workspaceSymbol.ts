@@ -48,24 +48,15 @@ export async function getWorkspaceSymbols(
             end: { line: 0, character: 0 }
         };
 
-        const textDoc = docs.get(sym.uri);
-        if (textDoc) {
-            range = {
-                start: textDoc.positionAt(sym.start),
-                end: textDoc.positionAt(sym.end)
-            };
+        if (sym.selectionRange) {
+            range = sym.selectionRange;
         } else {
-            // Document not open, read from disk to compute position
-            try {
-                const filePath = URI.parse(sym.uri).fsPath;
-                const content = await readFileWithEncoding(filePath);
+            const textDoc = docs.get(sym.uri);
+            if (textDoc) {
                 range = {
-                    start: offsetToPosition(content, sym.start),
-                    end: offsetToPosition(content, sym.end)
+                    start: textDoc.positionAt(sym.start),
+                    end: textDoc.positionAt(sym.end)
                 };
-            } catch (err) {
-                // Ignore errors reading closed files, default to 0,0
-                console.warn(`[workspaceSymbol] Error reading file ${sym.uri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
             }
         }
 

@@ -4,11 +4,11 @@ import { SymbolKind as LSPSymbolKind } from 'vscode-languageserver';
 import { SymbolTable, SymbolKind } from '../symbolTable';
 import { SourceFile, SyntaxKind } from '../../parser/ast';
 import { Parser } from '../../parser/parser';
-
+import { testScopeManager, createTestScopeManager } from '../../test-setup';
 describe('ScopeManager', () => {
     it('should create root scopes on initialization', () => {
         const symbolTable = new SymbolTable();
-        const manager = new ScopeManager(symbolTable);
+        const manager = createTestScopeManager(symbolTable);
 
         // Access private properties via casting or testing public behavior
         // Since we can't easily access privates, we'll verify behavior
@@ -20,7 +20,7 @@ describe('ScopeManager', () => {
 
     it('should resolve symbols from global metadata', () => {
         const symbolTable = new SymbolTable();
-        const manager = new ScopeManager(symbolTable);
+        const manager = createTestScopeManager(symbolTable);
 
         manager.initializeGlobalScope();
         manager.globalScope.functions.set('date', {
@@ -52,7 +52,7 @@ describe('ScopeManager', () => {
 
     it('should resolve symbols from file scope', () => {
         const symbolTable = new SymbolTable();
-        const manager = new ScopeManager(symbolTable);
+        const manager = createTestScopeManager(symbolTable);
 
         const mockSourceFile = {
             definitions: [
@@ -96,7 +96,7 @@ describe('ScopeManager', () => {
 
     it('should parse Fetch Object attributes and add them to scope', () => {
         const symbolTable = new SymbolTable();
-        const manager = new ScopeManager(symbolTable);
+        const manager = createTestScopeManager(symbolTable);
 
         const mockSourceFile = {
             definitions: [
@@ -146,7 +146,7 @@ describe('ScopeManager', () => {
 
     it('should parse [System: Formula] and add to global project scope', () => {
         const symbolTable = new SymbolTable();
-        const manager = new ScopeManager(symbolTable);
+        const manager = createTestScopeManager(symbolTable);
 
         const mockSourceFile = {
             definitions: [
@@ -186,7 +186,7 @@ describe('ScopeManager', () => {
 
     it('should parse [System: Formulae] and add to global project scope', () => {
         const symbolTable = new SymbolTable();
-        const manager = new ScopeManager(symbolTable);
+        const manager = createTestScopeManager(symbolTable);
 
         const mockSourceFile = {
             definitions: [
@@ -224,7 +224,7 @@ describe('ScopeManager', () => {
 
     describe('Scope graph cleanup on rebuild', () => {
         it('should remove stale childDefinitions after removing Form from Report', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const uri = 'file://test.tdl';
             
             // Build with Report -> Form
@@ -258,7 +258,7 @@ describe('ScopeManager', () => {
         });
 
         it('should remove stale useInheritance after removing Use attribute', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const uri = 'file://test.tdl';
             
             const source1 = {
@@ -288,7 +288,7 @@ describe('ScopeManager', () => {
         });
 
         it('should clean nested projectScope.definitions maps correctly', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const uri = 'file://test.tdl';
             
             // Simulate adding a definition to projectScope
@@ -304,7 +304,7 @@ describe('ScopeManager', () => {
         });
 
         it('should preserve other URIs project definitions on single file removal', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             
             const defMap = new Map();
             defMap.set('myreport1', { uri: 'file://a.tdl', name: 'MyReport1', kind: SymbolKind.Report });
@@ -318,7 +318,7 @@ describe('ScopeManager', () => {
         });
 
         it('should not share mutable maps between base and modifier scopes', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             
             const baseSource = {
                 definitions: [{
@@ -362,7 +362,7 @@ describe('ScopeManager', () => {
         });
 
         it('should remove includedFiles entries on file removal', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const uri = 'file://test.tdl';
             
             const source1 = {
@@ -383,22 +383,26 @@ describe('ScopeManager', () => {
 
     describe('Symbol kind consolidation', () => {
         it('maps Colour and Color to same SymbolKind', () => {
-            expect(definitionTypeToSymbolKind('color')).toBe(definitionTypeToSymbolKind('colour'));
-            expect(definitionTypeToSymbolKind('color')).toBe(SymbolKind.Color);
+            const manager = testScopeManager;
+            expect(definitionTypeToSymbolKind('color', manager)).toBe(definitionTypeToSymbolKind('colour', manager));
+            expect(definitionTypeToSymbolKind('color', manager)).toBe(SymbolKind.Color);
         });
 
         it('maps Formula, Formulae, Formulas to Formula', () => {
-            expect(definitionTypeToSymbolKind('formula')).toBe(SymbolKind.Formula);
-            expect(definitionTypeToSymbolKind('formulae')).toBe(SymbolKind.Formula);
-            expect(definitionTypeToSymbolKind('formulas')).toBe(SymbolKind.Formula);
+            const manager = testScopeManager;
+            expect(definitionTypeToSymbolKind('formula', manager)).toBe(SymbolKind.Formula);
+            expect(definitionTypeToSymbolKind('formulae', manager)).toBe(SymbolKind.Formula);
+            expect(definitionTypeToSymbolKind('formulas', manager)).toBe(SymbolKind.Formula);
         });
 
         it('maps unknown definition type to Unknown', () => {
-            expect(definitionTypeToSymbolKind('nonexistent_type')).toBe(SymbolKind.Unknown);
+            const manager = testScopeManager;
+            expect(definitionTypeToSymbolKind('nonexistent_type', manager)).toBe(SymbolKind.Unknown);
         });
 
         it('maps System definitions to Variable', () => {
-            expect(definitionTypeToSymbolKind('system')).toBe(SymbolKind.Variable);
+            const manager = testScopeManager;
+            expect(definitionTypeToSymbolKind('system', manager)).toBe(SymbolKind.Variable);
         });
 
         it('LSP mapping is consistent', () => {
@@ -409,7 +413,7 @@ describe('ScopeManager', () => {
 
     describe('Discriminated scope model', () => {
         it('GlobalScope has functions/actions/attributes/schemas maps', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const globalScope = manager.globalScope;
             
             expect(globalScope.kind).toBe(ScopeKind.Global);
@@ -426,7 +430,7 @@ describe('ScopeManager', () => {
         });
 
         it('ProjectScope has definitions map but not functions/actions', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const projectScope = manager.projectScope;
             
             expect(projectScope.kind).toBe(ScopeKind.Project);
@@ -438,7 +442,7 @@ describe('ScopeManager', () => {
         });
 
         it('DefinitionScope has structuralChildren and uses', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const defScope = manager.createDefinitionScope('test', manager.projectScope, {start: 0, end: 1}, 'uri');
             
             expect(defScope.kind).toBe(ScopeKind.Definition);
@@ -449,7 +453,7 @@ describe('ScopeManager', () => {
         });
 
         it('BlockScope only has variables', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const blockScope = manager.createBlockScope('test', manager.projectScope, {start: 0, end: 1}, 'uri');
             
             expect(blockScope.kind).toBe(ScopeKind.Block);
@@ -459,7 +463,7 @@ describe('ScopeManager', () => {
         });
 
         it('every scope can store variables via BaseScope.variables', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const scopes = [
                 manager.globalScope,
                 manager.projectScope,
@@ -478,7 +482,7 @@ describe('ScopeManager', () => {
 
     describe('Resolution context', () => {
         it('resolves variable with caller context from Report→Function', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             
             // Create a report scope with a variable
             const reportScope = manager.createDefinitionScope('report:MyReport', manager.projectScope, {start: 0, end: 100}, 'test.tdl');
@@ -499,7 +503,7 @@ describe('ScopeManager', () => {
         });
 
         it('resolves attribute with spaces in name', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const reportScope = manager.createDefinitionScope('report:MyReport', manager.projectScope, {start: 0, end: 10}, 'test.tdl');
             
             manager.globalScope.attributes.set('report', new Map());
@@ -514,7 +518,7 @@ describe('ScopeManager', () => {
         });
 
         it('resolves action by alias without linear scan', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             // Add action with normalized alias directly
             manager.globalScope.actions.set('myactionalias', { name: 'My Action', kind: SymbolKind.Function } as any);
             
@@ -526,7 +530,7 @@ describe('ScopeManager', () => {
 
     describe('Definition Registration', () => {
         it('should register definitions in projectScope', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const mockSourceFile = {
                 start: 0, end: 100,
                 definitions: [
@@ -553,7 +557,7 @@ describe('ScopeManager', () => {
         });
 
         it('should not register modifiers or incomplete definitions', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const mockSourceFile = {
                 start: 0, end: 100,
                 definitions: [
@@ -572,22 +576,26 @@ describe('ScopeManager', () => {
 
     describe('Symbol kind consolidation', () => {
         it('maps Colour and Color to same SymbolKind', () => {
-            expect(definitionTypeToSymbolKind('color')).toBe(definitionTypeToSymbolKind('colour'));
-            expect(definitionTypeToSymbolKind('color')).toBe(SymbolKind.Color);
+            const manager = testScopeManager;
+            expect(definitionTypeToSymbolKind('color', manager)).toBe(definitionTypeToSymbolKind('colour', manager));
+            expect(definitionTypeToSymbolKind('color', manager)).toBe(SymbolKind.Color);
         });
 
         it('maps Formula, Formulae, Formulas to Formula', () => {
-            expect(definitionTypeToSymbolKind('formula')).toBe(SymbolKind.Formula);
-            expect(definitionTypeToSymbolKind('formulae')).toBe(SymbolKind.Formula);
-            expect(definitionTypeToSymbolKind('formulas')).toBe(SymbolKind.Formula);
+            const manager = testScopeManager;
+            expect(definitionTypeToSymbolKind('formula', manager)).toBe(SymbolKind.Formula);
+            expect(definitionTypeToSymbolKind('formulae', manager)).toBe(SymbolKind.Formula);
+            expect(definitionTypeToSymbolKind('formulas', manager)).toBe(SymbolKind.Formula);
         });
 
         it('maps unknown definition type to Unknown', () => {
-            expect(definitionTypeToSymbolKind('nonexistent_type')).toBe(SymbolKind.Unknown);
+            const manager = testScopeManager;
+            expect(definitionTypeToSymbolKind('nonexistent_type', manager)).toBe(SymbolKind.Unknown);
         });
 
         it('maps System definitions to Variable', () => {
-            expect(definitionTypeToSymbolKind('system')).toBe(SymbolKind.Variable);
+            const manager = testScopeManager;
+            expect(definitionTypeToSymbolKind('system', manager)).toBe(SymbolKind.Variable);
         });
 
         it('LSP mapping is consistent', () => {
@@ -598,7 +606,7 @@ describe('ScopeManager', () => {
 
     describe('Discriminated scope model', () => {
         it('GlobalScope has functions/actions/attributes/schemas maps', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const globalScope = manager.globalScope;
             
             expect(globalScope.kind).toBe(ScopeKind.Global);
@@ -615,7 +623,7 @@ describe('ScopeManager', () => {
         });
 
         it('ProjectScope has definitions map but not functions/actions', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const projectScope = manager.projectScope;
             
             expect(projectScope.kind).toBe(ScopeKind.Project);
@@ -627,7 +635,7 @@ describe('ScopeManager', () => {
         });
 
         it('DefinitionScope has structuralChildren and uses', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const defScope = manager.createDefinitionScope('test', manager.projectScope, {start: 0, end: 1}, 'uri');
             
             expect(defScope.kind).toBe(ScopeKind.Definition);
@@ -638,7 +646,7 @@ describe('ScopeManager', () => {
         });
 
         it('BlockScope only has variables', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const blockScope = manager.createBlockScope('test', manager.projectScope, {start: 0, end: 1}, 'uri');
             
             expect(blockScope.kind).toBe(ScopeKind.Block);
@@ -648,7 +656,7 @@ describe('ScopeManager', () => {
         });
 
         it('every scope can store variables via BaseScope.variables', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const scopes = [
                 manager.globalScope,
                 manager.projectScope,
@@ -667,7 +675,7 @@ describe('ScopeManager', () => {
 
     describe('Resolution context', () => {
         it('resolves variable with caller context from Report→Function', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             
             // Create a report scope with a variable
             const reportScope = manager.createDefinitionScope('report:MyReport', manager.projectScope, {start: 0, end: 100}, 'test.tdl');
@@ -688,7 +696,7 @@ describe('ScopeManager', () => {
         });
 
         it('resolves attribute with spaces in name', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const reportScope = manager.createDefinitionScope('report:MyReport', manager.projectScope, {start: 0, end: 10}, 'test.tdl');
             
             manager.globalScope.attributes.set('report', new Map());
@@ -703,7 +711,7 @@ describe('ScopeManager', () => {
         });
 
         it('resolves action by alias without linear scan', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             // Add action with normalized alias directly
             manager.globalScope.actions.set('myactionalias', { name: 'My Action', kind: SymbolKind.Function } as any);
             
@@ -715,7 +723,7 @@ describe('ScopeManager', () => {
 
     describe('Definition Registration', () => {
         it('should register definitions in projectScope', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const mockSourceFile = {
                 start: 0, end: 100,
                 definitions: [
@@ -742,7 +750,7 @@ describe('ScopeManager', () => {
         });
 
         it('should not register modifiers or incomplete definitions', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             const mockSourceFile = {
                 start: 0, end: 100,
                 definitions: [
@@ -776,7 +784,7 @@ describe('ScopeManager', () => {
 
     describe('getSymbolsPaginated Search and Filtering', () => {
         it('should return schema with serialized properties', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             
             const schemaProps = new Map();
             schemaProps.set('MyProp', { Name: 'MyProp', DataType: 'String', IsComplex: false, IsRepeated: false });
@@ -804,7 +812,7 @@ describe('ScopeManager', () => {
         });
 
         it('should filter schema properties by query, handling edge cases', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             
             const schemaProps = new Map();
             schemaProps.set('Name', { Name: 'Name', DataType: 'String', IsComplex: false, IsRepeated: false });
@@ -853,7 +861,7 @@ describe('ScopeManager', () => {
         });
 
         it('should return all schemas when requesting SchemasCategory', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             
             manager.globalScope.schemas.set('schema1', { name: 'Schema1', kind: SymbolKind.Object } as any);
             manager.globalScope.schemas.set('schema2', { name: 'Schema2', kind: SymbolKind.Object } as any);
@@ -864,7 +872,7 @@ describe('ScopeManager', () => {
         });
 
         it('should handle attributes search and empty states', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             
             // Empty AttributesCategory
             const emptyResult = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10);
@@ -918,7 +926,7 @@ describe('ScopeManager', () => {
         });
         
         it('should extract correct scope ID when passed Category suffix', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = createTestScopeManager(new SymbolTable());
             
             manager.globalScope.schemas.set('schema1', { name: 'Schema1', kind: SymbolKind.Object } as any);
             
@@ -936,7 +944,7 @@ describe('ScopeManager', () => {
     describe('getFieldsInScope', () => {
         it('should return fields from a structural hierarchy', () => {
             const symbolTable = new SymbolTable();
-            const manager = new ScopeManager(symbolTable);
+            const manager = createTestScopeManager(symbolTable);
             manager.recordGraphContribution = () => {}; // mock graph record
 
             const tdl = `
@@ -975,7 +983,7 @@ describe('ScopeManager', () => {
 
         it('should return no fields if definition is not in a structural hierarchy with fields', () => {
             const symbolTable = new SymbolTable();
-            const manager = new ScopeManager(symbolTable);
+            const manager = createTestScopeManager(symbolTable);
             
             const tdl = `
                 [Line: StandaloneLine]
@@ -1001,7 +1009,7 @@ describe('ScopeManager', () => {
 
         it('should collect fields from inherited definitions via Use attribute and InUse directive', () => {
             const symbolTable = new SymbolTable();
-            const manager = new ScopeManager(symbolTable);
+            const manager = createTestScopeManager(symbolTable);
             manager.recordGraphContribution = () => {};
 
             const tdl = `
@@ -1062,6 +1070,41 @@ describe('ScopeManager', () => {
             expect(manager.useInheritance.get('report:childreport')).toContain('report:parentreport');
             expect(manager.useInheritance.get('report:childreport')).not.toContain('report:mixinreport');
             expect(manager.inUseInheritance.get('report:childreport')).toContain('report:mixinreport');
+        });
+    });
+
+    describe('getDefinitionsInScope', () => {
+        it('should return fields even when used Left Fields, Right Fields etc. in Line', () => {
+         
+           var manager = testScopeManager!
+            const tdl = `
+                [Line: MyLine]
+                    Left Fields: LField1, LField2
+                    Right Fields: RField1
+                    Right Field: LocField1
+                    Fields: NField1
+                [Field: LField1]
+                [Field: LField2]
+                [Field: RField1]
+                [Field: LocField1]
+                [Field: NField1]
+            `;
+            
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+            manager.buildFileScope('file://test.tdl', sourceFile);
+
+            const lineScope = manager.findDefinitionScope('line:myline');
+            expect(lineScope).toBeDefined();
+
+            const fields = manager.getDefinitionsInScope(lineScope!, 'field');
+
+            expect(fields).toHaveLength(5);
+            expect(fields.find(f => f.name.toLowerCase() === 'lfield1')).toBeDefined();
+            expect(fields.find(f => f.name.toLowerCase() === 'lfield2')).toBeDefined();
+            expect(fields.find(f => f.name.toLowerCase() === 'rfield1')).toBeDefined();
+            expect(fields.find(f => f.name.toLowerCase() === 'locfield1')).toBeDefined();
+            expect(fields.find(f => f.name.toLowerCase() === 'nfield1')).toBeDefined();
         });
     });
 });

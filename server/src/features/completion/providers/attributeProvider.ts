@@ -79,8 +79,11 @@ export function provideAttributeValueCompletions(
                 inUseInheritance: scopeManager.inUseInheritance,
                 parentDefinitions: scopeManager.parentDefinitions,
                 childDefinitions: scopeManager.childDefinitions,
-                findDefinitionScope: (id) => scopeManager.findDefinitionScope(id),
-                findGlobalSymbolsByName: (n, s) => scopeManager.findGlobalSymbolsByName(n, s)
+                globalScope: {} as any,
+                projectScope: {} as any,
+                findDefinitionScope: (id: string) => scopeManager.findDefinitionScope(id),
+                findGlobalSymbolsByName: (n, s) => scopeManager.findGlobalSymbolsByName(n, s),
+                getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n)
             }, objectScopeName, currentScope, scope);
 
             if (schema) {
@@ -95,8 +98,11 @@ export function provideAttributeValueCompletions(
                                 inUseInheritance: scopeManager.inUseInheritance,
                                 parentDefinitions: scopeManager.parentDefinitions,
                                 childDefinitions: scopeManager.childDefinitions,
+                                globalScope: {} as any,
+                                projectScope: {} as any,
                                 findDefinitionScope: (id) => scopeManager.findDefinitionScope(id),
-                                findGlobalSymbolsByName: (n, s) => scopeManager.findGlobalSymbolsByName(n, s)
+                                findGlobalSymbolsByName: (n, s) => scopeManager.findGlobalSymbolsByName(n, s),
+                                getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n)
                             }, prop.ObjectName, currentScope, scope);
                             if (subSchema) {
                                 for (const subProp of subSchema.properties.values()) {
@@ -302,7 +308,7 @@ export function provideAttributeValueCompletions(
                 if (scopeManager.projectScope) addGlobalFormulas(scopeManager.projectScope.formulas);
                 if (scopeManager.globalScope) addGlobalFormulas(scopeManager.globalScope.formulas);
             } else if (refersToType) {
-                items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, scopeManager, symbolTable, scope));
+                items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, scopeManager, scope, symbolTable));
             }
         }
         // 4. If Datatype is String, add a hint

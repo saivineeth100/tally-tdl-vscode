@@ -158,7 +158,7 @@ export function provideCodeActions(
         } else if (diagnostic.code === DiagnosticRules.UnknownDefinitionType.code) {
             const defTypeName = (diagnostic.data as UnknownDefinitionTypeData | undefined)?.defTypeName;
             if (defTypeName && scopeManager) {
-                const types = Array.from(scopeManager.existingDefinitions.keys());
+                const types = scopeManager.getDefinitionTypes();
                 const closest = findClosestMatch(defTypeName, types);
                 if (closest) {
                     actions.push({

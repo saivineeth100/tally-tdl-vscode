@@ -11,7 +11,6 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'node',
-        globalSetup: './src/global-setup.ts',
         setupFiles: ['./src/test-setup.ts'], // Load metadata once before all tests
         include: ['src/**/*.test.ts'],
         exclude: ['out/**', 'node_modules/**', 'dist/**'],
@@ -19,7 +18,7 @@ export default defineConfig({
             provider: 'v8',
             reporter: ['text', 'lcov'],
             include: ['src/**/*.ts'],
-            exclude: ['src/**/*.test.ts', 'src/test-setup.ts', 'src/global-setup.ts']
+            exclude: ['src/**/*.test.ts', 'src/test-setup.ts']
         }
     },
 });

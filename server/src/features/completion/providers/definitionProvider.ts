@@ -1,7 +1,7 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
-import { SymbolTable, definitionTypeToSymbolKind } from '../../../services/symbolTable';
-import { normalizeTypeName, getInterchangeableTypes } from '../../../services/utils';
+import { normalizeTypeName } from '../../../services/utils';
 import { ScopeManager } from '../../../services/scopeManager';
+import { SymbolTable } from '../../../services/symbolTable';
 
 /**
  * Get suggestions for a specific definition type
@@ -10,55 +10,51 @@ export function getSuggestionsForDefinitionType(
     defType: string,
     partial: string,
     scopeManager: ScopeManager,
-    symbolTable?: SymbolTable,
-    scope?: Set<string>
+    scope?: Set<string>,
+    symbolTable?: SymbolTable
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     const normalizedPartial = normalizeTypeName(partial);
 
-    const typesToSearch = getInterchangeableTypes(normalizeTypeName(defType));
+    const canonicalType = scopeManager.getCanonicalTypeName(normalizeTypeName(defType));
 
     // Keep track of added names to avoid duplicates if they exist in both
     const addedNames = new Set<string>();
 
-    for (const type of typesToSearch) {
-        // 1. Check Symbol Table (user code)
-        if (symbolTable) {
-            const kind = definitionTypeToSymbolKind(type);
-            const existingNames = symbolTable.getNamesByKind(kind, scope);
-
-            for (const name of existingNames) {
-                if (normalizedPartial === '' || normalizeTypeName(name).includes(normalizedPartial)) {
-                    if (!addedNames.has(name.toLowerCase())) {
-                        addedNames.add(name.toLowerCase());
-                        items.push({
-                            label: name,
-                            kind: CompletionItemKind.Reference,
-                            detail: `Existing ${defType} definition`,
-                            insertText: name,
-                            sortText: '0_' + name.toLowerCase(), // Prioritize user symbols
-                        });
-                    }
-                }
+    // 1. Check SymbolTable (active unsaved / project files)
+    if (symbolTable) {
+        const tableSymbols = symbolTable.searchSymbols(partial, canonicalType, 1000, scope);
+        for (const sym of tableSymbols) {
+            const lowerName = sym.name.toLowerCase();
+            if (!addedNames.has(lowerName)) {
+                addedNames.add(lowerName);
+                items.push({
+                    label: sym.name,
+                    kind: CompletionItemKind.Reference,
+                    detail: `Workspace ${defType}`,
+                    insertText: sym.name,
+                    sortText: '0_' + lowerName,
+                });
             }
         }
+    }
 
-        // 2. Check ExistingDefinitions (default TDL)
-        const defaultNames = scopeManager.existingDefinitions.get(normalizeTypeName(type));
-        if (defaultNames) {
-            for (const name of defaultNames.values()) {
-                if (normalizedPartial === '' || normalizeTypeName(name).includes(normalizedPartial)) {
-                    if (!addedNames.has(name.toLowerCase())) {
-                        addedNames.add(name.toLowerCase());
-                        items.push({
-                            label: name,
-                            kind: CompletionItemKind.Reference,
-                            detail: `Default TDL ${defType}`,
-                            insertText: name,
-                            sortText: '1_' + name.toLowerCase(), // Lower priority than user symbols
-                        });
-                    }
-                }
+    // 2. Check Global definitions
+    const globalSymbols = scopeManager.getGlobalDefinitionsByType(canonicalType);
+    for (const sym of globalSymbols) {
+        const originalName = sym.name;
+        const lowerName = originalName.toLowerCase();
+        
+        if (normalizedPartial === '' || lowerName.includes(normalizedPartial)) {
+            if (!addedNames.has(lowerName)) {
+                addedNames.add(lowerName);
+                items.push({
+                    label: originalName,
+                    kind: CompletionItemKind.Reference,
+                    detail: `Workspace / Base TDL ${defType}`,
+                    insertText: originalName,
+                    sortText: '0_' + lowerName, // Standard priority
+                });
             }
         }
     }

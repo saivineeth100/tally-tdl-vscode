@@ -15,7 +15,7 @@ export async function getDocumentHighlights(
     const offset = doc.offsetAt(params.position);
     
     // Use findReferences but filter for the current document only
-    const locations = await findReferences(docManager, docs, uri, offset, true);
+    const locations = await findReferences(docManager, docs, uri, offset, true, uri);
     
     const highlights: DocumentHighlight[] = [];
     

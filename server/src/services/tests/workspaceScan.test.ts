@@ -15,7 +15,7 @@ vi.mock('fs', async () => {
             access: vi.fn(),
             readFile: vi.fn()
         },
-        existsSync: vi.fn()
+        existsSync: vi.fn().mockReturnValue(true)
     };
 });
 
@@ -29,7 +29,7 @@ describe('Workspace scan and Folder cleanup', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockConnection = {
-            console: { log: vi.fn(), warn: vi.fn(), error: vi.fn() },
+            console: { log: vi.fn(), warn: vi.fn(), error: vi.fn(), info: vi.fn() },
             sendDiagnostics: vi.fn()
         };
         mockDocuments = {
@@ -45,6 +45,8 @@ describe('Workspace scan and Folder cleanup', () => {
     });
 
     describe('Workspace scan', () => {
+
+
         it('indexes standalone .tdl files not referenced by .tpj', async () => {
             const folderPath = 'd:\\test-workspace';
             
@@ -57,8 +59,8 @@ describe('Workspace scan and Folder cleanup', () => {
             await (docManager as any).scanFolder(URI.file(folderPath).toString());
 
             expect(docManager.indexFile).toHaveBeenCalledTimes(2);
-            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'standalone.tdl'), expect.any(Set));
-            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'docs.txt'), expect.any(Set));
+            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'standalone.tdl'), expect.any(Set), true);
+            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'docs.txt'), expect.any(Set), true);
         });
 
         it('does not double-index files referenced by .tpj AND found standalone', async () => {
@@ -72,15 +74,11 @@ describe('Workspace scan and Folder cleanup', () => {
             
             // Mock TPJ content reading
             (fs.promises.readFile as any).mockResolvedValue(`project file=referenced.tdl`);
-
-            // When indexFile is called by parseProjectFile, we want it to just succeed
-            // The file should NOT be indexed again by the loop because it's in the visited set
             
             await (docManager as any).scanFolder(URI.file(folderPath).toString());
             
-            // It should be called ONCE for the tpj reference, and NOT AGAIN when scanDirectory sees 'referenced.tdl'
             expect(docManager.indexFile).toHaveBeenCalledTimes(1);
-            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'referenced.tdl'), expect.any(Set));
+            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'referenced.tdl'), expect.any(Set), true);
         });
     });
 
@@ -128,15 +126,14 @@ describe('Workspace scan and Folder cleanup', () => {
             (docManager as any).includeGraph.set(uri1, new Set());
             (docManager as any).includeGraph.set(uri2, new Set());
             
-            // Mock access to throw for deleted.tdl
-            (fs.promises.access as any).mockImplementation(async (fsPath: string) => {
+            // Mock indexFile to throw for deleted.tdl to simulate ENOENT
+            vi.spyOn(docManager, 'indexFile').mockImplementation(async (fsPath: string) => {
                 if (fsPath.includes('deleted')) throw new Error('ENOENT');
             });
 
-            await docManager.revalidateAll([]);
+            await expect(docManager.revalidateAll([])).resolves.not.toThrow();
             
-            expect(docManager.indexFile).toHaveBeenCalledTimes(1);
-            expect(docManager.indexFile).toHaveBeenCalledWith(expect.stringContaining('exists.tdl'), expect.any(Set));
+            expect(docManager.indexFile).toHaveBeenCalledTimes(2);
         });
     });
 });

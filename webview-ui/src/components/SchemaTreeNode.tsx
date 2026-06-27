@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { vscode } from "../utilities/vscode";
+import { SymbolsResult } from "../types";
 
 interface SchemaTreeNodeProps {
   prop: any;
@@ -8,7 +9,7 @@ interface SchemaTreeNodeProps {
 
 export const SchemaTreeNode: React.FC<SchemaTreeNodeProps> = ({ prop, scopeId }) => {
   const [expanded, setExpanded] = useState(false);
-  const [childrenResult, setChildrenResult] = useState<any>(null);
+  const [childrenResult, setChildrenResult] = useState<SymbolsResult | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   
   // Use a ref to store our unique request ID
@@ -28,7 +29,7 @@ export const SchemaTreeNode: React.FC<SchemaTreeNodeProps> = ({ prop, scopeId })
         scopeId: scopeId,
         kind: `Schema_${prop.ObjectName}`,
         page: 1,
-        limit: Number.MAX_SAFE_INTEGER,
+        limit: 5000,
         query: "",
         reqId: myReqId.current
       });
@@ -79,7 +80,7 @@ export const SchemaTreeNode: React.FC<SchemaTreeNodeProps> = ({ prop, scopeId })
       {expanded && childrenResult && childrenResult.symbols && childrenResult.symbols.length > 0 && (
         <div style={{ marginLeft: '12px', borderLeft: '1px dashed rgba(255,255,255,0.1)' }}>
           {[
-            ...childrenResult.symbols[0].serializedProperties,
+            ...(childrenResult.symbols[0].serializedProperties || []),
             ...(childrenResult.symbols[0].serializedComplexProperties || []).map((p: any) => ({
               name: p.name,
               ObjectName: p.type,

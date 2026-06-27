@@ -63,7 +63,7 @@ export function registerCompletion(
                 break;
 
             case 'definition_type':
-                const defTypes = Array.from(scopeManager.existingDefinitions.keys());
+                const defTypes = scopeManager.getDefinitionTypes();
                 items.push(...provideDefinitionTypeCompletions(context.partial, isXml, defTypes, scopeManager, context.directiveName, context.hasTrailingColon));
                 break;
 
@@ -97,7 +97,7 @@ export function registerCompletion(
                     if (lowerType === 'include' || lowerType === 'import') {
                         items.push(...(await provideFilePathCompletions(params.textDocument.uri, context.partial, manager.workspaceFolders)));
                     } else if (context.hasModifier || context.isInUse) {
-                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, symbolTable, projectScope));
+                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, projectScope, symbolTable));
                     }
                 }
                 break;
@@ -218,7 +218,7 @@ export function registerCompletion(
                             }
                         }
                           if (param.RefersTo && context.defType !== 'Function') {
-                            items.push(...getSuggestionsForDefinitionType(param.RefersTo.trim(), context.partial, scopeManager, symbolTable, projectScope));
+                            items.push(...getSuggestionsForDefinitionType(param.RefersTo.trim(), context.partial, scopeManager, projectScope));
                         } else if (param.DataType?.toLowerCase() === 'string') {
                             items.push({
                                 label: '"..."',

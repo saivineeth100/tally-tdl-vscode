@@ -1,6 +1,6 @@
 import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, FormulaSymbol, DefinitionSymbol, ActionSymbol, AttributeSymbol, SchemaSymbol } from '../../models/symbols';
 import { SemanticTokenTypes, SymbolKind as LSPSymbolKind } from 'vscode-languageserver';
-import { getInterchangeableTypes, normalizeTypeName } from '../utils';
+import { normalizeTypeName } from '../utils';
 
 /**
  * Types of scopes in TDL
@@ -39,6 +39,9 @@ export interface GlobalScope extends BaseScope {
     attributes: Map<string, Map<string, AttributeSymbol>>; // Outer key: definitionType (e.g. 'Field'), Inner key: attribute name
     schemas: Map<string, SchemaSymbol>;
     definitions: Map<string, Map<string, DefinitionSymbol>>; // Outer key: definitionType (e.g. 'Form'), Inner key: name
+    
+    interchangeableTypesMap: Map<string, string>;
+    interchangeableAttributesMap: Map<string, string>;
 }
 
 export interface ProjectScope extends BaseScope {
@@ -106,18 +109,13 @@ export interface ModifierContribution {
 /**
  * Helper to map TDL definition type string to SymbolKind
  */
-export function definitionTypeToSymbolKind(defType: string): SymbolKind {
+export function definitionTypeToSymbolKind(defType: string, manager?: any): SymbolKind {
     const normalizedType = normalizeTypeName(defType);
-    const typesToCheck = getInterchangeableTypes(normalizedType);
-
-    for (const type of typesToCheck) {
-        const kind = definitionTypeToSymbolKindDirect(type);
-        if (kind !== SymbolKind.Unknown) {
-            return kind;
-        }
+    let canonicalType = normalizedType;
+    if (manager && typeof manager.getCanonicalTypeName === 'function') {
+        canonicalType = manager.getCanonicalTypeName(normalizedType);
     }
-
-    return SymbolKind.Unknown;
+    return definitionTypeToSymbolKindDirect(canonicalType);
 }
 
 function definitionTypeToSymbolKindDirect(defType: string): SymbolKind {

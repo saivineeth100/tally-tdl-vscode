@@ -14,9 +14,9 @@ describe('Definition Validation (Mocked)', () => {
     const mockScopeManager = new ScopeManager(symbolTable);
     
     // Add existing definitions directly to the scope manager
-    mockScopeManager.existingDefinitions = new Map<string, Map<string, string>>([
-        ['report', new Map([['balancesheet', 'balancesheet'], ['trialbalance', 'trialbalance']])],
-        ['field', new Map([['name', 'name'], ['amount', 'amount']])],
+    mockScopeManager.globalScope.definitions = new Map([
+        ['report', new Map([['balancesheet', { name: 'balancesheet', kind: 0, uri: '', start: 0, end: 0, definitionType: 'report' } as any], ['trialbalance', { name: 'trialbalance', kind: 0, uri: '', start: 0, end: 0, definitionType: 'report' } as any]])],
+        ['field', new Map([['name', { name: 'name', kind: 0, uri: '', start: 0, end: 0, definitionType: 'field' } as any], ['amount', { name: 'amount', kind: 0, uri: '', start: 0, end: 0, definitionType: 'field' } as any]])],
         ['menu', new Map()],
         ['form', new Map()]
     ]);
@@ -90,7 +90,7 @@ describe('Definition Validation (Mocked)', () => {
         const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
         // Add Menu to mock metadata
-        mockScopeManager.existingDefinitions.get('menu')?.set('gatewayoftally', 'gatewayoftally');
+        mockScopeManager.globalScope.definitions.get('menu')?.set('gatewayoftally', { name: 'gatewayoftally', kind: 2, uri: '', start: 0, end: 0, definitionType: 'menu' } as any);
 
         const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
         const error = diagnostics.find(d => d.code === DiagnosticRules.DuplicateDefinition.code);
@@ -109,7 +109,6 @@ describe('Definition Validation (Mocked)', () => {
         const localScopeManager = {
             getScopeAt: () => ({}), // Return a dummy scope
             resolve: () => undefined,
-            existingDefinitions: mockScopeManager.existingDefinitions,
             globalScope: mockScopeManager.globalScope,
             projectScope: { definitions: new Map() }
         } as any;

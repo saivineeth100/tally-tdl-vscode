@@ -4,7 +4,8 @@
  * ------------------------------------------------------------------------------------------ */
 import * as path from 'path';
 import {
-    workspace, window, ExtensionContext, TextDocument, OutputChannel, WorkspaceFolder, Uri
+    workspace, window, ExtensionContext, TextDocument, OutputChannel, WorkspaceFolder, Uri,
+    TextDocumentContentProvider, EventEmitter, Event
 } from 'vscode';
 
 import {
@@ -13,6 +14,23 @@ import {
 import { cleanupTempFiles } from './tallyClient';
 import { updatePanelVariables } from './features/xmlVariables';
 import { registerCommands } from './commands';
+
+class BaseTDLDocumentProvider implements TextDocumentContentProvider {
+    onDidChangeEmitter = new EventEmitter<Uri>();
+    onDidChange = this.onDidChangeEmitter.event;
+
+    provideTextDocumentContent(uri: Uri): string {
+        return `/* 
+ * This is a Base TDL definition.
+ * 
+ * The source file is physically located in the Tally installation directory.
+ * It is loaded directly into the TDL cache for lightning-fast autocomplete and validation.
+ * 
+ * We do not load the source code here to reduce the memory footprint of the extension.
+ */
+`;
+    }
+}
 
 let defaultClient: LanguageClient;
 const clients = new Map<string, LanguageClient>();
@@ -52,10 +70,17 @@ function getOuterMostWorkspaceFolder(folder: WorkspaceFolder): WorkspaceFolder {
 }
 
 export function activate(context: ExtensionContext) {
-    const module = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
+    // Register basetdl virtual document provider
+    context.subscriptions.push(
+        workspace.registerTextDocumentContentProvider('basetdl', new BaseTDLDocumentProvider())
+    );
+
+    const module = context.asAbsolutePath(path.join('dist', 'server.js'));
     const outputChannel: OutputChannel = window.createOutputChannel('tally-tdl-server');
 
     function didOpenTextDocument(document: TextDocument): void {
+        if (document.uri.scheme === 'basetdl') return; // Handled by our virtual document provider
+
         if ((document.languageId !== 'tdl' && document.languageId !== 'xml') || (document.uri.scheme !== 'file' && document.uri.scheme !== 'untitled')) {
             return;
         }

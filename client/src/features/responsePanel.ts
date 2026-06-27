@@ -229,9 +229,9 @@ export class ResponsePanel {
             return `<!DOCTYPE html><html><body>Error loading webview HTML: ${err}</body></html>`;
         }
 
-        const saxUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'sax.js'));
-        const scriptUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'webview.js'));
-        const styleUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'webview.css'));
+        const saxUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'sax.js')).with({ query: `t=${Date.now()}` });
+        const scriptUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'webview.js')).with({ query: `t=${Date.now()}` });
+        const styleUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'webview.css')).with({ query: `t=${Date.now()}` });
 
         htmlContent = htmlContent.replace('##STYLE_URI##', styleUri.toString());
         

@@ -51,7 +51,19 @@ export class DefinitionsParser extends StatementsParser {
 
         // Parse definition type (required, but use recovery if missing)
 
-        let defType = this.ExpectIdentifierAndRecover(false, true, "Expected Definition Type");
+        let defType: IdentifierNode;
+        
+        if (
+            this.CurrentToken.Kind === TokenKind.DoubleAtTheRateToken &&
+            this.peek(1).Kind === TokenKind.IdentifierToken &&
+            this.peek(1).Text.toLowerCase() === 'include'
+        ) {
+            const doubleAt = this.EatToken();
+            const includeToken = this.EatToken();
+            defType = new IdentifierNode([doubleAt, includeToken], doubleAt.Text + includeToken.Text);
+        } else {
+            defType = this.ExpectIdentifierAndRecover(false, true, "Expected Definition Type");
+        }
 
         if (defType.isIncomplete) {
             isIncomplete = true;

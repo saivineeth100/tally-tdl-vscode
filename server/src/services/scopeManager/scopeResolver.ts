@@ -1,18 +1,21 @@
 import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, FormulaSymbol, DefinitionSymbol, AttributeSymbol, ActionSymbol, SchemaSymbol } from '../symbolTable';
 import { Scope, ScopeKind, definitionTypeToSymbolKind, hasFunctionsAndActions, hasDefinitions, hasAttributes, hasSchemas, GlobalScope, ProjectScope } from './types';
-import { normalizeTypeName, getInterchangeableTypes } from '../utils';
+import { normalizeTypeName } from '../utils';
 
 export interface IScopeResolverState {
     useInheritance: Map<string, Set<string>>;
     inUseInheritance: Map<string, Set<string>>;
     parentDefinitions: Map<string, Set<string>>;
     childDefinitions: Map<string, Set<string>>;
+    globalScope: GlobalScope;
+    projectScope: ProjectScope;
     metadata?: any;
-    existingDefinitions?: Map<string, Map<string, string>>;
+
     modifierContributions?: Map<string, import('./types').ModifierContribution[]>;
     
     findDefinitionScope(id: string): Scope | undefined;
     findGlobalSymbolsByName(name: string, projectScope?: Set<string>): SymbolInfo[];
+    getCanonicalTypeName(normalizedType: string): string;
 }
 
 export interface ResolutionContext {
@@ -33,9 +36,12 @@ type VisitorStrategy = (scope: Scope) => void;
 function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<T>): T | undefined {
     const { visitedScopes, state, initialScope } = context;
 
-    const searchScopeAndParents = (scope: Scope): T | undefined => {
-        if (visitedScopes.has(scope.id)) return undefined;
-        visitedScopes.add(scope.id);
+    const searchScopeAndParents = (scope: Scope, isUseChain: boolean = false): T | undefined => {
+        // We use a composite key for visited to allow a scope to be visited structurally 
+        // even if it was previously visited via a use chain (though rare).
+        const visitKey = `${scope.id}|${isUseChain}`;
+        if (visitedScopes.has(visitKey)) return undefined;
+        visitedScopes.add(visitKey);
 
         const result = strategy(scope);
         if (result !== undefined) return result;
@@ -46,7 +52,7 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
             for (const useId of uses) {
                 const useScope = state.findDefinitionScope(useId);
                 if (useScope) {
-                    const res = searchScopeAndParents(useScope);
+                    const res = searchScopeAndParents(useScope, true);
                     if (res !== undefined) return res;
                 }
             }
@@ -58,7 +64,7 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
             for (const useId of inUses) {
                 const useScope = state.findDefinitionScope(useId);
                 if (useScope) {
-                    const res = searchScopeAndParents(useScope);
+                    const res = searchScopeAndParents(useScope, true);
                     if (res !== undefined) return res;
                 }
             }
@@ -71,7 +77,7 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
                 // Sort by order so earlier modifiers are visited first
                 const sortedMods = [...modifiers].sort((a, b) => a.order - b.order);
                 for (const mod of sortedMods) {
-                    const res = searchScopeAndParents(mod.scope);
+                    const res = searchScopeAndParents(mod.scope, isUseChain);
                     if (res !== undefined) return res;
                 }
             }
@@ -82,19 +88,21 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
             const collId = `collection:${scope.collectionScope}`.toLowerCase();
             const collScope = state.findDefinitionScope(collId);
             if (collScope) {
-                const res = searchScopeAndParents(collScope);
+                const res = searchScopeAndParents(collScope, isUseChain);
                 if (res !== undefined) return res;
             }
         }
         
         // Structurally search upwards
-        if (scope.kind === ScopeKind.Definition) {
+        // CRITICAL FIX: Only traverse structural parents if we are NOT inside a Use/Inheritance chain.
+        // If A uses B, B's structural parents are irrelevant to A and would cause a massive fan-out.
+        if (!isUseChain && scope.kind === ScopeKind.Definition) {
             const parentIds = state.parentDefinitions.get(scope.id.toLowerCase());
             if (parentIds) {
                 for (const pid of parentIds) {
                     const parentScope = state.findDefinitionScope(pid);
                     if (parentScope) {
-                        const res = searchScopeAndParents(parentScope);
+                        const res = searchScopeAndParents(parentScope, false);
                         if (res !== undefined) return res;
                     }
                 }
@@ -126,6 +134,7 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
 /**
  * Resolves all available definitions of a specific type that are "in scope" for a given context.
  * Traverses UP to the structural roots (e.g., Form, Report) then DOWN to collect all matches.
+ * Follows structural parents, Use/InUse inheritance, modifier contributions, and collectionScope links.
  */
 export function getDefinitionsInScope(context: ResolutionContext, targetDefType: string, globalScope?: GlobalScope, projectScope?: ProjectScope): SymbolInfo[] {
     const { state, initialScope } = context;
@@ -152,13 +161,16 @@ export function getDefinitionsInScope(context: ResolutionContext, targetDefType:
             visitedParents.add(id);
             
             const parents = state.parentDefinitions.get(id);
-            const hasParents = parents && parents.size > 0;
+            const hasParents = (parents && parents.size > 0);
 
             if (!hasParents) {
                 roots.add(id);
             } else {
-                for (const parentId of parents) {
-                    findRoots(parentId);
+                // Walk structural parents
+                if (parents) {
+                    for (const parentId of parents) {
+                        findRoots(parentId);
+                    }
                 }
             }
         };
@@ -178,6 +190,7 @@ export function getDefinitionsInScope(context: ResolutionContext, targetDefType:
                 }
             }
 
+            // Follow structural children
             const children = state.childDefinitions.get(id);
             if (children) {
                 for (const childId of children) {
@@ -185,6 +198,7 @@ export function getDefinitionsInScope(context: ResolutionContext, targetDefType:
                 }
             }
 
+            // Follow Use inheritance
             const uses = state.useInheritance.get(id);
             if (uses) {
                 for (const useId of uses) {
@@ -192,11 +206,45 @@ export function getDefinitionsInScope(context: ResolutionContext, targetDefType:
                 }
             }
 
+            // Follow InUse inheritance
             const inUses = state.inUseInheritance.get(id);
             if (inUses) {
                 for (const useId of inUses) {
                     collectDefinitions(useId);
                 }
+            }
+
+            // Follow modifier contributions
+            if (state.modifierContributions) {
+                const modifiers = state.modifierContributions.get(id);
+                if (modifiers) {
+                    for (const mod of modifiers) {
+                        const modScopeId = mod.scope.id.toLowerCase();
+                        if (!visitedChildren.has(modScopeId)) {
+                            visitedChildren.add(modScopeId);
+                            // Check if the modifier scope itself matches
+                            if (modScopeId.startsWith(targetDefTypeLower)) {
+                                if (mod.scope.kind === ScopeKind.Definition && (mod.scope as import('./types').DefinitionScope).definition) {
+                                    definitions.set(modScopeId, (mod.scope as import('./types').DefinitionScope).definition!);
+                                }
+                            }
+                            // Collect from modifier's children
+                            const modChildren = state.childDefinitions.get(modScopeId);
+                            if (modChildren) {
+                                for (const childId of modChildren) {
+                                    collectDefinitions(childId);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Follow collectionScope link
+            const defScope = state.findDefinitionScope(id);
+            if (defScope && 'collectionScope' in defScope && defScope.collectionScope) {
+                const collId = `collection:${defScope.collectionScope}`.toLowerCase();
+                collectDefinitions(collId);
             }
         };
 
@@ -297,9 +345,10 @@ export function getFieldsInScope(context: ResolutionContext, globalScope?: Globa
 function visitScopes(context: ResolutionContext, visitor: VisitorStrategy, localOnly: boolean = false): void {
     const { visitedScopes, state, initialScope } = context;
 
-    const walkScopeAndParents = (scope: Scope): void => {
-        if (visitedScopes.has(scope.id)) return;
-        visitedScopes.add(scope.id);
+    const walkScopeAndParents = (scope: Scope, isUseChain: boolean = false): void => {
+        const visitKey = `${scope.id}|${isUseChain}`;
+        if (visitedScopes.has(visitKey)) return;
+        visitedScopes.add(visitKey);
 
         visitor(scope);
 
@@ -311,7 +360,7 @@ function visitScopes(context: ResolutionContext, visitor: VisitorStrategy, local
             for (const useId of uses) {
                 const useScope = state.findDefinitionScope(useId);
                 if (useScope) {
-                    walkScopeAndParents(useScope);
+                    walkScopeAndParents(useScope, true);
                 }
             }
         }
@@ -322,7 +371,7 @@ function visitScopes(context: ResolutionContext, visitor: VisitorStrategy, local
             for (const useId of inUses) {
                 const useScope = state.findDefinitionScope(useId);
                 if (useScope) {
-                    walkScopeAndParents(useScope);
+                    walkScopeAndParents(useScope, true);
                 }
             }
         }
@@ -333,19 +382,20 @@ function visitScopes(context: ResolutionContext, visitor: VisitorStrategy, local
             if (modifiers) {
                 const sortedMods = [...modifiers].sort((a, b) => a.order - b.order);
                 for (const mod of sortedMods) {
-                    walkScopeAndParents(mod.scope);
+                    walkScopeAndParents(mod.scope, isUseChain);
                 }
             }
         }
         
         // Structurally search upwards
-        if (scope.kind === ScopeKind.Definition) {
+        // Only traverse structural parents if we are NOT inside a Use/Inheritance chain.
+        if (!isUseChain && scope.kind === ScopeKind.Definition) {
             const parentIds = state.parentDefinitions.get(scope.id.toLowerCase());
             if (parentIds) {
                 for (const pid of parentIds) {
                     const parentScope = state.findDefinitionScope(pid);
                     if (parentScope) {
-                        walkScopeAndParents(parentScope);
+                        walkScopeAndParents(parentScope, false);
                     }
                 }
             }
@@ -450,33 +500,30 @@ export function resolveVariable(
     if (match) return match;
 
     // 2. Global fallback
-    const varTypes = getInterchangeableTypes('variable');
+    const canonicalVarType = state.getCanonicalTypeName('variable');
     const globalMatch = state.findGlobalSymbolsByName(name, projectScope).find(s => {
         if (s.kind !== SymbolKind.Variable) return false;
         if (s.definitionType) {
-            return varTypes.includes(normalizeTypeName(s.definitionType));
+            return canonicalVarType === state.getCanonicalTypeName(normalizeTypeName(s.definitionType));
         }
         return true;
     }) as VariableSymbol | undefined;
     if (globalMatch) return globalMatch;
 
-    // 3. Metadata fallback for existing system definitions
-    if (state.existingDefinitions) {
-        const checkName = normalizeTypeName(name);
-        const typesToCheck = [...varTypes, 'system_variable', 'system_variables'];
-        for (const t of typesToCheck) {
-            const typeSet = state.existingDefinitions.get(t);
-            if (typeSet && typeSet.has(checkName)) {
-                return {
-                    name: name,
-                    kind: SymbolKind.Variable,
-                    uri: 'global:metadata',
-                    start: 0, end: 0,
-                    definitionType: t
-                } as VariableSymbol;
-            }
+    // 3. Metadata fallback for system definitions
+    const checkName = normalizeTypeName(name);
+    const typesToCheck = [canonicalVarType, 'system_variable', 'system_variables'];
+    const globalDefMatch = typesToCheck.map(t => {
+        const typeSet = state.globalScope.definitions.get(t);
+        if (typeSet && typeSet.has(checkName)) {
+            return typeSet.get(checkName) as VariableSymbol;
         }
-    }
+        if (state.globalScope.variables?.has(checkName)) {
+            return state.globalScope.variables.get(checkName) as VariableSymbol;
+        }
+        return undefined;
+    }).find(s => s !== undefined);
+    if (globalDefMatch) return globalDefMatch;
     
     return undefined;
 }
@@ -502,33 +549,30 @@ export function resolveFormula(
     if (match) return match;
 
     // 2. Global fallback
-    const formTypes = getInterchangeableTypes('formula');
+    const canonicalFormType = state.getCanonicalTypeName('formula');
     const globalMatch = state.findGlobalSymbolsByName(name, projectScope).find(s => {
         if (s.kind !== SymbolKind.Formula) return false;
         if (s.definitionType) {
-            return formTypes.includes(normalizeTypeName(s.definitionType));
+            return canonicalFormType === state.getCanonicalTypeName(normalizeTypeName(s.definitionType));
         }
         return true;
     }) as FormulaSymbol | undefined;
     if (globalMatch) return globalMatch;
 
-    // 3. Metadata fallback for existing system definitions
-    if (state.existingDefinitions) {
-        const checkName = normalizeTypeName(name);
-        const typesToCheck = [...formTypes, 'system_formula', 'system_formulae', 'system_formulas'];
-        for (const t of typesToCheck) {
-            const typeSet = state.existingDefinitions.get(t);
-            if (typeSet && typeSet.has(checkName)) {
-                return {
-                    name: name,
-                    kind: SymbolKind.Formula,
-                    uri: 'global:metadata',
-                    start: 0, end: 0,
-                    definitionType: t
-                } as FormulaSymbol;
-            }
+    // 3. Metadata fallback for system definitions
+    const checkName = normalizeTypeName(name);
+    const typesToCheckF = [canonicalFormType, 'system_formula', 'system_formulae', 'system_formulas'];
+    const globalDefMatchF = typesToCheckF.map(t => {
+        const typeSet = state.globalScope.definitions.get(t);
+        if (typeSet && typeSet.has(checkName)) {
+            return typeSet.get(checkName) as FormulaSymbol;
         }
-    }
+        if (state.globalScope.formulas?.has(checkName)) {
+            return state.globalScope.formulas.get(checkName) as FormulaSymbol;
+        }
+        return undefined;
+    }).find(s => s !== undefined);
+    if (globalDefMatchF) return globalDefMatchF;
     
     return undefined;
 }
@@ -586,23 +630,21 @@ export function resolveDefinition(
 ): DefinitionSymbol | undefined {
     const normalizedName = normalizeTypeName(name);
     const normalizedType = normalizeTypeName(defType);
-    const typesToCheck = getInterchangeableTypes(normalizedType);
+    const canonicalType = state.getCanonicalTypeName(normalizedType);
 
     const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
     
     const match = traverseScopes(context, scope => {
         if (hasDefinitions(scope)) {
-            for (const t of typesToCheck) {
-                const sym = scope.definitions.get(t)?.get(normalizedName);
-                if (sym) return sym;
-            }
+            const sym = scope.definitions.get(canonicalType)?.get(normalizedName);
+            if (sym) return sym;
         }
         if (hasFunctionsAndActions(scope)) {
-            if (typesToCheck.includes('function')) {
+            if (canonicalType === state.getCanonicalTypeName('function')) {
                 const sym = scope.functions.get(normalizedName);
                 if (sym) return sym as unknown as DefinitionSymbol;
             }
-            if (typesToCheck.includes('action')) {
+            if (canonicalType === state.getCanonicalTypeName('action')) {
                 const sym = scope.actions.get(normalizedName);
                 if (sym) return sym as unknown as DefinitionSymbol;
             }
@@ -614,27 +656,24 @@ export function resolveDefinition(
     // SymbolTable fallback (user definitions)
     const globalMatch = state.findGlobalSymbolsByName(name, projectScope).find(s => {
         if (!s.definitionType) return false;
-        return typesToCheck.includes(normalizeTypeName(s.definitionType));
+        return state.getCanonicalTypeName(normalizeTypeName(s.definitionType)) === canonicalType;
     });
     if (globalMatch) return globalMatch as DefinitionSymbol;
 
-    // Metadata fallback for existing system definitions
-    if (state.existingDefinitions) {
-        const checkName = normalizeTypeName(name);
-        for (const t of typesToCheck) {
-            const typeSet = state.existingDefinitions.get(t);
-            if (typeSet && typeSet.has(checkName)) {
-                return {
-                    name: name,
-                    kind: definitionTypeToSymbolKind(t),
-                    uri: 'global:metadata',
-                    start: 0, end: 0,
-                    definitionType: t
-                } as DefinitionSymbol;
-            }
-        }
+    // Metadata fallback for system definitions
+    const typeSet = state.globalScope.definitions.get(canonicalType);
+    if (typeSet && typeSet.has(normalizedName)) {
+        return typeSet.get(normalizedName) as DefinitionSymbol;
     }
-
+    if (canonicalType === state.getCanonicalTypeName('function') && state.globalScope.functions?.has(normalizedName)) {
+        return state.globalScope.functions.get(normalizedName) as unknown as DefinitionSymbol;
+    }
+    if (canonicalType === state.getCanonicalTypeName('action') && state.globalScope.actions?.has(normalizedName)) {
+        return state.globalScope.actions.get(normalizedName) as unknown as DefinitionSymbol;
+    }
+    if (canonicalType === state.getCanonicalTypeName('formula') && state.globalScope.formulas?.has(normalizedName)) {
+        return state.globalScope.formulas.get(normalizedName) as unknown as DefinitionSymbol;
+    }
     return undefined;
 }
 
@@ -648,16 +687,14 @@ export function resolveAttribute(
 ): AttributeSymbol | undefined {
     const normalizedName = normalizeTypeName(name);
     const normalizedType = normalizeTypeName(defType);
-    const typesToCheck = getInterchangeableTypes(normalizedType);
+    const canonicalType = state.getCanonicalTypeName(normalizedType);
 
     const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
     
     const match = traverseScopes(context, scope => {
         if (hasAttributes(scope)) {
-            for (const t of typesToCheck) {
-                const sym = scope.attributes.get(t)?.get(normalizedName);
-                if (sym) return sym;
-            }
+            const sym = scope.attributes.get(canonicalType)?.get(normalizedName);
+            if (sym) return sym;
         }
         return undefined;
     });
@@ -738,19 +775,9 @@ export function resolveSymbol(
     if (globalSymbols.length > 0) return globalSymbols[0];
 
     // Check Metadata Definitions if not found
-    if (state.existingDefinitions) {
-        const normalizedName = normalizeTypeName(name);
-        for (const [defType, names] of state.existingDefinitions) {
-            if (names.has(normalizedName)) {
-                return {
-                    name: name,
-                    kind: definitionTypeToSymbolKind(defType),
-                    uri: 'global:metadata',
-                    start: 0,
-                    end: 0,
-                    definitionType: defType
-                };
-            }
+    for (const [defType, defMap] of state.globalScope.definitions) {
+        if (defMap.has(normalizedName)) {
+            return defMap.get(normalizedName);
         }
     }
 

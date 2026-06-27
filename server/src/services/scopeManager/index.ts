@@ -1,6 +1,6 @@
 import { SymbolInfo, SymbolKind, SymbolTable, VariableSymbol } from '../symbolTable';
 import { SourceFile } from '../../parser/ast';
-import { getInterchangeableTypes, normalizeTypeName } from '../utils';
+import { normalizeTypeName } from '../utils';
 import { Scope, ScopeKind, OffsetRange, ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, getSemanticTypeFromSymbol, ModifierContribution, GlobalScope, ProjectScope, FileScope, DefinitionScope, FunctionScope, BlockScope, hasDefinitions, hasFunctionsAndActions, hasAttributes, hasSchemas } from './types';
 import { ScopeViewerService } from './scopeViewerService';
 import { IScopeManager, buildFileScope } from './scopeBuilder';
@@ -18,10 +18,12 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     public readonly projectScope: ProjectScope;
     public fileMap = new Map<string, Scope>(); // URI -> FileScope
     public metadata: any;
-    public existingDefinitions = new Map<string, Map<string, string>>();
+
     public definitionTypeLabels = new Map<string, string>(); // normalized -> Original Casing
     public keywordSets = new Map<string, string[]>();
     public primarySchemaNames: string[] = [];
+
+    private scopeIndex = new Map<string, Scope>();
 
     private _viewer?: ScopeViewerService;
 
@@ -41,7 +43,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     public inUseInheritance = new Map<string, Set<string>>();
     /** Tracks explicitly included files across the project */
     public includedFiles = new Set<string>();
-    
+
     /** URI -> Set of graph relationship keys contributed by that URI */
     public uriGraphContributions = new Map<string, {
         parentDefs: Set<string>;
@@ -54,6 +56,15 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
 
     /** Modifier contributions indexed by target definition ID */
     public modifierContributions = new Map<string, ModifierContribution[]>();
+
+    public getCanonicalTypeName(normalizedType: string): string {
+        const canonical = this.globalScope.interchangeableTypesMap?.get(normalizedType);
+        return canonical || normalizedType;
+    }
+
+    public getCanonicalAttributeName(normalizedAttributeName: string): string | undefined {
+        return this.globalScope.interchangeableAttributesMap?.get(normalizedAttributeName);
+    }
 
     constructor(private symbolTable: SymbolTable) {
         // Initialize Root Scopes
@@ -72,7 +83,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
      * Create a new scope
      */
     createGlobalScope(id: string): GlobalScope {
-        return {
+        const scope: GlobalScope = {
             id,
             kind: ScopeKind.Global,
             childScopes: [],
@@ -82,8 +93,12 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             actions: new Map(),
             attributes: new Map(),
             schemas: new Map(),
-            definitions: new Map()
+            definitions: new Map(),
+            interchangeableAttributesMap: new Map(),
+            interchangeableTypesMap: new Map()
         };
+        
+        return scope;
     }
 
     createProjectScope(id: string, parent: GlobalScope): ProjectScope {
@@ -97,6 +112,17 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             definitions: new Map()
         };
         return scope;
+    }
+
+    /**
+     * Get all definition types from both global and project scopes
+     */
+    public getDefinitionTypes(): string[] {
+        const types = new Set<string>();
+        for (const type of this.globalScope.definitions.keys()) types.add(type);
+        for (const type of this.projectScope.definitions.keys()) types.add(type);
+        for (const type of this.definitionTypeLabels.values()) types.add(type);
+        return Array.from(types);
     }
 
     createFileScope(id: string, parent: ProjectScope, range: OffsetRange, uri: string): FileScope {
@@ -164,13 +190,14 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     /**
      * Remove scopes associated with a file
      */
-    removeFileScope(uri: string): void {
+    public removeFileScope(uri: string): void {
         const fileScope = this.fileMap.get(uri);
         if (fileScope) {
+            this.unindexScope(fileScope);
             this.projectScope.childScopes = this.projectScope.childScopes.filter(c => c !== fileScope);
             this.fileMap.delete(uri);
         }
-        
+
         // Remove global symbols that were defined in this file
         const clearFlatMap = (map: Map<string, any>) => {
             for (const [key, sym] of map.entries()) {
@@ -265,7 +292,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             };
             this.uriGraphContributions.set(uri, contrib);
         }
-        
+
         if (type === 'parentDef' && key2) contrib.parentDefs.add(`${key1}::${key2}`);
         if (type === 'childDef' && key2) contrib.childDefs.add(`${key1}::${key2}`);
         if (type === 'useInherit' && key2) contrib.useInherit.add(`${key1}::${key2}`);
@@ -300,17 +327,64 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         return scope;
     }
 
+    public indexScope(scope: Scope): void {
+        this.scopeIndex.set(scope.id.toLowerCase(), scope);
+        if (scope.childScopes) {
+            for (const c of scope.childScopes) {
+                this.indexScope(c);
+            }
+        }
+    }
+
+    public unindexScope(scope: Scope): void {
+        this.scopeIndex.delete(scope.id.toLowerCase());
+        if (scope.childScopes) {
+            for (const c of scope.childScopes) {
+                this.unindexScope(c);
+            }
+        }
+    }
+
     public getScopeById(id: string): Scope | undefined {
-        return this.findDefinitionScope(id);
+        const lowerId = id.toLowerCase();
+
+        const fromIndex = this.scopeIndex.get(lowerId);
+        if (fromIndex) return fromIndex;
+
+        // Search global scope just in case it's not indexed
+        if (this.globalScope && this.globalScope.childScopes) {
+            const foundGlobal = this.globalScope.childScopes.find(c => c.id.toLowerCase() === lowerId);
+            if (foundGlobal) return foundGlobal;
+        }
+
+        // Fallback for global metadata definitions (which don't have AST Scopes)
+        if (lowerId.includes(':') && this.globalScope) {
+            const [defType, defName] = lowerId.split(':');
+            const typeMap = this.globalScope.definitions.get(defType);
+            if (typeMap) {
+                const sym = typeMap.get(defName);
+                if (sym) {
+                    return {
+                        id: lowerId,
+                        kind: ScopeKind.Definition,
+                        parent: this.globalScope,
+                        childScopes: [],
+                        variables: new Map(),
+                        formulas: new Map(),
+                        definitions: new Map(),
+                        uri: sym.uri,
+                        range: { start: sym.start, end: sym.end },
+                        definition: sym
+                    } as unknown as Scope;
+                }
+            }
+        }
+
+        return undefined;
     }
 
     public findDefinitionScope(id: string): Scope | undefined {
-        const lowerId = id.toLowerCase();
-        for (const fileScope of this.fileMap.values()) {
-            const found = fileScope.childScopes.find(c => c.id.toLowerCase() === lowerId);
-            if (found) return found;
-        }
-        return undefined;
+        return this.getScopeById(id);
     }
 
     public findGlobalSymbolsByName(name: string, projectScope?: Set<string>): SymbolInfo[] {
@@ -373,6 +447,33 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     public getDefinitionsInScope(initialScope: Scope, targetDefType: string, callerContext?: ResolutionContext): SymbolInfo[] {
         const context: ResolutionContext = { visitedScopes: new Set(), state: this, initialScope, caller: callerContext };
         return getDefinitionsInScope(context, targetDefType);
+    }
+
+    /**
+     * Get all definitions globally available by type (workspace + base TDL)
+     * Used for auto-completing reference attributes like 'Use' or 'Form'
+     */
+    public getGlobalDefinitionsByType(defType: string): import('../../models/symbols').DefinitionSymbol[] {
+        const normalizedType = normalizeTypeName(defType);
+        const results = new Map<string, import('../../models/symbols').DefinitionSymbol>();
+
+        // 1. Get Base TDL Definitions (Global Scope)
+        const globalDefs = this.globalScope.definitions.get(normalizedType);
+        if (globalDefs) {
+            for (const [lowerName, sym] of globalDefs.entries()) {
+                results.set(lowerName, sym);
+            }
+        }
+
+        // 2. Get Workspace Definitions (Project Scope) - overrides Base TDL if same name
+        const projectDefs = this.projectScope.definitions.get(normalizedType);
+        if (projectDefs) {
+            for (const [lowerName, sym] of projectDefs.entries()) {
+                results.set(lowerName, sym);
+            }
+        }
+
+        return Array.from(results.values());
     }
 
     /**

@@ -21,7 +21,8 @@
     "scripts": {
         "test": "vitest run",
         "test:update": "vitest run -u",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "build:cache": "node out/scripts/buildVersionCache.js"
     },
     "devDependencies": {
         "@types/node": "^24.10.1",

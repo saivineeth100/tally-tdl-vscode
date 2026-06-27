@@ -43,6 +43,12 @@ export interface SymbolInfo {
     children?: SymbolInfo[];
     /** Whether this symbol is a modifier (e.g., #Report) */
     isModifier?: boolean;
+    /** Pre-computed LSP range for the full definition */
+    range?: { start: { line: number; character: number }; end: { line: number; character: number } };
+    /** Pre-computed LSP range for just the symbol name (for selection/highlight) */
+    selectionRange?: { start: { line: number; character: number }; end: { line: number; character: number } };
+    /** Human-readable detail string */
+    detail?: string;
 }
 
 /** Parameter metadata for Functions, Actions, and Attributes */
@@ -139,6 +145,7 @@ export interface ScopeNodeDTO {
     symbolGroups: { kind: string, count: number }[];
     children: ScopeNodeDTO[];
     hasChildren?: boolean;
+    _childrenLoaded?: boolean;
 }
 
 export type ScopeTreeDTO = ScopeNodeDTO[];

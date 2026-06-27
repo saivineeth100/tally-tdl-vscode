@@ -41,6 +41,14 @@ describe('Parser Definitions Tests', () => {
         expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
 
+    test('Parse Definition with @@include', () => {
+        const input = `[@@include : license\\licfuncs.tdl]`;
+        const parser = new Parser(input);
+        const sourceFile = parser.parse();
+
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
+    });
+
     test('Definition Range includes Attributes', () => {
         const input = `
 [Report: MyReport]

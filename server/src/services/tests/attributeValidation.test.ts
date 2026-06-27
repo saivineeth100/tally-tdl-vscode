@@ -72,7 +72,7 @@ describe('Attribute Validation', () => {
                 if (!typeMap) { typeMap = new Map(); testScopeManager.projectScope.definitions.set('form', typeMap); }
                 typeMap.set('existingform', {
                     name: 'ExistingForm',
-                    kind: definitionTypeToSymbolKind('Form'),
+                    kind: definitionTypeToSymbolKind('Form', testScopeManager),
                     definitionType: 'Form',
                     uri: 'file:///other.tdl',
                     start: 0,
@@ -140,10 +140,9 @@ describe('Attribute Validation', () => {
 
         it('should validate reference to existing system definition', async () => {
             // Set up existing system definitions
-            if (!testScopeManager!.existingDefinitions) testScopeManager!.existingDefinitions = new Map();
-            let sysDefMap = testScopeManager!.existingDefinitions.get('form');
-            if (!sysDefMap) { sysDefMap = new Set(); testScopeManager!.existingDefinitions.set('form', sysDefMap); }
-            sysDefMap.add('systemform');
+            let sysDefMap = testScopeManager!.globalScope.definitions.get('form');
+            if (!sysDefMap) { sysDefMap = new Map(); testScopeManager!.globalScope.definitions.set('form', sysDefMap); }
+            sysDefMap.set('systemform', { name: 'systemform', kind: 0, uri: '', start: 0, end: 0, definitionType: 'form' } as any);
 
             const tdl = `[Report: SysRefReport]
                 Form: SystemForm

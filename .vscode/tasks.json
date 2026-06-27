@@ -25,9 +25,15 @@
                 "panel": "dedicated",
                 "reveal": "never"
             },
-            "problemMatcher": [
-                "$tsc-watch"
-            ]
+            "problemMatcher": {
+                "owner": "typescript",
+                "pattern": "$tsc",
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Starting compilation in watch mode\\.\\.\\.",
+                    "endsPattern": "^.*Found \\d+ errors?\\. Watching for file changes\\."
+                }
+            }
         }
     ]
 }

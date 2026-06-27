@@ -1,9 +1,11 @@
-import { describe, it, expect } from 'vitest';
-import { provideCodeLens } from '../codeLens';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { provideCodeLens, resolveCodeLens, clearCodeLensCache } from '../codeLens';
 import { Parser } from '../../parser/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { ScopeManager } from '../scopeManager';
 import { SymbolTable } from '../symbolTable';
+import { DocManager } from '../../docManager';
+import { Position } from 'vscode-languageserver';
 
 import { buildFileScope } from '../scopeManager/scopeBuilder';
 
@@ -76,5 +78,39 @@ describe('Code Lens Provider', () => {
         expect(names).toContain('Local Formula');
         expect(names).toContain('LF1');
         expect(names).toContain('LF2');
+    });
+
+    describe('resolveCodeLens', () => {
+        beforeEach(() => {
+            clearCodeLensCache();
+        });
+
+        it('should resolve lens with references and cache the result', async () => {
+            const text = `[Report: Test]`;
+            const { sourceFile, doc, scopeManager } = createCodeLensContext(text);
+            
+            const mockDocManager = {
+                get: (uri: string) => ({ sourceFile, diagnostics: [] }),
+                getProjectNodes: (uri: string) => new Set([uri]),
+                getScopeManager: (uri: string) => scopeManager
+            } as unknown as DocManager;
+            
+            const mockDocs = {
+                get: (uri: string) => doc
+            };
+
+            const lens = {
+                range: { start: Position.create(0, 0), end: Position.create(0, 10) },
+                data: { uri: doc.uri, name: 'Test', position: Position.create(0, 9) }
+            } as any;
+
+            const resolved = await resolveCodeLens(lens, mockDocManager, mockDocs);
+            expect(resolved.command).toBeDefined();
+            expect(resolved.command?.title).toContain('reference');
+            
+            // Run again to hit cache
+            const resolved2 = await resolveCodeLens(lens, mockDocManager, mockDocs);
+            expect(resolved2.command?.title).toContain('reference');
+        });
     });
 });

@@ -9,7 +9,9 @@ import { SymbolTable, SymbolInfo, definitionTypeToSymbolKind } from "./services/
 import { ScopeManager } from "./services/scopeManager";
 import * as fs from 'fs';
 import * as path from 'path';
+import { loadMetadata } from './services/metadataLoader';
 import { URI } from 'vscode-uri';
+import { logger } from './logger';
 
 export async function readFileWithEncoding(filePath: string): Promise<string> {
     const buffer = await fs.promises.readFile(filePath);
@@ -51,8 +53,15 @@ export class DocManager {
 
     /** Flag to track if workspace scan is in progress */
     private scanningInProgress = false;
+    private projectNodesCache = new Map<string, Set<string>>();
     /** Queue for workspace scan requests */
     private scanQueue: string[][] = [];
+
+    /** Flag to indicate if base TDL metadata has finished loading */
+    public isMetadataLoaded = false;
+
+    /** Paths to exclude from scanning completely */
+    public excludePaths: string[] = [];
 
     /** Workspace root folders */
     public workspaceFolders: string[] = [];
@@ -66,6 +75,8 @@ export class DocManager {
     /** Reverse graph of inclusions: URI -> Set of URIs that include it */
     private parentGraph = new Map<string, Set<string>>();
 
+    private fileTimestamps: Map<string, number> = new Map();
+
     private rebuildTimers = new Map<string, NodeJS.Timeout>();
     private readonly REBUILD_DELAY = 200; // ms
 
@@ -75,6 +86,8 @@ export class DocManager {
         public resolveIncludePath?: (currentPath: string, name: string) => string | null
     ) {
         documents.onDidOpen(e => {
+            const uriStr = typeof e.document.uri === 'string' ? e.document.uri : (e.document as any).uri;
+            logger.trace(`[Trace] Server RECEIVED onDidOpen for ${path.basename(uriStr)} at ${new Date().toISOString()}`);
             this.indexedDocs.delete(e.document.uri);
             this.rebuild(e.document);
         });
@@ -93,7 +106,7 @@ export class DocManager {
             const fsPath = URI.parse(e.document.uri).fsPath;
             if (fs.existsSync(fsPath)) {
                 this.indexFile(fsPath, new Set()).catch(err => {
-                    this.connection.console.warn(`Failed to re-index closed file: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+                    logger.warn(`Failed to re-index closed file: ${err instanceof Error ? err.stack || err.message : String(err)}`);
                 });
             } else {
                 this.getSymbolTable(e.document.uri).clearDocument(e.document.uri);
@@ -137,6 +150,10 @@ export class DocManager {
         return this.docs.entries();
     }
 
+    public setExcludePaths(paths: string[]): void {
+        this.excludePaths = paths;
+    }
+
     /**
      * Re-validate all documents (both open and closed but indexed)
      * Useful when global settings change.
@@ -163,22 +180,32 @@ export class DocManager {
         // 2. Rebuild open documents
         for (const doc of openDocs) {
             this.rebuild(doc).catch(err => {
-                this.connection.console.error(`Error rebuilding doc ${doc.uri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+                logger.error(`Error rebuilding doc ${doc.uri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
             });
         }
 
-        // 3. Re-index closed but related files to update their diagnostics
+        // 3. Re-validate closed but related files to update their diagnostics
+        const promises: Promise<void>[] = [];
         for (const uriStr of allKnownUris) {
-            // indexFile internally skips if this.docs.has(uriStr)
+            // Skip if the file is already open (handled by rebuild)
+            if (this.docs.has(uriStr)) continue;
+
             const fsPath = URI.parse(uriStr).fsPath;
-            try {
-                await fs.promises.access(fsPath);
-                this.indexFile(fsPath, new Set()).catch(err => {
-                    this.connection.console.error(`Error indexing file ${fsPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
-                });
-            } catch {
-                // File no longer exists, skip
+            
+            // forceValidation = true so that indexFile runs validation even if unchanged
+            promises.push(this.indexFile(fsPath, new Set(), false, true).catch(err => {
+                logger.error(`Error indexing file ${fsPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+            }));
+
+            if (promises.length >= 50) {
+                await Promise.all(promises);
+                promises.length = 0;
+                // Yield to the event loop
+                await new Promise(resolve => setImmediate(resolve));
             }
+        }
+        if (promises.length > 0) {
+            await Promise.all(promises);
         }
     }
 
@@ -195,14 +222,16 @@ export class DocManager {
 
         // Use setTimeout to not block the event loop
         setTimeout(async () => {
+            const startTime = Date.now();
+            logger.trace(`[Perf] Starting workspace scan for ${workspaceFolders.length} folders...`);
             try {
                 for (const folderUri of workspaceFolders) {
                     await this.scanFolder(folderUri);
                 }
                 const count = this.tdlSymbolTable.getSymbolCount() + this.xmlSymbolTable.getSymbolCount();
-                this.connection.console.log(`Workspace scan complete. ${count} definitions indexed.`);
+                logger.trace(`[Perf] Workspace scan complete in ${Date.now() - startTime}ms. ${count} definitions indexed.`);
             } catch (error) {
-                this.connection.console.error(`Workspace scan error: ${error}`);
+                logger.error(`Workspace scan error: ${error}`);
             } finally {
                 this.scanningInProgress = false;
                 
@@ -211,7 +240,7 @@ export class DocManager {
                     this.scanWorkspaceFolders(nextScan);
                 } else {
                     // All queued scans complete! Revalidate open docs so initial 'Missing Definition' diagnostics go away.
-                    this.revalidateAll(this.documents.all()).catch(e => this.connection.console.error(`Revalidation failed: ${e}`));
+                    this.revalidateAll(this.documents.all()).catch(e => logger.error(`Revalidation failed: ${e}`));
                 }
             }
         }, 0);
@@ -266,6 +295,8 @@ export class DocManager {
         }
     }
 
+
+
     /**
      * Scan a folder for TDL/TXT files
      */
@@ -275,35 +306,96 @@ export class DocManager {
             const visited = new Set<string>();
             await this.scanDirectory(folderPath, visited);
         } catch (error) {
-            this.connection.console.error(`Error scanning ${folderPath}: ${error}`);
+            logger.error(`Error scanning ${folderPath}: ${error}`);
         }
     }
 
-    /**
-     * Recursively scan a directory for TDL files
-     */
     private async scanDirectory(dirPath: string, visited: Set<string>): Promise<void> {
-        const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
+        // Check if dirPath matches any exclude pattern
+        for (const pattern of this.excludePaths) {
+            try {
+                const regex = new RegExp(pattern.replace(/\\/g, '\\\\'), 'i');
+                if (regex.test(dirPath)) return;
+            } catch (e) {
+                // If invalid regex, just check if it's a substring
+                if (dirPath.toLowerCase().includes(pattern.toLowerCase())) return;
+            }
+        }
 
+        const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
+        
+        // Pass 1: Parse all .tpj files first so this.tpjFiles is populated
+        for (const entry of entries) {
+            if (entry.isFile()) {
+                const ext = path.extname(entry.name).toLowerCase();
+                if (ext === '.tpj') {
+                    const fullPath = path.join(dirPath, entry.name);
+                    // Check exclusion
+                    let isExcluded = false;
+                    for (const pattern of this.excludePaths) {
+                        try {
+                            if (new RegExp(pattern.replace(/\\/g, '\\\\'), 'i').test(fullPath)) isExcluded = true;
+                        } catch (e) {
+                            if (fullPath.toLowerCase().includes(pattern.toLowerCase())) isExcluded = true;
+                        }
+                    }
+                    if (!isExcluded) {
+                        await this.parseProjectFile(fullPath, visited);
+                    }
+                }
+            }
+        }
+
+        const promises: Promise<void>[] = [];
+
+        // Pass 2: Process directories and standalone files
         for (const entry of entries) {
             const fullPath = path.join(dirPath, entry.name);
+
+            // Check if file matches any exclude pattern
+            let isExcluded = false;
+            for (const pattern of this.excludePaths) {
+                try {
+                    const regex = new RegExp(pattern.replace(/\\/g, '\\\\'), 'i');
+                    if (regex.test(fullPath)) {
+                        isExcluded = true;
+                        break;
+                    }
+                } catch (e) {
+                    if (fullPath.toLowerCase().includes(pattern.toLowerCase())) {
+                        isExcluded = true;
+                        break;
+                    }
+                }
+            }
+            if (isExcluded) continue;
 
             if (entry.isDirectory()) {
                 // Skip node_modules, .git, etc.
                 if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
-                    await this.scanDirectory(fullPath, visited);
+                    promises.push(this.scanDirectory(fullPath, visited));
                 }
             } else if (entry.isFile()) {
                 const ext = path.extname(entry.name).toLowerCase();
-                if (ext === '.tpj') {
-                    await this.parseProjectFile(fullPath, visited);
-                } else if (['.tdl', '.txt', '.xml', '.tdlxml'].includes(ext)) {
-                    // Index standalone files not referenced by any .tpj
-                    await this.indexFile(fullPath, visited).catch(err => {
-                        this.connection.console.error(`Error indexing standalone file ${fullPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
-                    });
+                if (['.tdl', '.txt', '.xml', '.tdlxml', '.dat'].includes(ext)) {
+                    // Only index if it wasn't already added by a .tpj file
+                    if (!this.tpjFiles.has(URI.file(fullPath).toString())) {
+                        // Pass skipValidation=true during scan to avoid incomplete graph errors and slowness
+                        promises.push(this.indexFile(fullPath, visited, true).catch(err => {
+                            logger.error(`Error indexing standalone file ${fullPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+                        }));
+                    }
                 }
             }
+
+            if (promises.length >= 50) {
+                await Promise.all(promises);
+                promises.length = 0;
+            }
+        }
+
+        if (promises.length > 0) {
+            await Promise.all(promises);
         }
     }
 
@@ -315,6 +407,7 @@ export class DocManager {
             const content = await readFileWithEncoding(tpjPath);
             const lines = content.split(/\r?\n/);
             const dirPath = path.dirname(tpjPath);
+            const promises: Promise<void>[] = [];
             
             for (let line of lines) {
                 line = line.trim();
@@ -325,8 +418,8 @@ export class DocManager {
                 let entryFile = '';
                 if (line.toLowerCase().startsWith('project file=')) {
                     entryFile = line.substring('project file='.length).trim();
-                } else if (line.toLowerCase().endsWith('.txt') || line.toLowerCase().endsWith('.tdl')) {
-                    // Lenient parsing: if the line simply names a .txt or .tdl file, use it
+                } else if (line.toLowerCase().endsWith('.txt') || line.toLowerCase().endsWith('.tdl') || line.toLowerCase().endsWith('.dat')) {
+                    // Lenient parsing: if the line simply names a .txt, .tdl, or .dat file, use it
                     entryFile = line;
                 }
 
@@ -337,19 +430,29 @@ export class DocManager {
                     if (fs.existsSync(targetPath)) {
                         const targetUri = URI.file(targetPath).toString();
                         this.tpjFiles.add(targetUri);
-                        await this.indexFile(targetPath, visited);
+                        // Pass skipValidation=true during scan to avoid incomplete graph errors and slowness
+                        promises.push(this.indexFile(targetPath, visited, true));
                     }
                 }
+
+                if (promises.length >= 50) {
+                    await Promise.all(promises);
+                    promises.length = 0;
+                }
+            }
+
+            if (promises.length > 0) {
+                await Promise.all(promises);
             }
         } catch (err) {
-            this.connection.console.warn(`Error parsing .tpj file ${tpjPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+            logger.warn(`Error parsing .tpj file ${tpjPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
         }
     }
 
     /**
      * Index a single file for symbols (without storing full doc state)
      */
-    public async indexFile(filePath: string, indexed: Set<string> = new Set()): Promise<void> {
+    public async indexFile(filePath: string, indexed: Set<string> = new Set(), skipValidation: boolean = false, forceValidation: boolean = false): Promise<void> {
         if (indexed.has(filePath)) return;
         indexed.add(filePath);
 
@@ -358,73 +461,93 @@ export class DocManager {
         // If file is open in editor, skip indexing as it's handled by rebuild()
         if (this.docs.has(uri)) return;
 
+        let sourceFile: SourceFile;
+        let content: string;
+        const ext = path.extname(filePath).toLowerCase();
+        const isXml = ext === '.xml' || ext === '.tdlxml';
+        const scopeMgr = this.getScopeManager(uri);
+        const symTable = this.getSymbolTable(uri);
+
         try {
-            const content = await readFileWithEncoding(filePath);
-            const ext = path.extname(filePath).toLowerCase();
-            const isXml = ext === '.xml' || ext === '.tdlxml';
-            const scopeMgr = this.getScopeManager(uri);
-            
-            let sourceFile: SourceFile;
-            if (isXml) {
-                sourceFile = parseXmlToAst(content, scopeMgr);
+            const stat = await fs.promises.stat(filePath);
+            const lastMtime = this.fileTimestamps.get(uri);
+            const cached = this.indexedDocs.get(uri);
+
+            if (lastMtime !== undefined && lastMtime === stat.mtimeMs && cached) {
+                if (!forceValidation) {
+                    return; // File unchanged, skip re-read and re-parse
+                }
+                // If forcing validation, we only need to read content for diagnostics positions, skip parsing
+                sourceFile = cached.sourceFile;
+                content = await readFileWithEncoding(filePath);
             } else {
-                const getFunctionArity = (name: string): number | null => {
-                    const func = scopeMgr.globalScope.functions.get(name.toLowerCase());
-                    if (!func || !func.parameters) return null;
-                    let hasVarArgs = false;
-                    for (const p of func.parameters) {
-                        if (p.IsList || p.IsVariableArgument) hasVarArgs = true;
-                    }
-                    return hasVarArgs ? null : func.parameters.length;
-                };
-                const parser = new Parser(content, undefined, getFunctionArity);
-                sourceFile = parser.parse();
-            }
-
-            // Clear previous symbols for this document
-            const symTable = this.getSymbolTable(uri);
-            symTable.clearDocument(uri);
-
-            // Add symbols from definitions (skip incomplete)
-            for (const def of sourceFile.definitions) {
-                if (!def.isIncomplete && def.name) {
-                    const symbolInfo: SymbolInfo = {
-                        name: def.name.text,
-                        kind: definitionTypeToSymbolKind(def.type.text),
-                        uri: uri,
-                        start: def.start,
-                        end: def.end,
-                        definitionType: def.type.text,
-                        isModifier: !!def.modifier
+                this.fileTimestamps.set(uri, stat.mtimeMs);
+                content = await readFileWithEncoding(filePath);
+                
+                // YIELD to the event loop right before heavy CPU work (parsing)
+                // This prevents event loop starvation during bulk indexing on startup
+                await new Promise(resolve => setImmediate(resolve));
+                
+                if (isXml) {
+                    sourceFile = parseXmlToAst(content, scopeMgr);
+                } else {
+                    const getFunctionArity = (name: string): number | null => {
+                        const func = scopeMgr.globalScope.functions.get(name.toLowerCase());
+                        if (!func || !func.parameters) return null;
+                        let hasVarArgs = false;
+                        for (const p of func.parameters) {
+                            if (p.IsList || p.IsVariableArgument) hasVarArgs = true;
+                        }
+                        return hasVarArgs ? null : func.parameters.length;
                     };
-                    symTable.addSymbol(symbolInfo);
+                    const parser = new Parser(content, undefined, getFunctionArity);
+                    sourceFile = parser.parse();
+                }
+                
+                const languageId = isXml ? 'xml' : 'tdl';
+                const doc = TextDocument.create(uri, languageId, 1, content);
+
+                // Clear previous symbols for this document
+                symTable.clearDocument(uri);
+
+                // Add symbols from definitions (skip incomplete)
+                for (const def of sourceFile.definitions) {
+                    if (!def.isIncomplete && def.name) {
+                        const symbolInfo: SymbolInfo = {
+                            name: def.name.text,
+                            kind: definitionTypeToSymbolKind(def.type.text, this.tdlScopeManager),
+                            uri: uri,
+                            start: def.start,
+                            end: def.end,
+                            definitionType: def.type.text,
+                            isModifier: !!def.modifier,
+                            range: {
+                                start: doc.positionAt(def.start),
+                                end: doc.positionAt(def.end)
+                            },
+                            selectionRange: {
+                                start: doc.positionAt(def.name.start),
+                                end: doc.positionAt(def.name.end)
+                            }
+                        };
+                        symTable.addSymbol(symbolInfo);
+                    }
+                }
+                
+                // Build scope tree to capture global variables and formulas
+                scopeMgr.buildFileScope(uri, sourceFile);
+
+                // Update Include Graph
+                const includes = this.updateIncludeGraph(uri, sourceFile);
+                
+                // Recursively index included files FIRST so their symbols exist
+                for (const incUri of includes) {
+                    await this.indexFile(URI.parse(incUri).fsPath, indexed, skipValidation, false);
                 }
             }
-            
-            // Build scope tree to capture global variables and formulas
-            scopeMgr.buildFileScope(uri, sourceFile);
 
-            // Update Include Graph
-            const includes = this.updateIncludeGraph(uri, sourceFile);
+            const doc = TextDocument.create(uri, isXml ? 'xml' : 'tdl', 1, content);
             
-            // Recursively index included files FIRST so their symbols exist
-            for (const incUri of includes) {
-                await this.indexFile(URI.parse(incUri).fsPath, indexed);
-            }
-            
-            // Check if file should be validated
-            const shouldValidate = this.isUriActive(uri);
-
-            // Run validation and send diagnostics
-            const languageId = isXml ? 'xml' : 'tdl';
-            const doc = TextDocument.create(uri, languageId, 1, content);
-            
-            if (!shouldValidate) {
-                this.connection.sendDiagnostics({ uri, diagnostics: [] });
-                this.indexedDocs.set(uri, { sourceFile, diagnostics: [] });
-                return;
-            }
-
             const diagnostics: Diagnostic[] = sourceFile.errors.map(error => ({
                 severity: DiagnosticSeverity.Error,
                 range: { start: doc.positionAt(error.start), end: doc.positionAt(error.end) },
@@ -432,43 +555,35 @@ export class DocManager {
                 code: error.code,
                 source: 'tdl'
             }));
+
+            if (skipValidation) {
+                diagnostics.length = 0;
+                const finalDiagnostics = this.filterDiagnostics(diagnostics);
+                this.connection.sendDiagnostics({ uri, diagnostics: finalDiagnostics });
+                this.indexedDocs.set(uri, { sourceFile, diagnostics: finalDiagnostics });
+                return;
+            }
+
+            // Check if file should be validated
+            const shouldValidate = forceValidation || this.isUriActive(uri);
+
+            if (!shouldValidate) {
+                diagnostics.length = 0;
+                const finalDiagnostics = this.filterDiagnostics(diagnostics);
+                this.connection.sendDiagnostics({ uri, diagnostics: finalDiagnostics });
+                this.indexedDocs.set(uri, { sourceFile, diagnostics: finalDiagnostics });
+                return;
+            }
+
             diagnostics.push(...(await validateSourceFile(sourceFile, doc, symTable, scopeMgr, this.resolveIncludePath, this)));
             
-            const treatAsError = shouldTreatWarningsAsErrors();
-            const hideWarnings = shouldHideWarnings();
+            const finalDiagnostics = this.filterDiagnostics(diagnostics);
 
-            const finalDiagnostics = isDiagnosticsEnabled() ? diagnostics.filter(d => {
-                // Check individual overrides first
-                if (d.code && typeof d.code === 'string') {
-                    const setting = getDiagnosticSeverity(d.code);
-                    if (setting === 'none') return false;
-                    if (setting === 'error') d.severity = DiagnosticSeverity.Error;
-                    if (setting === 'warning') d.severity = DiagnosticSeverity.Warning;
-                    if (setting === 'information') d.severity = DiagnosticSeverity.Information;
-                    if (setting === 'hint') d.severity = DiagnosticSeverity.Hint;
-                }
-
-                // Apply global warning settings
-                if (d.severity === DiagnosticSeverity.Warning) {
-                    if (treatAsError) {
-                        d.severity = DiagnosticSeverity.Error;
-                    } else if (hideWarnings) {
-                        return false;
-                    }
-                }
-                return true;
-            }) : [];
-
-            this.connection.sendDiagnostics({
-                uri,
-                diagnostics: finalDiagnostics
-            });
-            
-            // Store parsed state for cross-file features (references, rename)
+            this.connection.sendDiagnostics({ uri, diagnostics: finalDiagnostics });
             this.indexedDocs.set(uri, { sourceFile, diagnostics: finalDiagnostics });
         } catch (err) {
             // Silently skip files that can't be read, but log error
-            this.connection.console.warn(`Error indexing file ${filePath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+            logger.warn(`Error indexing file ${filePath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
         }
     }
 
@@ -513,6 +628,9 @@ export class DocManager {
             parents.add(uri);
             this.parentGraph.set(inc, parents);
         }
+
+        // Clear project nodes cache as graph has changed
+        this.projectNodesCache.clear();
 
         return includes;
     }
@@ -591,6 +709,10 @@ export class DocManager {
      * A project is defined as the set of all files reachable from any root that can reach targetUri.
      */
     public getProjectNodes(targetUri: string): Set<string> {
+        if (this.projectNodesCache.has(targetUri)) {
+            return this.projectNodesCache.get(targetUri)!;
+        }
+
         // Find roots by walking UP parentGraph
         const roots = new Set<string>();
         const visitedParents = new Set<string>();
@@ -628,6 +750,7 @@ export class DocManager {
             }
         }
 
+        this.projectNodesCache.set(targetUri, projectNodes);
         return projectNodes;
     }
 
@@ -635,6 +758,7 @@ export class DocManager {
      * Rebuild document state by re-parsing the document
      */
     async rebuild(doc: TextDocument): Promise<void> {
+        const t0 = Date.now();
         let sourceFile: SourceFile;
         const text = doc.getText();
         const isXml = doc.languageId === 'xml';
@@ -659,6 +783,7 @@ export class DocManager {
             const parser = new Parser(text, oldSourceFile, getFunctionArity);
             sourceFile = parser.parse();
         }
+        const t1 = Date.now();
 
         // Convert parser errors to LSP diagnostics
         const diagnostics: Diagnostic[] = sourceFile.errors.map(error => {
@@ -680,12 +805,20 @@ export class DocManager {
             if (!def.isIncomplete && def.name) {
                 const symbolInfo: SymbolInfo = {
                     name: def.name.text,
-                    kind: definitionTypeToSymbolKind(def.type.text),
+                    kind: definitionTypeToSymbolKind(def.type.text, this.tdlScopeManager),
                     uri: doc.uri,
                     start: def.start,
                     end: def.end,
                     definitionType: def.type.text,
-                    isModifier: !!def.modifier
+                    isModifier: !!def.modifier,
+                    range: {
+                        start: doc.positionAt(def.start),
+                        end: doc.positionAt(def.end)
+                    },
+                    selectionRange: {
+                        start: doc.positionAt(def.name.start),
+                        end: doc.positionAt(def.name.end)
+                    }
                 };
                 symTable.addSymbol(symbolInfo);
             }
@@ -693,6 +826,7 @@ export class DocManager {
 
         // Build Scope Tree for the file
         scopeMgr.buildFileScope(doc.uri, sourceFile);
+        const t2 = Date.now();
 
         // Update Include Graph
         const includes = this.updateIncludeGraph(doc.uri, sourceFile);
@@ -702,24 +836,36 @@ export class DocManager {
         for (const incUri of includes) {
             if (!this.docs.has(incUri) && !this.includeGraph.has(incUri)) {
                 this.indexFile(URI.parse(incUri).fsPath, visited).catch(err => {
-                    this.connection.console.warn(`Failed to index new include ${incUri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+                    logger.warn(`Failed to index new include ${incUri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
                 });
             }
         }
 
-        // Run cross-file validations only if workspace scan is complete
-        if (!this.scanningInProgress) {
+        const t3 = Date.now();
+        // Run cross-file validations only if workspace scan is complete and metadata is loaded
+        if (!this.scanningInProgress && this.isMetadataLoaded) {
             diagnostics.push(...(await validateSourceFile(sourceFile, doc, symTable, scopeMgr, this.resolveIncludePath, this)));
         }
+        const t4 = Date.now();
 
         // Store document state
+        if (!this.isUriActive(doc.uri)) {
+            diagnostics.length = 0; // Clear diagnostics for non-target files
+        }
         this.docs.set(doc.uri, { sourceFile, diagnostics });
 
+        const finalDiagnostics = this.filterDiagnostics(diagnostics);
+
+        this.connection.sendDiagnostics({ uri: doc.uri, diagnostics: finalDiagnostics });
+        
+        logger.trace(`[Perf] rebuild ${path.basename(doc.uri)}: Total=${t4-t0}ms (Parse=${t1-t0}ms, Sym/Scope=${t2-t1}ms, Includes=${t3-t2}ms, Validate=${t4-t3}ms)`);
+    }
+
+    private filterDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
         const treatAsError = shouldTreatWarningsAsErrors();
         const hideWarnings = shouldHideWarnings();
 
-        // Apply user settings for diagnostic severity
-        const finalDiagnostics = isDiagnosticsEnabled() ? diagnostics.filter(d => {
+        return isDiagnosticsEnabled() ? diagnostics.filter(d => {
             // Check individual overrides first
             if (d.code && typeof d.code === 'string') {
                 const setting = getDiagnosticSeverity(d.code);
@@ -740,7 +886,5 @@ export class DocManager {
             }
             return true;
         }) : [];
-
-        this.connection.sendDiagnostics({ uri: doc.uri, diagnostics: finalDiagnostics });
     }
 }

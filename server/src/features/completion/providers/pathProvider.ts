@@ -32,7 +32,7 @@ export async function provideFilePathCompletions(
                             await scanDir(fullPath, depth + 1);
                         } else if (entry.isFile()) {
                             const ext = path.extname(entry.name).toLowerCase();
-                            if (ext === '.txt' || ext === '.tdl' || ext === '.xml' || ext === '.tdlxml') {
+                            if (ext === '.txt' || ext === '.tdl' || ext === '.xml' || ext === '.tdlxml' || ext === '.dat') {
                                 allFiles.push(fullPath);
                             }
                         }
@@ -85,7 +85,7 @@ export async function provideFilePathCompletions(
                     if (searchPrefix === '' || entry.name.toLowerCase().startsWith(searchPrefix.toLowerCase())) {
                         if (entry.isFile()) {
                             const ext = path.extname(entry.name).toLowerCase();
-                            if (ext === '.txt' || ext === '.tdl' || ext === '.xml' || ext === '.tdlxml') {
+                            if (ext === '.txt' || ext === '.tdl' || ext === '.xml' || ext === '.tdlxml' || ext === '.dat') {
                                 items.push({
                                     label: entry.name,
                                     kind: CompletionItemKind.File,

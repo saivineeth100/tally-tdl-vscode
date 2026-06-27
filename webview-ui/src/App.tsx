@@ -2,64 +2,13 @@ import React, { useEffect, useState } from "react";
 import { vscode } from "./utilities/vscode";
 import ScopeTree from "./components/ScopeTree";
 import DetailsPanel from "./components/DetailsPanel";
+import { ScopeNode, WebviewMessage } from "./types";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
-const buildFolderTree = (files: any[]) => {
-  if (!files || files.length === 0) return [];
-  
-  const paths = files.map(f => f.id.replace(/\\/g, '/'));
-  let commonPrefix = '';
-  if (paths.length > 0) {
-    const splitPaths = paths.map(p => p.split('/'));
-    const minLen = Math.min(...splitPaths.map(p => p.length));
-    let i = 0;
-    while (i < minLen - 1) { // -1 to not include the filename itself
-      const part = splitPaths[0][i];
-      if (splitPaths.every(p => p[i] === part)) {
-        i++;
-      } else {
-        break;
-      }
-    }
-    commonPrefix = splitPaths[0].slice(0, i).join('/') + '/';
-  }
-  
-  const root: any = { children: [] };
-  
-  for (const file of files) {
-    const normalizedPath = file.id.replace(/\\/g, '/');
-    const relPath = normalizedPath.startsWith(commonPrefix) ? normalizedPath.substring(commonPrefix.length) : normalizedPath;
-    
-    const parts = relPath.split('/').map((p: string) => {
-      try { return decodeURIComponent(p); } catch { return p; }
-    });
-    const fileName = parts.pop()!;
-    
-    file.name = fileName; 
-    
-    let current = root;
-    for (const part of parts) {
-      let existing = current.children.find((c: any) => c.kind === 'Folder' && c.name === part);
-      if (!existing) {
-        existing = {
-          id: current.id ? `${current.id}/${part}` : part,
-          name: part,
-          kind: 'Folder',
-          children: [],
-          hasChildren: true,
-          _childrenLoaded: true
-        };
-        current.children.push(existing);
-      }
-      current = existing;
-    }
-    current.children.push(file);
-  }
-  
-  return root.children;
-};
+import { buildFolderTree } from "./utilities/treeUtils";
 
 const App = () => {
-  const [treeData, setTreeData] = useState<any[] | null>(null);
+  const [treeData, setTreeData] = useState<ScopeNode[] | null>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<string[]>(["global"]);
   const hashHistoryRef = React.useRef<string[]>([]);
@@ -76,7 +25,7 @@ const App = () => {
   
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      const message = event.data;
+      const message = event.data as WebviewMessage;
       switch (message.command) {
         case "render":
           setTreeData(message.data);
@@ -85,25 +34,19 @@ const App = () => {
         case "symbolsResult":
           window.dispatchEvent(new CustomEvent('symbolsResult', { detail: message }));
           break;
+        case "scopeNodeResult":
+          window.dispatchEvent(new CustomEvent('scopeNodeResult', { detail: message }));
+          break;
         case "childrenResult":
           setTreeData(prev => {
             if (!prev) return prev;
-            const newTree = JSON.parse(JSON.stringify(prev));
+            const newTree = structuredClone(prev);
             
-            const updateNode = (nodes: any[]): boolean => {
+            const updateNode = (nodes: ScopeNode[]): boolean => {
               for (const node of nodes) {
-                if (node.id === message.scopeId) {
-                  if (node.kind === 'Project' || message.scopeId === 'project') {
-                    node.children = [
-                      {
-                        id: 'project_files',
-                        name: 'Files',
-                        kind: 'Folder',
-                        children: buildFolderTree(message.children),
-                        hasChildren: true,
-                        _childrenLoaded: true
-                      }
-                    ];
+                if (node.id === message.scopeId && message.children) {
+                  if (node.kind === 'FilesCategory' || message.scopeId === 'project_Files') {
+                    node.children = buildFolderTree(message.children);
                   } else {
                     node.children = message.children;
                   }
@@ -150,7 +93,7 @@ const App = () => {
           scopeId: scopeId,
           kind: kind,
           page: 1,
-          limit: Number.MAX_SAFE_INTEGER,
+          limit: 5000,
           query: ''
         });
         setSelectedNode(payload);
@@ -190,36 +133,43 @@ const App = () => {
   };
 
   return (
-    <div className="container">
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <h3>SCOPE TREE</h3>
-          <div className="breadcrumbs" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>{breadcrumbs.join(" > ")}</span>
+    <ErrorBoundary>
+      <div className="container">
+        <div className="sidebar">
+          <div className="sidebar-header">
+            <h3>SCOPE TREE</h3>
+            <div className="breadcrumbs" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>{breadcrumbs.join(" > ")}</span>
+            </div>
+          </div>
+          <div className="tree-container">
+            {treeData ? (
+              treeData.map((rootNode: ScopeNode, idx: number) => (
+                <ScopeTree 
+                  key={idx}
+                  data={rootNode} 
+                  onSelectNode={handleNodeSelect} 
+                />
+              ))
+            ) : (
+              <div className="loading" style={{ padding: 10 }}>Loading scopes...</div>
+            )}
           </div>
         </div>
-        <div className="tree-container">
-          {treeData ? (
-            treeData.map((rootNode: any, idx: number) => (
-              <ScopeTree 
-                key={idx}
-                data={rootNode} 
-                onSelectNode={handleNodeSelect} 
-              />
-            ))
+        <div className="main-panel">
+          {selectedNode ? (
+            <DetailsPanel 
+              node={selectedNode} 
+              canGoBack={canGoBack} 
+              onNodeSelect={(n, p) => handleNodeSelect(n, p)} 
+              breadcrumbs={breadcrumbs} 
+            />
           ) : (
-            <div className="loading" style={{ padding: 10 }}>Loading scopes...</div>
+            <div className="empty-state">Select a node to view details</div>
           )}
         </div>
       </div>
-      <div className="main-panel">
-        {selectedNode ? (
-          <DetailsPanel node={selectedNode} canGoBack={canGoBack} />
-        ) : (
-          <div className="empty-state">Select a node to view details</div>
-        )}
-      </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 

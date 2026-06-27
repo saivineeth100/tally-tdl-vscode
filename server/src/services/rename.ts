@@ -63,7 +63,25 @@ export async function renameSymbol(
 
             changes[loc.uri].push(TextEdit.replace(adjustedRange, newName));
         } else {
-            // Document not open — read from disk to preserve prefixes
+            // Document not open — use pre-computed ranges where available
+            let handled = false;
+            const symTable = docManager.getSymbolTable(loc.uri);
+            const symbols = symTable.getSymbolsInDocument(loc.uri);
+            
+            for (const sym of symbols) {
+                if (sym.selectionRange && sym.range) {
+                    if ((sym.range.start.line === loc.range.start.line && sym.range.start.character === loc.range.start.character) ||
+                        (sym.selectionRange.start.line === loc.range.start.line && sym.selectionRange.start.character === loc.range.start.character)) {
+                        changes[loc.uri].push(TextEdit.replace(sym.selectionRange, newName));
+                        handled = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (handled) continue;
+
+            // Fallback for references: read from disk to preserve prefixes
             try {
                 const fsPath = URI.parse(loc.uri).fsPath;
                 const content = await readFileWithEncoding(fsPath);

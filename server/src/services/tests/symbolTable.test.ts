@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { SymbolTable, SymbolInfo, SymbolKind } from '../symbolTable';
+import { Parser } from '../../parser/parser';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 describe('SymbolTable', () => {
     let symbolTable: SymbolTable;
@@ -217,6 +219,51 @@ describe('SymbolTable', () => {
             const results = symbolTable.findAllByName('CommonName');
 
             expect(results.length).toBe(2);
+        });
+    });
+
+    describe('LSP Range Metadata', () => {
+        it('should correctly store range, selectionRange, and detail from parsing', () => {
+            const content = '[Report: TestReport]\nUse: BaseReport';
+            const parser = new Parser(content);
+            const sourceFile = parser.parse();
+            const doc = TextDocument.create('file:///test.tdl', 'tdl', 1, content);
+            
+            const def = sourceFile.definitions[0];
+            const symbolInfo: SymbolInfo = {
+                name: def.name!.text,
+                kind: SymbolKind.Report,
+                uri: doc.uri,
+                start: def.start,
+                end: def.end,
+                definitionType: def.type!.text,
+                isModifier: !!def.modifier,
+                range: {
+                    start: doc.positionAt(def.start),
+                    end: doc.positionAt(def.end)
+                },
+                selectionRange: {
+                    start: doc.positionAt(def.name!.start),
+                    end: doc.positionAt(def.name!.end)
+                },
+                detail: `${def.type!.text}: ${def.name!.text}`
+            };
+            
+            symbolTable.addSymbol(symbolInfo);
+            const retrieved = symbolTable.findSymbol('TestReport', doc.uri);
+            
+            expect(retrieved).toBeDefined();
+            expect(retrieved?.range?.start.line).toBe(0);
+            expect(retrieved?.range?.start.character).toBe(0);
+            expect(retrieved?.range?.end.line).toBe(1);
+            expect(retrieved?.range?.end.character).toBe(15); // End of "Use: BaseReport"
+
+            expect(retrieved?.selectionRange?.start.line).toBe(0);
+            expect(retrieved?.selectionRange?.start.character).toBe(9); // "[Report: " length is 9
+            expect(retrieved?.selectionRange?.end.line).toBe(0);
+            expect(retrieved?.selectionRange?.end.character).toBe(19); // "TestReport" length is 10
+
+            expect(retrieved?.detail).toBe('Report: TestReport');
         });
     });
 });
