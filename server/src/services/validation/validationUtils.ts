@@ -4,6 +4,11 @@ import { TokenKind } from "../../parser/tokenKind";
 import { ScopeManager } from "../scopeManager";
 
 /**
+ * The base definition types that can be structurally chained or nested in TDL.
+ */
+export const STRUCTURAL_DEFINITION_TYPES = ['report', 'form', 'part', 'line', 'field', 'collection', 'option', 'menu', 'button', 'key'];
+
+/**
  * Check if two TDL datatypes are compatible
  * Some types can be used interchangeably or are subsets of others
  */

@@ -3,7 +3,7 @@ import { Parser } from '../../parser/parser';
 import { createHoverContent, getHoverInfo } from '../hover';
 import { getDefinitionAtOffset } from '../definition';
 import { ScopeManager, ScopeKind } from '../scopeManager';
-import { SymbolTable, SymbolKind } from '../symbolTable';
+import { SymbolKind } from '../symbolTable';
 import { AttributeSymbol, FunctionSymbol } from '../../models/symbols';
 
 describe('Hover Feature', () => {
@@ -122,8 +122,7 @@ describe('Hover Feature', () => {
         const testUri = 'file://test.tdl';
 
         beforeEach(() => {
-            const table = new SymbolTable();
-            scopeManager = new ScopeManager(table);
+            scopeManager = new ScopeManager();
         });
 
         it('should show attribute description when hovering on attribute name', () => {
@@ -220,8 +219,7 @@ describe('Hover Feature', () => {
         const testUri = 'file://test.tdl';
 
         beforeEach(() => {
-            const table = new SymbolTable();
-            scopeManager = new ScopeManager(table);
+            scopeManager = new ScopeManager();
         });
 
         it('should show function info when hovering on $$FunctionName', () => {

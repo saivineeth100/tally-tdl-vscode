@@ -3,7 +3,6 @@ import { Parser } from '../../parser/parser';
 import { findReferenceAtOffset } from '../definition';
 import { SyntaxKind } from '../../parser/ast';
 import { ScopeManager } from '../scopeManager';
-import { SymbolTable } from '../symbolTable';
 
 describe('Parser - List Values', () => {
     it('should parse comma-separated values as separate parameters', () => {
@@ -43,8 +42,7 @@ describe('Parser - List Values', () => {
         const parser = new Parser(text);
         const sourceFile = parser.parse();
 
-        const symbolTable = new SymbolTable();
-        const mockScopeManager = new ScopeManager(symbolTable);
+                const mockScopeManager = new ScopeManager();
         const formAttrs = new Map<string, any>();
         formAttrs.set('parts', {
             name: 'Parts',

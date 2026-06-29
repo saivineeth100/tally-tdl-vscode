@@ -5,13 +5,13 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DiagnosticSeverity } from 'vscode-languageserver';
 import { normalizeTypeName } from '../utils';
 import { DiagnosticRules } from '../../diagnostics';
+import { ScopeKind } from '../scopeManager';
 import { ScopeManager } from '../scopeManager';
-import { SymbolTable, SymbolKind } from '../symbolTable';
+import { SymbolKind } from '../symbolTable';
 
 describe('Definition Validation (Mocked)', () => {
     // Mock ScopeManager
-    const symbolTable = new SymbolTable();
-    const mockScopeManager = new ScopeManager(symbolTable);
+        const mockScopeManager = new ScopeManager();
     
     // Add existing definitions directly to the scope manager
     mockScopeManager.globalScope.definitions = new Map([
@@ -60,7 +60,7 @@ describe('Definition Validation (Mocked)', () => {
 
         const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
         expect(diagnostics.length).toBe(1);
-        expect(diagnostics[0].code).toBe(DiagnosticRules.DuplicateDefinition.code);
+        expect(diagnostics[0].code).toBe(DiagnosticRules.InvalidOptionalModifier.code);
     });
 
     it('should NOT report ModifierMissingTarget for ! modifier if definition does not exist', async () => {
@@ -110,6 +110,7 @@ describe('Definition Validation (Mocked)', () => {
             getScopeAt: () => ({}), // Return a dummy scope
             resolve: () => undefined,
             globalScope: mockScopeManager.globalScope,
+            findGlobalSymbolsByName: () => [{ name: 'MyFunction', definitionType: 'Function', isModifier: false }],
             projectScope: { definitions: new Map() }
         } as any;
 
@@ -147,9 +148,9 @@ describe('Definition Validation (Mocked)', () => {
             getProjectNodes: () => new Set<string>(['file:///main.tdl'])
         } as any;
 
-        let typeMap = mockScopeManager.projectScope.definitions.get('report');
-        if (!typeMap) { typeMap = new Map(); mockScopeManager.projectScope.definitions.set('report', typeMap); }
-        typeMap.set('otherreport', { name: 'OtherReport', definitionType: 'Report', kind: SymbolKind.Report, uri: 'file:///unlinked.tdl' } as any);
+        let typeMap = mockScopeManager.scopeIndex.get('report');
+        if (!typeMap) { typeMap = new Map(); mockScopeManager.scopeIndex.set('report', typeMap); }
+        typeMap.set('otherreport', { kind: ScopeKind.Definition, definition: { name: 'OtherReport', definitionType: 'Report', kind: SymbolKind.Report, uri: 'file:///unlinked.tdl' } } as any);
 
         const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager, undefined, mockDocManager);
         const warning = diagnostics.find(d => d.message.includes('not included in the project'));

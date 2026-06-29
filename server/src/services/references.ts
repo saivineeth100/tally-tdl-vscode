@@ -5,7 +5,10 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { findReferenceAtOffset, findDefinitionByName } from './definition';
 import { URI } from 'vscode-uri';
 import * as fs from 'fs';
-import { SyntaxKind } from '../parser/ast';
+import { normalizeTypeName } from './utils';
+import { walkAST } from '../parser/astQuery';
+import { SyntaxKind, IdentifierNode } from '../parser/ast';
+import { positionAt } from '../utils/positionUtils';
 import { ScopeManager } from './scopeManager';
 
 export async function findReferences(
@@ -117,83 +120,67 @@ export async function findReferences(
     const lowerTargetName = targetName.toLowerCase();
     const lowerTargetType = targetType?.toLowerCase();
 
+    // Fast O(1) filter to only search files that contain the exact identifier
+    const candidateUris = docManager.getScopeManager(uri).projectScope.referenceIndex.getCandidateUris(targetName);
+    if (candidateUris && candidateUris.size === 0) return locations;
+
     const projectScope = scopeUri ? new Set([scopeUri]) : docManager.getProjectNodes(uri);
 
     // Iterate through project documents
     for (const docUri of projectScope) {
+        if (candidateUris && !candidateUris.has(docUri)) continue; // Skip if identifier is definitively not in this file
+
         const docState = docManager.get(docUri);
-        if (!docState) {
-            // Try to load from disk if file exists but has no indexed state
-            continue;
-        }
-
-        let textDoc = docs.get(docUri);
-        let text: string;
-
-        if (textDoc) {
-            text = textDoc.getText();
-        } else {
-            try {
-                const fsPath = URI.parse(docUri).fsPath;
-                text = await readFileWithEncoding(fsPath);
-                textDoc = TextDocument.create(docUri, 'tally', 1, text);
-            } catch (e) {
-                continue;
-            }
-        }
+        if (!docState) continue;
         
-        // Fast string search for the target name to skip files without it
-        // We use indexOf instead of regex to properly support names with spaces and special characters
-        const lowerText = text.toLowerCase();
-        let matchOffset = lowerText.indexOf(lowerTargetName);
-        
-        while (matchOffset !== -1) {
+        // Fast AST walk instead of text search
+        walkAST(docState.sourceFile, (node) => {
+            if (node.kind === SyntaxKind.Identifier && (node as IdentifierNode).text?.toLowerCase() === lowerTargetName) {
+                // Use findReferenceAtOffset to verify this occurrence references our target
+                // We pass empty string for text since we modified findReferenceAtOffset to not need it
+                const matchRefInfo = findReferenceAtOffset(
+                    docState.sourceFile,
+                    node.start,
+                    '', // unused text
+                    docManager.getScopeManager(docUri),
+                    docUri
+                );
 
-            // Use findReferenceAtOffset to verify this occurrence references our target
-            const matchRefInfo = findReferenceAtOffset(
-                docState.sourceFile,
-                matchOffset,
-                text,
-                docManager.getScopeManager(docUri),
-                docUri
-            );
-
-            if (matchRefInfo && matchRefInfo.name.toLowerCase() === lowerTargetName) {
-                // If we know the type, verify it matches
-                if (!lowerTargetType || !matchRefInfo.expectedType || matchRefInfo.expectedType.toLowerCase() === lowerTargetType || lowerTargetType === 'variable') {
-                    // It's a match!
-                    locations.push({
-                        uri: docUri,
-                        range: {
-                            start: textDoc.positionAt(matchRefInfo.start),
-                            end: textDoc.positionAt(matchRefInfo.end)
-                        }
-                    });
-                }
-            } else {
-                // It might be a definition name itself
-                for (const def of docState.sourceFile.definitions) {
-                    if (def.name && matchOffset >= def.name.start && matchOffset <= def.name.end) {
-                        if (def.name.text.toLowerCase() === lowerTargetName) {
-                            if (!lowerTargetType || def.type.text.toLowerCase() === lowerTargetType) {
-                                if (includeDeclaration) {
-                                    locations.push({
-                                        uri: docUri,
-                                        range: {
-                                            start: textDoc.positionAt(def.name.start),
-                                            end: textDoc.positionAt(def.name.end)
-                                        }
-                                    });
+                if (matchRefInfo && matchRefInfo.name.toLowerCase() === lowerTargetName) {
+                    // If we know the type, verify it matches
+                    if (!lowerTargetType || !matchRefInfo.expectedType || matchRefInfo.expectedType.toLowerCase() === lowerTargetType || lowerTargetType === 'variable') {
+                        // It's a match!
+                        locations.push({
+                            uri: docUri,
+                            range: {
+                                start: positionAt(matchRefInfo.start, docState.sourceFile.lineOffsets),
+                                end: positionAt(matchRefInfo.end, docState.sourceFile.lineOffsets)
+                            }
+                        });
+                    }
+                } else {
+                    // It might be a definition name itself
+                    for (const def of docState.sourceFile.definitions) {
+                        if (def.name && node.start >= def.name.start && node.start <= def.name.end) {
+                            if (def.name.text.toLowerCase() === lowerTargetName) {
+                                if (!lowerTargetType || def.type.text.toLowerCase() === lowerTargetType) {
+                                    if (includeDeclaration) {
+                                        locations.push({
+                                            uri: docUri,
+                                            range: {
+                                                start: positionAt(def.name.start, docState.sourceFile.lineOffsets),
+                                                end: positionAt(def.name.end, docState.sourceFile.lineOffsets)
+                                            }
+                                        });
+                                    }
                                 }
                             }
+                            break;
                         }
-                        break;
                     }
                 }
             }
-
-            matchOffset = lowerText.indexOf(lowerTargetName, matchOffset + lowerTargetName.length);
-        }
+        });
     }
 
     // Filter duplicates

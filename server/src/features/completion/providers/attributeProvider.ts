@@ -3,9 +3,9 @@ import { ScopeManager } from '../../../services/scopeManager/index';
 import { normalizeTypeName, normalizeXMLTypeName } from '../../../services/utils';
 import { getFunctionSuggestions } from './functionProvider';
 import { getSuggestionsForDefinitionType } from './definitionProvider';
-import { SymbolTable } from '../../../services/symbolTable';
 import { CompletionContext } from '../contextAnalyzer';
-import { Scope } from '../../../services/scopeManager/types';
+import { DefinitionScope, Scope } from '../../../services/scopeManager/types';
+import { IScopeResolverState } from '../../../services/scopeManager/scopeResolver';
 import { resolveSchema } from '../../../services/scopeManager/scopeResolver';
 import { SymbolKind } from '../../../models/symbols';
 
@@ -52,7 +52,6 @@ export function provideAttributeValueCompletions(
     scopeManager: ScopeManager,
     defTypeName: string,
     context: CompletionContext,
-    symbolTable?: SymbolTable,
     scope?: Set<string>,
     currentScope?: Scope
 ): CompletionItem[] {
@@ -74,17 +73,21 @@ export function provideAttributeValueCompletions(
         }
 
         if (objectScopeName) {
-            const schema = resolveSchema({
+            const mockState: IScopeResolverState = {
                 useInheritance: scopeManager.useInheritance,
                 inUseInheritance: scopeManager.inUseInheritance,
                 parentDefinitions: scopeManager.parentDefinitions,
                 childDefinitions: scopeManager.childDefinitions,
-                globalScope: {} as any,
-                projectScope: {} as any,
-                findDefinitionScope: (id: string) => scopeManager.findDefinitionScope(id),
-                findGlobalSymbolsByName: (n, s) => scopeManager.findGlobalSymbolsByName(n, s),
-                getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n)
-            }, objectScopeName, currentScope, scope);
+                globalScope: scopeManager.globalScope,
+                projectScope: scopeManager.projectScope,
+                findDefinitionScope: (id) => scopeManager.findDefinitionScope(id),
+                findGlobalSymbolsByName: (name, projectNodes) => scopeManager.findGlobalSymbolsByName(name, projectNodes),
+                getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n),
+                normalizeScopeId: (id) => scopeManager.normalizeScopeId(id),
+                getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n),
+                getAnyProjectDefinition: (n) => scopeManager.getAnyProjectDefinition(n)
+            };
+            const schema = resolveSchema(mockState, objectScopeName, currentScope, scope);
 
             if (schema) {
                 for (const prop of schema.properties.values()) {
@@ -93,17 +96,21 @@ export function provideAttributeValueCompletions(
                     if (typedPath.length > 1) {
                         const rootProp = typedPath[0].toLowerCase();
                         if (prop.Name.toLowerCase() === rootProp && prop.IsComplex && prop.ObjectName) {
-                            const subSchema = resolveSchema({
-                                useInheritance: scopeManager.useInheritance,
-                                inUseInheritance: scopeManager.inUseInheritance,
-                                parentDefinitions: scopeManager.parentDefinitions,
-                                childDefinitions: scopeManager.childDefinitions,
-                                globalScope: {} as any,
-                                projectScope: {} as any,
-                                findDefinitionScope: (id) => scopeManager.findDefinitionScope(id),
-                                findGlobalSymbolsByName: (n, s) => scopeManager.findGlobalSymbolsByName(n, s),
-                                getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n)
-                            }, prop.ObjectName, currentScope, scope);
+                                const mockState2: IScopeResolverState = {
+                                    useInheritance: scopeManager.useInheritance,
+                                    inUseInheritance: scopeManager.inUseInheritance,
+                                    parentDefinitions: scopeManager.parentDefinitions,
+                                    childDefinitions: scopeManager.childDefinitions,
+                                    globalScope: scopeManager.globalScope,
+                                    projectScope: scopeManager.projectScope,
+                                    findDefinitionScope: (id) => scopeManager.findDefinitionScope(id),
+                                    findGlobalSymbolsByName: (name, projectNodes) => scopeManager.findGlobalSymbolsByName(name, projectNodes),
+                                    getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n),
+                                    normalizeScopeId: (id) => scopeManager.normalizeScopeId(id),
+                                    getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n),
+                                    getAnyProjectDefinition: (n) => scopeManager.getAnyProjectDefinition(n)
+                                };
+                                const subSchema = resolveSchema(mockState2, prop.ObjectName, currentScope, scope);
                             if (subSchema) {
                                 for (const subProp of subSchema.properties.values()) {
                                     const fullSubPath = `${prop.Name}.${subProp.Name}`;
@@ -211,7 +218,30 @@ export function provideAttributeValueCompletions(
         };
 
         addObjects(scopeManager.globalScope.definitions);
-        if (scopeManager.projectScope) addObjects(scopeManager.projectScope.definitions);
+        if (scopeManager.projectScope) {
+            const projectObjects = scopeManager.scopeIndex.get('object');
+            if (projectObjects) {
+                for (const [objName, objScope] of projectObjects.entries()) {
+                    if (objScope.kind === 'Definition') {
+                        const ds = objScope as import('../../../services/scopeManager').DefinitionScope;
+                        if (ds.definition) {
+                            if (!addedSchemas.has(objName.toLowerCase())) {
+                                if (context.partial === '' || objName.toLowerCase().includes(context.partial.toLowerCase())) {
+                                    addedSchemas.add(objName.toLowerCase());
+                                    items.push({
+                                        label: ds.definition.name || objName,
+                                        kind: CompletionItemKind.Class,
+                                        detail: 'Object Definition',
+                                        insertText: ds.definition.name || objName,
+                                        sortText: '1_' + objName.toLowerCase()
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     if (!attrMap) return items;
@@ -308,7 +338,7 @@ export function provideAttributeValueCompletions(
                 if (scopeManager.projectScope) addGlobalFormulas(scopeManager.projectScope.formulas);
                 if (scopeManager.globalScope) addGlobalFormulas(scopeManager.globalScope.formulas);
             } else if (refersToType) {
-                items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, scopeManager, scope, symbolTable));
+                items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, scopeManager, scope));
             }
         }
         // 4. If Datatype is String, add a hint

@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as v8 from 'v8';
-import { ScopeManager } from '../services/scopeManager';
-import { SymbolTable } from '../services/symbolTable';
+import { ScopeManager, ScopeKind, DefinitionScope } from '../services/scopeManager';
 import { loadMetadata } from '../services/metadataLoader';
 import { Parser } from '../parser/parser';
 import { buildFileScope } from '../services/scopeManager/scopeBuilder';
@@ -78,6 +77,9 @@ async function scanAndParse(dirPath: string, scopeManager: ScopeManager, version
 
                         // Build the scope for this file directly into the scopeManager's project/global scopes
                         buildFileScope(scopeManager, virtualUri, sourceFile);
+                        
+                        // Index references for the UI
+                        scopeManager.globalScope.referenceIndex.indexFile(virtualUri, sourceFile);
 
                         // Populate definition type labels to retain original casing
                         for (const def of sourceFile.definitions) {
@@ -111,8 +113,7 @@ async function buildCacheForVersion(version: string) {
     console.log(`Building cache for version: ${version}...`);
 
     // Create a pristine ScopeManager with its SymbolTable
-    const symbolTable = new SymbolTable();
-    const scopeManager = new ScopeManager(symbolTable);
+    const scopeManager = new ScopeManager();
 
     // Phase 1: Load all JSON meta files into the ScopeManager
     console.log(`Loading JSON metadata...`);
@@ -133,6 +134,7 @@ async function buildCacheForVersion(version: string) {
         console.time("Scanning and Parsing Base TDL");
         const stats = { parsed: 0, errors: 0 };
         await scanAndParse(baseTdlDir, scopeManager, version, stats, baseTdlDir);
+        
         console.log(`\nCompleted scanning ${stats.parsed} files with ${stats.errors} errors.`);
 
         if (stats.errors > 0 && stats.errors > stats.parsed * 0.1) {
@@ -145,16 +147,43 @@ async function buildCacheForVersion(version: string) {
         // Move the parsed Base TDL definitions from projectScope to globalScope
         console.time("Shifting to Global Scope");
         console.log(`Shifting Base TDL definitions to Global Scope...`);
-        for (const [defType, defMap] of scopeManager.projectScope.definitions.entries()) {
+        for (const [defType, defMap] of scopeManager.scopeIndex.entries()) {
             let globalDefMap = scopeManager.globalScope.definitions.get(defType);
             if (!globalDefMap) {
                 globalDefMap = new Map();
                 scopeManager.globalScope.definitions.set(defType, globalDefMap);
             }
             for (const [name, sym] of defMap.entries()) {
-                globalDefMap.set(name, sym);
+                if (sym.kind === ScopeKind.Definition) {
+                    const ds = sym as DefinitionScope;
+                    if (ds.definition) {
+                        globalDefMap.set(name, ds.definition);
+                    }
+                }
+                
+                // Sever parent links for ALL scopes in scopeIndex (Definitions, Functions, etc.)
+                // so V8 doesn't pull in the 5,000+ FileScope tree
+                const baseScope = sym as any;
+                if (baseScope.parent && baseScope.parent.kind === ScopeKind.File) {
+                    baseScope.parent = undefined;
+                }
             }
         }
+
+        // Sever links in modifierContributions too
+        if (scopeManager.modifierContributions) {
+            for (const mods of scopeManager.modifierContributions.values()) {
+                for (const sym of mods.values()) {
+                    const baseScope = sym as any;
+                    if (baseScope.parent && baseScope.parent.kind === ScopeKind.File) {
+                        baseScope.parent = undefined;
+                    }
+                }
+            }
+        }
+
+        // Force clear the ProjectScope's children array to ensure FileScopes are dropped
+        scopeManager.projectScope.childScopes = [];
         for (const [name, sym] of scopeManager.projectScope.variables.entries()) {
             scopeManager.globalScope.variables.set(name, sym);
         }
@@ -162,10 +191,21 @@ async function buildCacheForVersion(version: string) {
             scopeManager.globalScope.formulas.set(name, sym);
         }
 
+        // Transfer referenceIndex to globalScope so it's cached in Base TDL
+        scopeManager.globalScope.referenceIndex = scopeManager.projectScope.referenceIndex;
+
         // Clear projectScope to save space and avoid duplication
-        scopeManager.projectScope.definitions.clear();
+        // We do NOT clear scopeIndex anymore, as we replaced its entries with lightweight scopes above
         scopeManager.projectScope.variables.clear();
         scopeManager.projectScope.formulas.clear();
+        
+        // Replace projectScope's referenceIndex with a fresh one so the massive Map isn't serialized twice!
+        const { ReferenceIndex } = require('../services/referenceIndex');
+        scopeManager.projectScope.referenceIndex = new ReferenceIndex();
+        
+        // Clear fileMap to save massive amounts of cache size, as it's not loaded from basetdl.bin
+        scopeManager.fileMap.clear();
+        
         console.timeEnd("Shifting to Global Scope");
 
         // Clear metadata fields from globalScope before serializing basetdl to avoid duplication

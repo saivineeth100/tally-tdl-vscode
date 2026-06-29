@@ -3,7 +3,7 @@ import { Parser } from '../../parser/parser';
 import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from '../definition';
 import { ScopeManager } from '../scopeManager';
 import { ScopeKind } from '../scopeManager/types';
-import { SymbolTable, SymbolKind } from '../symbolTable';
+import { SymbolKind } from '../symbolTable';
 import { resolveVariable } from '../scopeManager/scopeResolver';
 
 describe('Definition Service - Modifier References', () => {
@@ -243,7 +243,7 @@ describe('Definition Service - Modifier References', () => {
             const fileB = `[#Report: BaseReport]
     Variable: ModVar`;
 
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = new ScopeManager();
             
             const parserA = new Parser(fileA);
             const sourceA = parserA.parse();
@@ -271,7 +271,7 @@ describe('Definition Service - Modifier References', () => {
         });
 
         it('should remove modifier contribution when file is removed', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = new ScopeManager();
             // Create base definition
             const baseSource = new Parser(`[Report: SomeReport]`).parse();
             manager.buildFileScope('file://base.tdl', baseSource);
@@ -286,7 +286,7 @@ describe('Definition Service - Modifier References', () => {
         });
 
         it('should resolve modifier applied to a default tally definition (metadata)', () => {
-            const manager = new ScopeManager(new SymbolTable());
+            const manager = new ScopeManager();
             
             // Mock metadata for default definition 'Daybook'
             manager.globalScope.definitions.set('report', new Map([['daybook', { name: 'daybook', kind: 0, uri: '', start: 0, end: 0, definitionType: 'report' } as any]]));

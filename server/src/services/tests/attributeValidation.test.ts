@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest';
+import { ScopeKind } from '../scopeManager';
+import { buildFileScope } from '../scopeManager/scopeBuilder';
 import { Parser } from '../../parser/parser';
 import { FunctionSymbol, SymbolKind } from '../../models/symbols';
 import {
@@ -6,7 +8,7 @@ import {
 } from '../validation';
 import { DiagnosticRules } from '../../diagnostics';
 import { normalizeTypeName } from '../utils';
-import { SymbolTable, definitionTypeToSymbolKind } from '../symbolTable';
+import { definitionTypeToSymbolKind } from '../symbolTable';
 import { testScopeManager } from '../../test-setup';
 
 describe('Attribute Validation', () => {
@@ -63,20 +65,20 @@ describe('Attribute Validation', () => {
     });
 
     describe('Reference Validation', () => {
-        let symbolTable: SymbolTable;
-
         beforeAll(() => {
-            symbolTable = new SymbolTable();
             if (testScopeManager) {
-                let typeMap = testScopeManager.projectScope.definitions.get('form');
-                if (!typeMap) { typeMap = new Map(); testScopeManager.projectScope.definitions.set('form', typeMap); }
+                let typeMap = testScopeManager.scopeIndex.get('form');
+                if (!typeMap) { typeMap = new Map(); testScopeManager.scopeIndex.set('form', typeMap); }
                 typeMap.set('existingform', {
-                    name: 'ExistingForm',
-                    kind: definitionTypeToSymbolKind('Form', testScopeManager),
-                    definitionType: 'Form',
-                    uri: 'file:///other.tdl',
-                    start: 0,
-                    end: 10
+                    kind: ScopeKind.Definition,
+                    definition: {
+                        name: 'ExistingForm',
+                        kind: definitionTypeToSymbolKind('Form', testScopeManager),
+                        definitionType: 'Form',
+                        uri: 'file:///other.tdl',
+                        start: 0,
+                        end: 10
+                    }
                 } as any);
             }
         });
@@ -89,7 +91,7 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!, symbolTable);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeUndefined();
         });
@@ -102,7 +104,7 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!, symbolTable);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
 
             const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeDefined();
@@ -133,7 +135,7 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!, symbolTable);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeUndefined();
         });
@@ -151,7 +153,7 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!, symbolTable);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeUndefined();
         });
@@ -182,7 +184,7 @@ describe('Attribute Validation', () => {
             const parser = new Parser(tdl);
             const sourceFile = parser.parse();
 
-            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!, symbolTable);
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const refError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
             expect(refError).toBeUndefined();
         });
@@ -434,6 +436,75 @@ describe('Attribute Validation', () => {
     });
 
     describe('Local Attribute Validation', () => {
+        beforeAll(() => {
+            if (testScopeManager) {
+                let typeMap = testScopeManager.globalScope.definitions.get('field');
+                if (!typeMap) { typeMap = new Map(); testScopeManager.globalScope.definitions.set('field', typeMap); }
+                typeMap.set('mediumprompt', { name: 'Medium Prompt', kind: SymbolKind.Field, uri: 'global:metadata', start: 0, end: 10 } as any);
+                typeMap.set('shortprompt', { name: 'Short Prompt', kind: SymbolKind.Field, uri: 'global:metadata', start: 0, end: 10 } as any);
+                typeMap.set('finalledreportname', { name: 'Final Led ReportName', kind: SymbolKind.Field, uri: 'global:metadata', start: 0, end: 10 } as any);
+
+                testScopeManager.recordGraphContribution = (uri, type, key1, key2) => {
+                    let contribs = testScopeManager!.uriGraphContributions.get(uri);
+                    if (!contribs) {
+                        contribs = { parentDefs: new Set(), childDefs: new Set(), useInherit: new Set(), inUseInherit: new Set(), includes: new Set(), modifiers: new Set() };
+                        testScopeManager!.uriGraphContributions.set(uri, contribs);
+                    }
+                    if (type === 'parentDef' && key2) contribs.parentDefs.add(`${key1}::${key2}`);
+                    if (type === 'childDef' && key2) contribs.childDefs.add(`${key1}::${key2}`);
+                    if (type === 'useInherit' && key2) contribs.useInherit.add(`${key1}::${key2}`);
+                    if (type === 'inUseInherit' && key2) contribs.inUseInherit.add(`${key1}::${key2}`);
+                    if (type === 'include') contribs.includes.add(key1);
+                    if (type === 'modifier') contribs.modifiers.add(key1);
+                };
+            }
+        });
+
+        it('validates nested definition types and attributes inside Local and handles circular dependencies (e.g. Collection and Report cycles)', () => {
+            const tdl = `
+                [Line: Final Led ReportName]
+                    Fields: Medium Prompt, Final Led ReportName
+                    Local: Field: Final Led ReportName  : Set as        : "Name :"
+                    Local: Field: Medium Prompt     : Inactive      : $$Line > 1
+
+                [Collection: Ledger Coll]
+                    Report: Triggered Led Report
+
+                [Report: Triggered Led Report]
+                    Form: Triggered Led Report
+                    Local: Field: Ledger Coll: Set as: "Override"
+
+                [Form: Triggered Led Report]
+                    Part: Triggered Led Report
+
+                [Part: Triggered Led Report]
+                    Line: Triggered Led Report
+
+                [Line: Triggered Led Report]
+                    Fields: Ledger Coll
+
+                [Field: Ledger Coll]
+                    Set as: "Default"
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const scope = buildFileScope(testScopeManager!, 'file:///test.tdl', sourceFile);
+            testScopeManager!.indexScope(scope);
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const diagnostics2 = validateDefinitionAttributes(sourceFile.definitions[2], docReal, testScopeManager!); // Validate the Report
+            
+            const notInScopeErrors = [...diagnostics, ...diagnostics2].filter(d => d.code === DiagnosticRules.DefinitionNotInScope.code);
+            const missingErrors = [...diagnostics, ...diagnostics2].filter(d => d.code === DiagnosticRules.MissingDefinition.code);
+            
+            testScopeManager!.unindexScope(scope);
+
+            expect(notInScopeErrors.length).toBe(0);
+            expect(missingErrors.length).toBe(0);
+        });
+
         it('validates nested definition types and attributes inside Local', () => {
             const tdl = `[Report: MyReport]
                 Local: Field: Default: Set as: "LocalValue"
@@ -451,6 +522,131 @@ describe('Attribute Validation', () => {
                 d.code === DiagnosticRules.TypeMismatch.code
             );
             expect(attrErrors.length).toBe(0);
+        });
+
+        it('should allow Local when definition is in scope', async () => {
+            const tdl = `[Line: My Line]
+                Fields: Medium Prompt
+                Local: Field: Medium Prompt: Set as: "Hello"
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('file:///test.tdl', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const scope = buildFileScope(testScopeManager!, 'file:///test.tdl', sourceFile);
+            testScopeManager!.indexScope(scope);
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const notInScopeError = diagnostics.find(d => d.code === DiagnosticRules.DefinitionNotInScope.code);
+            const missingError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
+            
+            testScopeManager!.unindexScope(scope);
+            
+            expect(notInScopeError).toBeUndefined();
+            expect(missingError).toBeUndefined();
+        });
+        
+        it('should be space and case insensitive for Local targets', async () => {
+            const tdl = `[Line: My Line 2]
+                Fields: Medium Prompt
+                Local: Field: mediumprompt: Set as: "Hello"
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('file:///test2.tdl', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const scope = buildFileScope(testScopeManager!, 'file:///test2.tdl', sourceFile);
+            testScopeManager!.indexScope(scope);
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const notInScopeError = diagnostics.find(d => d.code === DiagnosticRules.DefinitionNotInScope.code);
+            
+            testScopeManager!.unindexScope(scope);
+            
+            expect(notInScopeError).toBeUndefined();
+        });
+
+        it('should report DefinitionNotInScope if definition exists globally but is not in scope', async () => {
+            const tdl = `[Line: My Line 3]
+                Fields: Short Prompt
+                Local: Field: Medium Prompt: Set as: "Hello"
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('file:///test3.tdl', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const scope = buildFileScope(testScopeManager!, 'file:///test3.tdl', sourceFile);
+            testScopeManager!.indexScope(scope);
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const notInScopeError = diagnostics.find(d => d.code === DiagnosticRules.DefinitionNotInScope.code);
+            
+            testScopeManager!.unindexScope(scope);
+            
+            expect(notInScopeError).toBeDefined();
+        });
+
+        it('should report MissingDefinition if definition does not exist anywhere', async () => {
+            const tdl = `[Line: My Line 4]
+                Fields: Medium Prompt
+                Local: Field: NonExistentField123: Set as: "Hello"
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('file:///test4.tdl', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const scope = buildFileScope(testScopeManager!, 'file:///test4.tdl', sourceFile);
+            testScopeManager!.indexScope(scope);
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const missingError = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
+            
+            testScopeManager!.unindexScope(scope);
+            
+            expect(missingError).toBeDefined();
+        });
+
+        it('should correctly validate deep Local chaining with multiple explicit Local keywords', async () => {
+            // We need some global defs so it resolves them
+            if (testScopeManager) {
+                // Part: TSPL Smp Info
+                let partMap = testScopeManager.scopeIndex.get('part');
+                if (!partMap) { partMap = new Map(); testScopeManager.scopeIndex.set('part', partMap); }
+                partMap.set('tsplsmpinfo', {
+                    kind: ScopeKind.Definition,
+                    definition: { name: 'TSPL Smp Info', kind: SymbolKind.Part, definitionType: 'Part', uri: 'file:///test5.tdl', start: 0, end: 10 }
+                } as any);
+
+                // Line: Info
+                let lineMap = testScopeManager.scopeIndex.get('line');
+                if (!lineMap) { lineMap = new Map(); testScopeManager.scopeIndex.set('line', lineMap); }
+                lineMap.set('info', {
+                    kind: ScopeKind.Definition,
+                    definition: { name: 'Info', kind: SymbolKind.Line, definitionType: 'Line', uri: 'file:///test5.tdl', start: 0, end: 10 }
+                } as any);
+            }
+
+            const tdl = `[Report: Deep Local Report]
+                Part: TSPL Smp Info
+                Local: Part: TSPL Smp Info: Local: Line: Info: Local: Field: Default: Info: "Test"
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('file:///test5.tdl', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const scope = buildFileScope(testScopeManager!, 'file:///test5.tdl', sourceFile);
+            testScopeManager!.indexScope(scope);
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const hasInvalidChainErrors = diagnostics.some(d => 
+                d.code === DiagnosticRules.MissingDefinition.code || 
+                d.code === DiagnosticRules.DefinitionNotInScope.code
+            );
+            
+            testScopeManager!.unindexScope(scope);
+            
+            // There shouldn't be any false MissingDefinition or DefinitionNotInScope errors for the valid parts of the chain.
+            expect(hasInvalidChainErrors).toBe(false);
         });
     });
 });

@@ -4,9 +4,9 @@ import { Scope } from '../../../services/scopeManager';
 import { CompletionContext } from '../contextAnalyzer';
 import { getDefinitionTypes } from '../utils';
 import { getSuggestionsForDefinitionType, provideDefinitionTypeCompletions } from './definitionProvider';
+import { provideAttributeValueCompletions } from './attributeProvider';
 import { normalizeTypeName } from '../../../services/utils';
 import { DefinitionNode } from '../../../parser/ast';
-import { SymbolTable } from '../../../services/symbolTable';
 
 export function provideModifierValueCompletions(
     manager: DocManager,
@@ -14,8 +14,7 @@ export function provideModifierValueCompletions(
     offset: number,
     currentDef: DefinitionNode,
     context: CompletionContext,
-    isXml: boolean,
-    symbolTable?: SymbolTable
+    isXml: boolean
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     if (!context.modifierName || context.paramIndex === undefined) return items;
@@ -37,6 +36,9 @@ export function provideModifierValueCompletions(
         let isAttribute = false;
         let attributeName: string | undefined = undefined;
         let valuePartIndex = -1;
+        let previousWasLocal = false;
+
+        const { STRUCTURAL_DEFINITION_TYPES } = require('../../../services/validation/validationUtils');
 
         for (let i = 0; i < parts.length - 1; i++) {
             const p = parts[i].trim();
@@ -55,12 +57,38 @@ export function provideModifierValueCompletions(
                 currentScopeDefName = targetDefName;
                 expectingDefNameFor = undefined;
             } else if (!isAttribute) {
-                // Check if p is a known definition type
                 const pLower = p.toLowerCase();
+                if (pLower === 'local') {
+                    previousWasLocal = true;
+                    continue;
+                }
+
+                const currentAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
+                const isTargetAttribute = currentAttrs && currentAttrs.has(normalizeTypeName(pLower));
+                const canonicalDefType = scopeManager.globalScope.interchangeableAttributesMap?.get(pLower) || pLower;
+                const isStructuralChild = STRUCTURAL_DEFINITION_TYPES.includes(canonicalDefType);
+                let treatAsChainedTarget = false;
+
                 if (scopeManager.globalScope.attributes.has(normalizeTypeName(pLower))) {
+                    if (i + 1 < parts.length) {
+                        if (previousWasLocal) {
+                            treatAsChainedTarget = true;
+                        } else if (isTargetAttribute && !isStructuralChild) {
+                            treatAsChainedTarget = false;
+                        } else if (isTargetAttribute && isStructuralChild) {
+                            treatAsChainedTarget = (i + 2 < parts.length - 1);
+                        } else {
+                            treatAsChainedTarget = true;
+                        }
+                    }
+                }
+
+                previousWasLocal = false;
+
+                if (treatAsChainedTarget) {
                     expectingDefNameFor = pLower;
                 } else {
-                    // Not a definition type, so it must be the attribute!
+                    // Not a chained target, so it must be the attribute!
                     isAttribute = true;
                     attributeName = p;
                     valuePartIndex = i + 1;
@@ -93,10 +121,6 @@ export function provideModifierValueCompletions(
                             insertText: `${sym.name}${suffix}`
                         });
                     }
-                }
-                
-                if (reachable.length === 0) {
-                    items.push(...getSuggestionsForDefinitionType(expectingDefNameFor, context.partial, scopeManager));
                 }
             }
         } else if (!isAttribute) {
@@ -131,10 +155,22 @@ export function provideModifierValueCompletions(
             }
         } else if (isAttribute && attributeName) {
             // We are typing the value for the attribute!
-            // We can delegate to provideAttributeValueCompletions by creating a mock context
-            // But modifierProvider usually delegates back or handles it.
-            // Since modifierProvider doesn't import provideAttributeValueCompletions, we can just let it fall back or we can implement the value logic.
-            // For now, since modifier values can be complex, we just return empty, or we can add basic suggestions.
+            // Delegate to provideAttributeValueCompletions by creating a mock context
+            const mockContext: CompletionContext = {
+                type: 'attribute_value',
+                partial: context.partial,
+                hasModifier: false,
+                attributeName: attributeName,
+                paramIndex: context.paramIndex - valuePartIndex
+            };
+            const currentScope = effectiveScope || scopeManager.getScopeAt(uri, offset);
+            items.push(...provideAttributeValueCompletions(
+                scopeManager, 
+                currentScopeDefType || currentDef.type.text, 
+                mockContext, 
+                undefined, // projectScope not easily available here, but mostly used for formulas
+                currentScope
+            ));
         }
     } else if (['add', 'delete', 'replace'].includes(modName)) {
         if (context.paramIndex === 0) {

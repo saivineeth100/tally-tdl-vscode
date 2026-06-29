@@ -5,7 +5,6 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { createDiagnostic, DiagnosticRules } from '../../diagnostics';
 import { Parser } from '../../parser/parser';
 import { ScopeManager } from '../scopeManager';
-import { SymbolTable } from '../symbolTable';
 
 describe('Code Actions', () => {
     let mockDocManager: any;
@@ -17,8 +16,7 @@ describe('Code Actions', () => {
         const parser = new Parser(tdl);
         const sourceFile = parser.parse();
 
-        const symbolTable = new SymbolTable();
-        const mockScopeManager = new ScopeManager(symbolTable);
+                const mockScopeManager = new ScopeManager();
 
         // Setup mock metadata
         const reportAttrs = new Map<string, any>();

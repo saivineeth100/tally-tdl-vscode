@@ -8,13 +8,14 @@ export enum LogLevel {
     Trace = 4
 }
 
+export const isDebug = process.execArgv.some(arg => arg.startsWith('--inspect'));
+
 export class Logger {
     private connection?: Connection;
     public level: LogLevel;
 
     constructor() {
         // Default to Info in production, Trace in debug mode
-        const isDebug = process.execArgv.some(arg => arg.startsWith('--inspect'));
         this.level = isDebug ? LogLevel.Trace : LogLevel.Info;
     }
 

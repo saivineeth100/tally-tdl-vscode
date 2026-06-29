@@ -13,9 +13,14 @@ export interface IScopeResolverState {
 
     modifierContributions?: Map<string, import('./types').ModifierContribution[]>;
     
+    definitionsInScopeCache?: Map<string, import('../../models/symbols').SymbolInfo[]>;
+    
     findDefinitionScope(id: string): Scope | undefined;
     findGlobalSymbolsByName(name: string, projectScope?: Set<string>): SymbolInfo[];
     getCanonicalTypeName(normalizedType: string): string;
+    normalizeScopeId(id: string): string;
+    getProjectDefinition(defType: string, name: string): import('../../models/symbols').DefinitionSymbol | undefined;
+    getAnyProjectDefinition(name: string): import('../../models/symbols').DefinitionSymbol | undefined;
 }
 
 export interface ResolutionContext {
@@ -137,6 +142,7 @@ function traverseScopes<T>(context: ResolutionContext, strategy: SearchStrategy<
  * Follows structural parents, Use/InUse inheritance, modifier contributions, and collectionScope links.
  */
 export function getDefinitionsInScope(context: ResolutionContext, targetDefType: string, globalScope?: GlobalScope, projectScope?: ProjectScope): SymbolInfo[] {
+    const t0 = Date.now();
     const { state, initialScope } = context;
     const definitions = new Map<string, SymbolInfo>();
     const visitedParents = new Set<string>();
@@ -152,14 +158,21 @@ export function getDefinitionsInScope(context: ResolutionContext, targetDefType:
     }
     
     if (currentScope && currentScope.kind === ScopeKind.Definition) {
-        currentDefId = currentScope.id.toLowerCase();
+        currentDefId = state.normalizeScopeId(currentScope.id);
     }
 
     if (currentDefId) {
-        const findRoots = (id: string) => {
+        const findRoots = (id: string, path: Set<string> = new Set()) => {
+            if (path.has(id)) {
+                // Cycle detected, add this node as a root to break the cycle
+                roots.add(id);
+                return;
+            }
             if (visitedParents.has(id)) return;
             visitedParents.add(id);
             
+            path.add(id);
+
             const parents = state.parentDefinitions.get(id);
             const hasParents = (parents && parents.size > 0);
 
@@ -169,16 +182,34 @@ export function getDefinitionsInScope(context: ResolutionContext, targetDefType:
                 // Walk structural parents
                 if (parents) {
                     for (const parentId of parents) {
-                        findRoots(parentId);
+                        findRoots(parentId, path);
                     }
                 }
             }
+            
+            path.delete(id);
         };
 
         findRoots(currentDefId);
 
-        const visitedChildren = new Set<string>();
+        // --- CACHE CHECK ---
+        const rootsArray = Array.from(roots).sort();
         const targetDefTypeLower = targetDefType.toLowerCase() + ':';
+        const rootsCacheKey = `${rootsArray.join(',')}::${targetDefTypeLower}`;
+
+        if (state.definitionsInScopeCache) {
+            const cached = state.definitionsInScopeCache.get(rootsCacheKey);
+            if (cached) {
+                const t1 = Date.now();
+                if (t1 - t0 > 100) {
+                    import('../../logger').then(m => m.logger.trace(`[Perf] getDefinitionsInScope (CACHED) for ${targetDefType} starting from ${currentDefId} took ${t1 - t0}ms`));
+                }
+                return cached;
+            }
+        }
+        // -------------------
+
+        const visitedChildren = new Set<string>();
         const collectDefinitions = (id: string) => {
             if (visitedChildren.has(id)) return;
             visitedChildren.add(id);
@@ -219,7 +250,7 @@ export function getDefinitionsInScope(context: ResolutionContext, targetDefType:
                 const modifiers = state.modifierContributions.get(id);
                 if (modifiers) {
                     for (const mod of modifiers) {
-                        const modScopeId = mod.scope.id.toLowerCase();
+                        const modScopeId = state.normalizeScopeId(mod.scope.id);
                         if (!visitedChildren.has(modScopeId)) {
                             visitedChildren.add(modScopeId);
                             // Check if the modifier scope itself matches
@@ -251,8 +282,18 @@ export function getDefinitionsInScope(context: ResolutionContext, targetDefType:
         for (const root of roots) {
             collectDefinitions(root);
         }
+
+        // --- CACHE STORE ---
+        if (state.definitionsInScopeCache) {
+            state.definitionsInScopeCache.set(rootsCacheKey, Array.from(definitions.values()));
+        }
+        // -------------------
     }
 
+    const t1 = Date.now();
+    if (t1 - t0 > 100) {
+        import('../../logger').then(m => m.logger.trace(`[Perf] getDefinitionsInScope for ${targetDefType} starting from ${currentDefId} took ${t1 - t0}ms`));
+    }
     return Array.from(definitions.values());
 }
 
@@ -635,7 +676,10 @@ export function resolveDefinition(
     const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
     
     const match = traverseScopes(context, scope => {
-        if (hasDefinitions(scope)) {
+        if (scope.kind === ScopeKind.Project) {
+            const sym = state.getProjectDefinition(canonicalType, normalizedName);
+            if (sym) return sym;
+        } else if (hasDefinitions(scope)) {
             const sym = scope.definitions.get(canonicalType)?.get(normalizedName);
             if (sym) return sym;
         }
@@ -761,7 +805,10 @@ export function resolveSymbol(
             }
         }
         
-        if (hasDefinitions(scope)) {
+        if (scope.kind === ScopeKind.Project) {
+            const sym = state.getAnyProjectDefinition(normalizedName);
+            if (sym) return sym;
+        } else if (hasDefinitions(scope)) {
             for (const defMap of scope.definitions.values()) {
                 const defSym = defMap.get(normalizedName);
                 if (defSym) return defSym;

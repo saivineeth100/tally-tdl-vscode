@@ -1,18 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { registerCompletion } from '../../../features/completion';
 import { ScopeManager } from '../../../services/scopeManager';
-import { SymbolTable } from '../../../services/symbolTable';
 import { CompletionItemKind, InsertTextFormat, CompletionList, CompletionItem } from 'vscode-languageserver';
 import { SchemaSymbol, SymbolKind } from '../../../models/symbols';
 
 describe('XML Schema Completion', () => {
     let scopeManager: ScopeManager;
-    let symbolTable: SymbolTable;
+    
     let onCompletionCallback: (params: any) => Promise<CompletionList>;
 
     beforeEach(() => {
-        symbolTable = new SymbolTable();
-        scopeManager = new ScopeManager(symbolTable);
+        
+        scopeManager = new ScopeManager();
         scopeManager.primarySchemaNames = ['VOUCHER'];
         
         const voucherSchema: SchemaSymbol = {
@@ -71,8 +70,7 @@ describe('XML Schema Completion', () => {
 
         const dummyManager = {
             get: () => ({ sourceFile: { definitions: [] } }),
-            getSymbolTable: () => symbolTable,
-            getScopeManager: () => scopeManager,
+                        getScopeManager: () => scopeManager,
             getProjectNodes: () => new Set(['test://file.xml'])
         };
         

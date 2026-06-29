@@ -2,7 +2,8 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { registerCompletion } from '../../../features/completion';
 import { DocManager } from '../../../docManager';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { SymbolTable, SymbolKind } from '../../../services/symbolTable';
+import { SymbolKind } from '../../../services/symbolTable';
+import { ScopeKind } from '../../../services/scopeManager/types';
 
 import { testScopeManager, ensureBaseTdlLoaded } from '../../../test-setup';
 
@@ -10,7 +11,6 @@ describe('XML Suggestions Tests', () => {
     let mockConnection: any;
     let mockDocuments: any;
     let mockManager: any;
-    let mockSymbolTable: SymbolTable;
     let completionCallback: Function;
 
     beforeAll(async () => {
@@ -32,8 +32,7 @@ describe('XML Suggestions Tests', () => {
         
         mockManager = {
             get: () => ({ sourceFile: { definitions: [], errors: [] } }),
-            getSymbolTable: () => new SymbolTable(),
-            getScopeManager: () => testScopeManager,
+                        getScopeManager: () => testScopeManager,
             getProjectNodes: () => new Set([doc.uri])
         };
         
@@ -45,8 +44,8 @@ describe('XML Suggestions Tests', () => {
         });
         
     const reportItem = result.items.find((i: any) => i.label === 'REPORT');
-    console.log('DefTypes length:', testScopeManager?.getDefinitionTypes().length);
-    console.log('Items length:', result.items.length);
+    // console.log('DefTypes length:', testScopeManager?.getDefinitionTypes().length);
+    // console.log('Items length:', result.items.length);
 
         expect(reportItem).toBeDefined();
         expect(reportItem.insertTextFormat).toBe(2); // Snippet
@@ -80,8 +79,7 @@ describe('XML Suggestions Tests', () => {
                     errors: []
                 }
             }),
-            getSymbolTable: () => new SymbolTable(),
-            getScopeManager: () => testScopeManager,
+                        getScopeManager: () => testScopeManager,
             getProjectNodes: () => new Set([doc.uri])
         };
         
@@ -115,15 +113,19 @@ describe('XML Suggestions Tests', () => {
             get: () => doc
         };
         
-        const symbolTable = new SymbolTable();
-        symbolTable.addSymbol({
-            name: 'Simple Trial Balance',
-            kind: SymbolKind.Form,
-            uri: 'test',
-            start: 0,
-            end: 0,
-            definitionType: 'Form'
-        });
+        let typeMap = testScopeManager!.scopeIndex.get('form');
+        if (!typeMap) { typeMap = new Map(); testScopeManager!.scopeIndex.set('form', typeMap); }
+        typeMap.set('simpletrialbalance', {
+            kind: ScopeKind.Definition,
+            definition: {
+                name: 'Simple Trial Balance',
+                kind: 1,
+                definitionType: 'Form',
+                uri: 'untitled:Untitled-1',
+                start: 0,
+                end: 10
+            }
+        } as any);
 
         mockManager = {
             get: () => ({
@@ -138,20 +140,21 @@ describe('XML Suggestions Tests', () => {
                     errors: []
                 }
             }),
-            getSymbolTable: () => symbolTable,
             getScopeManager: () => testScopeManager,
             getProjectNodes: () => new Set([doc.uri, 'test'])
         };
         
         registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
-        
+        //console.log('Keys in form map 1:', Array.from(testScopeManager!.scopeIndex.get('form')?.keys() || []));
         const result = await completionCallback({
             textDocument: { uri: 'untitled:Untitled-1' },
             position: doc.positionAt(xmlContent.length)
         });
         
+        expect(result.items.length).toBeGreaterThan(0);
+        expect(result.items.length).toBeGreaterThan(0);
         const item = result.items.find((i: any) => i.label === 'Simple Trial Balance');
-
+        //console.log('Labels found:', result.items.map((i: any) => i.label).join(', '));
         expect(item).toBeDefined();
         // The insert text is just the text because it's the value of the tag
         expect(item.insertText).toBe('Simple Trial Balance');
@@ -164,6 +167,20 @@ describe('XML Suggestions Tests', () => {
         // Offset inside "Simp|"
         const offset = xmlContent.indexOf('"Simp') + 5; 
         
+        let typeMap2 = testScopeManager!.scopeIndex.get('form');
+        if (!typeMap2) { typeMap2 = new Map(); testScopeManager!.scopeIndex.set('form', typeMap2); }
+        typeMap2.set('simpletrialbalance', {
+            kind: ScopeKind.Definition,
+            definition: {
+                name: 'Simple Trial Balance',
+                kind: 1,
+                definitionType: 'Form',
+                uri: 'test://other.xml',
+                start: 0,
+                end: 10
+            }
+        } as any);
+
         // Mocking TextDocuments and Connection for DocManager
         mockConnection = { 
             console: { log: () => {}, error: () => {}, info: () => {} },
@@ -177,27 +194,20 @@ describe('XML Suggestions Tests', () => {
             get: () => doc
         };
         const docManager = new DocManager(mockConnection, mockDocuments as any);
+        console.log('Keys in form map:', Array.from(testScopeManager!.scopeIndex.get('form')?.keys() || []));
         (docManager as any).xmlScopeManager = testScopeManager as any;
         await docManager.rebuild(doc);
         
-        const symbolTable = docManager.getSymbolTable(doc.uri);
+        
         // Add existing form
-        symbolTable.addSymbol({
-            name: 'Simple Trial Balance',
-            kind: SymbolKind.Form,
-            uri: 'test2.xml',
-            start: 0,
-            end: 0,
-            definitionType: 'Form'
-        });
+        /* removed undefined.addSymbol */
 
         // Mocking direct call to completion provider
         mockDocuments = { get: () => doc };
         mockManager = { 
             get: () => docManager.get(doc.uri),
-            getSymbolTable: () => docManager.getSymbolTable(doc.uri),
             getScopeManager: () => docManager.getScopeManager(doc.uri),
-            getProjectNodes: () => new Set([doc.uri, 'test', 'test2.xml'])
+            getProjectNodes: () => new Set([doc.uri, 'test', 'test2.xml', 'test://other.xml'])
         } as any;
         
         registerCompletion(mockConnection, mockDocuments, mockManager);
@@ -209,6 +219,7 @@ describe('XML Suggestions Tests', () => {
 
         expect(result.items.length).toBeGreaterThan(0);
         
+        expect(result.items.length).toBeGreaterThan(0);
         const formItem = result.items.find((i: any) => i.label === 'Simple Trial Balance');
 
         expect(formItem).toBeDefined();

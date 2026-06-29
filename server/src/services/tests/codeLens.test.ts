@@ -3,7 +3,6 @@ import { provideCodeLens, resolveCodeLens, clearCodeLensCache } from '../codeLen
 import { Parser } from '../../parser/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { ScopeManager } from '../scopeManager';
-import { SymbolTable } from '../symbolTable';
 import { DocManager } from '../../docManager';
 import { Position } from 'vscode-languageserver';
 
@@ -13,8 +12,7 @@ function createCodeLensContext(text: string) {
     const parser = new Parser(text);
     const sourceFile = parser.parse();
     const doc = TextDocument.create('file:///test.txt', 'tally', 1, text);
-    const symbolTable = new SymbolTable();
-    const scopeManager = new ScopeManager(symbolTable);
+        const scopeManager = new ScopeManager();
     
     // Mock global attributes for 'field' so that 'Set As' is known but 'LF1' is unknown (implicit formula)
     const fieldAttrs = new Map<string, any>();

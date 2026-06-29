@@ -65,8 +65,8 @@ export async function renameSymbol(
         } else {
             // Document not open — use pre-computed ranges where available
             let handled = false;
-            const symTable = docManager.getSymbolTable(loc.uri);
-            const symbols = symTable.getSymbolsInDocument(loc.uri);
+            const scopeManager = docManager.getScopeManager(loc.uri);
+            const symbols = scopeManager.getSymbolsInDocument(loc.uri);
             
             for (const sym of symbols) {
                 if (sym.selectionRange && sym.range) {

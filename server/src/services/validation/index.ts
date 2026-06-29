@@ -1,7 +1,7 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { SourceFile, SyntaxKind, IdentifierNode, FunctionCallNode, BinaryExpressionNode, Node, BreakNode, ContinueNode, ReturnNode, SetNode, ExchangeNode, IncrementNode, DecrementNode, WhileNode, WalkNode, ForNode, DoIfNode, BlockStatementNode, InUseDirectiveNode, DefTypeDirectiveNode } from "../../parser/ast";
-import { SymbolTable, definitionTypeToSymbolKind } from "../symbolTable";
+import { definitionTypeToSymbolKind } from "../symbolTable";
 import { normalizeTypeName } from "../utils";
 import { ScopeManager } from "../scopeManager";
 import { validateLabelSequences } from "../sequenceValidator";
@@ -22,7 +22,7 @@ import { validateActionArity } from './arityValidation';
 export async function validateSourceFile(
     sourceFile: SourceFile,
     doc: TextDocument,
-    symbolTable?: SymbolTable,
+    symbolTable?: any, // Deprecated, keep signature for backward compatibility just in case but we pass undefined in docManager
     scopeManager?: ScopeManager,
     resolveIncludePath?: (currentPath: string, name: string) => string | null,
     docManager?: import('../../docManager').DocManager
@@ -84,7 +84,7 @@ export async function validateSourceFile(
         }
 
         // Validate attributes
-        diagnostics.push(...validateDefinitionAttributes(def, doc, scopeManager, symbolTable, projectNodes));
+        diagnostics.push(...validateDefinitionAttributes(def, doc, scopeManager, projectNodes));
 
         // Validate duplicate definitions and modifiers
         if (!isXml && !def.isIncomplete && def.name && def.type) {
@@ -105,26 +105,34 @@ export async function validateSourceFile(
                     const startPos = doc.positionAt(def.name.start);
                     const endPos = doc.positionAt(def.name.end);
 
+                    const ruleToUse = (def.modifier && def.modifier.Text === '!') 
+                        ? DiagnosticRules.InvalidOptionalModifier 
+                        : DiagnosticRules.DuplicateDefinition;
+
                     diagnostics.push(createDiagnostic(
-                        DiagnosticRules.DuplicateDefinition,
+                        ruleToUse,
                         { start: startPos, end: endPos },
                         defName
                     ));
-                } else if (symbolTable) {
-                    // Check against Workspace (excluding modifiers) using SymbolTable to flag ALL occurrences
-                    const allOccurrences = symbolTable.findAllByName(defName, projectNodes);
+                } else if (scopeManager) {
+                    // Check against Workspace (excluding modifiers) using ScopeManager to flag ALL occurrences
+                    const allOccurrences = scopeManager.findGlobalSymbolsByName(defName, projectNodes);
                     
-                    const duplicates = allOccurrences.filter(sym => 
+                    const duplicates = allOccurrences.filter((sym: any) => 
                         !sym.isModifier && 
-                        sym.definitionType.toLowerCase() === lowerDefType
+                        sym.definitionType && sym.definitionType.toLowerCase() === lowerDefType
                     );
                     
                     if (duplicates.length > 1) {
                         const startPos = doc.positionAt(def.name.start);
                         const endPos = doc.positionAt(def.name.end);
 
+                        const ruleToUse = (def.modifier && def.modifier.Text === '!') 
+                            ? DiagnosticRules.InvalidOptionalModifier 
+                            : DiagnosticRules.DuplicateDefinition;
+
                         diagnostics.push(createDiagnostic(
-                            DiagnosticRules.DuplicateDefinition,
+                            ruleToUse,
                             { start: startPos, end: endPos },
                             defName
                         ));
@@ -133,7 +141,7 @@ export async function validateSourceFile(
             } else {
                 // Rule 2: Modifiers must modify an existing definition
                 if (scopeManager) {
-                    const existingDefMap = scopeManager.projectScope.definitions.get(normalizeTypeName(defType));
+                    const existingDefMap = scopeManager.scopeIndex.get(normalizeTypeName(defType));
                     const existsInWorkspace = existingDefMap ? existingDefMap.has(normalizeTypeName(defName)) : false;
                     
                     if (!existsInMetadata && !existsInWorkspace) {

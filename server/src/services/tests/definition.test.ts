@@ -7,11 +7,9 @@ import { TokenKind } from '../../parser/tokenKind';
 import { Parser } from '../../parser/parser';
 
 import { ScopeManager } from '../scopeManager';
-import { SymbolTable } from '../symbolTable';
 
 // Mock ScopeManager
-const symbolTable = new SymbolTable();
-const mockScopeManager = new ScopeManager(symbolTable);
+const mockScopeManager = new ScopeManager();
 
 // Add 'Form' attribute 'parts'
 const formAttrs = new Map<string, any>();

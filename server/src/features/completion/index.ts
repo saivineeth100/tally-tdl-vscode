@@ -38,7 +38,7 @@ export function registerCompletion(
         const currentDef = sourceFile ? findDefinitionAtCursor(sourceFile, offset) : undefined;
 
         const isXml = doc.languageId === 'xml';
-        const symbolTable = manager.getSymbolTable(params.textDocument.uri);
+
         const projectScope = manager.getProjectNodes(params.textDocument.uri);
         let context: CompletionContext;
         
@@ -97,7 +97,7 @@ export function registerCompletion(
                     if (lowerType === 'include' || lowerType === 'import') {
                         items.push(...(await provideFilePathCompletions(params.textDocument.uri, context.partial, manager.workspaceFolders)));
                     } else if (context.hasModifier || context.isInUse) {
-                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, projectScope, symbolTable));
+                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, projectScope));
                     }
                 }
                 break;
@@ -107,7 +107,7 @@ export function registerCompletion(
                 break;
 
             case 'variable':
-                items.push(...provideVariableCompletions(manager, params.textDocument.uri, offset, context.partial, symbolTable));
+                items.push(...provideVariableCompletions(manager, params.textDocument.uri, offset, context.partial));
                 break;
 
             case 'field_reference':
@@ -116,11 +116,11 @@ export function registerCompletion(
 
             case 'formula': // Legacy
             case 'local_formula':
-                items.push(...provideFormulaCompletions(manager, params.textDocument.uri, offset, context.partial, symbolTable, true));
+                items.push(...provideFormulaCompletions(manager, params.textDocument.uri, offset, context.partial, true));
                 break;
 
             case 'global_formula':
-                items.push(...provideFormulaCompletions(manager, params.textDocument.uri, offset, context.partial, symbolTable, false));
+                items.push(...provideFormulaCompletions(manager, params.textDocument.uri, offset, context.partial, false));
                 break;
 
             case 'attribute':
@@ -132,7 +132,7 @@ export function registerCompletion(
             case 'attribute_value':
                 let xmlHandled = false;
                 if (isXml && context.tagPath && context.tagPath.length > 0 && context.attributeName) {
-                    const xmlItems = provideXmlAttributeValueCompletions(scopeManager, context.tagPath, context.attributeName, context.partial, currentDef, symbolTable, projectScope);
+                    const xmlItems = provideXmlAttributeValueCompletions(scopeManager, context.tagPath, context.attributeName, context.partial, currentDef, projectScope);
                     if (xmlItems !== null) {
                         items.push(...xmlItems);
                         xmlHandled = true;
@@ -140,7 +140,7 @@ export function registerCompletion(
                 }
                 if (!xmlHandled && currentDef) {
                     const currentScope = scopeManager.getScopeAt(params.textDocument.uri, offset);
-                    items.push(...provideAttributeValueCompletions(scopeManager, currentDef.type.text, context, symbolTable, projectScope, currentScope));
+                    items.push(...provideAttributeValueCompletions(scopeManager, currentDef.type.text, context, projectScope, currentScope));
                 }
                 break;
 
@@ -239,7 +239,7 @@ export function registerCompletion(
                 
             case 'modifier_value':
                 if (currentDef) {
-                    items.push(...provideModifierValueCompletions(manager, params.textDocument.uri, offset, currentDef, context, isXml, symbolTable));
+                    items.push(...provideModifierValueCompletions(manager, params.textDocument.uri, offset, currentDef, context, isXml));
                 }
                 break;
         }

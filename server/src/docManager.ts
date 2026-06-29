@@ -4,14 +4,14 @@ import { Parser } from "./parser/parser";
 import { parseXmlToAst } from "./parser/xmlAdapter";
 import { SourceFile } from "./parser/ast";
 import { getDiagnosticSeverity, isDiagnosticsEnabled, shouldTreatWarningsAsErrors, shouldHideWarnings } from './services/settingsManager';
-import { validateSourceFile } from "./services/validation";
-import { SymbolTable, SymbolInfo, definitionTypeToSymbolKind } from "./services/symbolTable";
 import { ScopeManager } from "./services/scopeManager";
+import { ReferenceIndex } from "./services/referenceIndex";
 import * as fs from 'fs';
 import * as path from 'path';
 import { loadMetadata } from './services/metadataLoader';
 import { URI } from 'vscode-uri';
 import { logger } from './logger';
+import { validateSourceFile } from "./services/validation";
 
 export async function readFileWithEncoding(filePath: string): Promise<string> {
     const buffer = await fs.promises.readFile(filePath);
@@ -41,18 +41,13 @@ export class DocManager {
     /** Indexed document state for closed files (parsed but not open) */
     private indexedDocs = new Map<string, DocState>();
 
-    /** Global symbol table for TDL documents */
-    public readonly tdlSymbolTable = new SymbolTable();
-    /** Global symbol table for XML documents */
-    public readonly xmlSymbolTable = new SymbolTable();
-
     /** Scope Manager for TDL files */
-    public readonly tdlScopeManager = new ScopeManager(this.tdlSymbolTable);
+    public readonly tdlScopeManager = new ScopeManager();
     /** Scope Manager for XML files */
-    public readonly xmlScopeManager = new ScopeManager(this.xmlSymbolTable);
+    public readonly xmlScopeManager = new ScopeManager();
 
     /** Flag to track if workspace scan is in progress */
-    private scanningInProgress = false;
+    public scanningInProgress = false;
     private projectNodesCache = new Map<string, Set<string>>();
     /** Queue for workspace scan requests */
     private scanQueue: string[][] = [];
@@ -62,6 +57,7 @@ export class DocManager {
 
     /** Paths to exclude from scanning completely */
     public excludePaths: string[] = [];
+    private excludeRegexes: { regex: RegExp | null, pattern: string }[] = [];
 
     /** Workspace root folders */
     public workspaceFolders: string[] = [];
@@ -104,21 +100,14 @@ export class DocManager {
             this.docs.delete(e.document.uri);
             // Re-index from disk so closed file remains available for cross-file features
             const fsPath = URI.parse(e.document.uri).fsPath;
-            if (fs.existsSync(fsPath)) {
-                this.indexFile(fsPath, new Set()).catch(err => {
-                    logger.warn(`Failed to re-index closed file: ${err instanceof Error ? err.stack || err.message : String(err)}`);
-                });
-            } else {
-                this.getSymbolTable(e.document.uri).clearDocument(e.document.uri);
-                this.getScopeManager(e.document.uri).removeFileScope(e.document.uri);
-            }
+            // Clear old index
+            this.getScopeManager(e.document.uri).projectScope.referenceIndex.clearFile(e.document.uri);
+            this.indexFile(fsPath, new Set()).catch(err => {
+                logger.warn(`Failed to re-index closed file: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+            });
+            this.getScopeManager(e.document.uri).removeFileScope(e.document.uri);
             this.connection.sendDiagnostics({ uri: e.document.uri, diagnostics: [] });
         });
-    }
-
-    /** Helper to get the right SymbolTable for a URI */
-    public getSymbolTable(uri: string): SymbolTable {
-        return uri.toLowerCase().endsWith('.xml') || uri.toLowerCase().endsWith('.tdlxml') ? this.xmlSymbolTable : this.tdlSymbolTable;
     }
 
     /** Helper to get the right ScopeManager for a URI */
@@ -150,8 +139,37 @@ export class DocManager {
         return this.docs.entries();
     }
 
+    /**
+     * Get all known URIs (both open and closed but indexed)
+     */
+    getAllIndexedUris(): IterableIterator<string> {
+        return this.indexedDocs.keys();
+    }
+
+    /**
+     * Store patterns indicating which files/folders should be skipped during scan.
+     */
     public setExcludePaths(paths: string[]): void {
         this.excludePaths = paths;
+        this.excludeRegexes = [];
+        for (const pattern of paths) {
+            try {
+                this.excludeRegexes.push({ regex: new RegExp(pattern.replace(/\\/g, '\\\\'), 'i'), pattern });
+            } catch (e) {
+                this.excludeRegexes.push({ regex: null, pattern });
+            }
+        }
+    }
+
+    private isExcluded(fullPath: string): boolean {
+        for (const entry of this.excludeRegexes) {
+            if (entry.regex) {
+                if (entry.regex.test(fullPath)) return true;
+            } else {
+                if (fullPath.toLowerCase().includes(entry.pattern.toLowerCase())) return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -159,7 +177,9 @@ export class DocManager {
      * Useful when global settings change.
      */
     public async revalidateAll(openDocsIter: Iterable<any>): Promise<void> {
+        const startTime = Date.now();
         const openDocs = Array.from(openDocsIter);
+        logger.trace(`[Perf] Starting revalidateAll for ${openDocs.length} open documents...`);
         const allKnownUris = new Set<string>();
 
         // 1. Gather all related project nodes (tpj files, included files, parent files)
@@ -178,11 +198,13 @@ export class DocManager {
         }
 
         // 2. Rebuild open documents
+        const openDocPromises: Promise<void>[] = [];
         for (const doc of openDocs) {
-            this.rebuild(doc).catch(err => {
+            openDocPromises.push(this.rebuild(doc).catch(err => {
                 logger.error(`Error rebuilding doc ${doc.uri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
-            });
+            }));
         }
+        await Promise.all(openDocPromises);
 
         // 3. Re-validate closed but related files to update their diagnostics
         const promises: Promise<void>[] = [];
@@ -207,6 +229,9 @@ export class DocManager {
         if (promises.length > 0) {
             await Promise.all(promises);
         }
+        
+        const endTime = Date.now();
+        logger.trace(`[Perf] Finished revalidateAll in ${endTime - startTime}ms. (Open docs: ${openDocs.length}, Closed known URIs: ${allKnownUris.size - openDocs.length})`);
     }
 
     /**
@@ -228,7 +253,7 @@ export class DocManager {
                 for (const folderUri of workspaceFolders) {
                     await this.scanFolder(folderUri);
                 }
-                const count = this.tdlSymbolTable.getSymbolCount() + this.xmlSymbolTable.getSymbolCount();
+                const count = this.tdlScopeManager.getSymbolCount() + this.xmlScopeManager.getSymbolCount();
                 logger.trace(`[Perf] Workspace scan complete in ${Date.now() - startTime}ms. ${count} definitions indexed.`);
             } catch (error) {
                 logger.error(`Workspace scan error: ${error}`);
@@ -250,8 +275,6 @@ export class DocManager {
      * Clear all symbols for a specific folder path
      */
     clearFolderSymbols(folderPath: string): void {
-        this.tdlSymbolTable.clearFolder(folderPath);
-        this.xmlSymbolTable.clearFolder(folderPath);
         // Clean ScopeManager state for all URIs in this folder
         const removeURIs: string[] = [];
         for (const [uri] of this.tdlScopeManager.fileMap) {
@@ -262,6 +285,7 @@ export class DocManager {
         }
         for (const uri of removeURIs) {
             this.getScopeManager(uri).removeFileScope(uri);
+            this.getScopeManager(uri).projectScope.referenceIndex.clearFile(uri);
         }
         
         // Also clear include graph entries matching this folder
@@ -312,15 +336,7 @@ export class DocManager {
 
     private async scanDirectory(dirPath: string, visited: Set<string>): Promise<void> {
         // Check if dirPath matches any exclude pattern
-        for (const pattern of this.excludePaths) {
-            try {
-                const regex = new RegExp(pattern.replace(/\\/g, '\\\\'), 'i');
-                if (regex.test(dirPath)) return;
-            } catch (e) {
-                // If invalid regex, just check if it's a substring
-                if (dirPath.toLowerCase().includes(pattern.toLowerCase())) return;
-            }
-        }
+        if (this.isExcluded(dirPath)) return;
 
         const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
         
@@ -331,15 +347,7 @@ export class DocManager {
                 if (ext === '.tpj') {
                     const fullPath = path.join(dirPath, entry.name);
                     // Check exclusion
-                    let isExcluded = false;
-                    for (const pattern of this.excludePaths) {
-                        try {
-                            if (new RegExp(pattern.replace(/\\/g, '\\\\'), 'i').test(fullPath)) isExcluded = true;
-                        } catch (e) {
-                            if (fullPath.toLowerCase().includes(pattern.toLowerCase())) isExcluded = true;
-                        }
-                    }
-                    if (!isExcluded) {
+                    if (!this.isExcluded(fullPath)) {
                         await this.parseProjectFile(fullPath, visited);
                     }
                 }
@@ -353,22 +361,7 @@ export class DocManager {
             const fullPath = path.join(dirPath, entry.name);
 
             // Check if file matches any exclude pattern
-            let isExcluded = false;
-            for (const pattern of this.excludePaths) {
-                try {
-                    const regex = new RegExp(pattern.replace(/\\/g, '\\\\'), 'i');
-                    if (regex.test(fullPath)) {
-                        isExcluded = true;
-                        break;
-                    }
-                } catch (e) {
-                    if (fullPath.toLowerCase().includes(pattern.toLowerCase())) {
-                        isExcluded = true;
-                        break;
-                    }
-                }
-            }
-            if (isExcluded) continue;
+            if (this.isExcluded(fullPath)) continue;
 
             if (entry.isDirectory()) {
                 // Skip node_modules, .git, etc.
@@ -466,7 +459,6 @@ export class DocManager {
         const ext = path.extname(filePath).toLowerCase();
         const isXml = ext === '.xml' || ext === '.tdlxml';
         const scopeMgr = this.getScopeManager(uri);
-        const symTable = this.getSymbolTable(uri);
 
         try {
             const stat = await fs.promises.stat(filePath);
@@ -507,42 +499,28 @@ export class DocManager {
                 const languageId = isXml ? 'xml' : 'tdl';
                 const doc = TextDocument.create(uri, languageId, 1, content);
 
-                // Clear previous symbols for this document
-                symTable.clearDocument(uri);
-
-                // Add symbols from definitions (skip incomplete)
-                for (const def of sourceFile.definitions) {
-                    if (!def.isIncomplete && def.name) {
-                        const symbolInfo: SymbolInfo = {
-                            name: def.name.text,
-                            kind: definitionTypeToSymbolKind(def.type.text, this.tdlScopeManager),
-                            uri: uri,
-                            start: def.start,
-                            end: def.end,
-                            definitionType: def.type.text,
-                            isModifier: !!def.modifier,
-                            range: {
-                                start: doc.positionAt(def.start),
-                                end: doc.positionAt(def.end)
-                            },
-                            selectionRange: {
-                                start: doc.positionAt(def.name.start),
-                                end: doc.positionAt(def.name.end)
-                            }
-                        };
-                        symTable.addSymbol(symbolInfo);
-                    }
-                }
-                
                 // Build scope tree to capture global variables and formulas
                 scopeMgr.buildFileScope(uri, sourceFile);
 
                 // Update Include Graph
                 const includes = this.updateIncludeGraph(uri, sourceFile);
                 
+                const promises: Promise<void>[] = [];
                 // Recursively index included files FIRST so their symbols exist
-                for (const incUri of includes) {
-                    await this.indexFile(URI.parse(incUri).fsPath, indexed, skipValidation, false);
+                for (const includedUri of includes) {
+                    if (!this.docs.has(includedUri)) {
+                        promises.push(this.indexFile(URI.parse(includedUri).fsPath, indexed, skipValidation));
+                    }
+                }
+
+                // Clear the old file from the reference index
+                scopeMgr.projectScope.referenceIndex.clearFile(uri);
+                
+                // Index identifiers for fast Find References
+                scopeMgr.projectScope.referenceIndex.indexFile(uri, sourceFile);
+
+                if (promises.length > 0) {
+                    await Promise.all(promises);
                 }
             }
 
@@ -565,7 +543,7 @@ export class DocManager {
             }
 
             // Check if file should be validated
-            const shouldValidate = forceValidation || this.isUriActive(uri);
+            const shouldValidate = this.isMetadataLoaded && !this.scanningInProgress && (forceValidation || this.isUriActive(uri));
 
             if (!shouldValidate) {
                 diagnostics.length = 0;
@@ -574,9 +552,12 @@ export class DocManager {
                 this.indexedDocs.set(uri, { sourceFile, diagnostics: finalDiagnostics });
                 return;
             }
-
-            diagnostics.push(...(await validateSourceFile(sourceFile, doc, symTable, scopeMgr, this.resolveIncludePath, this)));
-            
+            const t0 = Date.now();
+            diagnostics.push(...(await validateSourceFile(sourceFile, doc, undefined, scopeMgr, this.resolveIncludePath, this)));            
+            const t1 = Date.now();
+            if (t1 - t0 > 500) {
+                logger.trace(`[Perf] validateSourceFile for ${uri} took ${t1 - t0}ms`);
+            }
             const finalDiagnostics = this.filterDiagnostics(diagnostics);
 
             this.connection.sendDiagnostics({ uri, diagnostics: finalDiagnostics });
@@ -798,32 +779,6 @@ export class DocManager {
             };
         });
 
-        // Update symbol table
-        const symTable = this.getSymbolTable(doc.uri);
-        symTable.clearDocument(doc.uri);
-        for (const def of sourceFile.definitions) {
-            if (!def.isIncomplete && def.name) {
-                const symbolInfo: SymbolInfo = {
-                    name: def.name.text,
-                    kind: definitionTypeToSymbolKind(def.type.text, this.tdlScopeManager),
-                    uri: doc.uri,
-                    start: def.start,
-                    end: def.end,
-                    definitionType: def.type.text,
-                    isModifier: !!def.modifier,
-                    range: {
-                        start: doc.positionAt(def.start),
-                        end: doc.positionAt(def.end)
-                    },
-                    selectionRange: {
-                        start: doc.positionAt(def.name.start),
-                        end: doc.positionAt(def.name.end)
-                    }
-                };
-                symTable.addSymbol(symbolInfo);
-            }
-        }
-
         // Build Scope Tree for the file
         scopeMgr.buildFileScope(doc.uri, sourceFile);
         const t2 = Date.now();
@@ -844,7 +799,7 @@ export class DocManager {
         const t3 = Date.now();
         // Run cross-file validations only if workspace scan is complete and metadata is loaded
         if (!this.scanningInProgress && this.isMetadataLoaded) {
-            diagnostics.push(...(await validateSourceFile(sourceFile, doc, symTable, scopeMgr, this.resolveIncludePath, this)));
+            diagnostics.push(...(await validateSourceFile(sourceFile, doc, undefined, scopeMgr, this.resolveIncludePath, this)));
         }
         const t4 = Date.now();
 

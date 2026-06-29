@@ -1,9 +1,9 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNode } from "../../parser/ast";
-import { SymbolTable, definitionTypeToSymbolKind, SymbolKind } from "../symbolTable";
+import { definitionTypeToSymbolKind } from "../symbolTable";
 import { normalizeTypeName } from "../utils";
-import { areTypesCompatible, inferExpressionType } from "./validationUtils";
+import { areTypesCompatible, inferExpressionType, STRUCTURAL_DEFINITION_TYPES } from "./validationUtils";
 import { validateFunctionCall, validateBinaryExpression, walkAndValidateExpression } from "./expressionValidation";
 import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, UnknownAttributeData, MissingDefinitionData, DefinitionNotInScopeData, UnknownSchemaPropertyData } from "../../diagnostics";
 import { ScopeManager } from "../scopeManager";
@@ -12,7 +12,6 @@ export function validateDefinitionAttributes(
     def: DefinitionNode,
     doc: TextDocument,
     scopeManager: ScopeManager,
-    symbolTable?: SymbolTable,
     projectNodes?: Set<string>
 ): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
@@ -39,6 +38,7 @@ export function validateDefinitionAttributes(
             let i = 0;
             let targetAttribute: IdentifierNode | undefined;
             let targetAttributeIndex = -1;
+            let previousWasLocal = false;
 
             while (i < attr.value.length) {
                 const val = attr.value[i];
@@ -49,9 +49,35 @@ export function validateDefinitionAttributes(
                 const tDefTypeNode = val as IdentifierNode;
                 const tDefType = tDefTypeNode.text.toLowerCase();
                 
+                if (tDefType === 'local') {
+                    previousWasLocal = true;
+                    continue;
+                }
+                
+                const currentAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
+                const isTargetAttribute = currentAttrs && currentAttrs.has(normalizeTypeName(tDefType));
+                const canonicalDefType = scopeManager.globalScope.interchangeableAttributesMap?.get(tDefType) || tDefType;
+                const isStructuralChild = STRUCTURAL_DEFINITION_TYPES.includes(canonicalDefType);
+                let treatAsChainedTarget = false;
+
                 // Check if tDefType is a known definition type in the global scope
                 if (scopeManager.globalScope.attributes.has(normalizeTypeName(tDefType))) {
                     if (i + 1 < attr.value.length && attr.value[i + 1].kind === SyntaxKind.Identifier) {
+                        if (previousWasLocal) {
+                            treatAsChainedTarget = true;
+                        } else if (isTargetAttribute && !isStructuralChild) {
+                            treatAsChainedTarget = false;
+                        } else if (isTargetAttribute && isStructuralChild) {
+                            treatAsChainedTarget = (i + 2 < attr.value.length);
+                        } else {
+                            treatAsChainedTarget = true;
+                        }
+                    }
+                }
+                
+                previousWasLocal = false;
+
+                if (treatAsChainedTarget) {
                         const tDefNameNode = attr.value[i + 1] as IdentifierNode;
                         const tDefName = tDefNameNode.text;
 
@@ -76,13 +102,17 @@ export function validateDefinitionAttributes(
                                     const existsAnywhere = scopeManager.resolveDefinition(tDefName, tDefType, attrScope, projectNodes) !== undefined;
 
                                     if (existsAnywhere) {
-                                        diagnostics.push(createDiagnosticWithData(
-                                            DiagnosticRules.DefinitionNotInScope,
-                                            { start: doc.positionAt(tDefNameNode.start), end: doc.positionAt(tDefNameNode.end) },
-                                            { type: tDefType, name: tDefName } as DefinitionNotInScopeData,
-                                            tDefType,
-                                            tDefName
-                                        ));
+                                        const isMockScope = !dummyScope.range || dummyScope.range.start === -1 || dummyScope.uri === 'global:metadata';
+                                        if (!isMockScope) {
+                                            diagnostics.push(createDiagnosticWithData(
+                                                DiagnosticRules.DefinitionNotInScope,
+                                                { start: doc.positionAt(tDefNameNode.start), end: doc.positionAt(tDefNameNode.end) },
+                                                { type: tDefType, name: tDefName } as DefinitionNotInScopeData,
+                                                tDefType,
+                                                tDefName
+                                            ));
+                                            validSoFar = false; // Stop validating deeper if parent is broken
+                                        }
                                     } else {
                                         diagnostics.push(createDiagnosticWithData(
                                             DiagnosticRules.MissingDefinition,
@@ -101,10 +131,9 @@ export function validateDefinitionAttributes(
 
                         currentScopeDefType = tDefType;
                         currentScopeDefName = tDefName;
-                        i += 2;
+                        i += 1; // Increment by 1 here, the for loop will increment by another 1, making it 2 total
                         continue;
                     }
-                }
 
                 // If not a definition type or no paired name, it's the target attribute
                 targetAttribute = val as IdentifierNode;

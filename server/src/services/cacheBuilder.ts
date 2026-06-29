@@ -2,14 +2,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as v8 from 'v8';
 import { ScopeManager } from './scopeManager/index';
-import { SymbolTable } from './symbolTable';
 import { Parser } from '../parser/parser';
 import { buildFileScope } from './scopeManager/scopeBuilder';
 import { normalizeTypeName } from './utils';
 
 export async function buildCustomLibraryCache(folderPath: string): Promise<string> {
-    const symbolTable = new SymbolTable();
-    const scopeManager = new ScopeManager(symbolTable);
+    const scopeManager = new ScopeManager();
 
     await scanAndParse(folderPath, scopeManager, folderPath);
 

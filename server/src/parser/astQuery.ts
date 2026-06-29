@@ -186,6 +186,26 @@ export function walkAST(
         } else if (n.kind === SyntaxKind.VariableReference) {
             const v = n as any;
             if (v.variableName) walkNode(v.variableName, n, def);
+        } else if (n.kind === SyntaxKind.FieldReference) {
+            const f = n as any;
+            if (f.fieldName) walkNode(f.fieldName, n, def);
+        } else if (n.kind === SyntaxKind.MethodReference) {
+            const m = n as any;
+            if (m.methodName) walkNode(m.methodName, n, def);
+            if (m.primaryObject) {
+                if (m.primaryObject.type) walkNode(m.primaryObject.type, n, def);
+                if (m.primaryObject.identifier) walkNode(m.primaryObject.identifier, n, def);
+            }
+            if (m.pathSpecs) {
+                for (const spec of m.pathSpecs) {
+                    if (spec.collectionName) walkNode(spec.collectionName, n, def);
+                    if (spec.index) walkNode(spec.index, n, def);
+                    if (spec.condition) walkNode(spec.condition, n, def);
+                }
+            }
+        } else if (n.kind === SyntaxKind.FormulaReference) {
+            const f = n as any;
+            if (f.formulaName) walkNode(f.formulaName, n, def);
         }
     }
 

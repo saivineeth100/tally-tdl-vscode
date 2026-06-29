@@ -94,7 +94,7 @@ describe('TDL Suggestions Tests', () => {
 
     it('returns formula names for @@ context', async () => {
         const { TextDocument } = await import('vscode-languageserver-textdocument');
-        const { SymbolTable } = await import('../../services/symbolTable');
+
         const { ScopeManager } = await import('../../services/scopeManager');
 
         const tdlContent = '[Report: MyReport]\n    Set As: @@';
@@ -109,9 +109,7 @@ describe('TDL Suggestions Tests', () => {
             get: () => doc
         };
         
-        const symbolTable = new SymbolTable();
-
-        const scopeManager = new ScopeManager(symbolTable);
+        const scopeManager = new ScopeManager();
         scopeManager.initializeGlobalScope();
         
         // Build file scope so it can be resolved
@@ -147,7 +145,7 @@ describe('TDL Suggestions Tests', () => {
             get: () => ({
                 sourceFile: mockSourceFile
             }),
-            getSymbolTable: () => symbolTable,
+
             getScopeManager: () => scopeManager,
             getProjectNodes: () => new Set(['untitled:Untitled-1', 'test'])
         };
@@ -168,7 +166,7 @@ describe('TDL Suggestions Tests', () => {
 
     it('returns local formula names for @ context', async () => {
         const { TextDocument } = await import('vscode-languageserver-textdocument');
-        const { SymbolTable } = await import('../../services/symbolTable');
+
         const { ScopeManager } = await import('../../services/scopeManager');
 
         const tdlContent = '[Report: MyReport]\n    Set As: @';
@@ -181,8 +179,7 @@ describe('TDL Suggestions Tests', () => {
         
         const doc = TextDocument.create('untitled:Untitled-2', 'tdl', 1, tdlContent);
         const mockDocs = { get: () => doc };
-        const symbolTable = new SymbolTable();
-        const scopeManager = new ScopeManager(symbolTable);
+        const scopeManager = new ScopeManager();
         scopeManager.initializeGlobalScope();
         
         const mockSourceFile = {
@@ -218,7 +215,7 @@ describe('TDL Suggestions Tests', () => {
 
         const mockMgr = {
             get: () => ({ sourceFile: mockSourceFile }),
-            getSymbolTable: () => symbolTable,
+
             getScopeManager: () => scopeManager,
             getProjectNodes: () => new Set(['untitled:Untitled-2', 'test'])
         };

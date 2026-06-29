@@ -97,6 +97,10 @@
                 "icon": "$(refresh)"
             },
             {
+                "command": "tally-tdl.showReferences",
+                "title": "Tally TDL: Show References"
+            },
+            {
                 "command": "tally-tdl.showScopeTree",
                 "title": "Tally TDL: Show Scope Tree"
             },

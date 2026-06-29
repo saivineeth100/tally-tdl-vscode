@@ -1,13 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { ScopeManager, ScopeKind } from '../scopeManager';
-import { SymbolTable, SymbolKind } from '../symbolTable';
+import { SymbolKind } from '../symbolTable';
 import { SourceFile, SyntaxKind, IdentifierNode } from '../../parser/ast';
 import { resolveVariable } from '../scopeManager/scopeResolver';
 
 describe('ScopeManager - Schema Integration', () => {
     it('should parse Type, Fetch, Compute attributes and resolve schema fields', () => {
-        const symbolTable = new SymbolTable();
-        const manager = new ScopeManager(symbolTable);
+                const manager = new ScopeManager();
 
         // Add a mock schema "Ledger" to global scope
         manager.initializeGlobalScope();
@@ -95,7 +94,10 @@ describe('ScopeManager - Schema Integration', () => {
             projectScope: manager.projectScope,
             findDefinitionScope: (id: string) => manager.findDefinitionScope(id),
             findGlobalSymbolsByName: (n: string, s?: Set<string>) => manager.findGlobalSymbolsByName(n, s),
-            getCanonicalTypeName: (n: string) => manager.getCanonicalTypeName(n)
+            getCanonicalTypeName: (n: string) => manager.getCanonicalTypeName(n),
+            normalizeScopeId: (id: string) => manager.normalizeScopeId(id),
+            getProjectDefinition: (d: string, n: string) => manager.getProjectDefinition(d, n),
+            getAnyProjectDefinition: (n: string) => manager.getAnyProjectDefinition(n)
         };
 
         const resolvedName = resolveVariable(state, '$Name', collScope, undefined);
@@ -111,8 +113,7 @@ describe('ScopeManager - Schema Integration', () => {
     });
 
     it('should allow all properties if fetch/compute is missing', () => {
-        const symbolTable = new SymbolTable();
-        const manager = new ScopeManager(symbolTable);
+                const manager = new ScopeManager();
         manager.initializeGlobalScope();
         manager.globalScope.schemas.set('ledger', {
             name: 'Ledger',
@@ -165,7 +166,10 @@ describe('ScopeManager - Schema Integration', () => {
             projectScope: manager.projectScope,
             findDefinitionScope: (id: string) => manager.findDefinitionScope(id),
             findGlobalSymbolsByName: (n: string, s?: Set<string>) => manager.findGlobalSymbolsByName(n, s),
-            getCanonicalTypeName: (n: string) => manager.getCanonicalTypeName(n)
+            getCanonicalTypeName: (n: string) => manager.getCanonicalTypeName(n),
+            normalizeScopeId: (id: string) => manager.normalizeScopeId(id),
+            getProjectDefinition: (d: string, n: string) => manager.getProjectDefinition(d, n),
+            getAnyProjectDefinition: (n: string) => manager.getAnyProjectDefinition(n)
         };
 
         const resolvedParent = resolveVariable(state, '$Parent', collScope, undefined);

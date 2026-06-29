@@ -292,10 +292,13 @@ export class ScopeViewerService {
                     if (parts.length >= 2) {
                         const typeLower = parts[0];
                         const nameLower = parts.slice(1).join(':');
-                        const mapMatch = Array.from(this.manager.projectScope.definitions.entries()).find(([k]) => k.toLowerCase() === typeLower);
+                        const mapMatch = this.manager.scopeIndex.get(typeLower);
                         if (mapMatch) {
-                            const sym = mapMatch[1].get(nameLower);
-                            if (sym) symbols.push(sym);
+                            const defScope = mapMatch.get(nameLower);
+                            if (defScope && defScope.kind === ScopeKind.Definition) {
+                                const ds = defScope as DefinitionScope;
+                                if (ds.definition) symbols.push(ds.definition);
+                            }
                         }
                     }
                 }
@@ -304,11 +307,14 @@ export class ScopeViewerService {
             const defScope = scope as DefinitionScope;
             if (defScope.structuralChildren) {
                 for (const [type, set] of defScope.structuralChildren.entries()) {
-                    const mapMatch = Array.from(this.manager.projectScope.definitions.entries()).find(([k]) => k.toLowerCase() === type.toLowerCase());
+                    const mapMatch = this.manager.scopeIndex.get(type.toLowerCase());
                     if (mapMatch) {
                         for (const childName of set) {
-                            const sym = mapMatch[1].get(childName.toLowerCase());
-                            if (sym) symbols.push(sym);
+                            const defScope = mapMatch.get(childName.toLowerCase());
+                            if (defScope && defScope.kind === ScopeKind.Definition) {
+                                const ds = defScope as DefinitionScope;
+                                if (ds.definition) symbols.push(ds.definition);
+                            }
                         }
                     }
                 }
@@ -358,10 +364,22 @@ export class ScopeViewerService {
                     serializedComplexProperties: Array.from(schema.complexProperties.entries()).map(([k, v]) => ({ name: k, type: v }))
                 } as any);
             }
-        } else if (hasDefinitions(scope)) {
+        } else if (hasDefinitions(scope) && scope.definitions) {
             for (const [defType, defMap] of scope.definitions.entries()) {
                 if (defType.toLowerCase() === lowerKind || defType === kind) {
-                    symbols.push(...Array.from(defMap.values()));
+                    symbols.push(...defMap.values());
+                }
+            }
+        } else if (scope.kind === ScopeKind.Project) {
+            // Project definitions are now in scopeIndex
+            for (const [defType, defMap] of this.manager.scopeIndex.entries()) {
+                if (defType.toLowerCase() === lowerKind || defType === kind) {
+                    for (const defScope of defMap.values()) {
+                        if (defScope.kind === ScopeKind.Definition) {
+                            const ds = defScope as DefinitionScope;
+                            if (ds.definition) symbols.push(ds.definition);
+                        }
+                    }
                 }
             }
         }

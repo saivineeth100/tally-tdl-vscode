@@ -1,7 +1,7 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
 import { normalizeTypeName } from '../../../services/utils';
 import { ScopeManager } from '../../../services/scopeManager';
-import { SymbolTable } from '../../../services/symbolTable';
+
 
 /**
  * Get suggestions for a specific definition type
@@ -11,7 +11,6 @@ export function getSuggestionsForDefinitionType(
     partial: string,
     scopeManager: ScopeManager,
     scope?: Set<string>,
-    symbolTable?: SymbolTable
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     const normalizedPartial = normalizeTypeName(partial);
@@ -21,21 +20,19 @@ export function getSuggestionsForDefinitionType(
     // Keep track of added names to avoid duplicates if they exist in both
     const addedNames = new Set<string>();
 
-    // 1. Check SymbolTable (active unsaved / project files)
-    if (symbolTable) {
-        const tableSymbols = symbolTable.searchSymbols(partial, canonicalType, 1000, scope);
-        for (const sym of tableSymbols) {
-            const lowerName = sym.name.toLowerCase();
-            if (!addedNames.has(lowerName)) {
-                addedNames.add(lowerName);
-                items.push({
-                    label: sym.name,
-                    kind: CompletionItemKind.Reference,
-                    detail: `Workspace ${defType}`,
-                    insertText: sym.name,
-                    sortText: '0_' + lowerName,
-                });
-            }
+    // 1. Check workspace symbols using ScopeManager
+    const tableSymbols = scopeManager.searchWorkspaceSymbols(partial, canonicalType, 1000, scope);
+    for (const sym of tableSymbols) {
+        const lowerName = sym.name.toLowerCase();
+        if (!addedNames.has(lowerName)) {
+            addedNames.add(lowerName);
+            items.push({
+                label: sym.name,
+                kind: CompletionItemKind.Reference,
+                detail: `Workspace ${defType}`,
+                insertText: sym.name,
+                sortText: '0_' + lowerName,
+            });
         }
     }
 

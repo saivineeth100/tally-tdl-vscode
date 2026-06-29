@@ -17,7 +17,7 @@ export enum ScopeKind {
 
 import { ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, SymbolRequestDTO, OffsetRange } from 'tally-tdl-shared';
 export { ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, SymbolRequestDTO, OffsetRange };
-
+import { ReferenceIndex } from '../referenceIndex';
 /**
  * Represents a scope in the symbol hierarchy
  */
@@ -42,11 +42,13 @@ export interface GlobalScope extends BaseScope {
     
     interchangeableTypesMap: Map<string, string>;
     interchangeableAttributesMap: Map<string, string>;
+    referenceIndex: ReferenceIndex;
 }
+
 
 export interface ProjectScope extends BaseScope {
     kind: ScopeKind.Project;
-    definitions: Map<string, Map<string, DefinitionSymbol>>;
+    referenceIndex: ReferenceIndex;
 }
 
 export interface FileScope extends BaseScope {
@@ -81,8 +83,8 @@ export interface LocalScope extends BaseScope {
 
 export type Scope = GlobalScope | ProjectScope | FileScope | DefinitionScope | FunctionScope | BlockScope | LocalScope;
 
-export function hasDefinitions(scope: Scope): scope is GlobalScope | ProjectScope {
-    return scope.kind === ScopeKind.Global || scope.kind === ScopeKind.Project;
+export function hasDefinitions(scope: Scope): scope is GlobalScope {
+    return scope.kind === ScopeKind.Global;
 }
 
 export function hasFunctionsAndActions(scope: Scope): scope is GlobalScope {
@@ -96,6 +98,7 @@ export function hasAttributes(scope: Scope): scope is GlobalScope {
 export function hasSchemas(scope: Scope): scope is GlobalScope {
     return scope.kind === ScopeKind.Global;
 }
+
 
 export interface ModifierContribution {
     targetDefinitionId: string;

@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getArityBounds, validateFunctionArity, validateActionArity } from '../validation/arityValidation';
 import { ScopeManager } from '../scopeManager';
-import { SymbolTable } from '../symbolTable';
 import { FunctionCallNode, StatementNode, IdentifierNode, SyntaxKind } from '../../parser/ast';
 
 function createMockDoc() {
@@ -16,8 +15,7 @@ function createMockDoc() {
 
 describe('Function arity validation', () => {
     it('reports too few args for function', () => {
-        const symbolTable = new SymbolTable();
-        const scopeManager = new ScopeManager(symbolTable);
+                const scopeManager = new ScopeManager();
         scopeManager.getScopeAt = () => scopeManager.globalScope as any;
         scopeManager.globalScope.functions.set('myfunc', {
             name: 'myfunc',
@@ -46,8 +44,7 @@ describe('Function arity validation', () => {
 
 describe('Action arity validation', () => {
     it('reports missing mandatory args for action', () => {
-        const symbolTable = new SymbolTable();
-        const scopeManager = new ScopeManager(symbolTable);
+                const scopeManager = new ScopeManager();
         scopeManager.globalScope.actions.set('myaction', {
             name: 'MyAction',
             parameters: [

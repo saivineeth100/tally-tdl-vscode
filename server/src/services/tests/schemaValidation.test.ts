@@ -5,15 +5,13 @@ import { Token } from '../../parser/token';
 import { TokenKind } from '../../parser/tokenKind';
 import { DiagnosticRules } from '../../diagnostics';
 import { ScopeManager } from '../scopeManager';
-import { SymbolTable } from '../symbolTable';
 import { SchemaSymbol, SymbolKind } from '../../models/symbols';
 
 describe('XML Schema Validation', () => {
     let mockScopeManager: ScopeManager;
 
     beforeEach(() => {
-        const symbolTable = new SymbolTable();
-        mockScopeManager = new ScopeManager(symbolTable);
+                mockScopeManager = new ScopeManager();
         mockScopeManager.primarySchemaNames = ['VOUCHER'];
         
         const voucherSchema: SchemaSymbol = {

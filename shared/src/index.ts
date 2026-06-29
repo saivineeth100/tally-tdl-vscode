@@ -43,6 +43,8 @@ export interface SymbolInfo {
     children?: SymbolInfo[];
     /** Whether this symbol is a modifier (e.g., #Report) */
     isModifier?: boolean;
+    /** Whether this symbol is an optional definition (e.g., [!Report]) */
+    isOptional?: boolean;
     /** Pre-computed LSP range for the full definition */
     range?: { start: { line: number; character: number }; end: { line: number; character: number } };
     /** Pre-computed LSP range for just the symbol name (for selection/highlight) */

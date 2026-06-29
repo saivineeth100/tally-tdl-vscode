@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from '../logger';
 import * as v8 from 'v8';
-import { ScopeManager } from './scopeManager/index';
+import { ScopeManager, ScopeKind, DefinitionScope } from './scopeManager/index';
 import {
     SymbolKind,
     FunctionSymbol,
@@ -14,6 +14,7 @@ import {
     TDLSchemaProperty
 } from '../models/symbols';
 import { normalizeTypeName } from './utils';
+import { ReferenceIndex } from './referenceIndex';
 
 async function loadJsonSafe<T>(filePath: string): Promise<T | null> {
     return fs.existsSync(filePath) ? JSON.parse(await fsasync.readFile(filePath, 'utf-8')) : null;
@@ -60,44 +61,22 @@ export async function loadMetadata(basePath: string, version: string, manager: S
                     manager.globalScope.definitions = baseDeserialized.globalScope.definitions;
                     manager.globalScope.variables = baseDeserialized.globalScope.variables;
                     manager.globalScope.formulas = baseDeserialized.globalScope.formulas;
+                    if (baseDeserialized.globalScope.referenceIndex) {
+                        const newIndex = new ReferenceIndex();
+                        newIndex.identifierToUris = (baseDeserialized.globalScope.referenceIndex as any).identifierToUris;
+                        manager.globalScope.referenceIndex = newIndex;
+                    }
 
                 if (baseDeserialized.childDefinitions) manager.childDefinitions = baseDeserialized.childDefinitions;
                 if (baseDeserialized.parentDefinitions) manager.parentDefinitions = baseDeserialized.parentDefinitions;
                 if (baseDeserialized.useInheritance) manager.useInheritance = baseDeserialized.useInheritance;
                 if (baseDeserialized.inUseInheritance) manager.inUseInheritance = baseDeserialized.inUseInheritance;
-                if (baseDeserialized.fileMap) {
-                    manager.fileMap = baseDeserialized.fileMap;
-                    for (const fileScope of manager.fileMap.values()) {
-                        manager.indexScope(fileScope);
-                    }
-                }
+                if ((baseDeserialized as any).nameIndex) manager.nameIndex = (baseDeserialized as any).nameIndex;
+                if (baseDeserialized.scopeIndex) manager.scopeIndex = baseDeserialized.scopeIndex;
                 if (baseDeserialized.modifierContributions) manager.modifierContributions = baseDeserialized.modifierContributions;
                 if (baseDeserialized.uriGraphContributions) manager.uriGraphContributions = baseDeserialized.uriGraphContributions;
                 }
-            } else {
-                // Fallback to legacy single .bin loading
-                logger.debug(`[Cache] Loading legacy cache from ${version}.bin...`);
-                const buffer = await fsasync.readFile(oldBinPath);
-                const deserialized = v8.deserialize(buffer) as ScopeManager;
-
-                manager.globalScope = deserialized.globalScope;
-                manager.keywordSets = deserialized.keywordSets;
-                manager.primarySchemaNames = deserialized.primarySchemaNames;
-                manager.definitionTypeLabels = deserialized.definitionTypeLabels;
-
-                if (deserialized.childDefinitions) manager.childDefinitions = deserialized.childDefinitions;
-                if (deserialized.parentDefinitions) manager.parentDefinitions = deserialized.parentDefinitions;
-                if (deserialized.useInheritance) manager.useInheritance = deserialized.useInheritance;
-                if (deserialized.inUseInheritance) manager.inUseInheritance = deserialized.inUseInheritance;
-                if (deserialized.fileMap) {
-                    manager.fileMap = deserialized.fileMap;
-                    for (const fileScope of manager.fileMap.values()) {
-                        manager.indexScope(fileScope);
-                    }
-                }
-                if (deserialized.modifierContributions) manager.modifierContributions = deserialized.modifierContributions;
-                if (deserialized.uriGraphContributions) manager.uriGraphContributions = deserialized.uriGraphContributions;
-            }
+            } 
 
             logger.info(`[Cache] Cache data loaded successfully.`);
             return;
@@ -130,15 +109,20 @@ export async function loadExternalLibraries(libraryPaths: string[], manager: Sco
                 const deserialized = v8.deserialize(buffer) as ScopeManager;
 
                 // Merge user definitions from projectScope into the current globalScope
-                if (deserialized.projectScope && deserialized.projectScope.definitions) {
-                    for (const [defType, defMap] of deserialized.projectScope.definitions.entries()) {
+                if (deserialized.projectScope && deserialized.scopeIndex) {
+                    for (const [defType, defMap] of deserialized.scopeIndex.entries()) {
                         let globalDefMap = manager.globalScope.definitions.get(defType);
                         if (!globalDefMap) {
                             globalDefMap = new Map();
                             manager.globalScope.definitions.set(defType, globalDefMap);
                         }
                         for (const [name, sym] of defMap.entries()) {
-                            globalDefMap.set(name, sym);
+                            if (sym.kind === ScopeKind.Definition) {
+                                const ds = sym as DefinitionScope;
+                                if (ds.definition) {
+                                    globalDefMap.set(name, ds.definition);
+                                }
+                            }
                         }
                     }
                 }

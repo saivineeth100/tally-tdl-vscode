@@ -19,6 +19,7 @@ import {
 } from '../../parser/ast';
 import { TokenKind } from '../../parser/tokenKind';
 import { ScopeManager, getSemanticTypeFromSymbol } from '../scopeManager';
+import { areTypesCompatible, inferExpressionType, STRUCTURAL_DEFINITION_TYPES } from '../validation/validationUtils';
 import { normalizeTypeName } from '../utils';
 import { SymbolKind } from '../symbolTable';
 
@@ -435,6 +436,7 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
                 let expectingDefNameFor: string | undefined = undefined;
                 let isAttribute = false;
                 let targetDefMeta: any | undefined;
+                let previousWasLocal = false;
 
                 for (let i = 0; i < attr.value.length; i++) {
                     const paramNode = attr.value[i];
@@ -457,7 +459,42 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
                     } else if (!isAttribute) {
                         if (paramNode.kind === SyntaxKind.Identifier) {
                             const pLower = (paramNode as any).text.toLowerCase();
+                            
+                            if (pLower === 'local') {
+                                previousWasLocal = true;
+                                tokens.push({
+                                    line: 0,
+                                    startChar: paramNode.start,
+                                    length: (paramNode as any).text.length,
+                                    type: SemanticTokenTypes.macro,
+                                    text: (paramNode as any).text
+                                });
+                                continue;
+                            }
+                            
+                            const currentAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
+                            const isTargetAttribute = currentAttrs && currentAttrs.has(normalizeTypeName(pLower));
+                            const canonicalDefType = scopeManager.globalScope.interchangeableAttributesMap?.get(pLower) || pLower;
+                            const isStructuralChild = STRUCTURAL_DEFINITION_TYPES.includes(canonicalDefType);
+                            let treatAsChainedTarget = false;
+            
                             if (scopeManager.globalScope.attributes.has(normalizeTypeName(pLower))) {
+                                if (i + 1 < attr.value.length && attr.value[i + 1].kind === SyntaxKind.Identifier) {
+                                    if (previousWasLocal) {
+                                        treatAsChainedTarget = true;
+                                    } else if (isTargetAttribute && !isStructuralChild) {
+                                        treatAsChainedTarget = false;
+                                    } else if (isTargetAttribute && isStructuralChild) {
+                                        treatAsChainedTarget = (i + 2 < attr.value.length);
+                                    } else {
+                                        treatAsChainedTarget = true;
+                                    }
+                                }
+                            }
+                            
+                            previousWasLocal = false;
+
+                            if (treatAsChainedTarget) {
                                 // It's a Definition Type
                                 expectingDefNameFor = pLower;
                                 tokens.push({

@@ -1,24 +1,32 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { getWorkspaceSymbols } from '../workspaceSymbol';
-import { SymbolTable, SymbolKind } from '../symbolTable';
+import { SymbolKind } from '../symbolTable';
 import { WorkspaceSymbolParams, SymbolKind as LSPSymbolKind } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 describe('Workspace Symbols', () => {
     let mockDocManager: any;
     let mockDocuments: any;
-    let tdlSymbolTable: SymbolTable;
-    let xmlSymbolTable: SymbolTable;
+    let tdlMockScopeManager: any;
+    let xmlMockScopeManager: any;
 
+    let mockSymbols: any[] = [];
     beforeEach(() => {
-        tdlSymbolTable = new SymbolTable();
-        xmlSymbolTable = new SymbolTable();
+        mockSymbols = [];
+        tdlMockScopeManager = { 
+            searchWorkspaceSymbols: (query: string, typeFilter?: string) => {
+                return mockSymbols.filter(s => {
+                    if (query && !s.name.toLowerCase().includes(query.toLowerCase())) return false;
+                    if (typeFilter && s.definitionType.toLowerCase() !== typeFilter.toLowerCase()) return false;
+                    return true;
+                });
+            }
+        };
+        xmlMockScopeManager = { searchWorkspaceSymbols: () => [] };
         
         mockDocManager = {
-            tdlSymbolTable,
-            xmlSymbolTable,
-            tdlScopeManager: { searchWorkspaceSymbols: (q: string, f?: string, m?: number) => tdlSymbolTable.searchSymbols(q, f, m) },
-            xmlScopeManager: { searchWorkspaceSymbols: (q: string, f?: string, m?: number) => xmlSymbolTable.searchSymbols(q, f, m) }
+            tdlScopeManager: tdlMockScopeManager,
+            xmlScopeManager: xmlMockScopeManager
         };
 
         const doc = TextDocument.create('file:///test.tdl', 'tdl', 1, '');
@@ -28,14 +36,7 @@ describe('Workspace Symbols', () => {
     });
 
     function addSymbol(name: string, kind: SymbolKind, definitionType: string = 'Report') {
-        tdlSymbolTable.addSymbol({
-            name,
-            kind,
-            uri: 'file:///test.tdl',
-            start: 0,
-            end: 10,
-            definitionType
-        });
+        mockSymbols.push({ name, kind, uri: 'file:///test.tdl', start: 0, end: 10, definitionType });
     }
 
     it('Search by name returns matches', async () => {

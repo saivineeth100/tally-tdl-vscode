@@ -1,15 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { provideSignatureHelp } from '../signatureHelp';
 import { ScopeManager } from '../scopeManager';
-import { SymbolTable } from '../symbolTable';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Position } from 'vscode-languageserver';
 import { normalizeTypeName } from '../utils';
 
 describe('Signature Help Service', () => {
     function setupMocks() {
-        const symbolTable = new SymbolTable();
-        const scopeManager = new ScopeManager(symbolTable);
+                const scopeManager = new ScopeManager();
         
         scopeManager.globalScope.functions.set(normalizeTypeName('StringLength'), {
             name: 'StringLength',

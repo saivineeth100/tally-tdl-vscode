@@ -5,7 +5,6 @@ import { TextDocuments, Position, DocumentHighlightParams } from 'vscode-languag
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Parser } from '../../parser/parser';
 import { ScopeManager } from '../scopeManager';
-import { SymbolTable } from '../symbolTable';
 import { buildFileScope } from '../scopeManager/scopeBuilder';
 
 function setupMocks(files: Record<string, string>) {
@@ -49,8 +48,7 @@ function setupMocks(files: Record<string, string>) {
         get: (uri: string) => docs.get(uri)
     } as unknown as TextDocuments<TextDocument>;
 
-    const symbolTable = new SymbolTable();
-    const scopeManager = new ScopeManager(symbolTable);
+        const scopeManager = new ScopeManager();
 
     const reportAttrs = new Map<string, any>();
     reportAttrs.set('use', { name: 'Use', parameters: [{ RefersTo: 'Report' }] });

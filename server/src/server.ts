@@ -148,6 +148,12 @@ connection.onInitialized(async () => {
     await loadMetadata(currentTargetVersion);
     docManager.isMetadataLoaded = true;
     
+    // If workspace scanning finished before metadata loaded, we must trigger revalidation
+    // Otherwise, the end of scanWorkspaceFolders will handle it.
+    if (!docManager.scanningInProgress) {
+        docManager.revalidateAll(docs.all()).catch(e => logger.error(`Revalidation failed after metadata load: ${e}`));
+    }
+    
     // Tell client to refresh semantic tokens since we now have base symbols
     connection.languages.semanticTokens.refresh();
     
@@ -215,7 +221,6 @@ import { FileChangeType } from "vscode-languageserver/node";
 connection.onDidChangeWatchedFiles((change) => {
     for (const changeEvent of change.changes) {
         if (changeEvent.type === FileChangeType.Deleted) {
-            docManager.getSymbolTable(changeEvent.uri).clearDocument(changeEvent.uri);
             docManager.getScopeManager(changeEvent.uri).removeFileScope(changeEvent.uri);
         }
     }
@@ -412,8 +417,8 @@ connection.onDefinition(async (params: DefinitionParams): Promise<Location | nul
                     }
                 };
             } else {
-                // Try fast lookup via Symbol Table first to avoid reading file
-                const entries = docManager.tdlSymbolTable.findAllByName(resolved.name);
+                // Try fast lookup via Scope Index first to avoid reading file
+                const entries = docManager.tdlScopeManager.findGlobalSymbolsByName(resolved.name);
                 for (const entry of entries) {
                     if (entry.uri === resolved.uri && entry.selectionRange) {
                         return {
@@ -428,8 +433,8 @@ connection.onDefinition(async (params: DefinitionParams): Promise<Location | nul
                     }
                 }
 
-                // Try XML Symbol Table
-                const xmlEntries = docManager.xmlSymbolTable.findAllByName(resolved.name);
+                // Try XML Scope Index
+                const xmlEntries = docManager.xmlScopeManager.findGlobalSymbolsByName(resolved.name);
                 for (const entry of xmlEntries) {
                     if (entry.uri === resolved.uri && entry.selectionRange) {
                         return {

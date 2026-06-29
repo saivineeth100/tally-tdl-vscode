@@ -9,7 +9,7 @@ export interface TallyTDLSettings {
     [key: string]: any;
 }
 
-import { logger, LogLevel } from '../logger';
+import { logger, LogLevel, isDebug } from '../logger';
 
 let globalSettings: TallyTDLSettings = {};
 
@@ -18,12 +18,16 @@ export function updateSettings(newSettings: TallyTDLSettings) {
     
     // Update logger level
     if (globalSettings.logLevel) {
-        switch (globalSettings.logLevel.toLowerCase()) {
-            case 'error': logger.setLevel(LogLevel.Error); break;
-            case 'warn': logger.setLevel(LogLevel.Warn); break;
-            case 'info': logger.setLevel(LogLevel.Info); break;
-            case 'debug': logger.setLevel(LogLevel.Debug); break;
-            case 'trace': logger.setLevel(LogLevel.Trace); break;
+        if (isDebug && globalSettings.logLevel.toLowerCase() === 'info') {
+            logger.setLevel(LogLevel.Trace);
+        } else {
+            switch (globalSettings.logLevel.toLowerCase()) {
+                case 'error': logger.setLevel(LogLevel.Error); break;
+                case 'warn': logger.setLevel(LogLevel.Warn); break;
+                case 'info': logger.setLevel(LogLevel.Info); break;
+                case 'debug': logger.setLevel(LogLevel.Debug); break;
+                case 'trace': logger.setLevel(LogLevel.Trace); break;
+            }
         }
     }
 }

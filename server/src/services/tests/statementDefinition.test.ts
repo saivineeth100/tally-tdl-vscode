@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { Parser } from '../../parser/parser';
 import { findReferenceAtOffset } from '../definition';
 import { ScopeManager } from '../scopeManager';
-import { SymbolKind, SymbolTable } from '../symbolTable';
+import { SymbolKind } from '../symbolTable';
 
 describe('Statement Definition Range', () => {
     it('should find reference for multi-word argument in statement', () => {
@@ -15,8 +15,7 @@ describe('Statement Definition Range', () => {
 
         const offsetMy = tdl.indexOf('My Part Name') + 1;
         
-        const symbolTable = new SymbolTable();
-        const mockScopeManager = new ScopeManager(symbolTable);
+                const mockScopeManager = new ScopeManager();
 
         // Mock action in globalScope
         mockScopeManager.globalScope.actions.set('alter', {

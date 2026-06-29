@@ -48,3 +48,33 @@ export function positionToOffset(doc: TextDocument | string, position: Position)
     }
     return doc.offsetAt(position);
 }
+
+/**
+ * Fast lookup of { line, character } from an offset using pre-computed lineOffsets.
+ * This avoids needing the full text string or a TextDocument object.
+ */
+export function positionAt(offset: number, lineOffsets: number[]): Position {
+    let low = 0;
+    let high = lineOffsets.length;
+    
+    if (high === 0) {
+        return { line: 0, character: offset };
+    }
+    
+    while (low < high) {
+        const mid = Math.floor((low + high) / 2);
+        if (lineOffsets[mid] > offset) {
+            high = mid;
+        } else {
+            low = mid + 1;
+        }
+    }
+    
+    const line = low - 1;
+    const lineOffset = lineOffsets[line];
+    
+    return {
+        line,
+        character: offset - lineOffset
+    };
+}

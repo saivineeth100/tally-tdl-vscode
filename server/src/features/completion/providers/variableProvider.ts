@@ -1,15 +1,13 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
 import { DocManager } from '../../../docManager';
 import { getSuggestionsForDefinitionType } from './definitionProvider';
-import { SymbolTable } from '../../../services/symbolTable';
 import { getFieldsInScope } from '../../../services/scopeManager';
 
 export function provideVariableCompletions(
     manager: DocManager,
     uri: string,
     offset: number,
-    partial: string,
-    symbolTable?: SymbolTable
+    partial: string
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     
@@ -47,7 +45,6 @@ export function provideFormulaCompletions(
     uri: string,
     offset: number,
     partial: string,
-    symbolTable?: SymbolTable,
     isLocal: boolean = true
 ): CompletionItem[] {
     const items: CompletionItem[] = [];

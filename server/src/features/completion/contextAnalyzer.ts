@@ -453,7 +453,8 @@ export function detectXmlCompletionContext(xmlText: string, offset: number, curr
                 hasModifier: false,
                 attributeName: lastTag,
                 paramIndex,
-                tagPath
+                tagPath,
+                defType: currentDef ? currentDef.type.text : undefined
             };
         }
     }

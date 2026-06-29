@@ -1,14 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { DocManager } from '../../../docManager';
 import { ScopeManager } from '../../../services/scopeManager';
-import { SymbolTable, SymbolKind } from '../../../services/symbolTable';
 import { findReferenceAtOffset } from '../../../services/definition';
 import { parseXmlToAst } from '../../../parser/xmlAdapter';
+import { DefinitionScope, ScopeKind } from '../../../services/scopeManager/types';
+import { normalizeTypeName } from '../../../services/utils';
+import { SymbolKind } from 'tally-tdl-shared';
 
 // Create a simple mock connection object
 const mockConnection = {
-    onReferences: () => {},
-    sendDiagnostics: () => {}
+    onReferences: () => { },
+    sendDiagnostics: () => { }
 } as any;
 
 // Create a simple mock document manager and documents container
@@ -32,45 +34,61 @@ const mockDocuments = {
         }
         return undefined;
     },
-    onDidOpen: () => {},
-    onDidChangeContent: () => {},
-    onDidClose: () => {}
+    onDidOpen: () => { },
+    onDidChangeContent: () => { },
+    onDidClose: () => { }
 } as any;
 
 describe('XML Reference Tests', () => {
-    it('Indexes XML definitions in SymbolTable correctly to enable reference lookups', () => {
-        const symbolTable = new SymbolTable();
+    it('Indexes XML definitions in ScopeManager correctly to enable reference lookups', () => {
         const manager = new DocManager(mockConnection, mockDocuments);
-        
-        // Let's bypass DocManager's complex event hooks and just use SymbolTable directly
-        // Wait, SymbolTable requires DocManager integration.
-        // Actually, parseXmlToAst -> then add to SymbolTable.
-        
+        const scopeManager = new ScopeManager();
+
         const xmlContent = mockDocuments.get('file:///test.tdlxml').getText();
         const sourceFile = parseXmlToAst(xmlContent);
-        
+
         for (const def of sourceFile.definitions) {
             if (def.name) {
-                symbolTable.addSymbol({
-                    name: def.name.text,
-                    kind: SymbolKind.Report, // mocked kind
-                    uri: 'file:///test.tdlxml',
-                    start: def.name.start,
-                    end: def.name.end,
-                    definitionType: def.type.text
+                let typeMap = scopeManager.scopeIndex.get(normalizeTypeName(def.type.text));
+                if (!typeMap) {
+                    typeMap = new Map();
+                    scopeManager.scopeIndex.set(normalizeTypeName(def.type.text), typeMap);
+                }
+
+                const normalizedName = def.name.text.toLowerCase().replace(/\s+/g, '');
+                typeMap.set(normalizedName, {
+                    kind: ScopeKind.Definition,
+                    definition: {
+                        name: def.name.text,
+                        kind: SymbolKind.Report, // SymbolKind Mock
+                        definitionType: def.type.text,
+                        uri: 'file:///test.tdlxml',
+                        start: def.name.start,
+                        end: def.name.end
+                    },
+                    id: '',
+                    structuralChildren: new Map(),
+                    uses: new Set(),
+                    childScopes: [],
+                    variables: new Map(),
+                    formulas: new Map()
                 });
             }
         }
-        
+
         // Find reference
-        const symbols = symbolTable.findAllByName('MyOtherReport');
-        expect(symbols.length).toBeGreaterThan(0);
-        expect(symbols[0].name).toBe('MyOtherReport');
-        expect(symbols[0].kind).toBe(SymbolKind.Report);
+        const typeMap = scopeManager.scopeIndex.get(normalizeTypeName('REPORT'));
+        const normalizedSearch = 'MyOtherReport'.toLowerCase().replace(/\s+/g, '');
+        const symbol = typeMap?.get(normalizedSearch) as DefinitionScope;
+
+        expect(symbol).not.toBeNull();
+        expect(symbol.definition).not.toBeNull();
+        expect(symbol.definition?.name).toBe('MyOtherReport');
+        expect(symbol.definition?.kind).toBe('Report');
     });
 
     it('Indexes multiple XML definitions with spaces gracefully', () => {
-        const symbolTable = new SymbolTable();
+        const scopeManager = new ScopeManager();
         const xmlContent = `
 <TDL>
   <TDLMESSAGE>
@@ -81,26 +99,47 @@ describe('XML Reference Tests', () => {
   </TDLMESSAGE>
 </TDL>`;
         const sourceFile = parseXmlToAst(xmlContent);
-        
+
         for (const def of sourceFile.definitions) {
             if (def.name) {
-                symbolTable.addSymbol({
-                    name: def.name.text,
-                    kind: SymbolKind.Report,
-                    uri: 'file:///test.tdlxml',
-                    start: def.name.start,
-                    end: def.name.end,
-                    definitionType: def.type.text
+                let typeMap = scopeManager.scopeIndex.get(normalizeTypeName(def.type.text));
+                if (!typeMap) {
+                    typeMap = new Map();
+                    scopeManager.scopeIndex.set(normalizeTypeName(def.type.text), typeMap);
+                }
+
+                const normalizedName = def.name.text.toLowerCase().replace(/\s+/g, '');
+                typeMap.set(normalizedName, {
+                    kind: ScopeKind.Definition,
+                    definition: {
+                        name: def.name.text,
+                        kind: SymbolKind.Report, // SymbolKind Mock
+                        definitionType: def.type.text,
+                        uri: 'file:///test.tdlxml',
+                        start: def.name.start,
+                        end: def.name.end
+                    },
+                    id: '',
+                    structuralChildren: new Map(),
+                    uses: new Set(),
+                    childScopes: [],
+                    variables: new Map(),
+                    formulas: new Map()
                 });
             }
         }
-        
-        const symbols1 = symbolTable.findAllByName('My First Report');
-        expect(symbols1.length).toBe(1);
-        expect(symbols1[0].name).toBe('My First Report');
-        
-        const symbols2 = symbolTable.findAllByName('mysecondreport');
-        expect(symbols2.length).toBe(1); // Case insensitive, space insensitive lookup
-        expect(symbols2[0].name).toBe('My Second Report');
+
+        const typeMap = scopeManager.scopeIndex.get(normalizeTypeName('REPORT'));
+
+        const normalizedFirst = 'My First Report'.toLowerCase().replace(/\s+/g, '');
+        const symbols1 = typeMap?.get(normalizedFirst) as DefinitionScope;
+        expect(symbols1?.definition).not.toBeNull();
+        expect(symbols1.definition!.name).toBe('My First Report');
+
+        const normalizedSecond = 'mysecondreport'.toLowerCase().replace(/\s+/g, '');
+
+        const symbols2 = typeMap?.get(normalizedSecond) as DefinitionScope;
+        expect(symbols2?.definition).not.toBeNull();
+        expect(symbols2.definition!.name).toBe('My Second Report');
     });
 });

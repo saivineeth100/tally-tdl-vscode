@@ -2,11 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { findReferenceAtOffset } from '../../../services/definition';
 import { parseXmlToAst } from '../../../parser/xmlAdapter';
 import { ScopeManager } from '../../../services/scopeManager';
-import { SymbolTable } from '../../../services/symbolTable';
-
 // Mock Metadata
-const symbolTable = new SymbolTable();
-const mockScopeManager = new ScopeManager(symbolTable);
+const mockScopeManager = new ScopeManager();
 
 // Add 'use' attribute to REPORT
 const reportAttrs = new Map<string, any>();

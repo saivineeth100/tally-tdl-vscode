@@ -8,3 +8,4 @@ coverage/
 server/coverage/
 *.tsbuildinfo
 webview-ui/vite.config.ts.timestamp-*
+*.bin

@@ -1,18 +1,16 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ScopeManager } from '../scopeManager';
+import { ScopeManager, ScopeKind, DefinitionScope } from '../scopeManager';
 import { ScopeViewerService } from '../scopeManager/scopeViewerService';
 import { buildFileScope } from '../scopeManager/scopeBuilder';
 import { Parser } from '../../parser/parser';
 import { Lexer } from '../../parser/lexer';
-import { SymbolTable } from '../symbolTable';
 
 describe('ScopeViewerService', () => {
     let manager: ScopeManager;
     let viewer: ScopeViewerService;
 
     beforeEach(() => {
-        const symbolTable = new SymbolTable();
-        manager = new ScopeManager(symbolTable);
+                manager = new ScopeManager();
         
         // Mock structural relationships needed for these tests
         manager.globalScope.interchangeableAttributesMap.set('form', 'form');
@@ -79,17 +77,22 @@ describe('ScopeViewerService', () => {
         manager.indexScope(fileScope);
 
         // In the real system, buildVersionCache moves the definitions to globalScope
-        for (const [defType, defMap] of manager.projectScope.definitions.entries()) {
+        for (const [defType, defMap] of manager.scopeIndex.entries()) {
             let globalDefMap = manager.globalScope.definitions.get(defType);
             if (!globalDefMap) {
                 globalDefMap = new Map();
                 manager.globalScope.definitions.set(defType, globalDefMap);
             }
             for (const [name, sym] of defMap.entries()) {
-                globalDefMap.set(name, sym);
+                if (sym.kind === ScopeKind.Definition) {
+                    const ds = sym as DefinitionScope;
+                    if (ds.definition) {
+                        globalDefMap.set(name, ds.definition);
+                    }
+                }
             }
         }
-        manager.projectScope.definitions.clear();
+        manager.scopeIndex.clear();
 
         // And the UI requests it!
         const reportScope = manager.getScopeById('Report:BaseReport');
