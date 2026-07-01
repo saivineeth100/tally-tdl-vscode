@@ -11,7 +11,7 @@ export class ReferenceIndex {
     // Maps normalized identifier -> Set of URIs
     public identifierToUris = new Map<string, Set<string>>();
     // Maps URI -> Set of normalized identifiers in that file (used for cleanup)
-    private uriToIdentifiers = new Map<string, Set<string>>();
+    public uriToIdentifiers = new Map<string, Set<string>>();
 
     /**
      * Extracts identifiers from a parsed SourceFile and adds them to the index.

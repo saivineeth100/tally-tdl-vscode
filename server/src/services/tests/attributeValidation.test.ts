@@ -64,6 +64,63 @@ describe('Attribute Validation', () => {
         });
     });
 
+    describe('Menu Item List Validation', () => {
+        it('should bypass strict mandatory parameter checks and validate Actions dynamically for Item', async () => {
+            const tdl = `[Menu: MyMenu]
+                Item: My Item : Display : SomeReport
+                Item: Another : Quit
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const itemErrors = diagnostics.filter(d => 
+                d.code === DiagnosticRules.MissingParameters.code || 
+                d.code === DiagnosticRules.MissingMandatoryParameter.code ||
+                d.code === DiagnosticRules.TypeMismatch.code
+            );
+            // It should not throw missing parameter errors because Menu Item List handles dynamic parameters
+            expect(itemErrors.length).toBe(0);
+        });
+
+        it('should validate Key Item correctly', async () => {
+            const tdl = `[Menu: MyMenu]
+                Key Item: First : A : Menu : SubMenu
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const itemErrors = diagnostics.filter(d => 
+                d.code === DiagnosticRules.MissingParameters.code || 
+                d.code === DiagnosticRules.MissingMandatoryParameter.code ||
+                d.code === DiagnosticRules.TypeMismatch.code
+            );
+            expect(itemErrors.length).toBe(0);
+        });
+
+        it('should report missing definitions for invalid Action Parameters in Menu Item Lists', async () => {
+            const tdl = `[Menu: MyMenu]
+                Item: Invalid Item : Display : NonExistentReport
+                Key Item: Invalid Key Item : B : Menu : NonExistentMenu
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('uri', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            
+            const missingDefs = diagnostics.filter(d => d.code === DiagnosticRules.MissingDefinition.code);
+            
+            // Should report 2 missing definitions: NonExistentReport (Report) and NonExistentMenu (Menu)
+            expect(missingDefs.length).toBe(2);
+            expect(missingDefs[0].message).toContain('NonExistentReport');
+            expect(missingDefs[1].message).toContain('NonExistentMenu');
+        });
+    });
+
     describe('Reference Validation', () => {
         beforeAll(() => {
             if (testScopeManager) {

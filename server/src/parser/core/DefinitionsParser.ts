@@ -415,7 +415,8 @@ export class DefinitionsParser extends StatementsParser {
             if (this.CurrentToken.Kind === TokenKind.ColonToken) {
                 const colon = this.EatToken();
 
-                const values = this.ParseValues(colon);
+                const isMenuItem = attrName.text.toLowerCase() === 'item' || attrName.text.toLowerCase() === 'key item';
+                const values = this.ParseValues(colon, isMenuItem);
 
                 let end = colon.Start + 1;
 

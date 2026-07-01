@@ -26,6 +26,7 @@
         "vscode": "^1.96.0"
     },
     "activationEvents": [
+        
         "onLanguage:xml",
         "workspaceContains:**/*.{tcp,tpj,tdl,tdlxml,xml}"
     ],
@@ -162,7 +163,9 @@
                     ".txt",
                     ".tdxml",
                     ".dat",
-                    ".DAT"
+                    ".DAT",
+                    ".tpj",
+                    ".tcp"
                 ],
                 "configuration": "./tdl.language-configuration.json"
             },

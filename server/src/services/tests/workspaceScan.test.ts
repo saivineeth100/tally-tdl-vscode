@@ -131,6 +131,7 @@ describe('Workspace scan and Folder cleanup', () => {
                 if (fsPath.includes('deleted')) throw new Error('ENOENT');
             });
 
+            (docManager as any).hasInitialScanStarted = true;
             await expect(docManager.revalidateAll([])).resolves.not.toThrow();
             
             expect(docManager.indexFile).toHaveBeenCalledTimes(2);

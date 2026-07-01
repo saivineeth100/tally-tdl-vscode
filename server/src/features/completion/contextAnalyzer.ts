@@ -18,6 +18,7 @@ export interface CompletionContext {
     isInUse?: boolean;
     directiveName?: string;
     hasTrailingColon?: boolean;
+    valueParts?: string[];
 }
 
 /**
@@ -332,6 +333,22 @@ export function detectCompletionContext(
                 };
             }
 
+            const isMenuItem = ['item', 'key item', 'keyitem'].includes(lowerAttrName.replace(/\s+/g, ''));
+            if (isMenuItem) {
+                const parts = valuePart.split(':');
+                const paramIndex = parts.length - 1; // Number of colons
+                const partial = parts[parts.length - 1].trimStart();
+
+                return {
+                    type: 'attribute_value',
+                    partial: partial.trim(),
+                    hasModifier: false,
+                    attributeName,
+                    paramIndex,
+                    valueParts: parts.map(p => p.trim())
+                };
+            }
+
             // Determine parameter index by counting commas
             const paramIndex = (valuePart.match(/,/g) || []).length;
             const lastCommaIndex = valuePart.lastIndexOf(',');
@@ -342,7 +359,8 @@ export function detectCompletionContext(
                 partial: partial.trim(),
                 hasModifier: false,
                 attributeName,
-                paramIndex
+                paramIndex,
+                valueParts: valuePart.split(',').map(p => p.trim())
             };
         }
     }

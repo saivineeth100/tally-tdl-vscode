@@ -42,7 +42,7 @@ describe('ScopeManager', () => {
         const mockSourceFile = { definitions: [], start: 0, end: 100 } as unknown as SourceFile;
         const scope = manager.buildFileScope('file://test.tdl', mockSourceFile);
 
-        const resolved = manager.resolve('Date', scope);
+        const resolved = manager.resolveDefinition('Date', 'Function', scope);
         expect(resolved).toBeDefined();
         expect(resolved?.name).toBe('Date');
         expect(resolved?.kind).toBe(SymbolKind.Function);
@@ -78,7 +78,7 @@ describe('ScopeManager', () => {
         manager.scopeIndex.set('report', new Map([ ['myreport', { kind: ScopeKind.Definition, definition: { name: 'MyReport', kind: SymbolKind.Report, uri: 'file://test.tdl', start: 10, end: 18, definitionType: 'Report' } as any } as any] ]));
 
         const scope = manager.buildFileScope('file://test.tdl', mockSourceFile);
-        const resolved = manager.resolve('MyReport', scope);
+        const resolved = manager.resolveDefinition('MyReport', 'Report', scope);
 
         expect(resolved).toBeDefined();
         expect(resolved?.name).toBe('MyReport');
@@ -165,7 +165,7 @@ describe('ScopeManager', () => {
         // Build another file scope to test global resolution
         const scope = manager.buildFileScope('file://test2.tdl', { definitions: [], start: 0, end: 10 } as unknown as SourceFile);
         
-        const resolved = manager.resolve('MyURL', scope);
+        const resolved = manager.resolveFormula('MyURL', scope);
         expect(resolved).toBeDefined();
         expect(resolved?.name).toBe('MyURL');
         expect(resolved?.definitionType).toBe('Formula');
@@ -203,7 +203,7 @@ describe('ScopeManager', () => {
         
         const scope = manager.buildFileScope('file://test2.tdl', { definitions: [], start: 0, end: 10 } as unknown as SourceFile);
         
-        const resolved = manager.resolve('MyVarFormula', scope);
+        const resolved = manager.resolveFormula('MyVarFormula', scope);
         expect(resolved).toBeDefined();
         expect(resolved?.name).toBe('MyVarFormula');
         expect(resolved?.definitionType).toBe('Formula');

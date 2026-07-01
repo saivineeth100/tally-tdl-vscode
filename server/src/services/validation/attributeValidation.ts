@@ -7,6 +7,8 @@ import { areTypesCompatible, inferExpressionType, STRUCTURAL_DEFINITION_TYPES } 
 import { validateFunctionCall, validateBinaryExpression, walkAndValidateExpression } from "./expressionValidation";
 import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, UnknownAttributeData, MissingDefinitionData, DefinitionNotInScopeData, UnknownSchemaPropertyData } from "../../diagnostics";
 import { ScopeManager } from "../scopeManager";
+import { getExpectedTypeForMenuItem } from '../attributeUtils';
+import { URI } from 'vscode-uri';
 
 export function validateDefinitionAttributes(
     def: DefinitionNode,
@@ -244,7 +246,7 @@ export function validateDefinitionAttributes(
         }
 
         // Validate Parameters
-        if (attrDef.parameters && attrDef.parameters.length > 0) {
+        if (attrDef && attrDef.parameters && attrDef.parameters.length > 0) {
             validateAttributeParameters(
                 attr as import('../../parser/ast').AttributeNode,
                 attrDef,
@@ -271,17 +273,23 @@ export function validateAttributeParameters(
     defName: string,
     projectNodes?: Set<string>
 ) {
+    const isMenuItemList = attrDef.type?.toLowerCase() === 'menu item list' && normalizeTypeName(attr.name.text) !== 'indent';
+
     // 1. Mandatory Parameter Validation
     let lastMandatoryIndex = -1;
-    for (let i = 0; i < attrDef.parameters!.length; i++) {
-        if (attrDef.parameters![i].IsMandatory) {
-            lastMandatoryIndex = i;
-        }
-    }
-    const minRequired = lastMandatoryIndex + 1;
+    let minRequired = 0;
     const providedCount = attr.value.length;
 
-    if (providedCount < minRequired) {
+    if (!isMenuItemList) {
+        for (let i = 0; i < attrDef.parameters!.length; i++) {
+            if (attrDef.parameters![i].IsMandatory) {
+                lastMandatoryIndex = i;
+            }
+        }
+        minRequired = lastMandatoryIndex + 1;
+    }
+
+    if (!isMenuItemList && providedCount < minRequired) {
         const startPos = doc.positionAt(attr.name.start);
         const endPos = doc.positionAt(attr.name.end);
         diagnostics.push(createDiagnostic(
@@ -289,7 +297,7 @@ export function validateAttributeParameters(
             { start: startPos, end: endPos },
             attrDef.name, minRequired, providedCount
         ));
-    } else {
+    } else if (!isMenuItemList) {
         // Check if any mandatory parameter is skipped (EmptyNode)
         for (let i = 0; i <= lastMandatoryIndex; i++) {
             if (i < attr.value.length) {
@@ -308,10 +316,40 @@ export function validateAttributeParameters(
     }
 
     // 2. Datatype Validation (always runs)
-    for (let i = 0; i < attr.value.length; i++) {
-        if (i >= attrDef.parameters!.length) break;
+    const isKeyItem = normalizeTypeName(attr.name.text) === 'keyitem';
+    const actionIndex = isKeyItem ? 2 : 1;
+    let actionName = '';
+    if (isMenuItemList && attr.value.length > actionIndex) {
+        const actionNode = attr.value[actionIndex];
+        if (actionNode.kind === SyntaxKind.Identifier) {
+            actionName = normalizeTypeName((actionNode as any).text);
+        }
+    }
 
-        const paramDef = attrDef.parameters![i];
+    for (let i = 0; i < attr.value.length; i++) {
+        if (!isMenuItemList && i >= attrDef.parameters!.length) break;
+
+        let paramDef: import('../../models/symbols').TDLParameter | undefined = undefined;
+        if (isMenuItemList) {
+            const expectedTypeStr = getExpectedTypeForMenuItem(attr.name.text, i, actionName, scopeManager);
+            if (expectedTypeStr) {
+                paramDef = {
+                    IsMandatory: false,
+                    IsConstant: false,
+                    DimensionExpression: false,
+                    DataType: expectedTypeStr === 'Action' ? 'Action' : (expectedTypeStr === 'String' ? 'String' : undefined),
+                    RefersTo: (expectedTypeStr !== 'Action' && expectedTypeStr !== 'String') ? expectedTypeStr : undefined,
+                    KeywordSet: expectedTypeStr === 'Action' ? 'tdlactions' : undefined,
+                    IsList: false,
+                    IsVariableArgument: false
+                };
+            }
+        } else {
+            paramDef = attrDef.parameters![i];
+        }
+
+        if (!paramDef) continue;
+
         const paramNode = attr.value[i];
 
         if (paramNode.kind === SyntaxKind.Empty) continue;

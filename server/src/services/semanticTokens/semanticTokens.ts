@@ -22,6 +22,7 @@ import { ScopeManager, getSemanticTypeFromSymbol } from '../scopeManager';
 import { areTypesCompatible, inferExpressionType, STRUCTURAL_DEFINITION_TYPES } from '../validation/validationUtils';
 import { normalizeTypeName } from '../utils';
 import { SymbolKind } from '../symbolTable';
+import { getExpectedTypeForMenuItem } from '../attributeUtils';
 
 export interface SemanticToken {
     line: number;
@@ -540,7 +541,25 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
 
             for (let i = 0; i < attr.value.length; i++) {
                 let argExpectedType = expectedType;
-                if (defMeta && defMeta.parameters) {
+                if (defMeta && defMeta.type?.toLowerCase() === 'menu item list' && normalizeTypeName(attr.name.text) !== 'indent') {
+                    const isKeyItem = normalizeTypeName(attr.name.text) === 'keyitem';
+                    const actionIndex = isKeyItem ? 2 : 1;
+                    let actionName = '';
+                    if (attr.value.length > actionIndex) {
+                        const actionNode = attr.value[actionIndex];
+                        if (actionNode.kind === SyntaxKind.Identifier) {
+                            actionName = normalizeTypeName((actionNode as any).text);
+                        }
+                    }
+                    const menuItemExpected = getExpectedTypeForMenuItem(attr.name.text, i, actionName, scopeManager);
+                    if (menuItemExpected) {
+                        argExpectedType = mapMetaTypeToToken(menuItemExpected, undefined, scopeManager);
+                        if (!argExpectedType) {
+                            if (menuItemExpected === 'Action') argExpectedType = SemanticTokenTypes.keyword;
+                            else if (menuItemExpected === 'String') argExpectedType = SemanticTokenTypes.string;
+                        }
+                    }
+                } else if (defMeta && defMeta.parameters) {
                     if (i < defMeta.parameters.length) {
                         const p = defMeta.parameters[i];
                         argExpectedType = mapMetaTypeToToken(p.RefersTo, p.DataType, scopeManager);

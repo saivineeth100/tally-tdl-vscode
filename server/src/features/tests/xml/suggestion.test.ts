@@ -194,7 +194,7 @@ describe('XML Suggestions Tests', () => {
             get: () => doc
         };
         const docManager = new DocManager(mockConnection, mockDocuments as any);
-        console.log('Keys in form map:', Array.from(testScopeManager!.scopeIndex.get('form')?.keys() || []));
+        // console.log('Keys in form map:', Array.from(testScopeManager!.scopeIndex.get('form')?.keys() || []));
         (docManager as any).xmlScopeManager = testScopeManager as any;
         await docManager.rebuild(doc);
         

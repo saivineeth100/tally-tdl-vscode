@@ -8,6 +8,7 @@ import { validateLabelSequences } from "../sequenceValidator";
 import { validateDefinitionAttributes, validateSchemaObject } from "./attributeValidation";
 import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, MissingEndStatementData } from "../../diagnostics";
 import { URI } from 'vscode-uri';
+import { logger } from '../../logger';
 
 export * from '../../diagnostics';
 export * from './validationUtils';
@@ -124,6 +125,7 @@ export async function validateSourceFile(
                     );
                     
                     if (duplicates.length > 1) {
+                        logger.info(`[Debug] Duplicate def found for ${defName}. Duplicates are in: ${duplicates.map((d: any) => d.uri).join(', ')}`);
                         const startPos = doc.positionAt(def.name.start);
                         const endPos = doc.positionAt(def.name.end);
 
@@ -207,8 +209,14 @@ export async function validateSourceFile(
                     if (node.kind === SyntaxKind.Identifier) {
                         const ident = node as IdentifierNode;
                         if (ident.text.startsWith('##') || ident.text.startsWith('#')) {
+                            const isVariable = ident.text.startsWith('##');
                             const varName = ident.text.replace(/^##?/, '');
-                            const resolved = scopeManager.resolve(varName, scope);
+                            let resolved;
+                            if (isVariable) {
+                                resolved = scopeManager.resolveVariable(varName, scope);
+                            } else {
+                                resolved = scopeManager.resolveFormula(varName, scope);
+                            }
                             if (!resolved) {
                                 diagnostics.push(createDiagnostic(
                                     DiagnosticRules.UndefinedVariable,

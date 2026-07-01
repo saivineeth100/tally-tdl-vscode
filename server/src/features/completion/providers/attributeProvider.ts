@@ -8,6 +8,7 @@ import { DefinitionScope, Scope } from '../../../services/scopeManager/types';
 import { IScopeResolverState } from '../../../services/scopeManager/scopeResolver';
 import { resolveSchema } from '../../../services/scopeManager/scopeResolver';
 import { SymbolKind } from '../../../models/symbols';
+import { getExpectedTypeForMenuItem } from '../../../services/attributeUtils';
 
 export function provideAttributeCompletions(
     scopeManager: ScopeManager,
@@ -84,8 +85,7 @@ export function provideAttributeValueCompletions(
                 findGlobalSymbolsByName: (name, projectNodes) => scopeManager.findGlobalSymbolsByName(name, projectNodes),
                 getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n),
                 normalizeScopeId: (id) => scopeManager.normalizeScopeId(id),
-                getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n),
-                getAnyProjectDefinition: (n) => scopeManager.getAnyProjectDefinition(n)
+                getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n)
             };
             const schema = resolveSchema(mockState, objectScopeName, currentScope, scope);
 
@@ -107,8 +107,7 @@ export function provideAttributeValueCompletions(
                                     findGlobalSymbolsByName: (name, projectNodes) => scopeManager.findGlobalSymbolsByName(name, projectNodes),
                                     getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n),
                                     normalizeScopeId: (id) => scopeManager.normalizeScopeId(id),
-                                    getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n),
-                                    getAnyProjectDefinition: (n) => scopeManager.getAnyProjectDefinition(n)
+                                    getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n)
                                 };
                                 const subSchema = resolveSchema(mockState2, prop.ObjectName, currentScope, scope);
                             if (subSchema) {
@@ -247,6 +246,43 @@ export function provideAttributeValueCompletions(
     if (!attrMap) return items;
 
     const attrDef = attrMap.get(normalizedAttr);
+    
+    // Special handling for Menu Item List attributes
+    const isMenuItemList = attrDef?.type?.toLowerCase() === 'menu item list' && normalizedAttr !== 'indent';
+    if (isMenuItemList) {
+        const isKeyItem = normalizedAttr === 'keyitem';
+        const actionIndex = isKeyItem ? 2 : 1;
+        let actionName = '';
+        if (context.valueParts && context.valueParts.length > actionIndex) {
+            actionName = normalizeTypeName(context.valueParts[actionIndex]);
+        }
+        
+        const expectedTypeStr = getExpectedTypeForMenuItem(attrDef.name, context.paramIndex, actionName, scopeManager);
+        
+        if (expectedTypeStr === 'Action') {
+            const added = new Set<string>();
+            for (const [key, action] of scopeManager.globalScope.actions) {
+                if (added.has(action.name)) continue;
+                
+                if (context.partial === '' || action.name.toLowerCase().includes(context.partial.toLowerCase())) {
+                    added.add(action.name);
+                    items.push({
+                        label: action.name,
+                        kind: CompletionItemKind.Function,
+                        detail: action.description || 'Action',
+                        insertText: action.name,
+                        sortText: '0_' + action.name.toLowerCase(),
+                    });
+                }
+            }
+            return items;
+        } else if (expectedTypeStr && expectedTypeStr !== 'String') {
+            items.push(...getSuggestionsForDefinitionType(expectedTypeStr, context.partial, scopeManager, scope));
+            return items;
+        } else if (expectedTypeStr === 'String') {
+            return items;
+        }
+    }
 
     if (attrDef && attrDef.parameters && attrDef.parameters.length > context.paramIndex) {
         const param = attrDef.parameters[context.paramIndex];

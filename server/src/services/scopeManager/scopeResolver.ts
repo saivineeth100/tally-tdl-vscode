@@ -20,7 +20,7 @@ export interface IScopeResolverState {
     getCanonicalTypeName(normalizedType: string): string;
     normalizeScopeId(id: string): string;
     getProjectDefinition(defType: string, name: string): import('../../models/symbols').DefinitionSymbol | undefined;
-    getAnyProjectDefinition(name: string): import('../../models/symbols').DefinitionSymbol | undefined;
+
 }
 
 export interface ResolutionContext {
@@ -449,6 +449,12 @@ function visitScopes(context: ResolutionContext, visitor: VisitorStrategy, local
             break;
         }
 
+        if (current.kind === ScopeKind.Global) {
+            // GlobalScope is excluded from standard traversal to prevent global symbols
+            // from bypassing projectScope filtering. All global resolution MUST happen via fallbacks.
+            break;
+        }
+
         if (current.kind === ScopeKind.Definition) {
             walkScopeAndParents(current);
         } else {
@@ -744,6 +750,12 @@ export function resolveAttribute(
     });
     if (match) return match;
 
+    // Metadata fallback for system attributes (since traverseScopes no longer hits GlobalScope)
+    const globalTypeSet = state.globalScope.attributes?.get(canonicalType);
+    if (globalTypeSet && globalTypeSet.has(normalizedName)) {
+        return globalTypeSet.get(normalizedName);
+    }
+
     return undefined; // Attributes are fully cached in scopes, no global SymbolTable fallback needed
 }
 
@@ -765,70 +777,12 @@ export function resolveSchema(
     });
     if (match) return match;
 
-    return undefined; // Schemas are fully indexed in scope maps
-}
-
-export function resolveSymbol(
-    state: IScopeResolverState, 
-    name: string, 
-    initialScope: Scope, 
-    projectScope?: Set<string>,
-    callerContext?: ResolutionContext
-): SymbolInfo | undefined {
-    // Legacy generic resolve method when the exact type is unknown
-    const normalizedName = normalizeTypeName(name);
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
-    
-    const match = traverseScopes(context, scope => {
-        let sym: SymbolInfo | undefined = scope.variables.get(normalizedName);
-        if (sym) return sym;
-
-        if ('formulas' in scope) {
-            sym = scope.formulas.get(normalizedName);
-            if (sym) return sym;
-        }
-
-        if (hasFunctionsAndActions(scope)) {
-            sym = scope.functions.get(normalizedName) || scope.actions.get(normalizedName);
-            if (sym) return sym;
-        }
-
-        if (hasSchemas(scope)) {
-            sym = scope.schemas.get(normalizedName);
-            if (sym) return sym;
-        }
-
-        if (hasAttributes(scope)) {
-            for (const attrMap of scope.attributes.values()) {
-                const attrSym = attrMap.get(normalizedName);
-                if (attrSym) return attrSym;
-            }
-        }
-        
-        if (scope.kind === ScopeKind.Project) {
-            const sym = state.getAnyProjectDefinition(normalizedName);
-            if (sym) return sym;
-        } else if (hasDefinitions(scope)) {
-            for (const defMap of scope.definitions.values()) {
-                const defSym = defMap.get(normalizedName);
-                if (defSym) return defSym;
-            }
-        }
-        return undefined;
-    });
-    if (match) return match;
-
-    const globalSymbols = state.findGlobalSymbolsByName(name, projectScope);
-    if (globalSymbols.length > 0) return globalSymbols[0];
-
-    // Check Metadata Definitions if not found
-    for (const [defType, defMap] of state.globalScope.definitions) {
-        if (defMap.has(normalizedName)) {
-            return defMap.get(normalizedName);
-        }
+    // Metadata fallback for system schemas
+    if (state.globalScope.schemas?.has(normalizedName)) {
+        return state.globalScope.schemas.get(normalizedName);
     }
 
-    return undefined;
+    return undefined; // Schemas are fully indexed in scope maps
 }
 
 export function getAllVariablesInScope(

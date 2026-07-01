@@ -18,6 +18,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import * as path from 'path';
 import * as fs from 'fs';
 import { URI } from 'vscode-uri';
+import { normalizeUri } from './utils/uri';
 import { logger } from './logger';
 import { loadMetadata as loadNewMetadata, loadExternalLibraries } from './services/metadataLoader';
 import { registerCompletion, buildFunctionDocumentation, buildAttributeDocumentation } from "./features/completion";
@@ -167,25 +168,48 @@ connection.onInitialized(async () => {
         }
     }
 
-    // Try to get workspace folders (may not be supported by client)
-    if (hasWorkspaceFolderCapability) {
-        try {
-            const folders = await connection.workspace.getWorkspaceFolders();
+    if (initParams && initParams.workspaceFolders && initParams.workspaceFolders.length > 0) {
+        globalWorkspaceFolders = initParams.workspaceFolders.map(f => URI.parse(f.uri).fsPath);
+        docManager.workspaceFolders = globalWorkspaceFolders;
+        const folderUris = initParams.workspaceFolders.map(f => f.uri);
+        docManager.scanWorkspaceFolders(folderUris);
+    } else if (hasWorkspaceFolderCapability) {
+        connection.workspace.getWorkspaceFolders().then(folders => {
             if (folders && folders.length > 0) {
                 globalWorkspaceFolders = folders.map(f => URI.parse(f.uri).fsPath);
+                docManager.workspaceFolders = globalWorkspaceFolders;
                 const folderUris = folders.map(f => f.uri);
                 docManager.scanWorkspaceFolders(folderUris);
+            } else {
+                fallbackInitParams(initParams);
             }
-        } catch {
-            // Workspace folders not supported, fall through to rootUri
-        }
+        });
+    } else {
+        fallbackInitParams(initParams);
+    }
 
+    function fallbackInitParams(params: InitializeParams) {
+        if (params && params.rootUri) {
+            const fsPath = URI.parse(params.rootUri).fsPath;
+            globalWorkspaceFolders = [fsPath];
+            docManager.workspaceFolders = globalWorkspaceFolders;
+            docManager.scanWorkspaceFolders([params.rootUri]);
+        } else if (params && params.rootPath) {
+            const fsPath = URI.file(params.rootPath).fsPath;
+            globalWorkspaceFolders = [fsPath];
+            docManager.workspaceFolders = globalWorkspaceFolders;
+            docManager.scanWorkspaceFolders([URI.file(params.rootPath).toString()]);
+        }
+    }
+
+    if (hasWorkspaceFolderCapability) {
         // Handle Workspace folder changes
         connection.workspace.onDidChangeWorkspaceFolders((event) => {
             // Remove folders
             for (const folder of event.removed) {
                 const folderPath = URI.parse(folder.uri).fsPath;
                 globalWorkspaceFolders = globalWorkspaceFolders.filter(f => f !== folderPath);
+                docManager.workspaceFolders = globalWorkspaceFolders;
                 docManager.clearFolderSymbols(folderPath);
             }
 
@@ -198,21 +222,14 @@ connection.onInitialized(async () => {
                     addedUris.push(folder.uri);
                 }
             }
+            if (addedUris.length > 0) {
+                docManager.workspaceFolders = globalWorkspaceFolders;
+            }
 
             if (addedUris.length > 0) {
                 docManager.scanWorkspaceFolders(addedUris);
             }
         });
-    } else {
-        // Fallback: use the folders/rootUri provided in initialization params
-        if (initParams.workspaceFolders && initParams.workspaceFolders.length > 0) {
-            const folderUris = initParams.workspaceFolders.map(f => f.uri);
-            docManager.scanWorkspaceFolders(folderUris);
-        } else if (initParams.rootUri) {
-            docManager.scanWorkspaceFolders([initParams.rootUri]);
-        } else if (initParams.rootPath) {
-            docManager.scanWorkspaceFolders([URI.file(initParams.rootPath).toString()]);
-        }
     }
 });
 
@@ -317,14 +334,22 @@ export function resolveIncludePath(currentPath: string, includeName: string): st
     // 1. Try relative to current file's directory
     const relativePath = path.resolve(path.dirname(currentPath), includeName);
     if (fs.existsSync(relativePath)) {
-        return relativePath;
+        try {
+            return fs.realpathSync.native(relativePath);
+        } catch {
+            return relativePath;
+        }
     }
 
     // 2. Try relative to each workspace folder root
     for (const folder of globalWorkspaceFolders) {
         const rootPath = path.resolve(folder, includeName);
         if (fs.existsSync(rootPath)) {
-            return rootPath;
+            try {
+                return fs.realpathSync.native(rootPath);
+            } catch {
+                return rootPath;
+            }
         }
     }
 
@@ -345,10 +370,11 @@ connection.onDefinition(async (params: DefinitionParams): Promise<Location | nul
     const text = doc.getText();
     const offset = doc.offsetAt(params.position);
     
-    const scopeMgr = docManager.getScopeManager(params.textDocument.uri);
+    const normUri = normalizeUri(params.textDocument.uri);
+    const scopeMgr = docManager.getScopeManager(normUri);
 
     // Find if we're on a reference
-    const ref = findReferenceAtOffset(docState.sourceFile, offset, text, scopeMgr, params.textDocument.uri);
+    const ref = findReferenceAtOffset(docState.sourceFile, offset, text, scopeMgr, normUri);
     if (!ref) return null;
 
     if (ref.expectedType === 'File') {
@@ -365,15 +391,15 @@ connection.onDefinition(async (params: DefinitionParams): Promise<Location | nul
         return null;
     }
 
-    const scope = scopeMgr.getScopeAt(params.textDocument.uri, offset);
-    const projectScope = docManager.getProjectNodes(params.textDocument.uri);
+    const scope = scopeMgr.getScopeAt(normUri, offset);
+    const projectScope = docManager.getProjectNodes(normUri);
     
     if (scope) {
         let resolved: any;
         const expectedTypeLower = ref.expectedType.toLowerCase();
         
         if (expectedTypeLower === 'variable' || expectedTypeLower === 'method' || expectedTypeLower === 'system variable') {
-            resolved = scopeMgr.resolve(ref.name, scope, projectScope);
+            resolved = scopeMgr.resolveVariable(ref.name, scope, projectScope);
         } else if (expectedTypeLower === 'formula' || expectedTypeLower === 'system formulae' || expectedTypeLower === 'formulae') {
             resolved = scopeMgr.resolveFormula(ref.name, scope, projectScope);
         } else if (expectedTypeLower === 'function') {
@@ -492,19 +518,28 @@ import { provideSemanticTokens, provideSemanticTokensEdits, TDL_SEMANTIC_TOKENS_
 
 connection.languages.semanticTokens.on((params, token) => {
     const uriStr = typeof params.textDocument.uri === 'string' ? params.textDocument.uri : (params.textDocument as any).uri;
-    logger.trace(`[Trace] Server RECEIVED semanticTokens/full for ${path.basename(uriStr)} at ${new Date().toISOString()}`);
+    logger.info(`[Debug] Server RECEIVED semanticTokens/full for ${uriStr}`);
 
     const doc = docs.get(params.textDocument.uri);
-    if (!doc) return { data: [] };
-
-    const docState = docManager.get(params.textDocument.uri);
-    if (!docState || !docState.sourceFile) return { data: [] };
-
-    if (!docManager.isUriActive(params.textDocument.uri)) {
+    if (!doc) {
+        logger.info(`[Debug] semanticTokens returning early: doc not found in this.docs for ${uriStr}`);
         return { data: [] };
     }
 
-    return provideSemanticTokens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri), token);
+    const docState = docManager.get(params.textDocument.uri);
+    if (!docState || !docState.sourceFile) {
+        logger.info(`[Debug] semanticTokens returning early: docState or sourceFile not found for ${uriStr}`);
+        return { data: [] };
+    }
+
+    if (!docManager.isUriActive(params.textDocument.uri)) {
+        logger.info(`[Debug] semanticTokens returning early: isUriActive returned false for ${uriStr}`);
+        return { data: [] };
+    }
+
+    const tokens = provideSemanticTokens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri), token);
+    logger.info(`[Debug] semanticTokens successfully generated ${tokens.data.length} tokens for ${uriStr}`);
+    return tokens;
 });
 
 connection.languages.semanticTokens.onDelta((params, token) => {

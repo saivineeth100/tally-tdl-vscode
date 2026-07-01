@@ -86,6 +86,32 @@ describe('Semantic Tokens', () => {
         expect(propToken!.type).toBe(SemanticTokenTypes.macro);
     });
 
+    it('should tokenize Menu Item List attributes correctly', () => {
+        const tdl = `[Menu: Test]
+            Item: My Item : Display : SomeReport
+            Key Item: First : A : Menu : SubMenu`;
+        const tokens = parseAndGetTokens(tdl);
+
+        // 'Display' is an action, should be keyword
+        const displayToken = tokens.find(t => t.text === 'Display');
+        expect(displayToken).toBeDefined();
+        expect(displayToken!.type).toBe(SemanticTokenTypes.keyword);
+
+        // 'SomeReport' is a report reference, should be class
+        const reportToken = tokens.find(t => t.text === 'SomeReport');
+        expect(reportToken).toBeDefined();
+        expect(reportToken!.type).toBe(SemanticTokenTypes.class);
+
+        // 'Menu' is an action, should be keyword
+        const menuActionToken = tokens.find(t => t.text === 'Menu' && t.type === SemanticTokenTypes.keyword);
+        expect(menuActionToken).toBeDefined();
+
+        // 'SubMenu' is a menu reference, should be class
+        const subMenuToken = tokens.find(t => t.text === 'SubMenu');
+        expect(subMenuToken).toBeDefined();
+        expect(subMenuToken!.type).toBe(SemanticTokenTypes.class);
+    });
+
     it('should tokenize multiple attribute values', () => {
         const tdl = `[Form: Test]
             Parts: P1, P2

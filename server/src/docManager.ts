@@ -10,6 +10,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { loadMetadata } from './services/metadataLoader';
 import { URI } from 'vscode-uri';
+import { normalizeUri } from './utils/uri';
 import { logger } from './logger';
 import { validateSourceFile } from "./services/validation";
 
@@ -34,6 +35,27 @@ export interface DocState {
 /**
  * Manages document state including parsing, diagnostics, and symbol table.
  * Supports workspace-wide file scanning for definitions.
+ *
+ * ## File Parsing and Workspace Scanning Architecture
+ *
+ * The `DocManager` builds a complete directed graph of all TDL/TXT files in the workspace.
+ * Its parsing logic operates in two phases:
+ *
+ * 1. Workspace Scanning (`scanWorkspaceFolders` / `scanDirectory`):
+ *    - First pass: Locates all `.tpj` (Tally Project) files in the folder.
+ *    - If a `.tpj` file exists, it is parsed to find its root `Project File` (usually a `.txt` or `.tdl`).
+ *    - The root file is added to `this.tpjFiles`.
+ *    - The root file is parsed (`indexFile`), which recursively extracts its `[Include: ...]` directives.
+ *    - All included files are recursively parsed and added to the `includeGraph` and `parentGraph`.
+ *    - Second pass: Scans for standalone `.txt`/`.tdl` files that were NOT referenced by any `.tpj` file.
+ *    - These standalone files are parsed independently to ensure their symbols are available for auto-completion.
+ *
+ * 2. Diagnostics Validation (`revalidateAll`):
+ *    - Diagnostics are only displayed for files that are logically connected to either an active editor window OR a `.tpj` file.
+ *    - If a `.tpj` file exists, `revalidateAll` traverses down its `includeGraph` and validates all connected files (e.g., all 400+ files).
+ *    - If NO `.tpj` file exists in the folder (e.g. a loose file opened from outside), `revalidateAll` only finds the active open document (`Rel 1.5.txt`),
+ *      walks UP to its root via `parentGraph`, and then walks DOWN via `includeGraph`.
+ *    - This guarantees that loose files only validate their immediate isolated dependency graph (e.g. 11 files) rather than the entire universe.
  */
 export class DocManager {
     private docs = new Map<string, DocState>();
@@ -51,6 +73,7 @@ export class DocManager {
     private projectNodesCache = new Map<string, Set<string>>();
     /** Queue for workspace scan requests */
     private scanQueue: string[][] = [];
+    private hasInitialScanStarted = false;
 
     /** Flag to indicate if base TDL metadata has finished loading */
     public isMetadataLoaded = false;
@@ -110,26 +133,30 @@ export class DocManager {
         });
     }
 
+
+
     /** Helper to get the right ScopeManager for a URI */
     public getScopeManager(uri: string): ScopeManager {
-        return uri.toLowerCase().endsWith('.xml') || uri.toLowerCase().endsWith('.tdlxml') ? this.xmlScopeManager : this.tdlScopeManager;
+        const lowerUri = uri.toLowerCase();
+        return lowerUri.endsWith('.xml') || lowerUri.endsWith('.tdlxml') ? this.xmlScopeManager : this.tdlScopeManager;
     }
 
     /**
      * Get document state for a URI
      */
     get(uri: string): DocState | undefined {
-        return this.docs.get(uri) || this.indexedDocs.get(uri);
+        const norm = normalizeUri(uri);
+        return this.docs.get(norm) || this.indexedDocs.get(norm);
     }
 
     /** Get only open document state */
     getOpen(uri: string): DocState | undefined {
-        return this.docs.get(uri);
+        return this.docs.get(normalizeUri(uri));
     }
 
     /** Get only indexed document state */
     getIndexed(uri: string): DocState | undefined {
-        return this.indexedDocs.get(uri);
+        return this.indexedDocs.get(normalizeUri(uri));
     }
 
     /**
@@ -176,10 +203,27 @@ export class DocManager {
      * Re-validate all documents (both open and closed but indexed)
      * Useful when global settings change.
      */
+    private revalidateTimeout: NodeJS.Timeout | null = null;
+
     public async revalidateAll(openDocsIter: Iterable<any>): Promise<void> {
-        const startTime = Date.now();
         const openDocs = Array.from(openDocsIter);
-        logger.trace(`[Perf] Starting revalidateAll for ${openDocs.length} open documents...`);
+        if (this.revalidateTimeout) {
+            clearTimeout(this.revalidateTimeout);
+        }
+        
+        return new Promise((resolve) => {
+            this.revalidateTimeout = setTimeout(async () => {
+                this.revalidateTimeout = null;
+                
+                // If a workspace scan is currently running, it will automatically
+                // trigger revalidateAll when it finishes, so we can safely abort this run.
+                if (!this.hasInitialScanStarted || this.scanningInProgress) {
+                    resolve();
+                    return;
+                }
+
+                const startTime = Date.now();
+                logger.trace(`[Perf] Starting revalidateAll for ${openDocs.length} open documents...`);
         const allKnownUris = new Set<string>();
 
         // 1. Gather all related project nodes (tpj files, included files, parent files)
@@ -210,7 +254,7 @@ export class DocManager {
         const promises: Promise<void>[] = [];
         for (const uriStr of allKnownUris) {
             // Skip if the file is already open (handled by rebuild)
-            if (this.docs.has(uriStr)) continue;
+            if (this.docs.has(normalizeUri(uriStr))) continue;
 
             const fsPath = URI.parse(uriStr).fsPath;
             
@@ -232,13 +276,18 @@ export class DocManager {
         
         const endTime = Date.now();
         logger.trace(`[Perf] Finished revalidateAll in ${endTime - startTime}ms. (Open docs: ${openDocs.length}, Closed known URIs: ${allKnownUris.size - openDocs.length})`);
+        
+        resolve();
+            }, 500); // 500ms debounce
+        });
     }
 
     /**
      * Scan workspace folders for TDL files (async, non-blocking)
      * @param workspaceFolders Array of workspace folder URIs
      */
-    scanWorkspaceFolders(workspaceFolders: string[]): void {
+    public scanWorkspaceFolders(workspaceFolders: string[]): void {
+        this.hasInitialScanStarted = true;
         if (this.scanningInProgress) {
             this.scanQueue.push(workspaceFolders);
             return;
@@ -312,9 +361,18 @@ export class DocManager {
                 this.indexedDocs.delete(uri);
             }
         }
-        for (const [uri, _] of this.parentGraph.entries()) {
+        for (const [uri, parents] of this.parentGraph.entries()) {
             if (URI.parse(uri).fsPath.startsWith(folderPath)) {
                 this.parentGraph.delete(uri);
+            } else {
+                for (const parentUri of parents) {
+                    if (URI.parse(parentUri).fsPath.startsWith(folderPath)) {
+                        parents.delete(parentUri);
+                    }
+                }
+                if (parents.size === 0) {
+                    this.parentGraph.delete(uri);
+                }
             }
         }
     }
@@ -372,7 +430,7 @@ export class DocManager {
                 const ext = path.extname(entry.name).toLowerCase();
                 if (['.tdl', '.txt', '.xml', '.tdlxml', '.dat'].includes(ext)) {
                     // Only index if it wasn't already added by a .tpj file
-                    if (!this.tpjFiles.has(URI.file(fullPath).toString())) {
+                    if (!this.tpjFiles.has(normalizeUri(URI.file(fullPath).toString()))) {
                         // Pass skipValidation=true during scan to avoid incomplete graph errors and slowness
                         promises.push(this.indexFile(fullPath, visited, true).catch(err => {
                             logger.error(`Error indexing standalone file ${fullPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
@@ -421,7 +479,7 @@ export class DocManager {
                     entryFile = entryFile.replace(/^["']|["']$/g, '');
                     const targetPath = path.resolve(dirPath, entryFile);
                     if (fs.existsSync(targetPath)) {
-                        const targetUri = URI.file(targetPath).toString();
+                        const targetUri = normalizeUri(URI.file(targetPath).toString());
                         this.tpjFiles.add(targetUri);
                         // Pass skipValidation=true during scan to avoid incomplete graph errors and slowness
                         promises.push(this.indexFile(targetPath, visited, true));
@@ -446,11 +504,11 @@ export class DocManager {
      * Index a single file for symbols (without storing full doc state)
      */
     public async indexFile(filePath: string, indexed: Set<string> = new Set(), skipValidation: boolean = false, forceValidation: boolean = false): Promise<void> {
-        if (indexed.has(filePath)) return;
-        indexed.add(filePath);
-
-        const uri = URI.file(filePath).toString();
         
+
+        const uri = normalizeUri(filePath);
+        if (indexed.has(uri)) return;
+        indexed.add(uri);
         // If file is open in editor, skip indexing as it's handled by rebuild()
         if (this.docs.has(uri)) return;
 
@@ -586,7 +644,7 @@ export class DocManager {
                 if (this.resolveIncludePath) {
                     const targetPath = this.resolveIncludePath(currentFsPath, includeName);
                     if (targetPath) {
-                        includes.add(URI.file(targetPath).toString());
+                        includes.add(normalizeUri(targetPath));
                     }
                 }
             }
@@ -643,18 +701,19 @@ export class DocManager {
     }
 
     /**
-     * Determine if a URI is part of the active validation set.
+     * Check if a URI is actively used in the workspace.
      * A URI is active if it is:
-     * 1. An open file or mentioned in a .tpj file
+     * 1. Currently open in the editor (or is a .tpj file explicitly added)
      * 2. An included file of an active file (reachable by going UP parentGraph)
      * 3. A file that includes an active file (reachable by going DOWN includeGraph)
      */
     public isUriActive(targetUri: string): boolean {
-        if (this.docs.has(targetUri) || this.tpjFiles.has(targetUri)) return true;
+        const normUri = normalizeUri(targetUri);
+        if (this.docs.has(normUri) || this.tpjFiles.has(normUri)) return true;
 
         // Check if it's included by an active file (traverse UP parentGraph)
         const visitedParents = new Set<string>();
-        const queueParents = [targetUri];
+        const queueParents = [normUri];
         while (queueParents.length > 0) {
             const curr = queueParents.shift()!;
             if (!visitedParents.has(curr)) {
@@ -690,15 +749,16 @@ export class DocManager {
      * A project is defined as the set of all files reachable from any root that can reach targetUri.
      */
     public getProjectNodes(targetUri: string): Set<string> {
-        if (this.projectNodesCache.has(targetUri)) {
-            return this.projectNodesCache.get(targetUri)!;
+        const normUri = normalizeUri(targetUri);
+        if (this.projectNodesCache.has(normUri)) {
+            return this.projectNodesCache.get(normUri)!;
         }
 
         // Find roots by walking UP parentGraph
         const roots = new Set<string>();
         const visitedParents = new Set<string>();
         
-        const queueParents = [targetUri];
+        const queueParents = [normUri];
         while (queueParents.length > 0) {
             const curr = queueParents.shift()!;
             if (!visitedParents.has(curr)) {
@@ -714,7 +774,7 @@ export class DocManager {
 
         // If isolated or part of disjoint cycle, ensure targetUri itself acts as root
         if (roots.size === 0) {
-            roots.add(targetUri);
+            roots.add(normUri);
         }
 
         // Walk DOWN includeGraph from all roots
@@ -731,7 +791,7 @@ export class DocManager {
             }
         }
 
-        this.projectNodesCache.set(targetUri, projectNodes);
+        this.projectNodesCache.set(normUri, projectNodes);
         return projectNodes;
     }
 
@@ -744,9 +804,10 @@ export class DocManager {
         const text = doc.getText();
         const isXml = doc.languageId === 'xml';
 
-        const scopeMgr = this.getScopeManager(doc.uri);
+        const normUri = normalizeUri( doc.uri);
+        const scopeMgr = this.getScopeManager(normUri);
         
-        const oldDocState = this.docs.get(doc.uri);
+        const oldDocState = this.docs.get(normUri);
         const oldSourceFile = oldDocState?.sourceFile;
 
         if (isXml) {
@@ -780,11 +841,11 @@ export class DocManager {
         });
 
         // Build Scope Tree for the file
-        scopeMgr.buildFileScope(doc.uri, sourceFile);
+        scopeMgr.buildFileScope(normUri, sourceFile);
         const t2 = Date.now();
 
         // Update Include Graph
-        const includes = this.updateIncludeGraph(doc.uri, sourceFile);
+        const includes = this.updateIncludeGraph(normUri, sourceFile);
         
         // Ensure new includes are indexed and diagnosed (background, non-blocking)
         const visited = new Set<string>([doc.uri]);
@@ -804,10 +865,10 @@ export class DocManager {
         const t4 = Date.now();
 
         // Store document state
-        if (!this.isUriActive(doc.uri)) {
+        if (!this.isUriActive(normUri)) {
             diagnostics.length = 0; // Clear diagnostics for non-target files
         }
-        this.docs.set(doc.uri, { sourceFile, diagnostics });
+        this.docs.set(normUri, { sourceFile, diagnostics });
 
         const finalDiagnostics = this.filterDiagnostics(diagnostics);
 

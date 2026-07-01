@@ -3,6 +3,7 @@ import { DocManager } from '../../docManager';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import * as fs from 'fs';
+import { normalizeUri } from '../../utils/uri';
 
 describe('DocManager indexed document state', () => {
     let docManager: DocManager;
@@ -141,7 +142,7 @@ describe('DocManager indexed document state', () => {
             
             // Mock indexFile behavior to register it in includeGraph (which actual indexFile does)
             const indexFileSpy = vi.spyOn(docManager as any, 'indexFile').mockImplementation(async (fsPath: any) => {
-                (docManager as any).includeGraph.set(URI.file(fsPath).toString(), new Set());
+                (docManager as any).includeGraph.set(normalizeUri(URI.file(fsPath).toString()), new Set());
             });
             
             // Setup resolveIncludePath mock so updateIncludeGraph finds 'test.tdl'
@@ -154,6 +155,27 @@ describe('DocManager indexed document state', () => {
             // Second rebuild
             await docManager.rebuild(doc);
             expect(indexFileSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it('should handle Windows case-insensitive paths correctly in project nodes', async () => {
+            const fsPathUppercase = '/C:/Program Files/Test/FuncContextKeyword.txt';
+            const uriUppercase = URI.file(fsPathUppercase).toString();
+
+            const doc = TextDocument.create('file:///c%3a/program%20files/test/rel1.5.txt', 'tally', 1, '[Include: FuncContextKeyword.txt]');
+            
+            // Mock resolveIncludePath to return uppercase path
+            docManager.resolveIncludePath = () => fsPathUppercase;
+
+            await docManager.rebuild(doc);
+
+            // getProjectNodes is called with the lowercased document URI and should return the lowercase URI of the included file
+            const nodes = docManager.getProjectNodes(doc.uri);
+            expect(nodes.has(normalizeUri(uriUppercase))).toBe(true);
+            expect(nodes.has(normalizeUri(doc.uri))).toBe(true);
+
+            // Verify isUriActive handles lowercase docs correctly
+            expect(docManager.isUriActive(uriUppercase)).toBe(true);
+            expect(docManager.isUriActive(doc.uri)).toBe(true);
         });
     });
 });

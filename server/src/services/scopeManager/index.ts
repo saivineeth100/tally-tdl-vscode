@@ -4,7 +4,7 @@ import { normalizeTypeName } from '../utils';
 import { Scope, ScopeKind, OffsetRange, ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, getSemanticTypeFromSymbol, ModifierContribution, GlobalScope, ProjectScope, FileScope, DefinitionScope, FunctionScope, BlockScope, hasDefinitions, hasFunctionsAndActions, hasAttributes, hasSchemas } from './types';
 import { ScopeViewerService } from './scopeViewerService';
 import { IScopeManager, buildFileScope } from './scopeBuilder';
-import { IScopeResolverState, resolveSymbol, resolveVariable, resolveFormula, resolveFunction, resolveAction, resolveDefinition, resolveAttribute, resolveSchema, getAllVariablesInScope, getAllFormulasInScope, getReachableChildren, getDefinitionsInScope, ResolutionContext } from './scopeResolver';
+import { IScopeResolverState, resolveVariable, resolveFormula, resolveFunction, resolveAction, resolveDefinition, resolveAttribute, resolveSchema, getAllVariablesInScope, getAllFormulasInScope, getReachableChildren, getDefinitionsInScope, ResolutionContext } from './scopeResolver';
 import { ReferenceIndex } from '../referenceIndex';
 
 export * from './types';
@@ -70,18 +70,6 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             if (sym && sym.kind === ScopeKind.Definition) {
                 const ds = sym as DefinitionScope;
                 return ds.definition;
-            }
-        }
-        return undefined;
-    }
-
-    public getAnyProjectDefinition(name: string): import('../../models/symbols').DefinitionSymbol | undefined {
-        const normalizedName = normalizeTypeName(name);
-        for (const defMap of this.scopeIndex.values()) {
-            const sym = defMap.get(normalizedName);
-            if (sym && sym.kind === ScopeKind.Definition) {
-                const ds = sym as DefinitionScope;
-                if (ds.definition) return ds.definition;
             }
         }
         return undefined;
@@ -225,41 +213,49 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     public removeFileScope(uri: string): void {
         this.definitionsInScopeCache.clear();
         
-        const fileScope = this.fileMap.get(uri);
-        if (fileScope) {
-            // Clean up nameIndex
-            if (fileScope.childScopes) {
-                for (const c of fileScope.childScopes) {
-                    if (c.kind === ScopeKind.Definition || c.kind === ScopeKind.Function) {
-                        const defScope = c as DefinitionScope;
-                        if (defScope.definition && defScope.definition.name) {
-                            const name = normalizeTypeName(defScope.definition.name);
-                            const arr = this.nameIndex.get(name);
-                            if (arr) {
-                                const filtered = arr.filter(s => s.uri !== uri);
-                                if (filtered.length === 0) this.nameIndex.delete(name);
-                                else this.nameIndex.set(name, filtered);
+        const lowerUri = uri.toLowerCase();
+        let fileScopeKeysToRemove: string[] = [];
+        for (const k of this.fileMap.keys()) {
+            if (k.toLowerCase() === lowerUri) fileScopeKeysToRemove.push(k);
+        }
+
+        for (const scopeUri of fileScopeKeysToRemove) {
+            const fileScope = this.fileMap.get(scopeUri);
+            if (fileScope) {
+                // Clean up nameIndex
+                if (fileScope.childScopes) {
+                    for (const c of fileScope.childScopes) {
+                        if (c.kind === ScopeKind.Definition || c.kind === ScopeKind.Function) {
+                            const defScope = c as DefinitionScope;
+                            if (defScope.definition && defScope.definition.name) {
+                                const name = normalizeTypeName(defScope.definition.name);
+                                const arr = this.nameIndex.get(name);
+                                if (arr) {
+                                    const filtered = arr.filter(s => s.uri?.toLowerCase() !== lowerUri);
+                                    if (filtered.length === 0) this.nameIndex.delete(name);
+                                    else this.nameIndex.set(name, filtered);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            this.unindexScope(fileScope);
-            this.projectScope.childScopes = this.projectScope.childScopes.filter(s => s !== fileScope);
-            this.fileMap.delete(uri);
+                this.unindexScope(fileScope);
+                this.projectScope.childScopes = this.projectScope.childScopes.filter(s => s !== fileScope);
+                this.fileMap.delete(scopeUri);
+            }
         }
 
         // Remove global symbols that were defined in this file
         const clearFlatMap = (map: Map<string, any>) => {
             for (const [key, sym] of map.entries()) {
-                if (sym?.uri === uri) map.delete(key);
+                if (sym?.uri?.toLowerCase() === lowerUri) map.delete(key);
             }
         };
         const clearNestedMap = (outerMap: Map<string, Map<string, any>>) => {
             for (const [outerKey, innerMap] of outerMap.entries()) {
                 for (const [innerKey, sym] of innerMap.entries()) {
-                    if (sym?.uri === uri) innerMap.delete(innerKey);
+                    if (sym?.uri?.toLowerCase() === lowerUri) innerMap.delete(innerKey);
                 }
                 if (innerMap.size === 0) outerMap.delete(outerKey);
             }
@@ -500,7 +496,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         const normalizedName = normalizeTypeName(name);
         const symbols = this.nameIndex.get(normalizedName) || [];
         if (projectScope) {
-            return symbols.filter(s => projectScope.has(s.uri));
+            return symbols.filter(s => projectScope.has(s.uri.toLowerCase()));
         }
         return symbols;
     }
@@ -526,12 +522,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         return results;
     }
 
-    /**
-     * Resolve a symbol name generically when the exact type is unknown (legacy)
-     */
-    resolve(name: string, initialScope: Scope, projectScope?: Set<string>, callerContext?: ResolutionContext): SymbolInfo | undefined {
-        return resolveSymbol(this, name, initialScope, projectScope, callerContext);
-    }
+
 
     public resolveVariable(name: string, initialScope: Scope, projectScope?: Set<string>, callerContext?: ResolutionContext): VariableSymbol | undefined {
         return resolveVariable(this, name, initialScope, projectScope, callerContext);

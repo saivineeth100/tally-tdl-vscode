@@ -768,6 +768,7 @@ export class ExpressionsParser extends ParserState {
   }
   protected ParseValues(
     colonToken: Token,
+    ignoreCommas: boolean = false
   ): (
     | IdentifierNode
     | LiteralNode
@@ -888,7 +889,7 @@ export class ExpressionsParser extends ParserState {
         expectValue = true;
 
         continue;
-      } else if ((this.CurrentToken.Kind as TokenKind) === TokenKind.CommaToken) {
+      } else if (!ignoreCommas && (this.CurrentToken.Kind as TokenKind) === TokenKind.CommaToken) {
         // Flush current list to values
 
         if (currentList.length > 1) {

@@ -5,7 +5,7 @@
 import * as path from 'path';
 import {
     workspace, window, ExtensionContext, TextDocument, OutputChannel, WorkspaceFolder, Uri,
-    TextDocumentContentProvider, EventEmitter, Event
+    TextDocumentContentProvider, EventEmitter, Event, RelativePattern
 } from 'vscode';
 
 import {
@@ -84,6 +84,8 @@ export function activate(context: ExtensionContext) {
         if ((document.languageId !== 'tdl' && document.languageId !== 'xml') || (document.uri.scheme !== 'file' && document.uri.scheme !== 'untitled')) {
             return;
         }
+        
+        outputChannel.appendLine(`[Extension] didOpenTextDocument triggered for: ${document.uri.toString()} (Language: ${document.languageId})`);
 
         const uri = document.uri;
         if (uri.scheme === 'untitled' && !defaultClient) {
@@ -133,9 +135,9 @@ export function activate(context: ExtensionContext) {
             };
             const clientOptions: LanguageClientOptions = {
                 documentSelector: [
-                    { scheme: 'file', language: 'tdl', pattern: `${folder.uri.fsPath}/**/*` },
-                    { scheme: 'file', language: 'xml', pattern: `${folder.uri.fsPath}/**/*.xml` },
-                    { scheme: 'file', language: 'xml', pattern: `${folder.uri.fsPath}/**/*.tdlxml` }
+                    { scheme: 'file', language: 'tdl', pattern: new (RelativePattern as any)(folder.uri, '**/*') },
+                    { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(folder.uri, '**/*.xml') },
+                    { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(folder.uri, '**/*.tdlxml') }
                 ],
                 diagnosticCollectionName: 'tally-tdl-server',
                 workspaceFolder: folder,
@@ -168,9 +170,9 @@ export function activate(context: ExtensionContext) {
                 };
                 const clientOptions: LanguageClientOptions = {
                     documentSelector: [
-                        { scheme: 'file', language: 'tdl', pattern: `${outerFolder.uri.fsPath}/**/*` },
-                        { scheme: 'file', language: 'xml', pattern: `${outerFolder.uri.fsPath}/**/*.xml` },
-                        { scheme: 'file', language: 'xml', pattern: `${outerFolder.uri.fsPath}/**/*.tdlxml` }
+                        { scheme: 'file', language: 'tdl', pattern: new (RelativePattern as any)(outerFolder.uri, '**/*') },
+                        { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(outerFolder.uri, '**/*.xml') },
+                        { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(outerFolder.uri, '**/*.tdlxml') }
                     ],
                     diagnosticCollectionName: 'tally-tdl-server',
                     workspaceFolder: outerFolder,

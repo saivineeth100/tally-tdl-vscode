@@ -97,7 +97,7 @@ export function registerCompletion(
                     if (lowerType === 'include' || lowerType === 'import') {
                         items.push(...(await provideFilePathCompletions(params.textDocument.uri, context.partial, manager.workspaceFolders)));
                     } else if (context.hasModifier || context.isInUse) {
-                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, projectScope));
+                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, undefined));
                     }
                 }
                 break;
@@ -140,7 +140,7 @@ export function registerCompletion(
                 }
                 if (!xmlHandled && currentDef) {
                     const currentScope = scopeManager.getScopeAt(params.textDocument.uri, offset);
-                    items.push(...provideAttributeValueCompletions(scopeManager, currentDef.type.text, context, projectScope, currentScope));
+                    items.push(...provideAttributeValueCompletions(scopeManager, currentDef.type.text, context, undefined, currentScope));
                 }
                 break;
 

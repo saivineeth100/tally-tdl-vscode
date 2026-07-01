@@ -1,5 +1,6 @@
 import { SourceFile, SyntaxKind, IdentifierNode, LiteralNode } from '../../parser/ast';
 import { ScopeManager } from '../scopeManager';
+import { getExpectedTypeForMenuItem } from '../attributeUtils';
 import { normalizeTypeName } from '../utils';
 import { findDefinitionAtOffset, findAttributeAtOffset, findStatementAtOffset, findNodeAtOffset } from '../../parser/astQuery';
 
@@ -167,14 +168,25 @@ export function findReferenceAtOffset(
                         if (foundText.startsWith('##') || foundText.startsWith('#')) {
                             const isVariable = foundText.startsWith('##');
                             const varName = foundText.replace(/^##?/, '');
-                            if (isVariable && scopeManager) {
+                            if (scopeManager) {
                                 const scope = scopeManager.getScopeAt(uri, offset);
                                 if (scope) {
-                                    const resolved = scopeManager.resolve(varName, scope);
-                                    if (resolved) {
+                                    let resolved;
+                                    if (isVariable) {
+                                        resolved = scopeManager.resolveVariable(varName, scope);
+                                        if (resolved) {
+                                            return {
+                                                name: varName,
+                                                expectedType: resolved.definitionType || 'Variable',
+                                                start: arg.start,
+                                                end: arg.end
+                                            };
+                                        }
+                                    } else {
+                                        // For # (Field references), we don't need to resolve, we just return the expected type
                                         return {
                                             name: varName,
-                                            expectedType: resolved.definitionType || 'Variable',
+                                            expectedType: 'Field',
                                             start: arg.start,
                                             end: arg.end
                                         };
@@ -318,7 +330,21 @@ export function findReferenceAtOffset(
                 }
             }
 
-            if (attrDef && attrDef.parameters && attrDef.parameters.length > 0) {
+            if (attrDef?.type?.toLowerCase() === 'menu item list' && normalizeTypeName(attr.name.text) !== 'indent') {
+                const isKeyItem = normalizeTypeName(attr.name.text) === 'keyitem';
+                const actionIndex = isKeyItem ? 2 : 1;
+                let actionName = '';
+                if (attr.value.length > actionIndex) {
+                    const actionNode = attr.value[actionIndex];
+                    if (actionNode.kind === SyntaxKind.Identifier) {
+                        actionName = normalizeTypeName((actionNode as any).text);
+                    }
+                }
+                const menuItemExpected = getExpectedTypeForMenuItem(attr.name.text, paramIndex, actionName, scopeManager);
+                if (menuItemExpected && menuItemExpected !== 'Action' && menuItemExpected !== 'String') {
+                    expectedType = menuItemExpected;
+                }
+            } else if (attrDef && attrDef.parameters && attrDef.parameters.length > 0) {
                 let param = attrDef.parameters[paramIndex];
                 if (!param) {
                     const lastParam = attrDef.parameters[attrDef.parameters.length - 1];
@@ -381,10 +407,17 @@ export function findReferenceAtOffset(
             if (name.startsWith('##') || name.startsWith('#')) {
                 const isVariable = name.startsWith('##');
                 const varName = name.replace(/^##?/, '');
-                if (isVariable && scopeManager && uri) {
+                if (scopeManager && uri) {
                     const scope = scopeManager.getScopeAt(uri, offset);
                     if (scope) {
-                        const resolved = scopeManager.resolve(varName, scope);
+                        let resolved;
+                        if (isVariable) {
+                            resolved = scopeManager.resolveVariable(varName, scope);
+                        } else {
+                            // Fields do not need to be resolved to return expectedType: 'Field'
+                            // However, we can check if it's a Formula (which is what @ is for) 
+                            // But since it starts with #, it's definitely a field in this branch.
+                        }
                         if (resolved) {
                             return {
                                 name: varName,
@@ -394,7 +427,9 @@ export function findReferenceAtOffset(
                             };
                         }
                     }
-                } else if (!isVariable) {
+                } 
+                
+                if (!isVariable) {
                     return {
                         name: varName,
                         expectedType: 'Field',
