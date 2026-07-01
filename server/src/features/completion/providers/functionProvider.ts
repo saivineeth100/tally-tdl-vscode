@@ -1,6 +1,6 @@
 import { CompletionItem, CompletionItemKind, MarkupKind } from 'vscode-languageserver/node';
-import { ScopeManager } from '../../../services/scopeManager/index';
-import { normalizeTypeName } from '../../../services/utils';
+import { ScopeManager } from '../../../semantics/scopeManager/index';
+import { normalizeTypeName } from '../../../utils/normalizeUtils';
 
 /**
  * Get function suggestions sorted by return type matching expected datatype
@@ -47,8 +47,7 @@ export function getFunctionSuggestions(
             insertText: totalParams > 0 ? `$$${func.name}($0)` : `$$${func.name}`,
             insertTextFormat: 2, // Snippet
             data: { type: 'function', name: func.name },
-            sortText: sortPrefix + func.name.toLowerCase(),
-        });
+            sortText: sortPrefix + func.name.toLowerCase()});
     }
 
     return items;
@@ -70,8 +69,7 @@ export function provideFunctionCompletions(scopeManager: ScopeManager, partial: 
                 documentation: func.description ? {
                     kind: MarkupKind.Markdown,
                     value: func.description
-                } : undefined,
-            });
+                } : undefined});
         }
     }
     return items;

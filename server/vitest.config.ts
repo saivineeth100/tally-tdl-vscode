@@ -11,8 +11,8 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'node',
-        setupFiles: ['./src/test-setup.ts'], // Load metadata once before all tests
-        include: ['src/**/*.test.ts'],
+        setupFiles: ['./src/__tests__/test-setup.ts'],
+        include: ['src/**/__tests__/**/*.test.ts', 'src/**/*.test.ts'],
         exclude: ['out/**', 'node_modules/**', 'dist/**'],
         coverage: {
             provider: 'v8',

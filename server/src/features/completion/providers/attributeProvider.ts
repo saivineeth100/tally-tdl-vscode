@@ -1,14 +1,14 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
-import { ScopeManager } from '../../../services/scopeManager/index';
-import { normalizeTypeName, normalizeXMLTypeName } from '../../../services/utils';
+import { ScopeManager } from '../../../semantics/scopeManager/index';
+import { normalizeTypeName, normalizeXMLTypeName } from '../../../utils/normalizeUtils';
 import { getFunctionSuggestions } from './functionProvider';
 import { getSuggestionsForDefinitionType } from './definitionProvider';
 import { CompletionContext } from '../contextAnalyzer';
-import { DefinitionScope, Scope } from '../../../services/scopeManager/types';
-import { IScopeResolverState } from '../../../services/scopeManager/scopeResolver';
-import { resolveSchema } from '../../../services/scopeManager/scopeResolver';
-import { SymbolKind } from '../../../models/symbols';
-import { getExpectedTypeForMenuItem } from '../../../services/attributeUtils';
+import { DefinitionScope, Scope } from '../../../semantics/scopeManager/types';
+import { IScopeResolverState } from '../../../semantics/scopeManager/scopeResolver';
+import { resolveSchema } from '../../../semantics/scopeManager/scopeResolver';
+import { SymbolKind } from 'tally-tdl-shared';
+import { getExpectedTypeForMenuItem } from '../../../utils/attributeUtils';
 
 export function provideAttributeCompletions(
     scopeManager: ScopeManager,
@@ -41,8 +41,7 @@ export function provideAttributeCompletions(
                     insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr}${hasTrailingColon ? '' : ' : '}`,
                     insertTextFormat: isXml ? 2 : undefined,
                     data: { type: 'attribute', defType: defTypeName, name: attr.name },
-                    sortText: '1_' + attr.name.toLowerCase(),
-                });
+                    sortText: '1_' + attr.name.toLowerCase()});
             }
         }
     }
@@ -196,7 +195,7 @@ export function provideAttributeValueCompletions(
         }
         
         // Also suggest Object definitions
-        const addObjects = (defs: Map<string, Map<string, import('../../../models/symbols').DefinitionSymbol>>) => {
+        const addObjects = (defs: Map<string, Map<string, import('tally-tdl-shared').DefinitionSymbol>>) => {
             const objects = defs.get('object');
             if (objects) {
                 for (const [objName, objDef] of objects.entries()) {
@@ -222,7 +221,7 @@ export function provideAttributeValueCompletions(
             if (projectObjects) {
                 for (const [objName, objScope] of projectObjects.entries()) {
                     if (objScope.kind === 'Definition') {
-                        const ds = objScope as import('../../../services/scopeManager').DefinitionScope;
+                        const ds = objScope as import('../../../semantics/scopeManager').DefinitionScope;
                         if (ds.definition) {
                             if (!addedSchemas.has(objName.toLowerCase())) {
                                 if (context.partial === '' || objName.toLowerCase().includes(context.partial.toLowerCase())) {
@@ -271,8 +270,7 @@ export function provideAttributeValueCompletions(
                         kind: CompletionItemKind.Function,
                         detail: action.description || 'Action',
                         insertText: action.name,
-                        sortText: '0_' + action.name.toLowerCase(),
-                    });
+                        sortText: '0_' + action.name.toLowerCase()});
                 }
             }
             return items;
@@ -300,8 +298,7 @@ export function provideAttributeValueCompletions(
                             kind: CompletionItemKind.Function,
                             detail: action.description || 'Action',
                             insertText: action.name,
-                            sortText: '0_' + action.name.toLowerCase(),
-                        });
+                            sortText: '0_' + action.name.toLowerCase()});
                     }
                 }
             }
@@ -314,8 +311,7 @@ export function provideAttributeValueCompletions(
                         kind: CompletionItemKind.EnumMember,
                         detail: `Keyword: ${param.KeywordSet || 'Value'}`,
                         insertText: keyword,
-                        sortText: '0_' + keyword.toLowerCase(),
-                    });
+                        sortText: '0_' + keyword.toLowerCase()});
                 }
             }
         } else if (param.KeywordSet) {
@@ -329,8 +325,7 @@ export function provideAttributeValueCompletions(
                             kind: CompletionItemKind.EnumMember,
                             detail: `Keyword: ${param.KeywordSet}`,
                             insertText: keyword,
-                            sortText: '0_' + keyword.toLowerCase(),
-                        });
+                            sortText: '0_' + keyword.toLowerCase()});
                     }
                 }
             }
@@ -349,8 +344,7 @@ export function provideAttributeValueCompletions(
                         kind: CompletionItemKind.Value,
                         detail: 'Logical value',
                         insertText: val,
-                        sortText: '0_' + val.toLowerCase(),
-                    });
+                        sortText: '0_' + val.toLowerCase()});
                 }
             }
         }
@@ -358,7 +352,7 @@ export function provideAttributeValueCompletions(
         else if (param.RefersTo) {
             const refersToType = param.RefersTo.trim();
             if (refersToType.toLowerCase() === 'system formulae') {
-                const addGlobalFormulas = (formulas: Map<string, import('../../../models/symbols').FormulaSymbol>) => {
+                const addGlobalFormulas = (formulas: Map<string, import('tally-tdl-shared').FormulaSymbol>) => {
                     for (const [formulaName, formula] of formulas.entries()) {
                         if (context.partial === '' || formulaName.toLowerCase().includes(context.partial.toLowerCase())) {
                             items.push({
@@ -385,8 +379,7 @@ export function provideAttributeValueCompletions(
                 detail: 'Expects a quoted string',
                 insertText: '"$0"',
                 insertTextFormat: 2, // Snippet
-                sortText: '0_string',
-            });
+                sortText: '0_string'});
         }
 
         // 5. Add function suggestions

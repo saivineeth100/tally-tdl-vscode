@@ -1,18 +1,18 @@
 import { Connection, Diagnostic, DiagnosticSeverity, TextDocuments } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { Parser } from "./parser/parser";
-import { parseXmlToAst } from "./parser/xmlAdapter";
-import { SourceFile } from "./parser/ast";
-import { getDiagnosticSeverity, isDiagnosticsEnabled, shouldTreatWarningsAsErrors, shouldHideWarnings } from './services/settingsManager';
-import { ScopeManager } from "./services/scopeManager";
-import { ReferenceIndex } from "./services/referenceIndex";
+import { Parser } from "./core/parser/parser";
+import { parseXmlToAst } from "./core/xml/xmlAdapter";
+import { SourceFile } from "./core/ast/ast";
+import { getDiagnosticSeverity, isDiagnosticsEnabled, shouldTreatWarningsAsErrors, shouldHideWarnings } from './utils/settingsManager';
+import { ScopeManager } from "./semantics/scopeManager";
+import { ReferenceIndex } from "./semantics/symbols/referenceIndex";
 import * as fs from 'fs';
 import * as path from 'path';
-import { loadMetadata } from './services/metadataLoader';
+import { loadMetadata } from './semantics/metadataLoader';
 import { URI } from 'vscode-uri';
 import { normalizeUri } from './utils/uri';
 import { logger } from './logger';
-import { validateSourceFile } from "./services/validation";
+import { validateSourceFile } from './validation';
 
 export async function readFileWithEncoding(filePath: string): Promise<string> {
     const buffer = await fs.promises.readFile(filePath);

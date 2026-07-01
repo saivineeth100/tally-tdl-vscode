@@ -1,6 +1,6 @@
 import { ExtensionContext, TextDocument, Uri, workspace } from 'vscode';
-import { extractVariables, extractVariableTags } from '../templateEngine';
-import { fetchActiveCompanies } from '../tallyClient';
+import { extractVariables, extractVariableTags } from '../utils/templateEngine';
+import { fetchActiveCompanies } from '../services/tallyClient';
 import { ResponsePanel } from './responsePanel';
 
 export function getStoredVariables(

@@ -1,12 +1,13 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
 import { DocManager } from '../../../docManager';
-import { Scope } from '../../../services/scopeManager';
+import { STRUCTURAL_DEFINITION_TYPES } from '../../../validation/validationUtils';
+import { Scope } from '../../../semantics/scopeManager';
 import { CompletionContext } from '../contextAnalyzer';
 import { getDefinitionTypes } from '../utils';
 import { getSuggestionsForDefinitionType, provideDefinitionTypeCompletions } from './definitionProvider';
 import { provideAttributeValueCompletions } from './attributeProvider';
-import { normalizeTypeName } from '../../../services/utils';
-import { DefinitionNode } from '../../../parser/ast';
+import { normalizeTypeName } from '../../../utils/normalizeUtils';
+import { DefinitionNode } from '../../../core/ast/ast';
 
 export function provideModifierValueCompletions(
     manager: DocManager,
@@ -38,7 +39,7 @@ export function provideModifierValueCompletions(
         let valuePartIndex = -1;
         let previousWasLocal = false;
 
-        const { STRUCTURAL_DEFINITION_TYPES } = require('../../../services/validation/validationUtils');
+
 
         for (let i = 0; i < parts.length - 1; i++) {
             const p = parts[i].trim();
@@ -137,7 +138,7 @@ export function provideModifierValueCompletions(
                 if (matchingDefAttributes) {
                     for (const [_,attr] of matchingDefAttributes) {
                         const names = [attr.name];
-                        if (attr.aliases) names.push(...attr.aliases.split(',').map(a => a.trim()));
+                        if (attr.aliases) names.push(...attr.aliases.split(',').map((a: string) => a.trim()));
                         if (partial === '' || names.some(n => n.toLowerCase().includes(partial))) {
                             const displayAttr = isXml ? attr.name.toUpperCase().replace(/\s+/g, '') : attr.name;
                             items.push({
@@ -147,8 +148,7 @@ export function provideModifierValueCompletions(
                                 insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr}${context.hasTrailingColon ? '' : ' : '}`,
                                 insertTextFormat: isXml ? 2 : undefined,
                                 data: { type: 'attribute', defType: currentScopeDefType, name: attr.name },
-                                sortText: '2_' + attr.name.toLowerCase(),
-                            });
+                                sortText: '2_' + attr.name.toLowerCase()});
                         }
                     }
                 }
@@ -182,7 +182,7 @@ export function provideModifierValueCompletions(
             if (matchingDefAttributes) {
                 for (const [_,attr] of matchingDefAttributes) {
                     const names = [attr.name];
-                    if (attr.aliases) names.push(...attr.aliases.split(',').map(a => a.trim()));
+                    if (attr.aliases) names.push(...attr.aliases.split(',').map((a: string) => a.trim()));
                     if (partial === '' || names.some(n => n.toLowerCase().includes(partial))) {
                         const displayAttr = isXml ? attr.name.toUpperCase().replace(/\s+/g, '') : attr.name;
                         items.push({
@@ -192,8 +192,7 @@ export function provideModifierValueCompletions(
                             insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr}${context.hasTrailingColon ? '' : ' : '}`,
                             insertTextFormat: isXml ? 2 : undefined,
                             data: { type: 'attribute', defType: defTypeName, name: attr.name },
-                            sortText: attr.name.toLowerCase(),
-                        });
+                            sortText: attr.name.toLowerCase()});
                     }
                 }
             }
@@ -207,8 +206,7 @@ export function provideModifierValueCompletions(
                         kind: CompletionItemKind.Keyword,
                         detail: 'Position modifier',
                         insertText: `${pos} : `,
-                        sortText: '0_' + pos.toLowerCase(),
-                    });
+                        sortText: '0_' + pos.toLowerCase()});
                 }
             }
         }

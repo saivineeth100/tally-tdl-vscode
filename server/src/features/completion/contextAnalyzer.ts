@@ -1,4 +1,4 @@
-import { DefinitionNode, SourceFile } from '../../parser/ast';
+import { DefinitionNode, SourceFile } from '../../core/ast/ast';
 
 /**
  * Context for completion

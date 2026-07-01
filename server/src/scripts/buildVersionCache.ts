@@ -1,13 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as v8 from 'v8';
-import { ScopeManager, ScopeKind, DefinitionScope } from '../services/scopeManager';
-import { loadMetadata } from '../services/metadataLoader';
-import { Parser } from '../parser/parser';
-import { buildFileScope } from '../services/scopeManager/scopeBuilder';
-import { SourceFile } from '../parser/ast';
+import { ScopeManager, ScopeKind, DefinitionScope } from '../semantics/scopeManager/index';
+import { loadMetadata } from '../semantics/metadataLoader';
+import { Parser } from '../core/parser/parser';
+import { buildFileScope } from '../semantics/scopeManager/scopeBuilder';
+import { SourceFile } from '../core/ast/ast';
 import { URI } from 'vscode-uri';
-import { normalizeTypeName } from '../services/utils';
+import { normalizeTypeName } from '../utils/normalizeUtils';
 
 async function scanAndParse(dirPath: string, scopeManager: ScopeManager, version: string, stats: { parsed: number, errors: number }, baseTdlDir: string) {
     const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
@@ -200,7 +200,7 @@ async function buildCacheForVersion(version: string) {
         scopeManager.projectScope.formulas.clear();
         
         // Replace projectScope's referenceIndex with a fresh one so the massive Map isn't serialized twice!
-        const { ReferenceIndex } = require('../services/referenceIndex');
+        const { ReferenceIndex } = require('../semantics/symbols/referenceIndex');
         scopeManager.projectScope.referenceIndex = new ReferenceIndex();
         
         // Clear fileMap to save massive amounts of cache size, as it's not loaded from basetdl.bin

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { vscode } from "./utilities/vscode";
+import { vscode } from './utils/vscode';
 import ScopeTree from "./components/ScopeTree";
 import DetailsPanel from "./components/DetailsPanel";
 import { ScopeNode, WebviewMessage } from "./types";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
-import { buildFolderTree } from "./utilities/treeUtils";
+import { buildFolderTree } from './utils/treeUtils';
 
 const App = () => {
   const [treeData, setTreeData] = useState<ScopeNode[] | null>(null);

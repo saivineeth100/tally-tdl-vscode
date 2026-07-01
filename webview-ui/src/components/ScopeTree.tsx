@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { vscode } from "../utilities/vscode";
+import { vscode } from '../utils/vscode';
 import { ScopeNode } from "../types";
 
 interface ScopeTreeProps {

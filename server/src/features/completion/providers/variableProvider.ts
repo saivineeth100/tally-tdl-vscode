@@ -1,7 +1,7 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
 import { DocManager } from '../../../docManager';
 import { getSuggestionsForDefinitionType } from './definitionProvider';
-import { getFieldsInScope } from '../../../services/scopeManager';
+import { getFieldsInScope } from '../../../semantics/scopeManager';
 
 export function provideVariableCompletions(
     manager: DocManager,
@@ -72,7 +72,7 @@ export function provideFormulaCompletions(
     } else {
         // Global formula definitions (for @@)
         // These are stored in projectScope and globalScope directly via [System: Formula] processing
-        const addGlobalFormulas = (formulas: Map<string, import('../../../models/symbols').FormulaSymbol>) => {
+        const addGlobalFormulas = (formulas: Map<string, import('tally-tdl-shared').FormulaSymbol>) => {
             for (const [varName, varInfo] of formulas.entries()) {
                 if (partial === '' || varName.toLowerCase().includes(partial.toLowerCase())) {
                     items.push({

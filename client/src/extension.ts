@@ -11,9 +11,9 @@ import {
 import {
     LanguageClient, LanguageClientOptions, TransportKind
 } from 'vscode-languageclient/node';
-import { cleanupTempFiles } from './tallyClient';
+import { cleanupTempFiles } from './services/tallyClient';
 import { updatePanelVariables } from './features/xmlVariables';
-import { registerCommands } from './commands';
+import { registerCommands } from './features/commands';
 
 class BaseTDLDocumentProvider implements TextDocumentContentProvider {
     onDidChangeEmitter = new EventEmitter<Uri>();
@@ -78,6 +78,44 @@ export function activate(context: ExtensionContext) {
     const module = context.asAbsolutePath(path.join('dist', 'server.js'));
     const outputChannel: OutputChannel = window.createOutputChannel('tally-tdl-server');
 
+    function startClient(documentSelector: any[], folder?: WorkspaceFolder): LanguageClient {
+        const serverOptions = {
+            run: { module, transport: TransportKind.ipc },
+            debug: { 
+                module, 
+                transport: TransportKind.ipc,
+                options: { execArgv: ['--nolazy', `--inspect=${nextDebugPort++}`] }
+            }
+        };
+        const clientOptions: LanguageClientOptions = {
+            documentSelector,
+            diagnosticCollectionName: 'tally-tdl-server',
+            outputChannel: outputChannel,
+            synchronize: {
+                configurationSection: 'tallyTDL'
+            }
+        };
+        if (folder) {
+            clientOptions.workspaceFolder = folder;
+        }
+        const client = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
+        client.start();
+        return client;
+    }
+
+    function ensureClientStarted(folder: WorkspaceFolder) {
+        if (clients.has(folder.uri.toString())) {
+            return;
+        }
+        const selector = [
+            { scheme: 'file', language: 'tdl', pattern: new (RelativePattern as any)(folder.uri, '**/*') },
+            { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(folder.uri, '**/*.xml') },
+            { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(folder.uri, '**/*.tdlxml') }
+        ];
+        const client = startClient(selector, folder);
+        clients.set(folder.uri.toString(), client);
+    }
+
     function didOpenTextDocument(document: TextDocument): void {
         if (document.uri.scheme === 'basetdl') return; // Handled by our virtual document provider
 
@@ -89,27 +127,11 @@ export function activate(context: ExtensionContext) {
 
         const uri = document.uri;
         if (uri.scheme === 'untitled' && !defaultClient) {
-            const serverOptions = {
-                run: { module, transport: TransportKind.ipc },
-                debug: { 
-                    module, 
-                    transport: TransportKind.ipc,
-                    options: { execArgv: ['--nolazy', `--inspect=${nextDebugPort++}`] }
-                }
-            };
-            const clientOptions: LanguageClientOptions = {
-                documentSelector: [
-                    { scheme: 'untitled', language: 'tdl' },
-                    { scheme: 'untitled', language: 'xml' }
-                ],
-                diagnosticCollectionName: 'tally-tdl-server',
-                outputChannel: outputChannel,
-                synchronize: {
-                    configurationSection: 'tallyTDL'
-                }
-            };
-            defaultClient = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
-            defaultClient.start();
+            const selector = [
+                { scheme: 'untitled', language: 'tdl' },
+                { scheme: 'untitled', language: 'xml' }
+            ];
+            defaultClient = startClient(selector);
             return;
         }
         
@@ -124,32 +146,7 @@ export function activate(context: ExtensionContext) {
         }
         folder = getOuterMostWorkspaceFolder(folder);
 
-        if (!clients.has(folder.uri.toString())) {
-            const serverOptions = {
-                run: { module, transport: TransportKind.ipc },
-                debug: { 
-                    module, 
-                    transport: TransportKind.ipc,
-                    options: { execArgv: ['--nolazy', `--inspect=${nextDebugPort++}`] }
-                }
-            };
-            const clientOptions: LanguageClientOptions = {
-                documentSelector: [
-                    { scheme: 'file', language: 'tdl', pattern: new (RelativePattern as any)(folder.uri, '**/*') },
-                    { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(folder.uri, '**/*.xml') },
-                    { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(folder.uri, '**/*.tdlxml') }
-                ],
-                diagnosticCollectionName: 'tally-tdl-server',
-                workspaceFolder: folder,
-                outputChannel: outputChannel,
-                synchronize: {
-                    configurationSection: 'tallyTDL'
-                }
-            };
-            const client = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
-            client.start();
-            clients.set(folder.uri.toString(), client);
-        }
+        ensureClientStarted(folder);
     }
 
     workspace.onDidOpenTextDocument(didOpenTextDocument);
@@ -159,32 +156,7 @@ export function activate(context: ExtensionContext) {
     if (workspace.workspaceFolders) {
         for (const folder of workspace.workspaceFolders) {
             const outerFolder = getOuterMostWorkspaceFolder(folder);
-            if (!clients.has(outerFolder.uri.toString())) {
-                const serverOptions = {
-                    run: { module, transport: TransportKind.ipc },
-                    debug: { 
-                        module, 
-                        transport: TransportKind.ipc,
-                        options: { execArgv: ['--nolazy', `--inspect=${nextDebugPort++}`] }
-                    }
-                };
-                const clientOptions: LanguageClientOptions = {
-                    documentSelector: [
-                        { scheme: 'file', language: 'tdl', pattern: new (RelativePattern as any)(outerFolder.uri, '**/*') },
-                        { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(outerFolder.uri, '**/*.xml') },
-                        { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(outerFolder.uri, '**/*.tdlxml') }
-                    ],
-                    diagnosticCollectionName: 'tally-tdl-server',
-                    workspaceFolder: outerFolder,
-                    outputChannel: outputChannel,
-                    synchronize: {
-                        configurationSection: 'tallyTDL'
-                    }
-                };
-                const client = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
-                client.start();
-                clients.set(outerFolder.uri.toString(), client);
-            }
+            ensureClientStarted(outerFolder);
         }
     }
 

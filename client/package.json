@@ -13,14 +13,16 @@
         "vscode": "^1.96.0"
     },
     "scripts": {
-        "vocab": "node ./../build/vocab.js"
+        "vocab": "node ./../build/vocab.js",
+        "test": "vitest run"
     },
     "dependencies": {
-        "vscode-languageclient": "^9.0.1",
-        "tally-tdl-shared": "*"
+        "tally-tdl-shared": "*",
+        "vscode-languageclient": "^9.0.1"
     },
     "devDependencies": {
+        "@types/node": "^20.11.0",
         "@types/vscode": "^1.96.0",
-        "@types/node": "^20.11.0"
+        "vitest": "^4.1.9"
     }
 }

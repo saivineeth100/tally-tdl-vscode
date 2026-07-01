@@ -20,15 +20,15 @@ import * as fs from 'fs';
 import { URI } from 'vscode-uri';
 import { normalizeUri } from './utils/uri';
 import { logger } from './logger';
-import { loadMetadata as loadNewMetadata, loadExternalLibraries } from './services/metadataLoader';
-import { registerCompletion, buildFunctionDocumentation, buildAttributeDocumentation } from "./features/completion";
-import { createDocumentSymbols } from "./services/documentSymbol";
-import { getHoverInfo } from "./services/hover";
-import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from "./services/definition";
-import { provideFoldingRanges } from "./services/foldingRange";
-import { updateSettings } from "./services/settingsManager";
-import { normalizeTypeName } from "./services/utils";
-import { buildCustomLibraryCache } from "./services/cacheBuilder";
+import { loadMetadata as loadNewMetadata, loadExternalLibraries } from './semantics/metadataLoader';
+import { registerCompletion } from "./features/completion";
+import { createDocumentSymbols } from "./features/documentSymbol";
+import { getHoverInfo } from "./features/hover";
+import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from "./features/definition";
+import { provideFoldingRanges } from "./features/foldingRange";
+import { updateSettings } from './utils/settingsManager';
+import { normalizeTypeName } from './utils/normalizeUtils';
+import { buildCustomLibraryCache } from "./semantics/cacheBuilder";
 
 // Create LSP connection
 const connection = createConnection(ProposedFeatures.all);
@@ -295,7 +295,7 @@ connection.onFoldingRanges((params) => {
 });
 
 // Handle Signature Help
-import { provideSignatureHelp } from "./services/signatureHelp";
+import { provideSignatureHelp } from "./features/signatureHelp";
 connection.onSignatureHelp((params) => {
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return null;
@@ -303,7 +303,7 @@ connection.onSignatureHelp((params) => {
 });
 
 // Handle Inlay Hints
-import { provideInlayHints } from "./services/inlayHints";
+import { provideInlayHints } from "./features/inlayHints";
 connection.languages.inlayHint.on((params) => {
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return null;
@@ -315,7 +315,7 @@ connection.languages.inlayHint.on((params) => {
 });
 
 // Handle Code Lens
-import { provideCodeLens, resolveCodeLens } from "./services/codeLens";
+import { provideCodeLens, resolveCodeLens } from "./features/codeLens";
 connection.onCodeLens((params) => {
     const doc = docs.get(params.textDocument.uri);
     if (!doc) return null;
@@ -514,7 +514,7 @@ connection.onDefinition(async (params: DefinitionParams): Promise<Location | nul
 });
 
 // Handle semantic tokens request
-import { provideSemanticTokens, provideSemanticTokensEdits, TDL_SEMANTIC_TOKENS_LEGEND } from "./services/semanticTokens/semanticTokens";
+import { provideSemanticTokens, provideSemanticTokensEdits, TDL_SEMANTIC_TOKENS_LEGEND } from "./features/semanticTokens/semanticTokens";
 
 connection.languages.semanticTokens.on((params, token) => {
     const uriStr = typeof params.textDocument.uri === 'string' ? params.textDocument.uri : (params.textDocument as any).uri;
@@ -560,7 +560,7 @@ connection.languages.semanticTokens.onDelta((params, token) => {
 // Register completion handler with symbol table for definition name suggestions
 registerCompletion(connection, docs, docManager);
 // Handle document formatting
-import { formatDocument } from "./services/formatting";
+import { formatDocument } from "./features/formatting";
 
 connection.onDocumentFormatting((params, token) => {
     const doc = docs.get(params.textDocument.uri);
@@ -573,7 +573,7 @@ connection.onDocumentFormatting((params, token) => {
 });
 
 // Handle On-Type Formatting (Procedural labels and Auto-closing blocks)
-import { provideOnTypeFormatting } from "./services/onTypeFormatting";
+import { provideOnTypeFormatting } from "./features/onTypeFormatting";
 
 connection.onDocumentOnTypeFormatting((params, token) => {
     const doc = docs.get(params.textDocument.uri);
@@ -583,7 +583,7 @@ connection.onDocumentOnTypeFormatting((params, token) => {
 });
 
 // Handle Rename Request
-import { renameSymbol, prepareRename } from "./services/rename";
+import { renameSymbol, prepareRename } from "./features/rename";
 connection.onRenameRequest(async (params) => {
     try {
         logger.trace(`[Trace] Server RECEIVED onRenameRequest for ${params.textDocument.uri}`);
@@ -613,7 +613,7 @@ connection.onReferences(async (params) => {
 
 // Handle Document Links (for Include statements across the whole document)
 import { DocumentLinkParams, DocumentLink } from "vscode-languageserver";
-import { provideDocumentLinks } from "./services/documentLinks";
+import { provideDocumentLinks } from "./features/documentLinks";
 
 connection.onDocumentLinks((params: DocumentLinkParams): DocumentLink[] => {
     const docState = docManager.get(params.textDocument.uri);
@@ -626,26 +626,26 @@ connection.onDocumentLinks((params: DocumentLinkParams): DocumentLink[] => {
 });
 
 // Handle Workspace Symbols Request
-import { getWorkspaceSymbols } from "./services/workspaceSymbol";
+import { getWorkspaceSymbols } from "./features/workspaceSymbol";
 connection.onWorkspaceSymbol(async (params, token) => {
     return await getWorkspaceSymbols(params, docManager, docs, token);
 });
 
 // Handle Document Highlight Request
-import { getDocumentHighlights } from "./services/documentHighlight";
+import { getDocumentHighlights } from "./features/documentHighlight";
 connection.onDocumentHighlight((params) => {
     return getDocumentHighlights(params, docManager, docs);
 });
 
 // Handle Code Actions
-import { provideCodeActions } from "./services/codeActions";
+import { provideCodeActions } from "./features/codeActions";
 connection.onCodeAction((params) => {
     return provideCodeActions(params, docManager, docs);
 });
 
 // Handle TDL to XML Conversion
-import { generateXml } from "./services/xmlGenerator";
-import { findReferences } from "./services/references";
+import { generateXml } from "./features/xmlGenerator";
+import { findReferences } from "./features/references";
 // Handle Scope Tree Debug Request
 connection.onRequest("tdl/getScopeTreeDebug", async (params: { uri: string }) => {
     const scopeMgr = docManager.getScopeManager(params.uri);
@@ -740,37 +740,3 @@ connection.onDidChangeConfiguration(async (change) => {
 });
 
 connection.listen();
-
-
-connection.onCompletionResolve((item) => {
-    if (!item.data) return item;
-    // We do not have a specific docManager or scopeManager available here because it's a global completion request.
-    // However, the doc uri is sometimes stored in item.data. We can use docManager.getScopeManager(item.data.uri) if available.
-    // But since it's global scope functions and attributes we need, we can just use docManager.tdlScopeManager.
-    const scopeMgr = docManager.tdlScopeManager;
-
-    if (item.data.type === 'function') {
-        const func = scopeMgr.globalScope.functions.get(normalizeTypeName(item.data.name));
-        if (func) {
-            item.documentation = {
-                kind: 'markdown',
-                value: buildFunctionDocumentation(func as any) // Assuming buildFunctionDocumentation handles new FunctionSymbol format
-            };
-        }
-    } else if (item.data.type === 'attribute') {
-        const targetDef = item.data.defType;
-        const attrMap = scopeMgr.globalScope.attributes.get(normalizeTypeName(targetDef));
-        if (attrMap) {
-            const attr = attrMap.get(normalizeTypeName(item.data.name));
-            if (attr) {
-                item.documentation = {
-                    kind: 'markdown',
-                    value: buildAttributeDocumentation(attr as any) // Assuming buildAttributeDocumentation handles new AttributeSymbol format
-                };
-            }
-        }
-
-    }
-    return item;
-});
-

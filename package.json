@@ -328,7 +328,7 @@
         "watch": "npm run build -w webview-ui && node esbuild.js --watch",
         "typecheck": "tsc -b",
         "lint": "eslint .",
-        "test": "npm run test -w server",
+        "test": "vitest run",
         "package:vsix": "npx @vscode/vsce package --no-dependencies"
     },
     "devDependencies": {

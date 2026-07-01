@@ -1,6 +1,6 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
-import { normalizeTypeName } from '../../../services/utils';
-import { ScopeManager } from '../../../services/scopeManager';
+import { normalizeTypeName } from '../../../utils/normalizeUtils';
+import { ScopeManager } from '../../../semantics/scopeManager';
 
 
 /**
@@ -31,8 +31,7 @@ export function getSuggestionsForDefinitionType(
                 kind: CompletionItemKind.Reference,
                 detail: `Workspace ${defType}`,
                 insertText: sym.name,
-                sortText: '0_' + lowerName,
-            });
+                sortText: '0_' + lowerName});
         }
     }
 

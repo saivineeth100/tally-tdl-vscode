@@ -2,6 +2,7 @@ import { Connection, TextDocuments, CompletionItem, CompletionItemKind, Completi
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DocManager } from '../../docManager';
 import { detectCompletionContext, detectXmlCompletionContext, findDefinitionAtCursor, CompletionContext } from './contextAnalyzer';
+import { buildFunctionDocumentation, buildAttributeDocumentation } from './utils';
 import { provideDefinitionTypeCompletions, getSuggestionsForDefinitionType } from './providers/definitionProvider';
 import { provideFunctionCompletions, getFunctionSuggestions } from './providers/functionProvider';
 import { provideVariableCompletions, provideFormulaCompletions, provideFieldReferenceCompletions } from './providers/variableProvider';
@@ -171,7 +172,7 @@ export function registerCompletion(
                     const actionName = context.actionName.toLowerCase();
                     const actionDef = Array.from(scopeManager.globalScope.actions.values()).find(a => 
                         a.name.toLowerCase() === actionName || 
-                        (a.aliases && a.aliases.toLowerCase().split(',').map(al => al.trim()).includes(actionName))
+                        (a.aliases && a.aliases.toLowerCase().split(',').map((al: string) => al.trim()).includes(actionName))
                     );
 
                     if (actionDef && actionDef.parameters && actionDef.parameters.length > context.paramIndex) {
@@ -185,8 +186,7 @@ export function registerCompletion(
                                         kind: CompletionItemKind.EnumMember,
                                         detail: `Keyword: ${param.KeywordSet || 'Value'}`,
                                         insertText: keyword,
-                                        sortText: '0_' + keyword.toLowerCase(),
-                                    });
+                                        sortText: '0_' + keyword.toLowerCase()});
                                 }
                             }
                         } else if (param.KeywordSet) {
@@ -199,8 +199,7 @@ export function registerCompletion(
                                             kind: CompletionItemKind.EnumMember,
                                             detail: `Keyword: ${param.KeywordSet}`,
                                             insertText: keyword,
-                                            sortText: '0_' + keyword.toLowerCase(),
-                                        });
+                                            sortText: '0_' + keyword.toLowerCase()});
                                     }
                                 }
                             }
@@ -212,8 +211,7 @@ export function registerCompletion(
                                         label: val,
                                         kind: CompletionItemKind.Value,
                                         insertText: val,
-                                        sortText: '0_' + val.toLowerCase(),
-                                    });
+                                        sortText: '0_' + val.toLowerCase()});
                                 }
                             }
                         }
@@ -225,8 +223,7 @@ export function registerCompletion(
                                 kind: CompletionItemKind.Snippet,
                                 insertText: '"$0"',
                                 insertTextFormat: 2,
-                                sortText: '0_string',
-                            });
+                                sortText: '0_string'});
                         }
 
                         if (context.partial.startsWith('$$') || context.partial === '$') {
@@ -245,5 +242,33 @@ export function registerCompletion(
         }
 
         return { items, isIncomplete: false };
+    });
+
+    connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+        if (!item.data) return item;
+        const scopeMgr = manager.tdlScopeManager;
+
+        if (item.data.type === 'function') {
+            const func = scopeMgr.globalScope.functions.get(item.data.name.toLowerCase());
+            if (func) {
+                item.documentation = {
+                    kind: MarkupKind.Markdown,
+                    value: buildFunctionDocumentation(func as any)
+                };
+            }
+        } else if (item.data.type === 'attribute') {
+            const targetDef = item.data.defType;
+            const attrMap = scopeMgr.globalScope.attributes.get(targetDef.toLowerCase());
+            if (attrMap) {
+                const attr = attrMap.get(item.data.name.toLowerCase());
+                if (attr) {
+                    item.documentation = {
+                        kind: MarkupKind.Markdown,
+                        value: buildAttributeDocumentation(attr as any)
+                    };
+                }
+            }
+        }
+        return item;
     });
 }

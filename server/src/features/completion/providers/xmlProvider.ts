@@ -1,6 +1,6 @@
 import { CompletionItem, CompletionItemKind, MarkupKind } from 'vscode-languageserver/node';
-import { normalizeTypeName } from '../../../services/utils';
-import { ScopeManager } from '../../../services/scopeManager';
+import { normalizeTypeName } from '../../../utils/normalizeUtils';
+import { ScopeManager } from '../../../semantics/scopeManager';
 
 export function provideXmlSchemaAttributeCompletions(
     scopeManager: ScopeManager,
@@ -27,7 +27,7 @@ export function provideXmlSchemaAttributeCompletions(
         for (let i = rootTagIdx + 1; i < tagPath.length; i++) {
             const step = tagPath[i];
             const normalizedStep = step.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
-            const complexPropKey = Array.from(currentSchema?.complexProperties?.keys() || []).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
+            const complexPropKey = Array.from(currentSchema?.complexProperties?.keys() || []).find((k: string) => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
             if (complexPropKey) {
                 const nextSchemaName = currentSchema!.complexProperties!.get(complexPropKey)!;
                 const nextKey = Array.from(scopeManager.globalScope.schemas.keys()).find(k => k.toUpperCase().replace(/\s+/g, '') === nextSchemaName.toUpperCase().replace(/\s+/g, ''));
@@ -94,8 +94,7 @@ export function provideXmlSchemaAttributeCompletions(
                             insertText: insertText,
                             insertTextFormat: 2,
                             documentation: { kind: MarkupKind.Markdown, value: `Type: ${propDef.DataType || 'String'}\nOriginal Name: ${propName}` },
-                            sortText: displayProp,
-                        });
+                            sortText: displayProp});
                     }
                 }
             }
@@ -106,7 +105,7 @@ export function provideXmlSchemaAttributeCompletions(
 }
 
 import { provideAttributeValueCompletions } from './attributeProvider';
-import { DefinitionNode } from '../../../parser/ast';
+import { DefinitionNode } from '../../../core/ast/ast';
 
 export function provideXmlAttributeValueCompletions(
     scopeManager: ScopeManager,
@@ -135,7 +134,7 @@ export function provideXmlAttributeValueCompletions(
         for (let i = rootTagIdx + 1; i < tagPath.length - 1; i++) {
             const step = tagPath[i];
             const normalizedStep = step.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '');
-            const complexPropKey = Array.from(currentSchema?.complexProperties?.keys() || []).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
+            const complexPropKey = Array.from(currentSchema?.complexProperties?.keys() || []).find((k: string) => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedStep);
             if (complexPropKey) {
                 const nextSchemaName = currentSchema!.complexProperties!.get(complexPropKey)!;
                 const nextKey = Array.from(scopeManager.globalScope.schemas.keys()).find(k => k.toUpperCase().replace(/\s+/g, '') === nextSchemaName.toUpperCase().replace(/\s+/g, ''));
@@ -176,7 +175,7 @@ export function provideXmlAttributeValueCompletions(
             }
 
             if (currentSchema.properties) {
-                const propKey = Array.from(currentSchema.properties.keys()).find(k => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
+                const propKey = Array.from(currentSchema.properties.keys()).find((k: string) => k.toUpperCase().replace(/\s+/g, '').replace(/\.LIST$/, '') === normalizedAttrName);
                 if (propKey) {
                     const propDef = currentSchema.properties.get(propKey)!;
                     if (propDef.DataType?.toLowerCase() === 'logical') {
@@ -188,8 +187,7 @@ export function provideXmlAttributeValueCompletions(
                                     kind: CompletionItemKind.Value,
                                     detail: 'Logical value',
                                     insertText: val,
-                                    sortText: '0_' + val.toLowerCase(),
-                                });
+                                    sortText: '0_' + val.toLowerCase()});
                             }
                         }
                     } else {
@@ -224,8 +222,7 @@ export function provideSchemaTypeCompletions(scopeManager: ScopeManager, partial
                 detail: 'TDL Schema Type',
                 insertText: `${displayType}>\n\t$0\n</${displayType}>`,
                 insertTextFormat: 2,
-                sortText: schema.toLowerCase(),
-            });
+                sortText: schema.toLowerCase()});
         }
     }
     return items;

@@ -1,1 +1,1 @@
-export { definitionTypeToSymbolKind } from '../services/scopeManager/types';
+export { definitionTypeToSymbolKind } from '../semantics/scopeManager/types';

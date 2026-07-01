@@ -1,5 +1,5 @@
-import { AttributeSymbol, FunctionSymbol } from '../../models/symbols';
-import { ScopeManager } from '../../services/scopeManager';
+import { AttributeSymbol, FunctionSymbol } from 'tally-tdl-shared';
+import { ScopeManager } from '../../semantics/scopeManager';
 
 /**
  * Build markdown documentation for an attribute
@@ -9,7 +9,7 @@ export function buildAttributeDocumentation(attr: AttributeSymbol): string {
 
     if (attr.parameters && attr.parameters.length > 0) {
         doc += '\n\n**Parameters:**\n';
-        attr.parameters.forEach((param, idx) => {
+        attr.parameters.forEach((param: any, idx: number) => {
             const parts: string[] = [];
             if (param.DataType) parts.push(`Type: ${param.DataType}`);
             if (param.IsMandatory) parts.push('Required');
@@ -39,7 +39,7 @@ export function buildAttributeDocumentation(attr: AttributeSymbol): string {
 export function buildFunctionDocumentation(func: FunctionSymbol): string {
     const lines: string[] = [];
 
-    const paramStrings = (func.parameters || []).map((p, index) => {
+    const paramStrings = (func.parameters || []).map((p: any, index: number) => {
         let pName = p.ParameterType || 'param' + index;
         let pStr = `${pName}: ${p.DataType || 'Any'}`;
         if (!p.IsMandatory) pStr = `[${pStr}]`;
@@ -60,7 +60,7 @@ export function buildFunctionDocumentation(func: FunctionSymbol): string {
     if (func.parameters && func.parameters.length > 0) {
         lines.push('___');
         lines.push('**Parameters:**');
-        func.parameters.forEach((param, idx) => {
+        func.parameters.forEach((param: any, idx: number) => {
             const parts: string[] = [];
             if (param.IsMandatory) parts.push('**Required**');
             else parts.push('*Optional*');

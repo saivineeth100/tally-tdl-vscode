@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { vscode } from "../utilities/vscode";
+import { vscode } from '../utils/vscode';
 import { SchemaTreeNode } from "./SchemaTreeNode";
 import { ScopeNode, SymbolsResult, SymbolEntry, SymbolGroup } from "../types";
 

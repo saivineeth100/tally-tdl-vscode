@@ -1,26 +1,12 @@
-export interface ScopeNode {
-    id: string;
-    name?: string;
-    kind: string;
-    children?: ScopeNode[];
-    hasChildren?: boolean;
-    _childrenLoaded?: boolean;
-    symbolGroups?: SymbolGroup[];
-    structuralChildren?: string[];
-    structuralParents?: string[];
-    usedDefinitions?: string[];
-    objectScope?: string;
-    collectionScope?: string;
-    definitionType?: string;
-    uri?: string;
-    start?: number;
-    end?: number;
-}
+import type { ScopeNodeDTO } from 'tally-tdl-shared';
+
+export type ScopeNode = ScopeNodeDTO;
 
 export interface SymbolGroup {
     kind: string;
     count: number;
 }
+
 
 export interface SymbolsResult {
     symbols: SymbolEntry[];
