@@ -10,6 +10,7 @@ export function getSuggestionsForDefinitionType(
     defType: string,
     partial: string,
     scopeManager: ScopeManager,
+    isActive: boolean,
     scope?: Set<string>,
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
@@ -36,7 +37,7 @@ export function getSuggestionsForDefinitionType(
     }
 
     // 2. Check Global definitions
-    const globalSymbols = scopeManager.getGlobalDefinitionsByType(canonicalType);
+    const globalSymbols = scopeManager.getGlobalDefinitionsByType(canonicalType, isActive);
     for (const sym of globalSymbols) {
         const originalName = sym.name;
         const lowerName = originalName.toLowerCase();

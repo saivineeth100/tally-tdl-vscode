@@ -126,7 +126,7 @@ describe('Attribute Validation', () => {
             if (testScopeManager) {
                 let typeMap = testScopeManager.scopeIndex.get('form');
                 if (!typeMap) { typeMap = new Map(); testScopeManager.scopeIndex.set('form', typeMap); }
-                typeMap.set('existingform', {
+                typeMap.set('existingform', [{
                     kind: ScopeKind.Definition,
                     definition: {
                         name: 'ExistingForm',
@@ -136,7 +136,7 @@ describe('Attribute Validation', () => {
                         start: 0,
                         end: 10
                     }
-                } as any);
+                } as any]);
             }
         });
 
@@ -669,18 +669,18 @@ describe('Attribute Validation', () => {
                 // Part: TSPL Smp Info
                 let partMap = testScopeManager.scopeIndex.get('part');
                 if (!partMap) { partMap = new Map(); testScopeManager.scopeIndex.set('part', partMap); }
-                partMap.set('tsplsmpinfo', {
+                partMap.set('tsplsmpinfo', [{
                     kind: ScopeKind.Definition,
                     definition: { name: 'TSPL Smp Info', kind: SymbolKind.Part, definitionType: 'Part', uri: 'file:///test5.tdl', start: 0, end: 10 }
-                } as any);
+                }] as any);
 
                 // Line: Info
                 let lineMap = testScopeManager.scopeIndex.get('line');
                 if (!lineMap) { lineMap = new Map(); testScopeManager.scopeIndex.set('line', lineMap); }
-                lineMap.set('info', {
+                lineMap.set('info', [{
                     kind: ScopeKind.Definition,
                     definition: { name: 'Info', kind: SymbolKind.Line, definitionType: 'Line', uri: 'file:///test5.tdl', start: 0, end: 10 }
-                } as any);
+                }] as any);
             }
 
             const tdl = `[Report: Deep Local Report]

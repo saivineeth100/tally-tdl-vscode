@@ -94,7 +94,7 @@ export class DocManager {
     /** Reverse graph of inclusions: URI -> Set of URIs that include it */
     private parentGraph = new Map<string, Set<string>>();
 
-    private fileTimestamps: Map<string, number> = new Map();
+    public fileTimestamps = new Map<string, number>();
 
     private rebuildTimers = new Map<string, NodeJS.Timeout>();
     private readonly REBUILD_DELAY = 200; // ms
@@ -123,9 +123,9 @@ export class DocManager {
             this.docs.delete(e.document.uri);
             // Re-index from disk so closed file remains available for cross-file features
             const fsPath = URI.parse(e.document.uri).fsPath;
-            // Clear old index
             this.getScopeManager(e.document.uri).projectScope.referenceIndex.clearFile(e.document.uri);
-            this.indexFile(fsPath, new Set()).catch(err => {
+            const isActive = this.isUriActive(e.document.uri);
+            this.indexFile(fsPath, new Set(), false, false, isActive).catch(err => {
                 logger.warn(`Failed to re-index closed file: ${err instanceof Error ? err.stack || err.message : String(err)}`);
             });
             this.getScopeManager(e.document.uri).removeFileScope(e.document.uri);
@@ -259,7 +259,8 @@ export class DocManager {
             const fsPath = URI.parse(uriStr).fsPath;
             
             // forceValidation = true so that indexFile runs validation even if unchanged
-            promises.push(this.indexFile(fsPath, new Set(), false, true).catch(err => {
+            const isActive = this.isUriActive(uriStr);
+            promises.push(this.indexFile(fsPath, new Set(), false, true, isActive).catch(err => {
                 logger.error(`Error indexing file ${fsPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
             }));
 
@@ -277,6 +278,8 @@ export class DocManager {
         const endTime = Date.now();
         logger.trace(`[Perf] Finished revalidateAll in ${endTime - startTime}ms. (Open docs: ${openDocs.length}, Closed known URIs: ${allKnownUris.size - openDocs.length})`);
         
+        this.notifyActiveUrisChanged();
+
         resolve();
             }, 500); // 500ms debounce
         });
@@ -315,6 +318,8 @@ export class DocManager {
                 } else {
                     // All queued scans complete! Revalidate open docs so initial 'Missing Definition' diagnostics go away.
                     this.revalidateAll(this.documents.all()).catch(e => logger.error(`Revalidation failed: ${e}`));
+                    // Also notify the client of the initial active URIs list
+                    this.notifyActiveUrisChanged();
                 }
             }
         }, 0);
@@ -414,32 +419,32 @@ export class DocManager {
 
         const promises: Promise<void>[] = [];
 
-        // Pass 2: Process directories and standalone files
-        for (const entry of entries) {
-            const fullPath = path.join(dirPath, entry.name);
+            // Pass 2: Process directories and standalone files
+            for (const entry of entries) {
+                const fullPath = path.join(dirPath, entry.name);
 
-            // Check if file matches any exclude pattern
-            if (this.isExcluded(fullPath)) continue;
+                // Check if file matches any exclude pattern
+                if (this.isExcluded(fullPath)) continue;
 
-            if (entry.isDirectory()) {
-                // Skip node_modules, .git, etc.
-                if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
-                    promises.push(this.scanDirectory(fullPath, visited));
-                }
-            } else if (entry.isFile()) {
-                const ext = path.extname(entry.name).toLowerCase();
-                if (['.tdl', '.txt', '.xml', '.tdlxml', '.dat'].includes(ext)) {
-                    // Only index if it wasn't already added by a .tpj file
-                    if (!this.tpjFiles.has(normalizeUri(URI.file(fullPath).toString()))) {
-                        // Pass skipValidation=true during scan to avoid incomplete graph errors and slowness
-                        promises.push(this.indexFile(fullPath, visited, true).catch(err => {
-                            logger.error(`Error indexing standalone file ${fullPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
-                        }));
+                if (entry.isDirectory()) {
+                    // Skip node_modules, .git, etc.
+                    if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
+                        promises.push(this.scanDirectory(fullPath, visited));
+                    }
+                } else if (entry.isFile()) {
+                    const ext = path.extname(entry.name).toLowerCase();
+                    if (['.tdl', '.txt', '.xml', '.tdlxml', '.dat'].includes(ext)) {
+                        // Only index if it wasn't already added by a .tpj file
+                        if (!this.tpjFiles.has(normalizeUri(URI.file(fullPath).toString()))) {
+                            // Pass skipValidation=true during scan to avoid incomplete graph errors and slowness
+                            promises.push(this.indexFile(fullPath, visited, true, false, false).catch(err => {
+                                logger.error(`Error indexing standalone file ${fullPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
+                            }));
+                        }
                     }
                 }
-            }
 
-            if (promises.length >= 50) {
+                if (promises.length >= 50) {
                 await Promise.all(promises);
                 promises.length = 0;
             }
@@ -482,7 +487,7 @@ export class DocManager {
                         const targetUri = normalizeUri(URI.file(targetPath).toString());
                         this.tpjFiles.add(targetUri);
                         // Pass skipValidation=true during scan to avoid incomplete graph errors and slowness
-                        promises.push(this.indexFile(targetPath, visited, true));
+                        promises.push(this.indexFile(targetPath, visited, true, false, true));
                     }
                 }
 
@@ -503,10 +508,10 @@ export class DocManager {
     /**
      * Index a single file for symbols (without storing full doc state)
      */
-    public async indexFile(filePath: string, indexed: Set<string> = new Set(), skipValidation: boolean = false, forceValidation: boolean = false): Promise<void> {
+    public async indexFile(filePath: string, indexed: Set<string> = new Set(), skipValidation: boolean = false, forceValidation: boolean = false, isActive: boolean = false): Promise<void> {
         
 
-        const uri = normalizeUri(filePath);
+        const uri = normalizeUri(URI.file(filePath).toString());
         if (indexed.has(uri)) return;
         indexed.add(uri);
         // If file is open in editor, skip indexing as it's handled by rebuild()
@@ -558,7 +563,7 @@ export class DocManager {
                 const doc = TextDocument.create(uri, languageId, 1, content);
 
                 // Build scope tree to capture global variables and formulas
-                scopeMgr.buildFileScope(uri, sourceFile);
+                scopeMgr.buildFileScope(uri, sourceFile, !isActive);
 
                 // Update Include Graph
                 const includes = this.updateIncludeGraph(uri, sourceFile);
@@ -567,7 +572,7 @@ export class DocManager {
                 // Recursively index included files FIRST so their symbols exist
                 for (const includedUri of includes) {
                     if (!this.docs.has(includedUri)) {
-                        promises.push(this.indexFile(URI.parse(includedUri).fsPath, indexed, skipValidation));
+                        promises.push(this.indexFile(URI.parse(includedUri).fsPath, indexed, skipValidation, forceValidation, isActive));
                     }
                 }
 
@@ -644,7 +649,7 @@ export class DocManager {
                 if (this.resolveIncludePath) {
                     const targetPath = this.resolveIncludePath(currentFsPath, includeName);
                     if (targetPath) {
-                        includes.add(normalizeUri(targetPath));
+                        includes.add(normalizeUri(URI.file(targetPath).toString()));
                     }
                 }
             }
@@ -702,46 +707,21 @@ export class DocManager {
 
     /**
      * Check if a URI is actively used in the workspace.
-     * A URI is active if it is:
-     * 1. Currently open in the editor (or is a .tpj file explicitly added)
-     * 2. An included file of an active file (reachable by going UP parentGraph)
-     * 3. A file that includes an active file (reachable by going DOWN includeGraph)
+     * A URI is active ONLY if it is reachable from a .tpj project file.
+     * Standalone editor files are no longer considered active.
      */
     public isUriActive(targetUri: string): boolean {
         const normUri = normalizeUri(targetUri);
-        if (this.docs.has(normUri) || this.tpjFiles.has(normUri)) return true;
-
-        // Check if it's included by an active file (traverse UP parentGraph)
-        const visitedParents = new Set<string>();
-        const queueParents = [normUri];
-        while (queueParents.length > 0) {
-            const curr = queueParents.shift()!;
-            if (!visitedParents.has(curr)) {
-                visitedParents.add(curr);
-                if (this.docs.has(curr) || this.tpjFiles.has(curr)) {
-                    return true;
-                }
-                const parents = this.parentGraph.get(curr);
-                if (parents) queueParents.push(...parents);
-            }
+        const fileScope = this.tdlScopeManager.fileMap.get(normUri);
+        if (fileScope) {
+            return fileScope.parent === this.tdlScopeManager.projectScope;
         }
-
-        // Check if it includes an active file (traverse DOWN includeGraph)
-        const visitedChildren = new Set<string>();
-        const queueChildren = [targetUri];
-        while (queueChildren.length > 0) {
-            const curr = queueChildren.shift()!;
-            if (!visitedChildren.has(curr)) {
-                visitedChildren.add(curr);
-                if (this.docs.has(curr) || this.tpjFiles.has(curr)) {
-                    return true;
-                }
-                const children = this.includeGraph.get(curr);
-                if (children) queueChildren.push(...children);
-            }
+        
+        // If file not indexed yet:
+        if (this.tpjFiles.size > 0) {
+            return this.tpjFiles.has(normUri);
         }
-
-        return false;
+        return this.docs.has(normUri);
     }
 
     /**
@@ -841,17 +821,27 @@ export class DocManager {
         });
 
         // Build Scope Tree for the file
-        scopeMgr.buildFileScope(normUri, sourceFile);
+        // Ensure it is in docs before we check isUriActive so it correctly identifies as an open document
+        this.docs.set(normUri, { sourceFile, diagnostics: [] });
+
+        const isActive = this.isUriActive(normUri);
+        scopeMgr.buildFileScope(normUri, sourceFile, !isActive);
         const t2 = Date.now();
 
         // Update Include Graph
+        const oldIncludes = this.includeGraph.get(normUri) || new Set<string>();
         const includes = this.updateIncludeGraph(normUri, sourceFile);
+        
+        console.log(`[DEBUG REBUILD] normUri: ${normUri}`);
+        console.log(`[DEBUG REBUILD] oldIncludes size: ${oldIncludes.size}`);
+        console.log(`[DEBUG REBUILD] new includes size: ${includes.size}`);
         
         // Ensure new includes are indexed and diagnosed (background, non-blocking)
         const visited = new Set<string>([doc.uri]);
         for (const incUri of includes) {
-            if (!this.docs.has(incUri) && !this.includeGraph.has(incUri)) {
-                this.indexFile(URI.parse(incUri).fsPath, visited).catch(err => {
+            console.log(`[DEBUG REBUILD] incUri: ${incUri}, in oldIncludes: ${oldIncludes.has(incUri)}, in docs: ${this.docs.has(incUri)}`);
+            if (!oldIncludes.has(incUri) && !this.docs.has(incUri)) {
+                this.indexFile(URI.parse(incUri).fsPath, visited, false, false, isActive).catch(err => {
                     logger.warn(`Failed to index new include ${incUri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
                 });
             }
@@ -902,5 +892,30 @@ export class DocManager {
             }
             return true;
         }) : [];
+    }
+
+    /**
+     * Send active URIs list to the client for file decoration
+     */
+    public notifyActiveUrisChanged() {
+        const activeUris: string[] = [];
+        
+        // Find all files attached to the projectScope
+        for (const [uri, scope] of this.tdlScopeManager.fileMap.entries()) {
+            if (scope.parent === this.tdlScopeManager.projectScope) {
+                activeUris.push(uri);
+            }
+        }
+        for (const [uri, scope] of this.xmlScopeManager.fileMap.entries()) {
+            if (scope.parent === this.xmlScopeManager.projectScope) {
+                activeUris.push(uri);
+            }
+        }
+
+        if (this.connection && typeof this.connection.sendNotification === 'function') {
+            this.connection.sendNotification('tdl/activeUrisChanged', {
+                activeUris: activeUris
+            });
+        }
     }
 }

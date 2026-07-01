@@ -84,7 +84,8 @@ export function provideAttributeValueCompletions(
                 findGlobalSymbolsByName: (name, projectNodes) => scopeManager.findGlobalSymbolsByName(name, projectNodes),
                 getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n),
                 normalizeScopeId: (id) => scopeManager.normalizeScopeId(id),
-                getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n)
+                getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n),
+                getWorkspaceDefinition: (d, n) => scopeManager.getWorkspaceDefinition(d, n)
             };
             const schema = resolveSchema(mockState, objectScopeName, currentScope, scope);
 
@@ -106,7 +107,8 @@ export function provideAttributeValueCompletions(
                                     findGlobalSymbolsByName: (name, projectNodes) => scopeManager.findGlobalSymbolsByName(name, projectNodes),
                                     getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n),
                                     normalizeScopeId: (id) => scopeManager.normalizeScopeId(id),
-                                    getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n)
+                                    getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n),
+                                    getWorkspaceDefinition: (d, n) => scopeManager.getWorkspaceDefinition(d, n)
                                 };
                                 const subSchema = resolveSchema(mockState2, prop.ObjectName, currentScope, scope);
                             if (subSchema) {
@@ -219,13 +221,14 @@ export function provideAttributeValueCompletions(
         if (scopeManager.projectScope) {
             const projectObjects = scopeManager.scopeIndex.get('object');
             if (projectObjects) {
-                for (const [objName, objScope] of projectObjects.entries()) {
-                    if (objScope.kind === 'Definition') {
-                        const ds = objScope as import('../../../semantics/scopeManager').DefinitionScope;
-                        if (ds.definition) {
-                            if (!addedSchemas.has(objName.toLowerCase())) {
-                                if (context.partial === '' || objName.toLowerCase().includes(context.partial.toLowerCase())) {
-                                    addedSchemas.add(objName.toLowerCase());
+                for (const [objName, objScopes] of projectObjects.entries()) {
+                    for (const objScope of objScopes) {
+                        if (objScope.kind === 'Definition') {
+                            const ds = objScope as import('../../../semantics/scopeManager').DefinitionScope;
+                            if (ds.definition) {
+                                if (!addedSchemas.has(objName.toLowerCase())) {
+                                    if (context.partial === '' || objName.toLowerCase().includes(context.partial.toLowerCase())) {
+                                        addedSchemas.add(objName.toLowerCase());
                                     items.push({
                                         label: ds.definition.name || objName,
                                         kind: CompletionItemKind.Class,
@@ -238,6 +241,7 @@ export function provideAttributeValueCompletions(
                         }
                     }
                 }
+            }
             }
         }
     }
@@ -275,7 +279,7 @@ export function provideAttributeValueCompletions(
             }
             return items;
         } else if (expectedTypeStr && expectedTypeStr !== 'String') {
-            items.push(...getSuggestionsForDefinitionType(expectedTypeStr, context.partial, scopeManager, scope));
+            items.push(...getSuggestionsForDefinitionType(expectedTypeStr, context.partial, scopeManager, true, scope));
             return items;
         } else if (expectedTypeStr === 'String') {
             return items;
@@ -368,7 +372,7 @@ export function provideAttributeValueCompletions(
                 if (scopeManager.projectScope) addGlobalFormulas(scopeManager.projectScope.formulas);
                 if (scopeManager.globalScope) addGlobalFormulas(scopeManager.globalScope.formulas);
             } else if (refersToType) {
-                items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, scopeManager, scope));
+                items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, scopeManager, true, scope));
             }
         }
         // 4. If Datatype is String, add a hint

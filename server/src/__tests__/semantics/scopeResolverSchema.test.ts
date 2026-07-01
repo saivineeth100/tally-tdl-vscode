@@ -96,7 +96,8 @@ describe('ScopeManager - Schema Integration', () => {
             findGlobalSymbolsByName: (n: string, s?: Set<string>) => manager.findGlobalSymbolsByName(n, s),
             getCanonicalTypeName: (n: string) => manager.getCanonicalTypeName(n),
             normalizeScopeId: (id: string) => manager.normalizeScopeId(id),
-            getProjectDefinition: (d: string, n: string) => manager.getProjectDefinition(d, n)
+            getProjectDefinition: (d: string, n: string) => manager.getProjectDefinition(d, n),
+            getWorkspaceDefinition: (d: string, n: string) => manager.getWorkspaceDefinition(d, n)
         };
 
         const resolvedName = resolveVariable(state, '$Name', collScope, undefined);
@@ -167,7 +168,8 @@ describe('ScopeManager - Schema Integration', () => {
             findGlobalSymbolsByName: (n: string, s?: Set<string>) => manager.findGlobalSymbolsByName(n, s),
             getCanonicalTypeName: (n: string) => manager.getCanonicalTypeName(n),
             normalizeScopeId: (id: string) => manager.normalizeScopeId(id),
-            getProjectDefinition: (d: string, n: string) => manager.getProjectDefinition(d, n)
+            getProjectDefinition: (d: string, n: string) => manager.getProjectDefinition(d, n),
+            getWorkspaceDefinition: (d: string, n: string) => manager.getWorkspaceDefinition(d, n)
         };
 
         const resolvedParent = resolveVariable(state, '$Parent', collScope, undefined);

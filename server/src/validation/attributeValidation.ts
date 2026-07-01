@@ -18,10 +18,11 @@ export function validateDefinitionAttributes(
 ): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
     const defTypeName = def.type.text;
-    const allowedAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(defTypeName));
+    const DefTypeNorm = normalizeTypeName(defTypeName);
+    const allowedAttrs = scopeManager.globalScope.attributes.get(DefTypeNorm);
 
     // Skip validation if we don't have metadata for this definition type
-    if (!allowedAttrs) {
+    if (!allowedAttrs || ["collection", "object"].includes(DefTypeNorm)) {
         return diagnostics;
     }
 
@@ -50,12 +51,12 @@ export function validateDefinitionAttributes(
 
                 const tDefTypeNode = val as IdentifierNode;
                 const tDefType = tDefTypeNode.text.toLowerCase();
-                
+
                 if (tDefType === 'local') {
                     previousWasLocal = true;
                     continue;
                 }
-                
+
                 const currentAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
                 const isTargetAttribute = currentAttrs && currentAttrs.has(normalizeTypeName(tDefType));
                 const canonicalDefType = scopeManager.globalScope.interchangeableAttributesMap?.get(tDefType) || tDefType;
@@ -76,66 +77,67 @@ export function validateDefinitionAttributes(
                         }
                     }
                 }
-                
+
                 previousWasLocal = false;
 
                 if (treatAsChainedTarget) {
-                        const tDefNameNode = attr.value[i + 1] as IdentifierNode;
-                        const tDefName = tDefNameNode.text;
+                    const tDefNameNode = attr.value[i + 1] as IdentifierNode;
+                    const tDefName = tDefNameNode.text;
 
-                        if (tDefName.toLowerCase() === 'default' || tDefName.toLowerCase() === 'd') {
-                            // Wildcards are valid
-                        } else if (validSoFar) {
-                            const dummyScopeId = `${currentScopeDefType.toLowerCase()}:${currentScopeDefName}`;
-                            const dummyScope = scopeManager.findDefinitionScope(dummyScopeId);
+                    if (tDefName.toLowerCase() === 'default' || tDefName.toLowerCase() === 'd') {
+                        // Wildcards are valid
+                    } else if (validSoFar) {
+                        const dummyScopeId = `${currentScopeDefType.toLowerCase()}:${currentScopeDefName}`;
+                        const dummyScope = scopeManager.findDefinitionScope(dummyScopeId);
 
-                            if (dummyScope) {
-                                const reachableChildren = scopeManager.getDefinitionsInScope(dummyScope, tDefType);
-                                let found = false;
-                                for (const child of reachableChildren) {
-                                    if (normalizeTypeName(child.name) === normalizeTypeName(tDefName)) {
-                                        found = true;
-                                        break;
-                                    }
+                        if (dummyScope) {
+                            const reachableChildren = scopeManager.getDefinitionsInScope(dummyScope, tDefType);
+                            let found = false;
+                            for (const child of reachableChildren) {
+                                if (normalizeTypeName(child.name) === normalizeTypeName(tDefName)) {
+                                    found = true;
+                                    break;
                                 }
+                            }
 
-                                if (!found) {
-                                    const attrScope = dummyScope || scopeManager.getScopeAt(doc.uri, tDefNameNode.start) || scopeManager.projectScope;
-                                    const existsAnywhere = scopeManager.resolveDefinition(tDefName, tDefType, attrScope, projectNodes) !== undefined;
+                            if (!found) {
+                                const attrScope = dummyScope || scopeManager.getScopeAt(doc.uri, tDefNameNode.start) || scopeManager.projectScope;
+                                const resolvedDefs = scopeManager.resolveDefinition(tDefName, tDefType, attrScope, projectNodes);
+                                const existsAnywhere = resolvedDefs && resolvedDefs.length > 0;
 
-                                    if (existsAnywhere) {
-                                        const isMockScope = !dummyScope.range || dummyScope.range.start === -1 || dummyScope.uri === 'global:metadata';
-                                        if (!isMockScope) {
-                                            diagnostics.push(createDiagnosticWithData(
-                                                DiagnosticRules.DefinitionNotInScope,
-                                                { start: doc.positionAt(tDefNameNode.start), end: doc.positionAt(tDefNameNode.end) },
-                                                { type: tDefType, name: tDefName } as DefinitionNotInScopeData,
-                                                tDefType,
-                                                tDefName
-                                            ));
-                                            validSoFar = false; // Stop validating deeper if parent is broken
-                                        }
-                                    } else {
+                                if (existsAnywhere) {
+                                    const isMockScope = !dummyScope.range || dummyScope.range.start === -1 || dummyScope.uri === 'global:metadata';
+                                    if (!isMockScope) {
                                         diagnostics.push(createDiagnosticWithData(
-                                            DiagnosticRules.MissingDefinition,
+                                            DiagnosticRules.DefinitionNotInScope,
                                             { start: doc.positionAt(tDefNameNode.start), end: doc.positionAt(tDefNameNode.end) },
-                                            { type: tDefType, name: tDefName } as MissingDefinitionData,
+                                            { type: tDefType, name: tDefName } as DefinitionNotInScopeData,
                                             tDefType,
                                             tDefName
                                         ));
+                                        validSoFar = false; // Stop validating deeper if parent is broken
                                     }
-                                    validSoFar = false; // Stop validating deeper if parent is broken
+                                } else {
+                                    diagnostics.push(createDiagnosticWithData(
+                                        DiagnosticRules.MissingDefinition,
+                                        { start: doc.positionAt(tDefNameNode.start), end: doc.positionAt(tDefNameNode.end) },
+                                        { type: tDefType, name: tDefName } as MissingDefinitionData,
+                                        tDefType,
+                                        tDefName
+                                    ));
                                 }
-                            } else {
-                                validSoFar = false;
+                                validSoFar = false; // Stop validating deeper if parent is broken
                             }
+                        } else {
+                            validSoFar = false;
                         }
-
-                        currentScopeDefType = tDefType;
-                        currentScopeDefName = tDefName;
-                        i += 1; // Increment by 1 here, the for loop will increment by another 1, making it 2 total
-                        continue;
                     }
+
+                    currentScopeDefType = tDefType;
+                    currentScopeDefName = tDefName;
+                    i += 1; // Increment by 1 here, the for loop will increment by another 1, making it 2 total
+                    continue;
+                }
 
                 // If not a definition type or no paired name, it's the target attribute
                 targetAttribute = val as IdentifierNode;
@@ -148,7 +150,7 @@ export function validateDefinitionAttributes(
                 const targetAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
                 const targetAttrName = targetAttribute.text;
                 const targetAttrNameLower = normalizeTypeName(targetAttrName);
-                
+
                 if (targetAttrs && !targetAttrs.has(targetAttrNameLower)) {
                     // Implicitly Local Formula, no unknown attribute warning
                 } else if (targetAttrs && targetAttrs.has(targetAttrNameLower)) {
@@ -159,13 +161,13 @@ export function validateDefinitionAttributes(
                         value: attr.value.slice(targetAttributeIndex + 1)
                     };
                     validateAttributeParameters(
-                        mockAttr, 
-                        targetAttrs.get(targetAttrNameLower)!, 
-                        doc, 
-                        diagnostics, 
-                        scopeManager, 
-                        currentScopeDefType, 
-                        currentScopeDefName, 
+                        mockAttr,
+                        targetAttrs.get(targetAttrNameLower)!,
+                        doc,
+                        diagnostics,
+                        scopeManager,
+                        currentScopeDefType,
+                        currentScopeDefName,
                         projectNodes
                     );
                 }
@@ -211,7 +213,7 @@ export function validateDefinitionAttributes(
                 // or if the attribute itself is a 'Single List', all values belong to it.
                 // Otherwise, only the first value belongs to it.
                 let firstParam = attrDef.parameters![0];
-                let isOnlyParamList = attrDef.parameters!.length === 1 && 
+                let isOnlyParamList = attrDef.parameters!.length === 1 &&
                     (firstParam.IsList || firstParam.IsVariableArgument || attrDef.type?.toLowerCase() === 'single list');
 
                 let maxIndex = isOnlyParamList ? attr.value.length : 1;
@@ -232,7 +234,7 @@ export function validateDefinitionAttributes(
                 const normalizedVal = val.text.toLowerCase();
                 const uniqueKey = `${attrNameLower}:${normalizedVal}`;
                 const prevCount = seenAttributes.get(uniqueKey) || 0;
-                
+
                 if (prevCount > 0) {
                     diagnostics.push(createDiagnostic(
                         DiagnosticRules.DuplicateDiscreteAttribute,
@@ -383,7 +385,7 @@ export function validateAttributeParameters(
             defTypeName + ':' + defName,
             projectNodes
         );
-        
+
         // If it's another expression (binary/unary), we skip keyword/logical validation for the node itself
         if ('operator' in paramNode) {
             continue;
@@ -469,9 +471,12 @@ export function validateAttributeParameters(
             } else if (refersToLower === 'variable' || refersToLower === 'system variable') {
                 resolvedDef = scopeManager.resolveVariable(cleanValue, currentScope, projectNodes);
             } else {
-                resolvedDef = scopeManager.resolveDefinition(cleanValue, refersToType, currentScope, projectNodes);
+                const defs = scopeManager.resolveDefinition(cleanValue, refersToType, currentScope, projectNodes);
+                if (defs && defs.length > 0) {
+                    resolvedDef = defs[0];
+                }
             }
-            
+
             if (!resolvedDef) {
                 const diag = createDiagnosticWithData<MissingDefinitionData>(
                     DiagnosticRules.MissingDefinition,

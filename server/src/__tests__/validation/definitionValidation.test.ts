@@ -150,7 +150,7 @@ describe('Definition Validation (Mocked)', () => {
 
         let typeMap = mockScopeManager.scopeIndex.get('report');
         if (!typeMap) { typeMap = new Map(); mockScopeManager.scopeIndex.set('report', typeMap); }
-        typeMap.set('otherreport', { kind: ScopeKind.Definition, definition: { name: 'OtherReport', definitionType: 'Report', kind: SymbolKind.Report, uri: 'file:///unlinked.tdl' } } as any);
+        typeMap.set('otherreport', [{ kind: ScopeKind.Definition, definition: { name: 'OtherReport', definitionType: 'Report', kind: SymbolKind.Report, uri: 'file:///unlinked.tdl' } }] as any);
 
         const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager, undefined, mockDocManager);
         const warning = diagnostics.find(d => d.message.includes('not included in the project'));

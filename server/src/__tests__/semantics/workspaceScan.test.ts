@@ -3,6 +3,7 @@ import { DocManager } from '../../docManager';
 import { URI } from 'vscode-uri';
 import * as fs from 'fs';
 import * as path from 'path';
+import { logger } from '../../logger';
 
 // Mock fs to control what scanDirectory finds
 vi.mock('fs', async () => {
@@ -59,8 +60,8 @@ describe('Workspace scan and Folder cleanup', () => {
             await (docManager as any).scanFolder(URI.file(folderPath).toString());
 
             expect(docManager.indexFile).toHaveBeenCalledTimes(2);
-            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'standalone.tdl'), expect.any(Set), true);
-            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'docs.txt'), expect.any(Set), true);
+            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'standalone.tdl'), expect.any(Set), true, false, false);
+            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'docs.txt'), expect.any(Set), true, false, false);
         });
 
         it('does not double-index files referenced by .tpj AND found standalone', async () => {
@@ -78,7 +79,7 @@ describe('Workspace scan and Folder cleanup', () => {
             await (docManager as any).scanFolder(URI.file(folderPath).toString());
             
             expect(docManager.indexFile).toHaveBeenCalledTimes(1);
-            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'referenced.tdl'), expect.any(Set), true);
+            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'referenced.tdl'), expect.any(Set), true, false, true);
         });
     });
 
@@ -130,6 +131,7 @@ describe('Workspace scan and Folder cleanup', () => {
             vi.spyOn(docManager, 'indexFile').mockImplementation(async (fsPath: string) => {
                 if (fsPath.includes('deleted')) throw new Error('ENOENT');
             });
+            const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
             (docManager as any).hasInitialScanStarted = true;
             await expect(docManager.revalidateAll([])).resolves.not.toThrow();

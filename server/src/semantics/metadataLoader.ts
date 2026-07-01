@@ -116,11 +116,14 @@ export async function loadExternalLibraries(libraryPaths: string[], manager: Sco
                             globalDefMap = new Map();
                             manager.globalScope.definitions.set(defType, globalDefMap);
                         }
-                        for (const [name, sym] of defMap.entries()) {
-                            if (sym.kind === ScopeKind.Definition) {
-                                const ds = sym as DefinitionScope;
-                                if (ds.definition) {
-                                    globalDefMap.set(name, ds.definition);
+                        for (const [name, syms] of defMap.entries()) {
+                            const scopes = Array.isArray(syms) ? syms : [syms as unknown as Scope];
+                            for (const sym of scopes) {
+                                if (sym.kind === ScopeKind.Definition) {
+                                    const ds = sym as DefinitionScope;
+                                    if (ds.definition) {
+                                        globalDefMap.set(name, ds.definition);
+                                    }
                                 }
                             }
                         }
@@ -466,7 +469,7 @@ function parseParameter(json: any): TDLParameter {
     };
 }
 
-import { } from './scopeManager/types';
+import { Scope } from './scopeManager/types';
 
 async function loadExistingDefinitions(versionPath: string, manager: ScopeManager) {
     const existingPath = path.join(versionPath, "ExistingDefinitions");
@@ -513,3 +516,4 @@ async function loadExistingDefinitions(versionPath: string, manager: ScopeManage
 }
 
 import { definitionTypeToSymbolKind } from '../semantics/scopeManager/types';
+

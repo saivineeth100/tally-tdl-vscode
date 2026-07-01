@@ -19,7 +19,8 @@ export interface IScopeResolverState {
     findGlobalSymbolsByName(name: string, projectScope?: Set<string>): SymbolInfo[];
     getCanonicalTypeName(normalizedType: string): string;
     normalizeScopeId(id: string): string;
-    getProjectDefinition(defType: string, name: string): import('tally-tdl-shared').DefinitionSymbol | undefined;
+    getProjectDefinition(defType: string, name: string): DefinitionSymbol[];
+    getWorkspaceDefinition(defType: string, name: string): DefinitionSymbol[];
 
 }
 
@@ -674,7 +675,7 @@ export function resolveDefinition(
     initialScope: Scope, 
     projectScope?: Set<string>,
     callerContext?: ResolutionContext
-): DefinitionSymbol | undefined {
+): DefinitionSymbol[] {
     const normalizedName = normalizeTypeName(name);
     const normalizedType = normalizeTypeName(defType);
     const canonicalType = state.getCanonicalTypeName(normalizedType);
@@ -683,48 +684,56 @@ export function resolveDefinition(
     
     const match = traverseScopes(context, scope => {
         if (scope.kind === ScopeKind.Project) {
-            const sym = state.getProjectDefinition(canonicalType, normalizedName);
-            if (sym) return sym;
+            const syms = state.getProjectDefinition(canonicalType, normalizedName);
+            if (syms && syms.length > 0) return syms;
+        } else if (scope.kind === ScopeKind.Workspace) {
+            const syms = state.getWorkspaceDefinition(canonicalType, normalizedName);
+            if (syms && syms.length > 0) return syms;
         } else if (hasDefinitions(scope)) {
             const sym = scope.definitions.get(canonicalType)?.get(normalizedName);
-            if (sym) return sym;
+            if (sym) return [sym];
         }
         if (hasFunctionsAndActions(scope)) {
             if (canonicalType === state.getCanonicalTypeName('function')) {
                 const sym = scope.functions.get(normalizedName);
-                if (sym) return sym as unknown as DefinitionSymbol;
+                if (sym) return [sym as unknown as DefinitionSymbol];
             }
             if (canonicalType === state.getCanonicalTypeName('action')) {
                 const sym = scope.actions.get(normalizedName);
-                if (sym) return sym as unknown as DefinitionSymbol;
+                if (sym) return [sym as unknown as DefinitionSymbol];
             }
         }
         return undefined;
     });
-    if (match) return match;
+    if (match) return match as DefinitionSymbol[];
 
     // SymbolTable fallback (user definitions)
     const globalMatch = state.findGlobalSymbolsByName(name, projectScope).find(s => {
         if (!s.definitionType) return false;
         return state.getCanonicalTypeName(normalizeTypeName(s.definitionType)) === canonicalType;
     });
-    if (globalMatch) return globalMatch as DefinitionSymbol;
+    if (globalMatch) return [globalMatch as DefinitionSymbol];
 
     // Metadata fallback for system definitions
     const typeSet = state.globalScope.definitions.get(canonicalType);
     if (typeSet && typeSet.has(normalizedName)) {
-        return typeSet.get(normalizedName) as DefinitionSymbol;
+        return [typeSet.get(normalizedName) as DefinitionSymbol];
     }
     if (canonicalType === state.getCanonicalTypeName('function') && state.globalScope.functions?.has(normalizedName)) {
-        return state.globalScope.functions.get(normalizedName) as unknown as DefinitionSymbol;
+        return [state.globalScope.functions.get(normalizedName) as unknown as DefinitionSymbol];
     }
     if (canonicalType === state.getCanonicalTypeName('action') && state.globalScope.actions?.has(normalizedName)) {
-        return state.globalScope.actions.get(normalizedName) as unknown as DefinitionSymbol;
+        return [state.globalScope.actions.get(normalizedName) as unknown as DefinitionSymbol];
     }
     if (canonicalType === state.getCanonicalTypeName('formula') && state.globalScope.formulas?.has(normalizedName)) {
-        return state.globalScope.formulas.get(normalizedName) as unknown as DefinitionSymbol;
+        return [state.globalScope.formulas.get(normalizedName) as unknown as DefinitionSymbol];
     }
-    return undefined;
+
+    // Fallback to WorkspaceScope if not found anywhere else
+    const wsSyms = state.getWorkspaceDefinition(canonicalType, normalizedName);
+    if (wsSyms && wsSyms.length > 0) return wsSyms;
+
+    return [];
 }
 
 export function resolveAttribute(

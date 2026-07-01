@@ -56,7 +56,7 @@ describe('XML Reference Tests', () => {
                 }
 
                 const normalizedName = def.name.text.toLowerCase().replace(/\s+/g, '');
-                typeMap.set(normalizedName, {
+                typeMap.set(normalizedName, [{
                     kind: ScopeKind.Definition,
                     definition: {
                         name: def.name.text,
@@ -72,14 +72,14 @@ describe('XML Reference Tests', () => {
                     childScopes: [],
                     variables: new Map(),
                     formulas: new Map()
-                });
+                }]);
             }
         }
 
         // Find reference
         const typeMap = scopeManager.scopeIndex.get(normalizeTypeName('REPORT'));
         const normalizedSearch = 'MyOtherReport'.toLowerCase().replace(/\s+/g, '');
-        const symbol = typeMap?.get(normalizedSearch) as DefinitionScope;
+        const symbol = typeMap?.get(normalizedSearch)?.[0] as DefinitionScope;
 
         expect(symbol).not.toBeNull();
         expect(symbol.definition).not.toBeNull();
@@ -109,7 +109,7 @@ describe('XML Reference Tests', () => {
                 }
 
                 const normalizedName = def.name.text.toLowerCase().replace(/\s+/g, '');
-                typeMap.set(normalizedName, {
+                typeMap.set(normalizedName, [{
                     kind: ScopeKind.Definition,
                     definition: {
                         name: def.name.text,
@@ -125,20 +125,20 @@ describe('XML Reference Tests', () => {
                     childScopes: [],
                     variables: new Map(),
                     formulas: new Map()
-                });
+                }]);
             }
         }
 
         const typeMap = scopeManager.scopeIndex.get(normalizeTypeName('REPORT'));
 
         const normalizedFirst = 'My First Report'.toLowerCase().replace(/\s+/g, '');
-        const symbols1 = typeMap?.get(normalizedFirst) as DefinitionScope;
+        const symbols1 = typeMap?.get(normalizedFirst)?.[0] as DefinitionScope;
         expect(symbols1?.definition).not.toBeNull();
         expect(symbols1.definition!.name).toBe('My First Report');
 
         const normalizedSecond = 'mysecondreport'.toLowerCase().replace(/\s+/g, '');
 
-        const symbols2 = typeMap?.get(normalizedSecond) as DefinitionScope;
+        const symbols2 = typeMap?.get(normalizedSecond)?.[0] as DefinitionScope;
         expect(symbols2?.definition).not.toBeNull();
         expect(symbols2.definition!.name).toBe('My Second Report');
     });

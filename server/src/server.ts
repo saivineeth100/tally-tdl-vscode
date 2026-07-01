@@ -358,7 +358,7 @@ export function resolveIncludePath(currentPath: string, includeName: string): st
 }
 
 // Handle go-to-definition request
-connection.onDefinition(async (params: DefinitionParams): Promise<Location | null> => {
+connection.onDefinition(async (params: DefinitionParams): Promise<Location | Location[] | null> => {
     try {
         logger.trace(`[Trace] Server RECEIVED onDefinition for ${params.textDocument.uri}`);
         const doc = docs.get(params.textDocument.uri);
@@ -415,97 +415,106 @@ connection.onDefinition(async (params: DefinitionParams): Promise<Location | nul
             );
         }
 
+        let resolvedArray: any[] = [];
         if (resolved) {
-            // Don't navigate to metadata-only definitions
-            if (resolved.uri === 'global:metadata' || (resolved.start === 0 && resolved.end === 0)) {
-                return null; // Let hover provider show info instead
-            }
-
-            if (!docManager.isUriActive(resolved.uri)) {
-                connection.window.showInformationMessage(`Definition '${ref.name}' is part of Default TDL or an External Library. Source navigation is not available.`);
-                return null;
-            }
-
-            if (resolved.selectionRange) {
-                return {
-                    uri: resolved.uri,
-                    range: resolved.selectionRange
-                };
-            }
-
-            const targetDoc = docs.get(resolved.uri);
-            if (targetDoc) {
-                return {
-                    uri: resolved.uri,
-                    range: {
-                        start: targetDoc.positionAt(resolved.start),
-                        end: targetDoc.positionAt(resolved.end)
-                    }
-                };
+            if (Array.isArray(resolved)) {
+                resolvedArray = resolved;
             } else {
-                // Try fast lookup via Scope Index first to avoid reading file
-                const entries = docManager.tdlScopeManager.findGlobalSymbolsByName(resolved.name);
-                for (const entry of entries) {
-                    if (entry.uri === resolved.uri && entry.selectionRange) {
-                        return {
-                            uri: resolved.uri,
-                            range: entry.selectionRange
-                        };
-                    } else if (entry.uri === resolved.uri && entry.range && entry.range.start.line !== undefined) {
-                        return {
-                            uri: resolved.uri,
-                            range: entry.range
-                        };
-                    }
-                }
+                resolvedArray = [resolved];
+            }
+        }
 
-                // Try XML Scope Index
-                const xmlEntries = docManager.xmlScopeManager.findGlobalSymbolsByName(resolved.name);
-                for (const entry of xmlEntries) {
-                    if (entry.uri === resolved.uri && entry.selectionRange) {
-                        return {
-                            uri: resolved.uri,
-                            range: entry.selectionRange
-                        };
-                    } else if (entry.uri === resolved.uri && entry.range && entry.range.start.line !== undefined) {
-                        return {
-                            uri: resolved.uri,
-                            range: entry.range
-                        };
-                    }
+        // Add modifier contributions if it's a definition
+        if (resolvedArray.length > 0 && !['variable', 'method', 'system variable', 'formula', 'system formulae', 'formulae', 'function', 'action'].includes(expectedTypeLower)) {
+            const defId = scopeMgr.normalizeScopeId(ref.expectedType + ':' + ref.name);
+            const mods = docManager.tdlScopeManager.modifierContributions.get(defId);
+            if (mods) {
+                resolvedArray.push(...mods);
+            }
+        }
+
+        const locations: Location[] = [];
+
+        for (const item of resolvedArray) {
+            // Don't navigate to metadata-only definitions
+            if (item.uri === 'global:metadata' || (item.start === 0 && item.end === 0)) {
+                continue;
+            }
+
+            if (item.selectionRange) {
+                locations.push({ uri: item.uri, range: item.selectionRange });
+                continue;
+            }
+
+            const startOffset = item.range && typeof item.range.start === 'number' ? item.range.start : item.start;
+            const endOffset = item.range && typeof item.range.end === 'number' ? item.range.end : item.end;
+
+            if (startOffset !== undefined && endOffset !== undefined) {
+                const targetDoc = docs.get(item.uri);
+                if (targetDoc) {
+                    locations.push({
+                        uri: item.uri,
+                        range: {
+                            start: targetDoc.positionAt(startOffset),
+                            end: targetDoc.positionAt(endOffset)
+                        }
+                    });
+                    continue;
                 }
 
                 // Read from disk as fallback
                 try {
-                    const filePath = URI.parse(resolved.uri).fsPath;
+                    const filePath = URI.parse(item.uri).fsPath;
                     if (fs.existsSync(filePath)) {
                         const content = await readFileWithEncoding(filePath);
-                        const tempDoc = TextDocument.create(resolved.uri, 'tally', 1, content);
-                        return {
-                            uri: resolved.uri,
+                        const tempDoc = TextDocument.create(item.uri, 'tally', 1, content);
+                        locations.push({
+                            uri: item.uri,
                             range: {
-                                start: tempDoc.positionAt(resolved.start),
-                                end: tempDoc.positionAt(resolved.end)
+                                start: tempDoc.positionAt(startOffset),
+                                end: tempDoc.positionAt(endOffset)
                             }
-                        };
+                        });
+                        continue;
                     }
                 } catch (e) {
                     logger.error(`Error reading file for definition: ${e}`);
-                    return null;
                 }
+            }
 
-                // Fallback
-                return {
-                    uri: resolved.uri,
-                    range: {
-                        start: { line: 0, character: 0 },
-                        end: { line: 0, character: 0 }
-                    }
-                };
+            // Try fast lookup via Scope Index first to avoid reading file
+            const nameToFind = item.name || ref.name;
+            const entries = docManager.tdlScopeManager.findGlobalSymbolsByName(nameToFind);
+            let found = false;
+            for (const entry of entries) {
+                if (entry.uri === item.uri && entry.selectionRange) {
+                    locations.push({ uri: item.uri, range: entry.selectionRange });
+                    found = true;
+                    break;
+                } else if (entry.uri === item.uri && entry.range && entry.range.start.line !== undefined) {
+                    locations.push({ uri: item.uri, range: entry.range as any });
+                    found = true;
+                    break;
+                }
+            }
+            if (found) continue;
+
+            // Try XML Scope Index
+            const xmlEntries = docManager.xmlScopeManager.findGlobalSymbolsByName(nameToFind);
+            for (const entry of xmlEntries) {
+                if (entry.uri === item.uri && entry.selectionRange) {
+                    locations.push({ uri: item.uri, range: entry.selectionRange });
+                    break;
+                } else if (entry.uri === item.uri && entry.range && entry.range.start.line !== undefined) {
+                    locations.push({ uri: item.uri, range: entry.range as any });
+                    break;
+                }
             }
         }
-    }
 
+        return locations.length > 0 ? locations : null;
+    } // closes if (scope)
+    
     return null;
     } catch (e) {
         logger.error(`Error in onDefinition for ${params.textDocument.uri}: ${e instanceof Error ? e.stack || e.message : String(e)}`);
@@ -532,10 +541,7 @@ connection.languages.semanticTokens.on((params, token) => {
         return { data: [] };
     }
 
-    if (!docManager.isUriActive(params.textDocument.uri)) {
-        logger.info(`[Debug] semanticTokens returning early: isUriActive returned false for ${uriStr}`);
-        return { data: [] };
-    }
+
 
     const tokens = provideSemanticTokens(docState.sourceFile, doc, docManager.getScopeManager(params.textDocument.uri), token);
     logger.info(`[Debug] semanticTokens successfully generated ${tokens.data.length} tokens for ${uriStr}`);
@@ -549,9 +555,7 @@ connection.languages.semanticTokens.onDelta((params, token) => {
     const docState = docManager.get(params.textDocument.uri);
     if (!docState || !docState.sourceFile) return { edits: [] };
 
-    if (!docManager.isUriActive(params.textDocument.uri)) {
-        return { edits: [] };
-    }
+
 
     return provideSemanticTokensEdits(docState.sourceFile, doc, params.previousResultId, docManager.getScopeManager(params.textDocument.uri), token);
 });
@@ -672,10 +676,7 @@ connection.onRequest("tdl/resolveGlobalSymbol", async (params: { uri: string, na
     const projectScope = docManager.getProjectNodes(params.uri);
     const resolved = scopeMgr.resolveDefinition(params.name, params.expectedType, scopeMgr.globalScope, projectScope);
     
-    if (resolved && !docManager.isUriActive(resolved.uri)) {
-        connection.window.showInformationMessage(`Definition '${resolved.name}' is part of Default TDL or an External Library. Source navigation is not available.`);
-        return null;
-    }
+
     
     return resolved;
 });

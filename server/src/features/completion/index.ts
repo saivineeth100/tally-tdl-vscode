@@ -98,7 +98,7 @@ export function registerCompletion(
                     if (lowerType === 'include' || lowerType === 'import') {
                         items.push(...(await provideFilePathCompletions(params.textDocument.uri, context.partial, manager.workspaceFolders)));
                     } else if (context.hasModifier || context.isInUse) {
-                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, undefined));
+                        items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, true));
                     }
                 }
                 break;
@@ -108,7 +108,7 @@ export function registerCompletion(
                 break;
 
             case 'variable':
-                items.push(...provideVariableCompletions(manager, params.textDocument.uri, offset, context.partial));
+                items.push(...provideVariableCompletions(manager, params.textDocument.uri, offset, context.partial, true));
                 break;
 
             case 'field_reference':
@@ -216,7 +216,7 @@ export function registerCompletion(
                             }
                         }
                           if (param.RefersTo && context.defType !== 'Function') {
-                            items.push(...getSuggestionsForDefinitionType(param.RefersTo.trim(), context.partial, scopeManager, projectScope));
+                            items.push(...getSuggestionsForDefinitionType(param.RefersTo.trim(), context.partial, scopeManager, true, projectScope));
                         } else if (param.DataType?.toLowerCase() === 'string') {
                             items.push({
                                 label: '"..."',
@@ -236,7 +236,7 @@ export function registerCompletion(
                 
             case 'modifier_value':
                 if (currentDef) {
-                    items.push(...provideModifierValueCompletions(manager, params.textDocument.uri, offset, currentDef, context, isXml));
+                    items.push(...provideModifierValueCompletions(manager, params.textDocument.uri, offset, currentDef, context, isXml, true));
                 }
                 break;
         }
@@ -244,31 +244,33 @@ export function registerCompletion(
         return { items, isIncomplete: false };
     });
 
-    connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-        if (!item.data) return item;
-        const scopeMgr = manager.tdlScopeManager;
+    if (typeof connection.onCompletionResolve === 'function') {
+        connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+            if (!item.data) return item;
+            const scopeMgr = manager.tdlScopeManager;
 
-        if (item.data.type === 'function') {
-            const func = scopeMgr.globalScope.functions.get(item.data.name.toLowerCase());
-            if (func) {
-                item.documentation = {
-                    kind: MarkupKind.Markdown,
-                    value: buildFunctionDocumentation(func as any)
-                };
-            }
-        } else if (item.data.type === 'attribute') {
-            const targetDef = item.data.defType;
-            const attrMap = scopeMgr.globalScope.attributes.get(targetDef.toLowerCase());
-            if (attrMap) {
-                const attr = attrMap.get(item.data.name.toLowerCase());
-                if (attr) {
+            if (item.data.type === 'function') {
+                const func = scopeMgr.globalScope.functions.get(item.data.name.toLowerCase());
+                if (func) {
                     item.documentation = {
                         kind: MarkupKind.Markdown,
-                        value: buildAttributeDocumentation(attr as any)
+                        value: buildFunctionDocumentation(func as any)
                     };
                 }
+            } else if (item.data.type === 'attribute') {
+                const targetDef = item.data.defType;
+                const attrMap = scopeMgr.globalScope.attributes.get(targetDef.toLowerCase());
+                if (attrMap) {
+                    const attr = attrMap.get(item.data.name.toLowerCase());
+                    if (attr) {
+                        item.documentation = {
+                            kind: MarkupKind.Markdown,
+                            value: buildAttributeDocumentation(attr as any)
+                        };
+                    }
+                }
             }
-        }
-        return item;
-    });
+            return item;
+        });
+    }
 }

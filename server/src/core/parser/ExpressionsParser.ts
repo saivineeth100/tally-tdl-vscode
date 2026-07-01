@@ -290,21 +290,25 @@ export class ExpressionsParser extends ParserState {
           
           let loopToken1 = this.FetchCurrentToken();
           while (
-            this.IsIdentifierToken(loopToken1.Kind) ||
+            !this.HasNewLine(loopToken1, false) &&
+            (this.IsIdentifierToken(loopToken1.Kind) ||
             loopToken1.Kind === TokenKind.DotToken ||
             loopToken1.Kind === TokenKind.OpenSquareBracketToken ||
             loopToken1.Kind === TokenKind.CloseSquareBracketToken ||
-            loopToken1.Kind === TokenKind.SpaceToken
+            loopToken1.Kind === TokenKind.SpaceToken)
           ) {
             pathText += this.CurrentToken.Text;
             pathTokens.push(this.EatToken());
             loopToken1 = this.FetchCurrentToken();
           }
 
-          return new IdentifierNode(
-            [openParenToken, ...pathTokens],
-            `(${expr1 ? expr1.text || 'Type' : ''}, ${expr2 ? expr2.text || 'Id' : ''})${pathText}`
-          );
+          const endPos = pathTokens.length > 0 
+            ? pathTokens[pathTokens.length - 1].Start + pathTokens[pathTokens.length - 1].Text.length
+            : (this.PreviousToken ? this.PreviousToken.Start + this.PreviousToken.Text.length : this.CurrentToken.Start);
+          const text = this._text.substring(openParenToken.Start, endPos);
+          const tokens = this._tokens.filter(t => t.Start >= openParenToken.Start && t.Start < endPos);
+          
+          return new IdentifierNode(tokens, text);
         } else {
           // Just a math expression
           if (tokenAfterExpr1.Kind === TokenKind.CloseParenToken) {
@@ -322,20 +326,24 @@ export class ExpressionsParser extends ParserState {
              
              let loopToken2 = this.FetchCurrentToken();
              while (
-               this.IsIdentifierToken(loopToken2.Kind) ||
+               !this.HasNewLine(loopToken2, false) &&
+               (this.IsIdentifierToken(loopToken2.Kind) ||
                loopToken2.Kind === TokenKind.DotToken ||
                loopToken2.Kind === TokenKind.OpenSquareBracketToken ||
                loopToken2.Kind === TokenKind.CloseSquareBracketToken ||
-               loopToken2.Kind === TokenKind.SpaceToken
+               loopToken2.Kind === TokenKind.SpaceToken)
              ) {
                pathText += this.CurrentToken.Text;
                pathTokens.push(this.EatToken());
                loopToken2 = this.FetchCurrentToken();
              }
-             return new IdentifierNode(
-               [openParenToken, ...pathTokens],
-               `(${expr1 ? expr1.text || 'Type' : ''})${pathText}`
-             );
+             const endPos = pathTokens.length > 0 
+               ? pathTokens[pathTokens.length - 1].Start + pathTokens[pathTokens.length - 1].Text.length
+               : (this.PreviousToken ? this.PreviousToken.Start + this.PreviousToken.Text.length : this.CurrentToken.Start);
+             const text = this._text.substring(openParenToken.Start, endPos);
+             const tokens = this._tokens.filter(t => t.Start >= openParenToken.Start && t.Start < endPos);
+             
+             return new IdentifierNode(tokens, text);
           }
 
           return expr1;

@@ -29,12 +29,13 @@ export interface IScopeManager {
     nameIndex: Map<string, import('tally-tdl-shared').DefinitionSymbol[]>;
 }
 
-export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: SourceFile, doc?: import('vscode-languageserver-textdocument').TextDocument): Scope {
+export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: SourceFile, doc?: import('vscode-languageserver-textdocument').TextDocument, parentScope?: Scope): Scope {
     // Ensure any existing file scope and global symbols are removed first
     manager.removeFileScope(uri);
 
+    const actualParent = parentScope || manager.projectScope;
     // Create File Scope
-    const fileScope = manager.createFileScope(`file:${uri}`, manager.projectScope, { start: 0, end: Number.MAX_SAFE_INTEGER }, uri);
+    const fileScope = manager.createFileScope(`file:${uri}`, actualParent as import('./types').ProjectScope, { start: 0, end: Number.MAX_SAFE_INTEGER }, uri);
     manager.fileMap.set(uri, fileScope);
 
     // Populate Scope with Definitions from SourceFile

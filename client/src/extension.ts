@@ -11,6 +11,7 @@ import {
 import {
     LanguageClient, LanguageClientOptions, TransportKind
 } from 'vscode-languageclient/node';
+import { TdlFileDecorationProvider } from './features/fileDecorations';
 import { cleanupTempFiles } from './services/tallyClient';
 import { updatePanelVariables } from './features/xmlVariables';
 import { registerCommands } from './features/commands';
@@ -31,6 +32,8 @@ class BaseTDLDocumentProvider implements TextDocumentContentProvider {
 `;
     }
 }
+
+let tdlDecorationProvider: TdlFileDecorationProvider;
 
 let defaultClient: LanguageClient;
 const clients = new Map<string, LanguageClient>();
@@ -99,7 +102,14 @@ export function activate(context: ExtensionContext) {
             clientOptions.workspaceFolder = folder;
         }
         const client = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
-        client.start();
+        // Wait for client to be started before registering notification
+        client.start().then(() => {
+            tdlDecorationProvider = new TdlFileDecorationProvider(client);
+            context.subscriptions.push(window.registerFileDecorationProvider(tdlDecorationProvider));
+        }).catch((err: any) => {
+            outputChannel.appendLine(`[Error] Client failed to start: ${err}`);
+        });
+        
         return client;
     }
 

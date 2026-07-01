@@ -294,10 +294,14 @@ export class ScopeViewerService {
                         const nameLower = parts.slice(1).join(':');
                         const mapMatch = this.manager.scopeIndex.get(typeLower);
                         if (mapMatch) {
-                            const defScope = mapMatch.get(nameLower);
-                            if (defScope && defScope.kind === ScopeKind.Definition) {
-                                const ds = defScope as DefinitionScope;
-                                if (ds.definition) symbols.push(ds.definition);
+                            const defScopes = mapMatch.get(nameLower);
+                            if (defScopes) {
+                                for (const defScope of defScopes) {
+                                    if (defScope.kind === ScopeKind.Definition) {
+                                        const ds = defScope as DefinitionScope;
+                                        if (ds.definition) symbols.push(ds.definition);
+                                    }
+                                }
                             }
                         }
                     }
@@ -310,10 +314,14 @@ export class ScopeViewerService {
                     const mapMatch = this.manager.scopeIndex.get(type.toLowerCase());
                     if (mapMatch) {
                         for (const childName of set) {
-                            const defScope = mapMatch.get(childName.toLowerCase());
-                            if (defScope && defScope.kind === ScopeKind.Definition) {
-                                const ds = defScope as DefinitionScope;
-                                if (ds.definition) symbols.push(ds.definition);
+                            const defScopes = mapMatch.get(childName.toLowerCase());
+                            if (defScopes) {
+                                for (const defScope of defScopes) {
+                                    if (defScope.kind === ScopeKind.Definition) {
+                                        const ds = defScope as DefinitionScope;
+                                        if (ds.definition) symbols.push(ds.definition);
+                                    }
+                                }
                             }
                         }
                     }
@@ -374,10 +382,12 @@ export class ScopeViewerService {
             // Project definitions are now in scopeIndex
             for (const [defType, defMap] of this.manager.scopeIndex.entries()) {
                 if (defType.toLowerCase() === lowerKind || defType === kind) {
-                    for (const defScope of defMap.values()) {
-                        if (defScope.kind === ScopeKind.Definition) {
-                            const ds = defScope as DefinitionScope;
-                            if (ds.definition) symbols.push(ds.definition);
+                    for (const defScopes of defMap.values()) {
+                        for (const defScope of defScopes) {
+                            if (defScope.kind === ScopeKind.Definition) {
+                                const ds = defScope as DefinitionScope;
+                                if (ds.definition) symbols.push(ds.definition);
+                            }
                         }
                     }
                 }

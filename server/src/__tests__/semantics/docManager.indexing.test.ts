@@ -2,8 +2,21 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { DocManager } from '../../docManager';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
-import fs from 'fs';
+import * as fs from 'fs';
 import { normalizeUri } from '../../utils/uri';
+
+vi.mock('fs', async () => {
+    const actualFs = await vi.importActual<typeof import('fs')>('fs');
+    return {
+        ...actualFs,
+        statSync: vi.fn(),
+        promises: {
+            ...actualFs.promises,
+            stat: vi.fn(),
+            readFile: vi.fn()
+        }
+    };
+});
 
 describe('DocManager indexed document state', () => {
     let docManager: DocManager;
@@ -11,6 +24,7 @@ describe('DocManager indexed document state', () => {
     let mockDocuments: any;
     
     beforeEach(() => {
+        vi.clearAllMocks();
         mockConnection = {
             console: { log: vi.fn(), warn: vi.fn(), error: vi.fn(), info: vi.fn() },
             sendDiagnostics: vi.fn()
@@ -84,7 +98,7 @@ describe('DocManager indexed document state', () => {
         await onDidCloseHandler({ document: doc });
         
         expect((docManager as any).docs.has(uri)).toBe(false);
-        expect(indexFileSpy).toHaveBeenCalledWith(expect.stringContaining('docManager.indexing.test.ts'), expect.any(Set));
+        expect(indexFileSpy).toHaveBeenCalledWith(expect.stringContaining('docManager.indexing.test.ts'), expect.any(Set), false, false, false);
     });
 
     it('clearFolderSymbols removes indexed docs', () => {
@@ -106,34 +120,34 @@ describe('DocManager indexed document state', () => {
             const uri = URI.file(fsPath).toString();
             
             // Mock stat to return constant mtime
-            vi.spyOn(fs.promises, 'stat').mockResolvedValue({ mtimeMs: 12345 } as any);
+            (fs.promises.stat as any).mockResolvedValue({ mtimeMs: 12345 });
             // Mock readFile to monitor calls
-            const readFileSpy = vi.spyOn(fs.promises, 'readFile').mockResolvedValue(Buffer.from(''));
+            (fs.promises.readFile as any).mockResolvedValue(Buffer.from(''));
             
             await docManager.indexFile(fsPath);
-            expect(readFileSpy).toHaveBeenCalledTimes(1);
+            expect(fs.promises.readFile).toHaveBeenCalledTimes(1);
             
             // Should skip the second time
             await docManager.indexFile(fsPath);
-            expect(readFileSpy).toHaveBeenCalledTimes(1); // Call count remains 1
+            expect(fs.promises.readFile).toHaveBeenCalledTimes(1); // Call count remains 1
         });
 
         it('re-reads when mtime changes', async () => {
             const fsPath = __filename;
             const uri = URI.file(fsPath).toString();
             
-            const statSpy = vi.spyOn(fs.promises, 'stat');
-            statSpy.mockResolvedValueOnce({ mtimeMs: 1000 } as any);
-            statSpy.mockResolvedValueOnce({ mtimeMs: 2000 } as any); // Changed
+            const statSpy = fs.promises.stat as any;
+            statSpy.mockResolvedValueOnce({ mtimeMs: 1000 });
+            statSpy.mockResolvedValueOnce({ mtimeMs: 2000 }); // Changed
             
-            const readFileSpy = vi.spyOn(fs.promises, 'readFile').mockResolvedValue(Buffer.from(''));
+            (fs.promises.readFile as any).mockResolvedValue(Buffer.from(''));
             
             await docManager.indexFile(fsPath);
-            expect(readFileSpy).toHaveBeenCalledTimes(1);
+            expect(fs.promises.readFile).toHaveBeenCalledTimes(1);
             
             // Should re-read
             await docManager.indexFile(fsPath);
-            expect(readFileSpy).toHaveBeenCalledTimes(2);
+            expect(fs.promises.readFile).toHaveBeenCalledTimes(2);
         });
 
         it('rebuild doesn\'t trigger cascading indexFile calls for unchanged includes', async () => {
@@ -149,7 +163,7 @@ describe('DocManager indexed document state', () => {
             
             // Mock cached timestamps so it thinks the file hasn't changed
             (docManager as any).fileTimestamps = new Map([[normalizeUri(URI.file(fsPath).toString()), 1000]]);
-            vi.spyOn(fs, 'statSync').mockReturnValue({ mtimeMs: 1000 } as any);
+            (fs.promises.stat as any).mockResolvedValue({ mtimeMs: 1000 });
 
             await docManager.rebuild(doc);
             
@@ -170,7 +184,9 @@ describe('DocManager indexed document state', () => {
             docManager.resolveIncludePath = () => fsPathUppercase;
 
             vi.spyOn(docManager as any, 'indexFile').mockImplementation(async (fsPath: any) => {
-                (docManager as any).includeGraph.set(normalizeUri(URI.file(fsPath).toString()), new Set());
+                const normPath = normalizeUri(URI.file(fsPath).toString());
+                (docManager as any).includeGraph.set(normPath, new Set());
+                (docManager as any).tdlScopeManager.fileMap.set(normPath, { parent: (docManager as any).tdlScopeManager.projectScope });
             });
 
             await docManager.rebuild(doc);
@@ -183,6 +199,51 @@ describe('DocManager indexed document state', () => {
             // Verify isUriActive handles lowercase docs correctly
             expect(docManager.isUriActive(uriUppercase)).toBe(true);
             expect(docManager.isUriActive(doc.uri)).toBe(true);
+        });
+    });
+
+    describe('URI normalization for internal paths', () => {
+        it('updateIncludeGraph converts fsPath to proper normalized document URIs', () => {
+            const fsPath = 'C:\\test\\workspace\\main.tdl';
+            const includeFsPath = 'C:\\test\\workspace\\child.tdl';
+            const uri = URI.file(fsPath).toString();
+            
+            // Mock a doc with an include
+            const sourceFile = {
+                definitions: [
+                    { type: { text: 'Include' }, name: { text: 'child.tdl' } }
+                ]
+            } as any;
+
+            docManager.resolveIncludePath = () => includeFsPath;
+
+            const includes = (docManager as any).updateIncludeGraph(uri, sourceFile);
+            
+            // It should be a proper URI, NOT an fsPath
+            expect(includes.has(normalizeUri(URI.file(includeFsPath).toString()))).toBe(true);
+            expect(includes.has(includeFsPath)).toBe(false);
+            expect(includes.has(includeFsPath.toLowerCase())).toBe(false);
+        });
+
+        it('indexFile internally converts fsPath arguments to proper document URIs', async () => {
+            const fsPath = 'C:\\test\\workspace\\standalone.tdl';
+            
+            // Spy on the internal map to see what key is actually used
+            const setSpy = vi.spyOn((docManager as any).indexedDocs, 'set');
+            
+            // Need to mock stat and readFile so it doesn't fail
+            (fs.promises.stat as any).mockResolvedValue({ mtimeMs: 1234 });
+            (fs.promises.readFile as any).mockResolvedValue(Buffer.from(''));
+            
+            await docManager.indexFile(fsPath);
+            
+            const expectedUri = normalizeUri(URI.file(fsPath).toString());
+            
+            // Wait, indexFile doesn't store in indexedDocs unless rebuild is called,
+            // but it DOES store in fileTimestamps
+            expect((docManager as any).fileTimestamps.has(expectedUri)).toBe(true);
+            expect((docManager as any).fileTimestamps.has(fsPath)).toBe(false);
+            expect((docManager as any).fileTimestamps.has(fsPath.toLowerCase())).toBe(false);
         });
     });
 });

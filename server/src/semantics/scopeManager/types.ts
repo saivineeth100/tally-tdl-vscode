@@ -8,6 +8,7 @@ import { normalizeTypeName } from '../../utils/normalizeUtils';
 export enum ScopeKind {
     Global = 'Global',       // Metadata (System definitions)
     Project = 'Project',     // User defined global definitions (Collection, Report, etc.)
+    Workspace = 'Workspace', // Loose workspace files
     File = 'File',           // File-level definitions (if any explicit local scope exists)
     Definition = 'Definition', // Inside a definition ([Report: ...])
     Function = 'Function',   // Function specific scope
@@ -51,6 +52,11 @@ export interface ProjectScope extends BaseScope {
     referenceIndex: ReferenceIndex;
 }
 
+export interface WorkspaceScope extends BaseScope {
+    kind: ScopeKind.Workspace;
+    referenceIndex: ReferenceIndex;
+}
+
 export interface FileScope extends BaseScope {
     kind: ScopeKind.File;
 }
@@ -81,7 +87,7 @@ export interface LocalScope extends BaseScope {
     kind: ScopeKind.Local;
 }
 
-export type Scope = GlobalScope | ProjectScope | FileScope | DefinitionScope | FunctionScope | BlockScope | LocalScope;
+export type Scope = GlobalScope | ProjectScope | WorkspaceScope | FileScope | DefinitionScope | FunctionScope | BlockScope | LocalScope;
 
 export function hasDefinitions(scope: Scope): scope is GlobalScope {
     return scope.kind === ScopeKind.Global;

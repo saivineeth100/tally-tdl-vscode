@@ -77,7 +77,8 @@ describe('XML Schema Completion', () => {
         const dummyConnection = {
             onCompletion: (cb: any) => {
                 onCompletionCallback = cb;
-            }
+            },
+            onCompletionResolve: () => {}
         };
         registerCompletion(dummyConnection as any, dummyDocs as any, dummyManager as any);
 

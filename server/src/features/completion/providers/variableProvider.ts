@@ -2,12 +2,14 @@ import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
 import { DocManager } from '../../../docManager';
 import { getSuggestionsForDefinitionType } from './definitionProvider';
 import { getFieldsInScope } from '../../../semantics/scopeManager';
+import { ScopeManager } from '../../../semantics/scopeManager';
 
 export function provideVariableCompletions(
     manager: DocManager,
     uri: string,
     offset: number,
-    partial: string
+    partial: string,
+    isActive: boolean
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     
@@ -34,8 +36,8 @@ export function provideVariableCompletions(
     
     // 2. Global definitions
     const projectScope = manager.getProjectNodes(uri);
-    items.push(...getSuggestionsForDefinitionType('Variable', partial, scopeManager, projectScope));
-    items.push(...getSuggestionsForDefinitionType('System Variable', partial, scopeManager, projectScope));
+    items.push(...getSuggestionsForDefinitionType('Variable', partial, scopeManager, isActive, projectScope));
+    items.push(...getSuggestionsForDefinitionType('System Variable', partial, scopeManager, isActive, projectScope));
 
     return items;
 }

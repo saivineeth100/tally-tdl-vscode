@@ -182,8 +182,8 @@ export async function validateSourceFile(
                                     targetDefType
                                 ));
                             } else {
-                                const resolvedDef = scopeManager.resolveDefinition(targetDefName, targetDefType, scopeManager.projectScope, projectNodes);
-                                let exists = !!resolvedDef;
+                                const resolvedDefs = scopeManager.resolveDefinition(targetDefName, targetDefType, scopeManager.projectScope, projectNodes);
+                                const exists = resolvedDefs && resolvedDefs.length > 0;
                                 
                                 if (!exists) {
                                     // Default severity for MissingDefinition is Warning
@@ -193,6 +193,21 @@ export async function validateSourceFile(
                                         targetDefName,
                                         targetDefType
                                     ));
+                                } else if (projectNodes && docManager) {
+                                    const resolvedDef = resolvedDefs[0];
+                                    if (resolvedDef.uri && resolvedDef.uri !== 'global:metadata' && !resolvedDef.uri.startsWith('basetdl://')) {
+                                        if (!projectNodes.has(resolvedDef.uri)) {
+                                            const diag = createDiagnostic(
+                                                DiagnosticRules.MissingDefinition,
+                                                { start: doc.positionAt(target.defNameStart || dir.start), end: doc.positionAt(target.defNameEnd || dir.end) },
+                                                targetDefName,
+                                                targetDefType
+                                            );
+                                            diag.message = `${targetDefType} "${targetDefName}" is defined in a file not included in the project.`;
+                                            diag.severity = DiagnosticSeverity.Warning;
+                                            diagnostics.push(diag);
+                                        }
+                                    }
                                 }
                             }
                         }

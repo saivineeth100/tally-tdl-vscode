@@ -44,8 +44,8 @@ describe('ScopeManager', () => {
 
         const resolved = manager.resolveDefinition('Date', 'Function', scope);
         expect(resolved).toBeDefined();
-        expect(resolved?.name).toBe('Date');
-        expect(resolved?.kind).toBe(SymbolKind.Function);
+        expect(resolved?.[0]?.name).toBe('Date');
+        expect(resolved?.[0]?.kind).toBe(SymbolKind.Function);
     });
 
     it('should resolve symbols from file scope', () => {
@@ -75,13 +75,13 @@ describe('ScopeManager', () => {
 
         // So `resolve` should fall back to ``.
 
-        manager.scopeIndex.set('report', new Map([ ['myreport', { kind: ScopeKind.Definition, definition: { name: 'MyReport', kind: SymbolKind.Report, uri: 'file://test.tdl', start: 10, end: 18, definitionType: 'Report' } as any } as any] ]));
+        manager.scopeIndex.set('report', new Map([ ['myreport', [{ kind: ScopeKind.Definition, definition: { name: 'MyReport', kind: SymbolKind.Report, uri: 'file://test.tdl', start: 10, end: 18, definitionType: 'Report' } as any } as any]] ]));
 
         const scope = manager.buildFileScope('file://test.tdl', mockSourceFile);
         const resolved = manager.resolveDefinition('MyReport', 'Report', scope);
 
         expect(resolved).toBeDefined();
-        expect(resolved?.name).toBe('MyReport');
+        expect(resolved?.[0]?.name).toBe('MyReport');
     });
 
     it('should parse Fetch Object attributes and add them to scope', () => {
@@ -539,8 +539,8 @@ describe('ScopeManager', () => {
             
             const myReport = reportDefs?.get('myreport');
             expect(myReport).toBeDefined();
-            expect((myReport as any)?.definition?.name).toBe('MyReport');
-            expect((myReport as any)?.definition?.definitionType).toBe('Report');
+            expect((myReport as any)[0]?.definition?.name).toBe('MyReport');
+            expect((myReport as any)[0]?.definition?.definitionType).toBe('Report');
         });
 
         it('should not register modifiers or incomplete definitions', () => {
@@ -732,8 +732,8 @@ describe('ScopeManager', () => {
             
             const myReport = reportDefs?.get('myreport');
             expect(myReport).toBeDefined();
-            expect((myReport as any)?.definition?.name).toBe('MyReport');
-            expect((myReport as any)?.definition?.definitionType).toBe('Report');
+            expect((myReport as any)[0]?.definition?.name).toBe('MyReport');
+            expect((myReport as any)[0]?.definition?.definitionType).toBe('Report');
         });
 
         it('should not register modifiers or incomplete definitions', () => {

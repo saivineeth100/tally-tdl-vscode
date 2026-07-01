@@ -115,7 +115,7 @@ describe('XML Suggestions Tests', () => {
         
         let typeMap = testScopeManager!.scopeIndex.get('form');
         if (!typeMap) { typeMap = new Map(); testScopeManager!.scopeIndex.set('form', typeMap); }
-        typeMap.set('simpletrialbalance', {
+        typeMap.set('simpletrialbalance', [{
             kind: ScopeKind.Definition,
             definition: {
                 name: 'Simple Trial Balance',
@@ -125,7 +125,7 @@ describe('XML Suggestions Tests', () => {
                 start: 0,
                 end: 10
             }
-        } as any);
+        }] as any);
 
         mockManager = {
             get: () => ({
@@ -169,7 +169,7 @@ describe('XML Suggestions Tests', () => {
         
         let typeMap2 = testScopeManager!.scopeIndex.get('form');
         if (!typeMap2) { typeMap2 = new Map(); testScopeManager!.scopeIndex.set('form', typeMap2); }
-        typeMap2.set('simpletrialbalance', {
+        typeMap2.set('simpletrialbalance', [{
             kind: ScopeKind.Definition,
             definition: {
                 name: 'Simple Trial Balance',
@@ -179,7 +179,7 @@ describe('XML Suggestions Tests', () => {
                 start: 0,
                 end: 10
             }
-        } as any);
+        }] as any);
 
         // Mocking TextDocuments and Connection for DocManager
         mockConnection = { 

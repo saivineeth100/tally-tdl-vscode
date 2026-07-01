@@ -15,7 +15,8 @@ export function provideModifierValueCompletions(
     offset: number,
     currentDef: DefinitionNode,
     context: CompletionContext,
-    isXml: boolean
+    isXml: boolean,
+    isActive: boolean
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     if (!context.modifierName || context.paramIndex === undefined) return items;
@@ -214,7 +215,7 @@ export function provideModifierValueCompletions(
         // Use : <Definition Name>
         if (context.paramIndex === 0) {
             const defTypeName = currentDef.type.text;
-            items.push(...getSuggestionsForDefinitionType(defTypeName, context.partial, scopeManager));
+            items.push(...getSuggestionsForDefinitionType(defTypeName, context.partial, scopeManager, isActive));
         }
     }
     return items;

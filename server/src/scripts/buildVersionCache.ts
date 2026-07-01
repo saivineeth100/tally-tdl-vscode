@@ -147,25 +147,27 @@ async function buildCacheForVersion(version: string) {
         // Move the parsed Base TDL definitions from projectScope to globalScope
         console.time("Shifting to Global Scope");
         console.log(`Shifting Base TDL definitions to Global Scope...`);
-        for (const [defType, defMap] of scopeManager.scopeIndex.entries()) {
+        for (const [defType, defScopes] of scopeManager.scopeIndex.entries()) {
             let globalDefMap = scopeManager.globalScope.definitions.get(defType);
             if (!globalDefMap) {
                 globalDefMap = new Map();
                 scopeManager.globalScope.definitions.set(defType, globalDefMap);
             }
-            for (const [name, sym] of defMap.entries()) {
-                if (sym.kind === ScopeKind.Definition) {
-                    const ds = sym as DefinitionScope;
-                    if (ds.definition) {
-                        globalDefMap.set(name, ds.definition);
+            for (const [name, syms] of defScopes.entries()) {
+                for (const sym of syms) {
+                    if (sym.kind === ScopeKind.Definition) {
+                        const ds = sym as DefinitionScope;
+                        if (ds.definition) {
+                            globalDefMap.set(name, ds.definition);
+                        }
                     }
-                }
-                
-                // Sever parent links for ALL scopes in scopeIndex (Definitions, Functions, etc.)
-                // so V8 doesn't pull in the 5,000+ FileScope tree
-                const baseScope = sym as any;
-                if (baseScope.parent && baseScope.parent.kind === ScopeKind.File) {
-                    baseScope.parent = undefined;
+                    
+                    // Sever parent links for ALL scopes in scopeIndex (Definitions, Functions, etc.)
+                    // so V8 doesn't pull in the 5,000+ FileScope tree
+                    const baseScope = sym as any;
+                    if (baseScope.parent && baseScope.parent.kind === ScopeKind.File) {
+                        baseScope.parent = undefined;
+                    }
                 }
             }
         }

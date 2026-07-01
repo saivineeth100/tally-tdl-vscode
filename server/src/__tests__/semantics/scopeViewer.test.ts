@@ -83,11 +83,13 @@ describe('ScopeViewerService', () => {
                 globalDefMap = new Map();
                 manager.globalScope.definitions.set(defType, globalDefMap);
             }
-            for (const [name, sym] of defMap.entries()) {
-                if (sym.kind === ScopeKind.Definition) {
-                    const ds = sym as DefinitionScope;
-                    if (ds.definition) {
-                        globalDefMap.set(name, ds.definition);
+            for (const [name, syms] of defMap.entries()) {
+                for (const sym of syms) {
+                    if (sym.kind === ScopeKind.Definition) {
+                        const ds = sym as DefinitionScope;
+                        if (ds.definition) {
+                            globalDefMap.set(name, ds.definition);
+                        }
                     }
                 }
             }

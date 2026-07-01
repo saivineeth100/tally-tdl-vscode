@@ -101,6 +101,7 @@ describe('TDL Suggestions Tests', () => {
         
         mockConnection = {
             onCompletion: (cb: any) => { completionCallback = cb; },
+            onCompletionResolve: () => {},
             console: { log: () => {}, error: () => {} }
         };
         
@@ -174,6 +175,7 @@ describe('TDL Suggestions Tests', () => {
         let completionCb: Function = () => {};
         const mockConn = {
             onCompletion: (cb: any) => { completionCb = cb; },
+            onCompletionResolve: () => {},
             console: { log: () => {}, error: () => {} }
         };
         
