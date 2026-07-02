@@ -40,4 +40,33 @@ describe('Definition Range & Multi-word Support', () => {
         expect(refColl).toBeDefined();
         expect(refColl!.name).toBe('My Collection');
     });
+
+    it('should find reference for multi-word field name in Use attribute', () => {
+        const tdl = `
+[Field: BankDet VCH NarrWOChqDet]
+    Use         : VCH Narration
+    Storage     : NarrWOCh
+        `;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+
+        const fullText = tdl;
+        const refOffsetStr = "Use         : VCH Narration";
+        const refStart = fullText.lastIndexOf(refOffsetStr) + "Use         : ".length;
+
+        // Test clicking on "VCH"
+        const offsetVCH = refStart + 1;
+        const refVCH = findReferenceAtOffset(sourceFile, offsetVCH, fullText);
+
+        expect(refVCH).toBeDefined();
+        expect(refVCH!.name).toBe('VCH Narration');
+        expect(refVCH!.expectedType).toBe('Field'); // Use inside Field expects Field
+
+        // Test clicking on "Narration"
+        const offsetNarr = refStart + 5;
+        const refNarr = findReferenceAtOffset(sourceFile, offsetNarr, fullText);
+
+        expect(refNarr).toBeDefined();
+        expect(refNarr!.name).toBe('VCH Narration');
+    });
 });

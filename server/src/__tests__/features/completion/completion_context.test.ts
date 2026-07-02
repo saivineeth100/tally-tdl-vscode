@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { Parser } from '../../core/parser/parser';
-import { detectCompletionContext, findDefinitionAtCursor } from '../../features/completion';
+import { Parser } from '../../../core/parser/parser';
+import { detectCompletionContext, findDefinitionAtCursor } from '../../../features/completion';
 
 describe('Completion Attribute Value Context', () => {
 

@@ -81,8 +81,9 @@ export async function findReferences(
                         range: {
                             start: sourceDoc.positionAt(def.name.start),
                             end: sourceDoc.positionAt(def.name.end)
-                        }
-                    });
+                        },
+                        isDefinition: true
+                    } as any);
                 }
                 break;
             } else {
@@ -155,8 +156,9 @@ export async function findReferences(
                             range: {
                                 start: positionAt(matchRefInfo.start, docState.sourceFile.lineOffsets),
                                 end: positionAt(matchRefInfo.end, docState.sourceFile.lineOffsets)
-                            }
-                        });
+                            },
+                            isModifier: matchRefInfo.isModifier === true
+                        } as any);
                     }
                 } else {
                     // It might be a definition name itself
@@ -170,8 +172,9 @@ export async function findReferences(
                                             range: {
                                                 start: positionAt(def.name.start, docState.sourceFile.lineOffsets),
                                                 end: positionAt(def.name.end, docState.sourceFile.lineOffsets)
-                                            }
-                                        });
+                                            },
+                                            isDefinition: true
+                                        } as any);
                                     }
                                 }
                             }

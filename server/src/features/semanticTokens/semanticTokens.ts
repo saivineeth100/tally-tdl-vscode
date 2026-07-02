@@ -23,6 +23,7 @@ import { areTypesCompatible, inferExpressionType, STRUCTURAL_DEFINITION_TYPES } 
 import { normalizeTypeName } from '../../utils/normalizeUtils';
 import { SymbolKind } from 'tally-tdl-shared';
 import { getExpectedTypeForMenuItem } from '../../utils/attributeUtils';
+import { resolveModifierChain } from '../../utils/modifierUtils';
 
 export interface SemanticToken {
     line: number;
@@ -290,12 +291,17 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 text: def.name?.text
             });
         }
-        const defNameText = normalizeTypeName(def.type?.text || '');
+        const defNameText = normalizeTypeName(def.name?.text || '');
+        const defTypeName = normalizeTypeName(def.type?.text || '');
+        
+        if (def.attributes) {
+            traverseAttributes(def.attributes, tokens, defTypeName, defNameText, scopeManager, uri);
+        }
+        
         for (const dir of def.directives) {
             tokenizeDirective(dir, tokens);
         }
 
-        traverseAttributes(def.attributes, tokens, defNameText, scopeManager, uri);
         if (def.complexObjects) {
             traverseComplexObjects(def.complexObjects, tokens, defNameText, scopeManager, uri);
         }
@@ -394,17 +400,23 @@ function tokenizeDirective(dir: any, tokens: SemanticToken[]) {
         }
     }
 }
-function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[], defTypeName: string, scopeManager?: ScopeManager, uri?: string) {
+function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[], defTypeName: string, defName: string, scopeManager?: ScopeManager, uri?: string) {
 
     for (const attr of attributes) {
         let expectedType: string | undefined;
         let defMeta: any | undefined
         if (attr.name) {
+            const attrNameLower = normalizeTypeName(attr.name?.text || '');
+            let tokenType = SemanticTokenTypes.macro;
+            if (scopeManager && scopeManager.globalScope.attributes.has(attrNameLower)) {
+                tokenType = SemanticTokenTypes.keyword;
+            }
+
             tokens.push({
                 line: 0,
                 startChar: attr.name.start,
                 length: attr.name.end - attr.name.start,
-                type: SemanticTokenTypes.macro,
+                type: tokenType,
                 text: attr.name?.text
             });
 
@@ -432,108 +444,74 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
         }
 
         if (attr.value) {
-            if (attr.name?.text?.toLowerCase() === 'local' && scopeManager) {
-                let currentScopeDefType = defTypeName;
-                let expectingDefNameFor: string | undefined = undefined;
-                let isAttribute = false;
-                let targetDefMeta: any | undefined;
-                let previousWasLocal = false;
-
+            const attrNameLower = attr.name?.text?.toLowerCase();
+            if (attrNameLower && ['local', 'add', 'replace', 'delete'].includes(attrNameLower) && scopeManager) {
                 for (let i = 0; i < attr.value.length; i++) {
                     const paramNode = attr.value[i];
-
-                    if (expectingDefNameFor) {
-                        // It's a Definition Name
-                        if (paramNode.kind === SyntaxKind.Identifier) {
-                            tokens.push({
-                                line: 0,
-                                startChar: paramNode.start,
-                                length: paramNode.end - paramNode.start,
-                                type: SemanticTokenTypes.class,
-                                text: (paramNode as any).text
-                            });
-                        } else {
-                            traverseNode(paramNode, tokens, scopeManager, uri, SemanticTokenTypes.class);
-                        }
-                        currentScopeDefType = expectingDefNameFor;
-                        expectingDefNameFor = undefined;
-                    } else if (!isAttribute) {
-                        if (paramNode.kind === SyntaxKind.Identifier) {
-                            const pLower = (paramNode as any).text.toLowerCase();
-                            
-                            if (pLower === 'local') {
-                                previousWasLocal = true;
+                    const offset = paramNode.start + 1;
+                    const resolved = resolveModifierChain(attrNameLower, attr.value, defTypeName, defName, scopeManager, offset);
+                    
+                    if (resolved.cursorSegment) {
+                        switch (resolved.cursorSegment) {
+                            case 'modifierKeyword':
                                 tokens.push({
                                     line: 0,
                                     startChar: paramNode.start,
-                                    length: (paramNode as any).text.length,
+                                    length: paramNode.end - paramNode.start,
                                     type: SemanticTokenTypes.macro,
-                                    text: (paramNode as any).text
+                                    text: 'text' in paramNode ? (paramNode as any).text : ''
                                 });
-                                continue;
-                            }
-                            
-                            const currentAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
-                            const isTargetAttribute = currentAttrs && currentAttrs.has(normalizeTypeName(pLower));
-                            const canonicalDefType = scopeManager.globalScope.interchangeableAttributesMap?.get(pLower) || pLower;
-                            const isStructuralChild = STRUCTURAL_DEFINITION_TYPES.includes(canonicalDefType);
-                            let treatAsChainedTarget = false;
-            
-                            if (scopeManager.globalScope.attributes.has(normalizeTypeName(pLower))) {
-                                if (i + 1 < attr.value.length && attr.value[i + 1].kind === SyntaxKind.Identifier) {
-                                    if (previousWasLocal) {
-                                        treatAsChainedTarget = true;
-                                    } else if (isTargetAttribute && !isStructuralChild) {
-                                        treatAsChainedTarget = false;
-                                    } else if (isTargetAttribute && isStructuralChild) {
-                                        treatAsChainedTarget = (i + 2 < attr.value.length);
-                                    } else {
-                                        treatAsChainedTarget = true;
-                                    }
-                                }
-                            }
-                            
-                            previousWasLocal = false;
-
-                            if (treatAsChainedTarget) {
-                                // It's a Definition Type
-                                expectingDefNameFor = pLower;
+                                break;
+                            case 'positionModifier':
                                 tokens.push({
                                     line: 0,
                                     startChar: paramNode.start,
                                     length: paramNode.end - paramNode.start,
                                     type: SemanticTokenTypes.keyword,
-                                    text: (paramNode as any).text
+                                    text: 'text' in paramNode ? (paramNode as any).text : ''
                                 });
-                            } else {
-                                // It's the Attribute Name
-                                isAttribute = true;
+                                break;
+                            case 'defType':
                                 tokens.push({
                                     line: 0,
                                     startChar: paramNode.start,
                                     length: paramNode.end - paramNode.start,
-                                    type: SemanticTokenTypes.macro,
-                                    text: (paramNode as any).text
+                                    type: SemanticTokenTypes.keyword,
+                                    text: 'text' in paramNode ? (paramNode as any).text : ''
                                 });
-                                // Setup defMeta for values
-                                const attrMap = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
-                                if (attrMap) {
-                                    targetDefMeta = attrMap.get(normalizeTypeName((paramNode as any).text));
+                                break;
+                            case 'defName':
+                            case 'positionReference':
+                                tokens.push({
+                                    line: 0,
+                                    startChar: paramNode.start,
+                                    length: paramNode.end - paramNode.start,
+                                    type: SemanticTokenTypes.class,
+                                    text: 'text' in paramNode ? (paramNode as any).text : ''
+                                });
+                                break;
+                            case 'targetAttribute':
+                                tokens.push({
+                                    line: 0,
+                                    startChar: paramNode.start,
+                                    length: paramNode.end - paramNode.start,
+                                    type: SemanticTokenTypes.property,
+                                    text: 'text' in paramNode ? (paramNode as any).text : ''
+                                });
+                                break;
+                            case 'value':
+                                let expectedType: string | undefined;
+                                if (resolved.targetAttributeMeta && resolved.targetAttributeMeta.parameters && resolved.cursorIndexInValues !== undefined) {
+                                    const paramMeta = resolved.targetAttributeMeta.parameters[resolved.cursorIndexInValues] || resolved.targetAttributeMeta.parameters[resolved.targetAttributeMeta.parameters.length - 1];
+                                    if (paramMeta && paramMeta.RefersTo) {
+                                        expectedType = paramMeta.RefersTo;
+                                    }
                                 }
-                            }
-                        } else {
-                            traverseNode(paramNode, tokens, scopeManager, uri);
+                                traverseNode(paramNode, tokens, scopeManager, uri, expectedType);
+                                break;
                         }
                     } else {
-                        // We are in values for the target attribute
-                        let argExpectedType: string | undefined;
-                        // For value index, we need to subtract the indices used by targets/attribute
-                        // But since we just want to highlight, we can use the first parameter's type or traverse normally
-                        if (targetDefMeta && targetDefMeta.parameters && targetDefMeta.parameters.length > 0) {
-                            const param = targetDefMeta.parameters[0];
-                            argExpectedType = mapMetaTypeToToken(param.RefersTo, param.DataType, scopeManager);
-                        }
-                        traverseNode(paramNode, tokens, scopeManager, uri, argExpectedType);
+                        traverseNode(paramNode, tokens, scopeManager, uri);
                     }
                 }
                 continue;
@@ -598,7 +576,7 @@ function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], 
         }
 
         if (obj.attributes) {
-            traverseAttributes(obj.attributes, tokens, normalizeTypeName(obj.name?.text || ''), scopeManager, uri);
+            traverseAttributes(obj.attributes, tokens, normalizeTypeName(obj.name?.text || ''), '', scopeManager, uri);
         }
 
         if (obj.complexObjects) {

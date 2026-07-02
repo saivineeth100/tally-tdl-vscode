@@ -10,7 +10,9 @@ import {
     Hover,
     MarkupKind,
     DefinitionParams,
-    Location
+    Location,
+    LocationLink,
+    ResponseError
 } from "vscode-languageserver/node";
 
 import { DocManager, readFileWithEncoding } from "./docManager";
@@ -24,7 +26,7 @@ import { loadMetadata as loadNewMetadata, loadExternalLibraries } from './semant
 import { registerCompletion } from "./features/completion";
 import { createDocumentSymbols } from "./features/documentSymbol";
 import { getHoverInfo } from "./features/hover";
-import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from "./features/definition";
+import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation, filterDefinitionLocations } from "./features/definition";
 import { provideFoldingRanges } from "./features/foldingRange";
 import { updateSettings } from './utils/settingsManager';
 import { normalizeTypeName } from './utils/normalizeUtils';
@@ -358,7 +360,7 @@ export function resolveIncludePath(currentPath: string, includeName: string): st
 }
 
 // Handle go-to-definition request
-connection.onDefinition(async (params: DefinitionParams): Promise<Location | Location[] | null> => {
+connection.onDefinition(async (params: DefinitionParams): Promise<Location | LocationLink[] | null> => {
     try {
         logger.trace(`[Trace] Server RECEIVED onDefinition for ${params.textDocument.uri}`);
         const doc = docs.get(params.textDocument.uri);
@@ -395,25 +397,7 @@ connection.onDefinition(async (params: DefinitionParams): Promise<Location | Loc
     const projectScope = docManager.getProjectNodes(normUri);
     
     if (scope) {
-        let resolved: any;
-        const expectedTypeLower = ref.expectedType.toLowerCase();
-        
-        if (expectedTypeLower === 'variable' || expectedTypeLower === 'method' || expectedTypeLower === 'system variable') {
-            resolved = scopeMgr.resolveVariable(ref.name, scope, projectScope);
-        } else if (expectedTypeLower === 'formula' || expectedTypeLower === 'system formulae' || expectedTypeLower === 'formulae') {
-            resolved = scopeMgr.resolveFormula(ref.name, scope, projectScope);
-        } else if (expectedTypeLower === 'function') {
-            resolved = scopeMgr.resolveFunction(ref.name, scope, projectScope);
-        } else if (expectedTypeLower === 'action') {
-            resolved = scopeMgr.resolveAction(ref.name, scope, projectScope);
-        } else {
-            resolved = scopeMgr.resolveDefinition(
-                ref.name,
-                ref.expectedType,
-                scope,
-                projectScope
-            );
-        }
+        const resolved = scopeMgr.resolveTarget(ref.name, ref.expectedType, scope, projectScope);
 
         let resolvedArray: any[] = [];
         if (resolved) {
@@ -425,24 +409,49 @@ connection.onDefinition(async (params: DefinitionParams): Promise<Location | Loc
         }
 
         // Add modifier contributions if it's a definition
-        if (resolvedArray.length > 0 && !['variable', 'method', 'system variable', 'formula', 'system formulae', 'formulae', 'function', 'action'].includes(expectedTypeLower)) {
-            const defId = scopeMgr.normalizeScopeId(ref.expectedType + ':' + ref.name);
-            const mods = docManager.tdlScopeManager.modifierContributions.get(defId);
-            if (mods) {
-                resolvedArray.push(...mods);
-            }
-        }
+        const defId = scopeMgr.normalizeScopeId(ref.expectedType + ':' + ref.name);
+        const mods = docManager.tdlScopeManager.modifierContributions.get(defId) || [];
+        const modSymbols = mods.map(m => (m.scope as any).definition).filter(d => !!d);
+        
+        resolvedArray = filterDefinitionLocations(resolvedArray, modSymbols as any[], ref.isModifier === true);
 
-        const locations: Location[] = [];
-
+        const originSelectionRange = {
+            start: doc.positionAt(ref.start),
+            end: doc.positionAt(ref.end)
+        };
+        const locations: LocationLink[] = [];
         for (const item of resolvedArray) {
             // Don't navigate to metadata-only definitions
-            if (item.uri === 'global:metadata' || (item.start === 0 && item.end === 0)) {
+            if (item.uri === 'global:metadata') {
+                continue;
+            }
+
+            // Navigate to Virtual Document for Base TDL
+            if (item.uri.startsWith('basetdl://')) {
+                const virtualRange = {
+                    start: { line: 0, character: 0 },
+                    end: { line: 0, character: 0 }
+                };
+                locations.push({
+                    targetUri: item.uri,
+                    targetRange: virtualRange,
+                    targetSelectionRange: virtualRange,
+                    originSelectionRange
+                });
+                continue;
+            }
+
+            if (item.start === 0 && item.end === 0) {
                 continue;
             }
 
             if (item.selectionRange) {
-                locations.push({ uri: item.uri, range: item.selectionRange });
+                locations.push({
+                    targetUri: item.uri,
+                    targetRange: item.selectionRange,
+                    targetSelectionRange: item.selectionRange,
+                    originSelectionRange
+                });
                 continue;
             }
 
@@ -452,12 +461,15 @@ connection.onDefinition(async (params: DefinitionParams): Promise<Location | Loc
             if (startOffset !== undefined && endOffset !== undefined) {
                 const targetDoc = docs.get(item.uri);
                 if (targetDoc) {
+                    const range = {
+                        start: targetDoc.positionAt(startOffset),
+                        end: targetDoc.positionAt(endOffset)
+                    };
                     locations.push({
-                        uri: item.uri,
-                        range: {
-                            start: targetDoc.positionAt(startOffset),
-                            end: targetDoc.positionAt(endOffset)
-                        }
+                        targetUri: item.uri,
+                        targetRange: range,
+                        targetSelectionRange: range,
+                        originSelectionRange
                     });
                     continue;
                 }
@@ -468,46 +480,20 @@ connection.onDefinition(async (params: DefinitionParams): Promise<Location | Loc
                     if (fs.existsSync(filePath)) {
                         const content = await readFileWithEncoding(filePath);
                         const tempDoc = TextDocument.create(item.uri, 'tally', 1, content);
+                        const range = {
+                            start: tempDoc.positionAt(startOffset),
+                            end: tempDoc.positionAt(endOffset)
+                        };
                         locations.push({
-                            uri: item.uri,
-                            range: {
-                                start: tempDoc.positionAt(startOffset),
-                                end: tempDoc.positionAt(endOffset)
-                            }
+                            targetUri: item.uri,
+                            targetRange: range,
+                            targetSelectionRange: range,
+                            originSelectionRange
                         });
                         continue;
                     }
                 } catch (e) {
                     logger.error(`Error reading file for definition: ${e}`);
-                }
-            }
-
-            // Try fast lookup via Scope Index first to avoid reading file
-            const nameToFind = item.name || ref.name;
-            const entries = docManager.tdlScopeManager.findGlobalSymbolsByName(nameToFind);
-            let found = false;
-            for (const entry of entries) {
-                if (entry.uri === item.uri && entry.selectionRange) {
-                    locations.push({ uri: item.uri, range: entry.selectionRange });
-                    found = true;
-                    break;
-                } else if (entry.uri === item.uri && entry.range && entry.range.start.line !== undefined) {
-                    locations.push({ uri: item.uri, range: entry.range as any });
-                    found = true;
-                    break;
-                }
-            }
-            if (found) continue;
-
-            // Try XML Scope Index
-            const xmlEntries = docManager.xmlScopeManager.findGlobalSymbolsByName(nameToFind);
-            for (const entry of xmlEntries) {
-                if (entry.uri === item.uri && entry.selectionRange) {
-                    locations.push({ uri: item.uri, range: entry.selectionRange });
-                    break;
-                } else if (entry.uri === item.uri && entry.range && entry.range.start.line !== undefined) {
-                    locations.push({ uri: item.uri, range: entry.range as any });
-                    break;
                 }
             }
         }

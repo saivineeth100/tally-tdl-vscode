@@ -34,8 +34,25 @@ export function provideCodeLens(sourceFile: SourceFile, doc: TextDocument, scope
                         start: doc.positionAt(def.name.start),
                         end: doc.positionAt(def.name.end)
                     },
-                    data: { uri: doc.uri, name: def.name.text, position: doc.positionAt(def.name.start) }
+                    data: { uri: doc.uri, name: def.name.text, position: doc.positionAt(def.name.start), type: 'usages' }
                 });
+
+                let modCount = 0;
+                if (scopeManager && 'modifierContributions' in scopeManager) {
+                    const defId = scopeManager.normalizeScopeId(defTypeLower + ':' + def.name.text);
+                    const mods = (scopeManager as any).modifierContributions.get(defId);
+                    if (mods) modCount = mods.length;
+                }
+
+                if (modCount > 0) {
+                    lenses.push({
+                        range: {
+                            start: doc.positionAt(def.name.start),
+                            end: doc.positionAt(def.name.end)
+                        },
+                        data: { uri: doc.uri, name: def.name.text, position: doc.positionAt(def.name.start), type: 'modifiers' }
+                    });
+                }
 
                 // Also check for local formulas defined within this definition
                 const scope = scopeManager.getScopeAt(doc.uri, def.start);
@@ -98,14 +115,42 @@ export async function resolveCodeLens(lens: CodeLens, docManager: DocManager, do
         refCache.set(cacheKey, { count, locations: references || [], timestamp: now });
     }
     
-    lens.command = {
-        title: `${count} reference${count === 1 ? '' : 's'}`,
-        command: 'tally-tdl.showReferences',
-        arguments: [
-            lens.data.uri,
-            lens.range.start,
-            references || []
-        ]
-    };
+    if (lens.data.type === 'usages') {
+        const usages = references.filter((r: any) => !r.isModifier && !r.isDefinition);
+        count = usages.length;
+        lens.command = {
+            title: `${count} usage${count === 1 ? '' : 's'}`,
+            command: 'tally-tdl.showReferences',
+            arguments: [
+                lens.data.uri,
+                lens.range.start,
+                usages
+            ]
+        };
+    } else if (lens.data.type === 'modifiers') {
+        const modifiers = references.filter((r: any) => r.isModifier);
+        count = modifiers.length;
+        lens.command = {
+            title: `${count} modifier${count === 1 ? '' : 's'}`,
+            command: 'tally-tdl.showReferences',
+            arguments: [
+                lens.data.uri,
+                lens.range.start,
+                modifiers
+            ]
+        };
+    } else {
+        const filtered = references.filter((r: any) => !r.isDefinition);
+        count = filtered.length;
+        lens.command = {
+            title: `${count} reference${count === 1 ? '' : 's'}`,
+            command: 'tally-tdl.showReferences',
+            arguments: [
+                lens.data.uri,
+                lens.range.start,
+                filtered
+            ]
+        };
+    }
     return lens;
 }

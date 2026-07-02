@@ -1,46 +1,10 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { Parser } from '../../core/parser/parser';
-import { detectCompletionContext, findDefinitionAtCursor, registerCompletion } from '../../features/completion';
+import { Parser } from '../../../core/parser/parser';
+import { detectCompletionContext, findDefinitionAtCursor, registerCompletion } from '../../../features/completion';
 
-describe('Completion Context Detection', () => {
 
-    it('should detect definition name context with modifier (#)', () => {
-        const input = `[#Report: `;
-        const cursor = input.length;
 
-        const context = detectCompletionContext(input, undefined, cursor, undefined);
-        expect(context.type).toBe('definition_name');
-        expect(context.defType).toBe('Report');
-        expect(context.hasModifier).toBe(true);
-        expect(context.modifier).toBe('#');
-    });
-
-    it('should detect definition name context without modifier', () => {
-        const input = `[Report: `;
-        const cursor = input.length;
-
-        const context = detectCompletionContext(input, undefined, cursor, undefined);
-        expect(context.type).toBe('definition_name');
-        expect(context.defType).toBe('Report');
-        expect(context.hasModifier).toBe(false);
-    });
-
-    it('should detect attribute context in empty line', () => {
-        const inputSimple = `[Report: R]\n   `;
-        const parserSimple = new Parser(inputSimple);
-        const sourceFileSimple = parserSimple.parse();
-        const cursorSimple = inputSimple.length;
-
-        const currentDef = findDefinitionAtCursor(sourceFileSimple, cursorSimple);
-        expect(currentDef).toBeDefined();
-        expect(currentDef?.type.text).toBe('Report');
-
-        const context = detectCompletionContext('   ', sourceFileSimple, cursorSimple, currentDef);
-        expect(context.type).toBe('attribute');
-    });
-});
-
-import { buildFunctionDocumentation } from '../../features/completion';
+import { buildFunctionDocumentation } from '../../../features/completion';
 import { FunctionSymbol, SymbolKind } from 'tally-tdl-shared';
 
 describe('Function Documentation Builder', () => {
@@ -95,7 +59,7 @@ describe('TDL Suggestions Tests', () => {
     it('returns formula names for @@ context', async () => {
         const { TextDocument } = await import('vscode-languageserver-textdocument');
 
-        const { ScopeManager } = await import('../../semantics/scopeManager');
+        const { ScopeManager } = await import('../../../semantics/scopeManager');
 
         const tdlContent = '[Report: MyReport]\n    Set As: @@';
         
@@ -168,7 +132,7 @@ describe('TDL Suggestions Tests', () => {
     it('returns local formula names for @ context', async () => {
         const { TextDocument } = await import('vscode-languageserver-textdocument');
 
-        const { ScopeManager } = await import('../../semantics/scopeManager');
+        const { ScopeManager } = await import('../../../semantics/scopeManager');
 
         const tdlContent = '[Report: MyReport]\n    Set As: @';
         

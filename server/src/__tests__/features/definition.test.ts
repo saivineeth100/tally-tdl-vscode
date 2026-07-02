@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { findReferenceAtOffset } from '../../features/definition';
 import { SourceFile, DefinitionNode, IdentifierNode, SyntaxKind } from '../../core/ast/ast';
 import { TokenKind } from '../../core/lexer/tokenKind';
+import { DefinitionSymbol } from 'tally-tdl-shared';
 
 import { Parser } from '../../core/parser/parser';
 
@@ -134,5 +135,73 @@ describe('Definition Service - References', () => {
         
         expect(ref).toBeDefined();
         expect(ref?.name).toBe('P2');
+    });
+
+    it('should set isModifier to true when clicking on a modifier definition name', () => {
+        const text = `
+            [#Part: |MyPart]
+            Line: MyLine
+        `;
+        const { sourceFile, offset } = createMockSourceFile(text);
+        
+        const ref = findReferenceAtOffset(sourceFile, offset, text, mockScopeManager);
+        
+        expect(ref).toBeDefined();
+        expect(ref?.name).toBe('MyPart');
+        expect(ref?.expectedType).toBe('Part');
+        expect(ref?.isModifier).toBe(true);
+    });
+
+    it('should not set isModifier to true when clicking on a base definition name', () => {
+        // Technically clicking on base definition doesn't return a reference for itself in this flow,
+        // but if it did, it shouldn't be a modifier.
+        const text = `
+            [Part: MyPart]
+            Line: |MyLine
+        `;
+        const { sourceFile, offset } = createMockSourceFile(text);
+        
+        const ref = findReferenceAtOffset(sourceFile, offset, text, mockScopeManager);
+        
+        expect(ref).toBeDefined();
+        expect(ref?.name).toBe('MyLine');
+        expect(ref?.expectedType).toBe('Line');
+        expect(ref?.isModifier).toBeFalsy();
+    });
+});
+
+import { filterDefinitionLocations } from '../../features/definition/referenceResolver';
+
+describe('Definition Service - Location Filtering', () => {
+    it('should exclude Base TDL and return only local modifiers for normal usage', () => {
+        const baseDefs = [{ uri: 'basetdl://base/9.0/Part.tdl' }] as unknown as DefinitionSymbol[];
+        const mods = [{ uri: 'file:///local/PartModifier.tdl' }] as unknown as DefinitionSymbol[];
+        
+        const result = filterDefinitionLocations(baseDefs, mods, false);
+        
+        expect(result.length).toBe(1);
+        expect(result[0].uri).toBe('file:///local/PartModifier.tdl');
+    });
+
+    it('should return Base TDL and exclude local modifiers when triggered from a modifier', () => {
+        const baseDefs = [{ uri: 'basetdl://base/9.0/Part.tdl' }] as unknown as DefinitionSymbol[];
+        const mods = [{ uri: 'file:///local/PartModifier.tdl' }] as unknown as DefinitionSymbol[];
+        
+        const result = filterDefinitionLocations(baseDefs, mods, true);
+        
+        expect(result.length).toBe(1);
+        expect(result[0].uri).toBe('basetdl://base/9.0/Part.tdl');
+    });
+
+    it('should return local definition and local modifiers for normal usage in project scope', () => {
+        const baseDefs = [{ uri: 'file:///local/Part.tdl' }] as unknown as DefinitionSymbol[];
+        const mods = [{ uri: 'file:///local/PartModifier.tdl' }] as unknown as DefinitionSymbol[];
+        
+        const result = filterDefinitionLocations(baseDefs, mods, false);
+        
+        // Base definition is in project scope (not basetdl), so it should NOT be excluded
+        expect(result.length).toBe(2);
+        expect(result[0].uri).toBe('file:///local/Part.tdl');
+        expect(result[1].uri).toBe('file:///local/PartModifier.tdl');
     });
 });

@@ -33,17 +33,16 @@ export function validateDefinitionAttributes(
         const attrName = attr.name.text;
         const attrNameLower = normalizeTypeName(attrName);
 
-        if (attrNameLower === 'local') {
+        if (['local', 'add', 'replace', 'delete'].includes(attrNameLower)) {
             // Validate Local targets dynamically
             let currentScopeDefType = defTypeName;
             let currentScopeDefName = def.name?.text || '';
             let validSoFar = true;
-            let i = 0;
             let targetAttribute: IdentifierNode | undefined;
             let targetAttributeIndex = -1;
-            let previousWasLocal = false;
+            let previousWasModifier = false;
 
-            while (i < attr.value.length) {
+            for (let i = 0; i < attr.value.length; i++) {
                 const val = attr.value[i];
                 if (val.kind !== SyntaxKind.Identifier) {
                     break;
@@ -52,8 +51,15 @@ export function validateDefinitionAttributes(
                 const tDefTypeNode = val as IdentifierNode;
                 const tDefType = tDefTypeNode.text.toLowerCase();
 
-                if (tDefType === 'local') {
-                    previousWasLocal = true;
+                if (['local', 'add', 'replace', 'delete'].includes(tDefType)) {
+                    previousWasModifier = true;
+                    continue;
+                }
+
+                if (['before', 'after', 'at beginning', 'at end'].includes(tDefType)) {
+                    if (tDefType === 'before' || tDefType === 'after') {
+                        i++; // Skip the position reference
+                    }
                     continue;
                 }
 
@@ -66,7 +72,7 @@ export function validateDefinitionAttributes(
                 // Check if tDefType is a known definition type in the global scope
                 if (scopeManager.globalScope.attributes.has(normalizeTypeName(tDefType))) {
                     if (i + 1 < attr.value.length && attr.value[i + 1].kind === SyntaxKind.Identifier) {
-                        if (previousWasLocal) {
+                        if (previousWasModifier) {
                             treatAsChainedTarget = true;
                         } else if (isTargetAttribute && !isStructuralChild) {
                             treatAsChainedTarget = false;
@@ -78,7 +84,7 @@ export function validateDefinitionAttributes(
                     }
                 }
 
-                previousWasLocal = false;
+                previousWasModifier = false;
 
                 if (treatAsChainedTarget) {
                     const tDefNameNode = attr.value[i + 1] as IdentifierNode;
@@ -135,7 +141,7 @@ export function validateDefinitionAttributes(
 
                     currentScopeDefType = tDefType;
                     currentScopeDefName = tDefName;
-                    i += 1; // Increment by 1 here, the for loop will increment by another 1, making it 2 total
+                    i += 1; // Skip the paired name
                     continue;
                 }
 

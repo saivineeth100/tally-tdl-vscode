@@ -3,6 +3,9 @@ import { ScopeManager } from '../../semantics/scopeManager';
 import { getExpectedTypeForMenuItem } from '../../utils/attributeUtils';
 import { normalizeTypeName } from '../../utils/normalizeUtils';
 import { findDefinitionAtOffset, findAttributeAtOffset, findStatementAtOffset, findNodeAtOffset } from '../../core/ast/astQuery';
+import { DefinitionSymbol } from 'tally-tdl-shared';
+import { resolveModifierChain } from '../../utils/modifierUtils';
+
 
 /**
  * Information about a reference to a definition
@@ -16,6 +19,36 @@ export interface ReferenceInfo {
     start: number;
     /** End offset of the reference */
     end: number;
+    /** True if this reference is actually the name of a modifier definition (e.g. #Part: Name) */
+    isModifier?: boolean;
+}
+
+/**
+ * Filters and combines base definitions and modifiers based on the navigation context.
+ */
+export function filterDefinitionLocations(
+    baseDefinitions: DefinitionSymbol[],
+    modifiers: DefinitionSymbol[],
+    isFromModifier: boolean
+): DefinitionSymbol[] {
+    let result = [...baseDefinitions];
+    
+    if (isFromModifier) {
+        // The user clicked on the modifier itself (e.g. [#Part: BasePart])
+        // They want to go to the base definition! We DO NOT add the modifiers to result.
+        // This allows them to jump straight to the base definition (or Virtual Document).
+    } else {
+        // The user clicked a normal usage.
+        // If they have local modifiers, they want to go to THEIR local modifiers.
+        if (modifiers.length > 0) {
+            // Exclude Base TDL definitions so it jumps to the local modifier instead of the Virtual Document
+            result = result.filter(item => !item.uri.startsWith('basetdl://'));
+        }
+        // Add the local modifiers to the results
+        result.push(...modifiers);
+    }
+    
+    return result;
 }
 
 /**
@@ -137,7 +170,8 @@ export function findReferenceAtOffset(
                 name: def.name.text,
                 expectedType: def.type.text,
                 start: nameStart,
-                end: nameEnd
+                end: nameEnd,
+                isModifier: true
             };
         }
     }
@@ -245,68 +279,72 @@ export function findReferenceAtOffset(
         let foundValueNode: any = undefined;
         let localAttrDef: any = undefined;
 
-        if (attr.name.text.toLowerCase() === 'local' && scopeManager) {
-            let currentScopeDefType = def.type.text;
-            let expectingDefNameFor: string | undefined = undefined;
-            let isAttribute = false;
-            let valuePartIndex = 0;
-
-            for (let i = 0; i < attr.value.length; i++) {
-                const paramNode = attr.value[i];
-                
-                if (offset >= paramNode.start && offset <= paramNode.end) {
-                    if (expectingDefNameFor) {
-                        let name = '';
-                        if (paramNode.kind === SyntaxKind.Identifier) {
-                            name = (paramNode as any).text;
-                        } else if ('text' in paramNode) {
-                            name = (paramNode as any).text;
-                        } else if ('value' in paramNode) {
-                            name = String((paramNode as any).value);
+        const attrNameLower = attr.name.text.toLowerCase();
+        if (['add', 'replace', 'delete', 'local'].includes(attrNameLower) && scopeManager) {
+            const resolved = resolveModifierChain(attrNameLower, attr.value, def.type.text, def.name?.text || '', scopeManager, offset);
+            
+            if (resolved.cursorSegment) {
+                switch (resolved.cursorSegment) {
+                    case 'defName':
+                    case 'positionReference': {
+                        // It's referring to an existing definition of the effective type (or target attribute's type)
+                        let expectedType = resolved.effectiveDefType;
+                        
+                        if (resolved.cursorSegment === 'positionReference') {
+                            // Position reference refers to the type that the target attribute accepts
+                            if (resolved.targetAttributeMeta && resolved.targetAttributeMeta.parameters && resolved.targetAttributeMeta.parameters.length > 0) {
+                                const param = resolved.targetAttributeMeta.parameters[0];
+                                if (param.RefersTo) {
+                                    expectedType = param.RefersTo;
+                                }
+                            } else if (resolved.targetAttribute) {
+                                expectedType = resolved.targetAttribute.text;
+                            }
                         }
-                        name = name.replace(/^"|"$|^'|'$/g, '');
+
+                        // Find the node at the offset to get its name
+                        let name = '';
+                        let start = 0;
+                        let end = 0;
+                        for (const node of attr.value) {
+                            if (offset >= node.start && offset <= node.end) {
+                                if (node.kind === SyntaxKind.Identifier) {
+                                    name = (node as any).text;
+                                } else if ('text' in node) {
+                                    name = (node as any).text;
+                                } else if ('value' in node) {
+                                    name = String((node as any).value);
+                                }
+                                name = name.replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+                                start = node.start;
+                                end = node.end;
+                                break;
+                            }
+                        }
+
                         if (name && name.toLowerCase() !== 'default') {
                             return {
                                 name,
-                                expectedType: expectingDefNameFor,
-                                start: paramNode.start,
-                                end: paramNode.end
+                                expectedType: expectedType,
+                                start: start,
+                                end: end
                             };
                         }
-                        return undefined;
-                    } else if (!isAttribute) {
-                        return undefined; // On Definition Type or Attribute Name (no references)
-                    } else {
-                        paramIndex = valuePartIndex;
-                        foundValueNode = paramNode;
+                        break;
                     }
-                    break;
-                }
-
-                if (expectingDefNameFor) {
-                    currentScopeDefType = expectingDefNameFor;
-                    expectingDefNameFor = undefined;
-                } else if (!isAttribute) {
-                    let pLower = '';
-                    if (paramNode.kind === SyntaxKind.Identifier) {
-                        pLower = (paramNode as any).text.toLowerCase();
-                    } else if ('text' in paramNode) {
-                        pLower = (paramNode as any).text.toLowerCase();
-                    } else if ('value' in paramNode) {
-                        pLower = String((paramNode as any).value).toLowerCase();
-                    }
-                    
-                    if (scopeManager.globalScope.attributes.has(normalizeTypeName(pLower))) {
-                        expectingDefNameFor = pLower;
-                    } else {
-                        isAttribute = true;
-                        const attrMap = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
-                        if (attrMap) {
-                            localAttrDef = attrMap.get(normalizeTypeName(pLower));
+                    case 'value': {
+                        paramIndex = resolved.cursorIndexInValues !== undefined ? resolved.cursorIndexInValues : -1;
+                        localAttrDef = resolved.targetAttributeMeta;
+                        if (paramIndex >= 0) {
+                            foundValueNode = resolved.values[paramIndex];
                         }
+                        break;
                     }
-                } else {
-                    valuePartIndex++;
+                }
+                
+                // If it's a modifierKeyword, defType, targetAttribute, positionModifier, we don't resolve references (it's part of the language keywords)
+                if (resolved.cursorSegment !== 'value') {
+                    return undefined;
                 }
             }
         } else {
@@ -381,7 +419,11 @@ export function findReferenceAtOffset(
 
         if (foundValueNode) {
             // Find the deepest node at this offset, in case foundValueNode is a complex expression
-            const deepestNode = findNodeAtOffset([foundValueNode], offset) || foundValueNode;
+            // DO NOT drill down if it's a ListNode, because ListNodes represent space-separated multi-word identifiers!
+            let deepestNode = foundValueNode;
+            if (foundValueNode.kind !== SyntaxKind.List) {
+                deepestNode = findNodeAtOffset([foundValueNode], offset) || foundValueNode;
+            }
             
             let name: string = '';
             if (deepestNode.kind === SyntaxKind.List) {

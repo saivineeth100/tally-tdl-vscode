@@ -2,6 +2,8 @@ import { SourceFile, SyntaxKind, IdentifierNode, StatementNode, BlockStatementNo
 import { SymbolInfo, SymbolKind, VariableSymbol, DefinitionSymbol, FormulaSymbol } from 'tally-tdl-shared';
 import { Scope, ScopeKind} from './types';
 import { normalizeTypeName } from '../../utils/normalizeUtils';
+import { resolveModifierChain } from '../../utils/modifierUtils';
+import { STRUCTURAL_DEFINITION_TYPES } from '../../validation/validationUtils';
 // We need to interface with ScopeManager without a circular dependency if possible,
 // or just use any/duck typing. Let's define the interface needed from ScopeManager:
 export interface IScopeManager {
@@ -116,8 +118,15 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
         }
 
         // Add definition parameters/variables if any (e.g. from functions)
+        const deferredModifierAttributes: any[] = [];
+        
+        // PASS 1: Regular attributes
         for (const attr of def.attributes || []) {
             const attrNameLower = attr.name.text.toLowerCase().replace(/\s+/g, '');
+            if (['add', 'replace', 'delete', 'local'].includes(attrNameLower)) {
+                deferredModifierAttributes.push(attr);
+                continue;
+            }
             const targetType = manager.getCanonicalAttributeName(attrNameLower);
             if (targetType) {
                 if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
@@ -382,6 +391,166 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
             }
         }
 
+        // PASS 2: Modifier attributes
+        for (const attr of deferredModifierAttributes) {
+            const attrNameLower = attr.name.text.toLowerCase().replace(/\s+/g, '');
+            const resolved = resolveModifierChain(attrNameLower, attr.value, def.type?.text || 'Def', def.name?.text || 'anonymous', manager);
+            
+            if (!resolved.targetAttribute) continue;
+            
+            const targetTypeLower = manager.getCanonicalAttributeName(resolved.targetAttribute.text?.toLowerCase() || '');
+            if (!targetTypeLower) continue;
+
+            const modifierKind = resolved.modifierKind;
+            
+            if (STRUCTURAL_DEFINITION_TYPES.includes(targetTypeLower)) {
+                switch (modifierKind) {
+                    case 'add':
+                    case 'local': {
+                        for (const val of resolved.values) {
+                            if (val.kind === SyntaxKind.Identifier) {
+                                const childName = (val as IdentifierNode).text;
+                                const childId = manager.normalizeScopeId(`${targetTypeLower}:${childName}`);
+                                
+                                let parents = manager.parentDefinitions.get(childId);
+                                if (!parents) {
+                                    parents = new Set<string>();
+                                    manager.parentDefinitions.set(childId, parents);
+                                }
+                                parents.add(manager.normalizeScopeId(defId));
+                                if (manager.recordGraphContribution) {
+                                    manager.recordGraphContribution(uri, 'parentDef', childId, manager.normalizeScopeId(defId));
+                                }
+
+                                let children = manager.childDefinitions.get(manager.normalizeScopeId(defId));
+                                if (!children) {
+                                    children = new Set<string>();
+                                    manager.childDefinitions.set(manager.normalizeScopeId(defId), children);
+                                }
+                                children.add(childId);
+                                
+                                if (defScope.kind === ScopeKind.Definition) {
+                                    let localStructChildren = defScope.structuralChildren.get(targetTypeLower);
+                                    if (!localStructChildren) {
+                                        localStructChildren = new Set<string>();
+                                        defScope.structuralChildren.set(targetTypeLower, localStructChildren);
+                                    }
+                                    localStructChildren.add(childName);
+                                }
+                                if (manager.recordGraphContribution) {
+                                    manager.recordGraphContribution(uri, 'childDef', manager.normalizeScopeId(defId), childId);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    case 'replace': {
+                        if (resolved.values.length >= 2 && resolved.values[1].kind === SyntaxKind.Identifier) {
+                            const newChildName = (resolved.values[1] as IdentifierNode).text;
+                            const childId = manager.normalizeScopeId(`${targetTypeLower}:${newChildName}`);
+                            
+                            let parents = manager.parentDefinitions.get(childId);
+                            if (!parents) {
+                                parents = new Set<string>();
+                                manager.parentDefinitions.set(childId, parents);
+                            }
+                            parents.add(manager.normalizeScopeId(defId));
+                            
+                            let children = manager.childDefinitions.get(manager.normalizeScopeId(defId));
+                            if (!children) {
+                                children = new Set<string>();
+                                manager.childDefinitions.set(manager.normalizeScopeId(defId), children);
+                            }
+                            children.add(childId);
+
+                            if (defScope.kind === ScopeKind.Definition) {
+                                let localStructChildren = defScope.structuralChildren.get(targetTypeLower);
+                                if (!localStructChildren) {
+                                    localStructChildren = new Set<string>();
+                                    defScope.structuralChildren.set(targetTypeLower, localStructChildren);
+                                }
+                                localStructChildren.add(newChildName);
+                                
+                                if (resolved.values[0].kind === SyntaxKind.Identifier) {
+                                    const oldChildName = (resolved.values[0] as IdentifierNode).text;
+                                    localStructChildren.delete(oldChildName);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    case 'delete': {
+                        if (resolved.values.length >= 1 && resolved.values[0].kind === SyntaxKind.Identifier) {
+                            if (defScope.kind === ScopeKind.Definition) {
+                                const oldChildName = (resolved.values[0] as IdentifierNode).text;
+                                const localStructChildren = defScope.structuralChildren.get(targetTypeLower);
+                                if (localStructChildren) {
+                                    localStructChildren.delete(oldChildName);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            } else if (targetTypeLower === 'fetch') {
+                if (defScope.kind === ScopeKind.Definition) {
+                    switch (modifierKind) {
+                        case 'add':
+                        case 'local': {
+                            if (!defScope.fetchedFields) defScope.fetchedFields = new Set<string>();
+                            for (const v of resolved.values) {
+                                if (v.kind === SyntaxKind.Identifier) {
+                                    defScope.fetchedFields.add((v as IdentifierNode).text.toLowerCase());
+                                } else if (v.kind === SyntaxKind.Literal) {
+                                    const literalNode = v as any;
+                                    const textVal = literalNode.value !== undefined ? String(literalNode.value) : literalNode.token.Text;
+                                    defScope.fetchedFields.add(textVal.toLowerCase());
+                                }
+                            }
+                            break;
+                        }
+                        case 'delete': {
+                            if (defScope.fetchedFields) {
+                                for (const v of resolved.values) {
+                                    if (v.kind === SyntaxKind.Identifier) {
+                                        defScope.fetchedFields.delete((v as IdentifierNode).text.toLowerCase());
+                                    } else if (v.kind === SyntaxKind.Literal) {
+                                        const literalNode = v as any;
+                                        const textVal = literalNode.value !== undefined ? String(literalNode.value) : literalNode.token.Text;
+                                        defScope.fetchedFields.delete(textVal.toLowerCase());
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                        case 'replace': {
+                            if (resolved.values.length >= 2) {
+                                const oldVal = resolved.values[0];
+                                const newVal = resolved.values[1];
+                                
+                                let oldText = '';
+                                if (oldVal.kind === SyntaxKind.Identifier) oldText = (oldVal as IdentifierNode).text.toLowerCase();
+                                else if (oldVal.kind === SyntaxKind.Literal) oldText = String((oldVal as any).value !== undefined ? (oldVal as any).value : (oldVal as any).token.Text).toLowerCase();
+                                
+                                let newText = '';
+                                if (newVal.kind === SyntaxKind.Identifier) newText = (newVal as IdentifierNode).text.toLowerCase();
+                                else if (newVal.kind === SyntaxKind.Literal) newText = String((newVal as any).value !== undefined ? (newVal as any).value : (newVal as any).token.Text).toLowerCase();
+                                
+                                if (defScope.fetchedFields && oldText) {
+                                    defScope.fetchedFields.delete(oldText);
+                                }
+                                if (newText) {
+                                    if (!defScope.fetchedFields) defScope.fetchedFields = new Set<string>();
+                                    defScope.fetchedFields.add(newText);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
         // Build block scopes for statements inside the definition
         if (def.statements && def.statements.length > 0) {
             buildBlockScopes(manager, def.statements, defScope, uri);

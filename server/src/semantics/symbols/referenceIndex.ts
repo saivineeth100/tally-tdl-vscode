@@ -31,6 +31,14 @@ export class ReferenceIndex {
                 if (text) {
                     identifiers.add(normalizeTypeName(text));
                 }
+            } else if (node.kind === SyntaxKind.List) {
+                const list = node as any;
+                if (list.values) {
+                    const fullText = list.values.map((v: any) => v.text || v.value || '').join(' ');
+                    if (fullText) {
+                        identifiers.add(normalizeTypeName(fullText));
+                    }
+                }
             }
         });
 
@@ -48,7 +56,8 @@ export class ReferenceIndex {
 
     /**
      * Checks if a target identifier exists in the index, and returns the set of URIs
-     * that contain it.
+     * that contain it. For multi-word identifiers, returns the intersection of URIs
+     * containing all words.
      * @param targetName The identifier to search for.
      * @returns A Set of URIs containing the identifier, or undefined if the identifier is not found.
      */

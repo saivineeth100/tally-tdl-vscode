@@ -132,12 +132,12 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             attributes: new Map(),
             schemas: new Map(),
             definitions: new Map(),
-            
+
             interchangeableAttributesMap: new Map(),
             interchangeableTypesMap: new Map(),
             referenceIndex: new ReferenceIndex()
         };
-        
+
         return scope;
     }
 
@@ -245,7 +245,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
      */
     public removeFileScope(uri: string): void {
         this.definitionsInScopeCache.clear();
-        
+
         const lowerUri = uri.toLowerCase();
         let fileScopeKeysToRemove: string[] = [];
         for (const k of this.fileMap.keys()) {
@@ -352,7 +352,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     }
 
     public registerModifierContribution(contribution: ModifierContribution): void {
-        const key = contribution.targetDefinitionId.toLowerCase();
+        const key = normalizeTypeName(contribution.targetDefinitionId);
         const existing = this.modifierContributions.get(key) || [];
         existing.push(contribution);
         this.modifierContributions.set(key, existing);
@@ -437,7 +437,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
                 const parts = normalizedId.split(':');
                 const type = parts.length > 1 ? parts[0] : 'unknown';
                 const name = parts.length > 1 ? parts.slice(1).join(':') : normalizedId;
-                
+
                 let typeMap = targetIndex.get(type);
                 if (!typeMap) {
                     typeMap = new Map<string, Scope[]>();
@@ -466,7 +466,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
                 const parts = normalizedId.split(':');
                 const type = parts.length > 1 ? parts[0] : 'unknown';
                 const name = parts.length > 1 ? parts.slice(1).join(':') : normalizedId;
-                
+
                 const typeMap = targetIndex.get(type);
                 if (typeMap) {
                     const arr = typeMap.get(name);
@@ -498,7 +498,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         const parts = normalizedId.split(':');
         const type = parts.length > 1 ? parts[0] : 'unknown';
         const name = parts.length > 1 ? parts.slice(1).join(':') : normalizedId;
-        
+
         const typeMap = this.scopeIndex.get(type);
         if (typeMap) {
             const arr = typeMap.get(name);
@@ -539,7 +539,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
                         childScopes: [],
                         variables: new Map(),
                         formulas: new Map(),
-                        
+
                         uri: sym.uri,
                         range: { start: sym.start, end: sym.end },
                         definition: sym
@@ -605,6 +605,37 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
 
     public resolveDefinition(name: string, defType: string, initialScope: Scope, projectScope?: Set<string>, callerContext?: ResolutionContext) {
         return resolveDefinition(this, name, defType, initialScope, projectScope, callerContext);
+    }
+
+    /**
+     * Resolves an identifier to its definition or symbol based on its expected type.
+     * Centralizes the resolution logic for different TDL symbol types (variables, formulas, functions, actions, etc.).
+     * 
+     * @param name The name of the identifier to resolve.
+     * @param expectedType The expected type of the identifier (e.g., 'variable', 'formula', 'Part', 'Field').
+     * @param initialScope The starting scope for resolution.
+     * @param projectScope Optional set of project-level node IDs for global fallback resolution.
+     * @param callerContext Optional context used for resolving caller-specific bindings.
+     * @returns The resolved symbol, definition, or undefined if not found.
+     */
+    public resolveTarget(name: string, expectedType: string, initialScope: Scope, projectScope?: Set<string>, callerContext?: ResolutionContext): any {
+        const expectedTypeLower = expectedType.toLowerCase();
+        switch (expectedTypeLower) {
+            case 'variable':
+            case 'method':
+            case 'system variable':
+                return this.resolveVariable(name, initialScope, projectScope, callerContext);
+            case 'formula':
+            case 'system formulae':
+            case 'formulae':
+                return this.resolveFormula(name, initialScope, projectScope, callerContext);
+            case 'function':
+                return this.resolveFunction(name, initialScope, projectScope, callerContext);
+            case 'action':
+                return this.resolveAction(name, initialScope, projectScope, callerContext);
+            default:
+                return this.resolveDefinition(name, expectedType, initialScope, projectScope, callerContext);
+        }
     }
 
     public resolveAttribute(name: string, defType: string, initialScope: Scope, projectScope?: Set<string>, callerContext?: ResolutionContext) {

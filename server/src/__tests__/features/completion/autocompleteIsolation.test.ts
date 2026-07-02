@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { DocManager } from '../../../src/docManager';
+import { DocManager } from '../../../docManager';
 import { SymbolKind } from 'tally-tdl-shared';
-import { ScopeKind } from '../../../src/semantics/scopeManager/types';
+import { ScopeKind } from '../../../semantics/scopeManager/types';
 import { TextDocuments, TextDocument } from 'vscode-languageserver';
 
 describe('Autocomplete Isolation', () => {

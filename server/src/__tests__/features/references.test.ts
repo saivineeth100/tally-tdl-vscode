@@ -202,7 +202,51 @@ describe('References Service', () => {
         const refs = await findReferences(mockDocManager, mockDocs, targetUri, offset, true);
         
         expect(refs).toBeDefined();
-        // Should find the definition (1) and the reference inside the Local attribute (1) = 2
         expect(refs.length).toBe(2);
+    });
+
+    it('should count modifiers as references but exclude base definition for Code Lens (includeDeclaration=false)', async () => {
+        const { mockDocs, mockDocManager, targetUri, offset } = setupMocks({
+            'file:///test.tdl': `
+                [Part: |MyPart]
+                
+                [#Part: MyPart]
+                
+                [!Part: MyPart]
+                
+                [Report: SomeReport]
+                Part: MyPart
+            `
+        });
+        
+        // Simulate CodeLens which calls with includeDeclaration = false
+        const refs = await findReferences(mockDocManager, mockDocs, targetUri, offset, false);
+        
+        expect(refs).toBeDefined();
+        // Should find 3 references: 2 modifiers (#Part, !Part) and 1 actual usage (Part: MyPart)
+        expect(refs.length).toBe(3); 
+    });
+
+    it('should return the exact same reference count when triggered from the modifier', async () => {
+        const { mockDocs, mockDocManager, targetUri, offset } = setupMocks({
+            'file:///test.tdl': `
+                [Part: MyPart]
+                
+                [#Part: |MyPart]
+                
+                [!Part: MyPart]
+                
+                [Report: SomeReport]
+                Part: MyPart
+            `
+        });
+        
+        // Simulate CodeLens which calls with includeDeclaration = false
+        const refs = await findReferences(mockDocManager, mockDocs, targetUri, offset, false);
+        
+        expect(refs).toBeDefined();
+        // Should STILL find 3 references (the search is global for the identifier "MyPart")
+        // Base definition is correctly ignored.
+        expect(refs.length).toBe(3); 
     });
 });

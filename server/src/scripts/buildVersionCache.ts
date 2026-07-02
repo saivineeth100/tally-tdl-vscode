@@ -194,7 +194,7 @@ async function buildCacheForVersion(version: string) {
         }
 
         // Transfer referenceIndex to globalScope so it's cached in Base TDL
-        scopeManager.globalScope.referenceIndex = scopeManager.projectScope.referenceIndex;
+        // (It is already populated in globalScope.referenceIndex during scanAndParse)
 
         // Clear projectScope to save space and avoid duplication
         // We do NOT clear scopeIndex anymore, as we replaced its entries with lightweight scopes above

@@ -7,7 +7,8 @@ import { getDefinitionTypes } from '../utils';
 import { getSuggestionsForDefinitionType, provideDefinitionTypeCompletions } from './definitionProvider';
 import { provideAttributeValueCompletions } from './attributeProvider';
 import { normalizeTypeName } from '../../../utils/normalizeUtils';
-import { DefinitionNode } from '../../../core/ast/ast';
+import { DefinitionNode, SyntaxKind } from '../../../core/ast/ast';
+import { resolveModifierChain } from '../../../utils/modifierUtils';
 
 export function provideModifierValueCompletions(
     manager: DocManager,
@@ -25,78 +26,38 @@ export function provideModifierValueCompletions(
     const partial = context.partial.toLowerCase();
     const scopeManager = manager.getScopeManager(uri);
     
-    if (modName === 'local') {
+    if (['local', 'add', 'replace', 'delete'].includes(modName)) {
         let currentScopeDefType = currentDef.type?.text || '';
         let currentScopeDefName = currentDef.name?.text || '';
+        
+        let parts = context.modifierParts || [];
+        
+        // Dynamic state resolution via centralized utility
+        const mockNodes: any[] = parts.map((p, i) => {
+            return {
+                kind: SyntaxKind.Identifier,
+                text: p,
+                start: i * 10,
+                end: i * 10 + Math.max(1, p.length)
+            };
+        });
+        
+        // Ensure the fake cursor offset falls into the last part (the one being typed)
+        const fakeOffset = Math.max(0, (mockNodes.length - 1) * 10);
+        
+        const resolved = resolveModifierChain(modName, mockNodes, currentScopeDefType, currentScopeDefName, scopeManager, fakeOffset);
+
+        let expectingDefNameFor = resolved.cursorSegment === 'defName' ? resolved.effectiveDefType : undefined;
+        let isAttribute = resolved.cursorSegment === 'targetAttribute' || resolved.cursorSegment === 'value';
+        let attributeName = resolved.targetAttribute?.text;
+        
+        // Get the effective scope from the resolved chain
         let effectiveScope: Scope | undefined = scopeManager.getScopeAt(uri, offset);
-        
-        const parts = context.modifierParts || [];
-        
-        // Dynamic state resolution
-        // We evaluate all parts except the very last one (which is the one being typed)
-        let expectingDefNameFor: string | undefined = undefined;
-        let isAttribute = false;
-        let attributeName: string | undefined = undefined;
-        let valuePartIndex = -1;
-        let previousWasLocal = false;
-
-
-
-        for (let i = 0; i < parts.length - 1; i++) {
-            const p = parts[i].trim();
-            
-            if (expectingDefNameFor) {
-                const targetDefName = p;
-                // Update effective scope context
-                if (effectiveScope && targetDefName) {
-                    const dummyScopeId = `${expectingDefNameFor.toLowerCase()}:${targetDefName}`;
-                    const exactScope = scopeManager.findDefinitionScope(dummyScopeId);
-                    if (exactScope) {
-                        effectiveScope = exactScope;
-                    }
-                }
-                currentScopeDefType = expectingDefNameFor;
-                currentScopeDefName = targetDefName;
-                expectingDefNameFor = undefined;
-            } else if (!isAttribute) {
-                const pLower = p.toLowerCase();
-                if (pLower === 'local') {
-                    previousWasLocal = true;
-                    continue;
-                }
-
-                const currentAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
-                const isTargetAttribute = currentAttrs && currentAttrs.has(normalizeTypeName(pLower));
-                const canonicalDefType = scopeManager.globalScope.interchangeableAttributesMap?.get(pLower) || pLower;
-                const isStructuralChild = STRUCTURAL_DEFINITION_TYPES.includes(canonicalDefType);
-                let treatAsChainedTarget = false;
-
-                if (scopeManager.globalScope.attributes.has(normalizeTypeName(pLower))) {
-                    if (i + 1 < parts.length) {
-                        if (previousWasLocal) {
-                            treatAsChainedTarget = true;
-                        } else if (isTargetAttribute && !isStructuralChild) {
-                            treatAsChainedTarget = false;
-                        } else if (isTargetAttribute && isStructuralChild) {
-                            treatAsChainedTarget = (i + 2 < parts.length - 1);
-                        } else {
-                            treatAsChainedTarget = true;
-                        }
-                    }
-                }
-
-                previousWasLocal = false;
-
-                if (treatAsChainedTarget) {
-                    expectingDefNameFor = pLower;
-                } else {
-                    // Not a chained target, so it must be the attribute!
-                    isAttribute = true;
-                    attributeName = p;
-                    valuePartIndex = i + 1;
-                }
-            } else {
-                // Already found attribute, we are traversing values
+        if (resolved.effectiveDefType && resolved.effectiveDefName) {
+            const dummyScopeId = `${resolved.effectiveDefType.toLowerCase()}:${resolved.effectiveDefName}`;
+            const exactScope = scopeManager.findDefinitionScope(dummyScopeId);
+            if (exactScope) {
+                effectiveScope = exactScope;
             }
         }
 
@@ -126,6 +87,33 @@ export function provideModifierValueCompletions(
                 }
             }
         } else if (!isAttribute) {
+            // Suggest Modifiers and Position Modifiers
+            const modifiers = ['Local', 'Add', 'Replace', 'Delete'];
+            const suffix = context.hasTrailingColon ? '' : ' : ';
+            for (const m of modifiers) {
+                if (partial === '' || m.toLowerCase().includes(partial)) {
+                    items.push({
+                        label: m,
+                        kind: CompletionItemKind.Keyword,
+                        detail: 'Modifier',
+                        insertText: `${m}${suffix}`,
+                        sortText: '0_' + m.toLowerCase()
+                    });
+                }
+            }
+            const positions = ['Before', 'After', 'At Beginning', 'At End'];
+            for (const pos of positions) {
+                if (partial === '' || pos.toLowerCase().includes(partial)) {
+                    items.push({
+                        label: pos,
+                        kind: CompletionItemKind.Keyword,
+                        detail: 'Position modifier',
+                        insertText: `${pos}${suffix}`,
+                        sortText: '0_' + pos.toLowerCase()
+                    });
+                }
+            }
+
             // Typing either a <Definition Type> OR an <Attribute> for currentScopeDefType
             // 1. Suggest Definition Types
             const defTypes = scopeManager.getDefinitionTypes();
@@ -162,7 +150,7 @@ export function provideModifierValueCompletions(
                 partial: context.partial,
                 hasModifier: false,
                 attributeName: attributeName,
-                paramIndex: context.paramIndex - valuePartIndex
+                paramIndex: resolved.cursorIndexInValues !== undefined ? resolved.cursorIndexInValues : 0
             };
             const currentScope = effectiveScope || scopeManager.getScopeAt(uri, offset);
             items.push(...provideAttributeValueCompletions(
@@ -172,44 +160,6 @@ export function provideModifierValueCompletions(
                 undefined, // projectScope not easily available here, but mostly used for formulas
                 currentScope
             ));
-        }
-    } else if (['add', 'delete', 'replace'].includes(modName)) {
-        if (context.paramIndex === 0) {
-            // Suggest attributes of the current definition
-            const defTypeName = currentDef.type.text;
-            const normalizedDefType = normalizeTypeName(defTypeName);
-            const matchingDefAttributes = scopeManager.globalScope.attributes.get(normalizedDefType);
-
-            if (matchingDefAttributes) {
-                for (const [_,attr] of matchingDefAttributes) {
-                    const names = [attr.name];
-                    if (attr.aliases) names.push(...attr.aliases.split(',').map((a: string) => a.trim()));
-                    if (partial === '' || names.some(n => n.toLowerCase().includes(partial))) {
-                        const displayAttr = isXml ? attr.name.toUpperCase().replace(/\s+/g, '') : attr.name;
-                        items.push({
-                            label: displayAttr,
-                            kind: CompletionItemKind.Property,
-                            detail: `${defTypeName} attribute`,
-                            insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr}${context.hasTrailingColon ? '' : ' : '}`,
-                            insertTextFormat: isXml ? 2 : undefined,
-                            data: { type: 'attribute', defType: defTypeName, name: attr.name },
-                            sortText: attr.name.toLowerCase()});
-                    }
-                }
-            }
-        } else if (context.paramIndex === 1 && modName === 'add') {
-            // Position modifiers for Add
-            const positions = ['Before', 'After', 'At Beginning', 'At End'];
-            for (const pos of positions) {
-                if (partial === '' || pos.toLowerCase().includes(partial)) {
-                    items.push({
-                        label: pos,
-                        kind: CompletionItemKind.Keyword,
-                        detail: 'Position modifier',
-                        insertText: `${pos} : `,
-                        sortText: '0_' + pos.toLowerCase()});
-                }
-            }
         }
     } else if (modName === 'use') {
         // Use : <Definition Name>

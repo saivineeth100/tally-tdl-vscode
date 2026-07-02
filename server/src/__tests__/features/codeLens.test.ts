@@ -35,6 +35,24 @@ describe('Code Lens Provider', () => {
         expect(lenses[0].data.name).toBe('My Form');
     });
 
+    it('should provide CodeLens for modifier definitions', () => {
+        const text = `[#Form: My Form]
+        
+[Part: SomeReport]
+    Form : My Form`;
+        const { sourceFile, doc, scopeManager } = createCodeLensContext(text);
+        
+        const lenses = provideCodeLens(sourceFile, doc, scopeManager);
+        
+        // Should provide a single lens for the modifier form AND the part, both usages
+        // because we don't mock modifierContributions yet.
+        expect(lenses.length).toBe(2);
+        
+        const names = lenses.map(l => l.data.name);
+        expect(names).toContain('My Form');
+        expect(names).toContain('SomeReport');
+    });
+
     it('should provide CodeLens for implicit local formulas', () => {
         const text = `[Field: Local Formula]
             Set As: @LF1 + @LF2
@@ -83,14 +101,15 @@ describe('Code Lens Provider', () => {
             clearCodeLensCache();
         });
 
-        it('should resolve lens with references and cache the result', async () => {
+        it('should resolve lens with usages type and cache the result', async () => {
             const text = `[Report: Test]`;
             const { sourceFile, doc, scopeManager } = createCodeLensContext(text);
             
             const mockDocManager = {
                 get: (uri: string) => ({ sourceFile, diagnostics: [] }),
                 getProjectNodes: (uri: string) => new Set([uri]),
-                getScopeManager: (uri: string) => scopeManager
+                getScopeManager: (uri: string) => scopeManager,
+                tdlScopeManager: scopeManager
             } as unknown as DocManager;
             
             const mockDocs = {
@@ -99,16 +118,41 @@ describe('Code Lens Provider', () => {
 
             const lens = {
                 range: { start: Position.create(0, 0), end: Position.create(0, 10) },
-                data: { uri: doc.uri, name: 'Test', position: Position.create(0, 9) }
+                data: { uri: doc.uri, name: 'Test', position: Position.create(0, 9), type: 'usages' }
             } as any;
 
             const resolved = await resolveCodeLens(lens, mockDocManager, mockDocs);
             expect(resolved.command).toBeDefined();
-            expect(resolved.command?.title).toContain('reference');
+            expect(resolved.command?.title).toContain('usage');
             
             // Run again to hit cache
             const resolved2 = await resolveCodeLens(lens, mockDocManager, mockDocs);
-            expect(resolved2.command?.title).toContain('reference');
+            expect(resolved2.command?.title).toContain('usage');
+        });
+
+        it('should resolve lens with modifiers type', async () => {
+            const text = `[Report: Test]`;
+            const { sourceFile, doc, scopeManager } = createCodeLensContext(text);
+            
+            const mockDocManager = {
+                get: (uri: string) => ({ sourceFile, diagnostics: [] }),
+                getProjectNodes: (uri: string) => new Set([uri]),
+                getScopeManager: (uri: string) => scopeManager,
+                tdlScopeManager: scopeManager
+            } as unknown as DocManager;
+            
+            const mockDocs = {
+                get: (uri: string) => doc
+            };
+
+            const lens = {
+                range: { start: Position.create(0, 0), end: Position.create(0, 10) },
+                data: { uri: doc.uri, name: 'Test', position: Position.create(0, 9), type: 'modifiers', expectedType: 'report' }
+            } as any;
+
+            const resolved = await resolveCodeLens(lens, mockDocManager, mockDocs);
+            expect(resolved.command).toBeDefined();
+            expect(resolved.command?.title).toContain('modifier');
         });
     });
 });

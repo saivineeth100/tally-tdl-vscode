@@ -671,6 +671,7 @@ describe('Attribute Validation', () => {
                 if (!partMap) { partMap = new Map(); testScopeManager.scopeIndex.set('part', partMap); }
                 partMap.set('tsplsmpinfo', [{
                     kind: ScopeKind.Definition,
+                    id: 'part:tsplsmpinfo',
                     definition: { name: 'TSPL Smp Info', kind: SymbolKind.Part, definitionType: 'Part', uri: 'file:///test5.tdl', start: 0, end: 10 }
                 }] as any);
 
@@ -679,8 +680,15 @@ describe('Attribute Validation', () => {
                 if (!lineMap) { lineMap = new Map(); testScopeManager.scopeIndex.set('line', lineMap); }
                 lineMap.set('info', [{
                     kind: ScopeKind.Definition,
+                    id: 'line:info',
                     definition: { name: 'Info', kind: SymbolKind.Line, definitionType: 'Line', uri: 'file:///test5.tdl', start: 0, end: 10 }
                 }] as any);
+
+                testScopeManager.parentDefinitions.set('part:tsplsmpinfo', new Set(['report:deep local report']));
+                testScopeManager.parentDefinitions.set('line:info', new Set(['part:tsplsmpinfo']));
+                
+                testScopeManager.childDefinitions.set('report:deep local report', new Set(['part:tsplsmpinfo']));
+                testScopeManager.childDefinitions.set('part:tsplsmpinfo', new Set(['line:info']));
             }
 
             const tdl = `[Report: Deep Local Report]
@@ -695,11 +703,15 @@ describe('Attribute Validation', () => {
             testScopeManager!.indexScope(scope);
 
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
-            const hasInvalidChainErrors = diagnostics.some(d => 
+            const errors = diagnostics.filter(d => 
                 d.code === DiagnosticRules.MissingDefinition.code || 
                 d.code === DiagnosticRules.DefinitionNotInScope.code
             );
-            
+            const hasInvalidChainErrors = errors.length > 0;
+            if (hasInvalidChainErrors) {
+                console.log('Test Failed. Errors found:');
+                console.log(JSON.stringify(errors, null, 2));
+            }
             testScopeManager!.unindexScope(scope);
             
             // There shouldn't be any false MissingDefinition or DefinitionNotInScope errors for the valid parts of the chain.
