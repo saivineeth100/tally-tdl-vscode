@@ -48,6 +48,7 @@ export async function loadMetadata(basePath: string, version: string, manager: S
                 manager.globalScope.attributes = metaDeserialized.globalScope.attributes;
                 manager.globalScope.interchangeableTypesMap = metaDeserialized.globalScope.interchangeableTypesMap;
                 manager.globalScope.interchangeableAttributesMap = metaDeserialized.globalScope.interchangeableAttributesMap;
+                manager.globalScope.interchangeableTypesAliasesMap = metaDeserialized.globalScope.interchangeableTypesAliasesMap;
                 manager.keywordSets = metaDeserialized.keywordSets;
                 manager.primarySchemaNames = metaDeserialized.primarySchemaNames;
                 manager.definitionTypeLabels = metaDeserialized.definitionTypeLabels;
@@ -194,6 +195,9 @@ export async function loadExternalLibraries(libraryPaths: string[], manager: Sco
 }
 
 async function loadDefinitionAliases(versionPath: string, manager: ScopeManager) {
+    if (!manager.globalScope.interchangeableTypesAliasesMap) {
+        manager.globalScope.interchangeableTypesAliasesMap = new Map();
+    }
 
     const definitionMetaFile = path.join(versionPath, "Definition", "Definition.json");
     if (fs.existsSync(definitionMetaFile)) {
@@ -204,13 +208,16 @@ async function loadDefinitionAliases(versionPath: string, manager: ScopeManager)
                 const meta = defMetaData[defType].meta;
                 if (meta && meta.Aliases) {
                     const aliases = meta.Aliases.split(',').map((a: string) => a.trim());
-                    for (const alias of aliases) {
-                        const normalizedAlias = normalizeTypeName(alias);
-                        manager.globalScope.interchangeableTypesMap.set(normalizedAlias, canonicalType);
-                        manager.globalScope.interchangeableAttributesMap.set(normalizedAlias, defType); // Original casing for attributes
+                    const normalizedAliases = aliases.map((a: string) => normalizeTypeName(a));
+                    for (const alias of normalizedAliases) {
+                        manager.globalScope.interchangeableTypesMap.set(alias, canonicalType);
+                        manager.globalScope.interchangeableAttributesMap.set(alias, defType); // Original casing for attributes
                     }
+                    manager.globalScope.interchangeableTypesAliasesMap.set(canonicalType, normalizedAliases);
                     // Also map the canonical type to itself for consistency
                     manager.globalScope.interchangeableTypesMap.set(canonicalType, canonicalType);
+                } else {
+                    manager.globalScope.interchangeableTypesAliasesMap.set(canonicalType, [canonicalType]);
                 }
                 manager.definitionTypeLabels.set(canonicalType, defType);
             }

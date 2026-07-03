@@ -1,21 +1,12 @@
 import { describe, it, expect, vi } from 'vitest';
-import { DocManager } from '../../../docManager';
+import { DocumentStateStore } from '../../../services/documentStateStore';
 import { SymbolKind } from 'tally-tdl-shared';
 import { ScopeKind } from '../../../semantics/scopeManager/types';
 import { TextDocuments, TextDocument } from 'vscode-languageserver';
 
 describe('Autocomplete Isolation', () => {
     it('should suggest from projectScope first, and then workspaceScope for active files', () => {
-        const mockDocuments = {
-            onDidOpen: vi.fn(),
-            onDidChangeContent: vi.fn(),
-            onDidClose: vi.fn(),
-            get: vi.fn(),
-            all: vi.fn().mockReturnValue([]),
-            keys: vi.fn().mockReturnValue([])
-        } as unknown as TextDocuments<TextDocument>;
-        
-        const docManager = new DocManager({ console: { log: vi.fn(), warn: vi.fn(), error: vi.fn() } } as any, mockDocuments);
+        const docManager = new DocumentStateStore();
         const scopeMgr = docManager.tdlScopeManager;
 
         // Populate ProjectScope (Active files)
@@ -32,9 +23,6 @@ describe('Autocomplete Isolation', () => {
             ]]
         ]));
 
-        // Mock document as active
-        vi.spyOn(docManager, 'isUriActive').mockReturnValue(true);
-
         // Call getGlobalDefinitionsByType (used by autocomplete)
         const activeDefs = scopeMgr.getGlobalDefinitionsByType('Report', true);
         
@@ -48,16 +36,7 @@ describe('Autocomplete Isolation', () => {
     });
 
     it('should ONLY suggest from workspaceScope for inactive files', () => {
-        const mockDocuments = {
-            onDidOpen: vi.fn(),
-            onDidChangeContent: vi.fn(),
-            onDidClose: vi.fn(),
-            get: vi.fn(),
-            all: vi.fn().mockReturnValue([]),
-            keys: vi.fn().mockReturnValue([])
-        } as unknown as TextDocuments<TextDocument>;
-        
-        const docManager = new DocManager({ console: { log: vi.fn(), warn: vi.fn(), error: vi.fn() } } as any, mockDocuments);
+        const docManager = new DocumentStateStore();
         const scopeMgr = docManager.tdlScopeManager;
 
         scopeMgr.scopeIndex.set('report', new Map([
@@ -72,8 +51,6 @@ describe('Autocomplete Isolation', () => {
             ]]
         ]));
 
-        // Mock document as inactive
-        vi.spyOn(docManager, 'isUriActive').mockReturnValue(false);
 
         // Call getGlobalDefinitionsByType for an inactive file
         const inactiveDefs = scopeMgr.getGlobalDefinitionsByType('Report', false);

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ScopeManager } from '../../../src/semantics/scopeManager';
-import { DocManager } from '../../../src/docManager';
+import { DocumentStateStore } from '../../services/documentStateStore';
 import { SymbolKind } from 'tally-tdl-shared';
 import { ScopeKind } from '../../../src/semantics/scopeManager/types';
 import { TextDocuments, TextDocument } from 'vscode-languageserver';
@@ -17,7 +17,7 @@ describe('onDefinition Multiple (Duplicates and Modifiers)', () => {
             keys: vi.fn().mockReturnValue([])
         } as unknown as TextDocuments<TextDocument>;
         
-        const docManager = new DocManager({ console: { log: vi.fn(), warn: vi.fn(), error: vi.fn() } } as any, mockDocuments);
+        const docManager = new DocumentStateStore();
         const scopeMgr = docManager.tdlScopeManager;
 
         // Add 2 duplicate base definitions for Report 'MyReport'

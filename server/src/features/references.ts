@@ -1,27 +1,33 @@
 import { Location } from 'vscode-languageserver';
-import { DocManager, readFileWithEncoding } from '../docManager';
-import { TextDocuments } from 'vscode-languageserver';
+import { DocumentStateStore } from '../services/documentStateStore';
+import { DocumentRepository } from '../ports/documentRepository';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { findReferenceAtOffset, findDefinitionByName } from './definition';
 import { URI } from 'vscode-uri';
+import { normalizeUri } from '../utils/uri';
 import * as fs from 'fs';
 import { normalizeTypeName } from '../utils/normalizeUtils';
 import { walkAST } from '../core/ast/astQuery';
 import { SyntaxKind, IdentifierNode } from '../core/ast/ast';
 import { positionAt } from '../utils/positionUtils';
 import { ScopeManager } from '../semantics/scopeManager';
+import { DocumentLoader } from '../services/documentLoader';
+import { IncludeGraphManager } from '../services/includeGraphManager';
 
 export async function findReferences(
-    docManager: DocManager,
-    docs: TextDocuments<TextDocument>,
+    stateStore: DocumentStateStore,
+    docs: DocumentRepository,
+    documentLoader: DocumentLoader,
+    includeGraphManager: IncludeGraphManager,
     uri: string,
     offset: number,
-    includeDeclaration: boolean = false,
+    includeDeclaration: boolean = true,
     scopeUri?: string
 ): Promise<Location[]> {
     const locations: Location[] = [];
+    const normUri = normalizeUri(uri);
     const sourceDoc = docs.get(uri);
-    const sourceDocState = docManager.get(uri);
+    const sourceDocState = stateStore.get(normUri);
     
     if (!sourceDoc || !sourceDocState) return locations;
 
@@ -31,7 +37,7 @@ export async function findReferences(
         sourceDocState.sourceFile,
         offset,
         sourceDoc.getText(),
-        docManager.getScopeManager(uri),
+        stateStore.getScopeManager(normUri),
         uri
     );
 
@@ -90,7 +96,7 @@ export async function findReferences(
                 // Check if cursor is on an attribute name (like an implicit local formula)
                 for (const attr of def.attributes) {
                     if (attr.name && offset >= attr.name.start && offset <= attr.name.end) {
-                        const scopeMgr = docManager.getScopeManager(uri);
+                        const scopeMgr = stateStore.getScopeManager(normUri);
                         const scope = scopeMgr.getScopeAt(uri, offset);
                         if (scope) {
                             const formulaDef = scopeMgr.resolveFormula(attr.name.text, scope);
@@ -121,17 +127,22 @@ export async function findReferences(
     const lowerTargetName = targetName.toLowerCase();
     const lowerTargetType = targetType?.toLowerCase();
 
-    // Fast O(1) filter to only search files that contain the exact identifier
-    const candidateUris = docManager.getScopeManager(uri).projectScope.referenceIndex.getCandidateUris(targetName);
+    const candidateUris = stateStore.getScopeManager(normUri).projectScope.referenceIndex.getCandidateUris(targetName);
+    
     if (candidateUris && candidateUris.size === 0) return locations;
 
-    const projectScope = scopeUri ? new Set([scopeUri]) : docManager.getProjectNodes(uri);
+    const projectScope = scopeUri ? new Set([scopeUri]) : includeGraphManager.getProjectNodes(normUri);
+   
 
     // Iterate through project documents
     for (const docUri of projectScope) {
-        if (candidateUris && !candidateUris.has(docUri)) continue; // Skip if identifier is definitively not in this file
+        const normDocUri = normalizeUri(docUri);
+        
+        // We must check against the normalized URI because candidateUris are normalized
+        const searchUri = normalizeUri(docUri);
+        if (candidateUris && !candidateUris.has(searchUri) && !candidateUris.has(searchUri.toLowerCase()) && !candidateUris.has(docUri)) continue;
 
-        const docState = docManager.get(docUri);
+        const docState = stateStore.get(normDocUri);
         if (!docState) continue;
         
         // Fast AST walk instead of text search
@@ -143,16 +154,16 @@ export async function findReferences(
                     docState.sourceFile,
                     node.start,
                     '', // unused text
-                    docManager.getScopeManager(docUri),
-                    docUri
+                    stateStore.getScopeManager(normDocUri),
+                    normDocUri
                 );
-
+                
+                
                 if (matchRefInfo && matchRefInfo.name.toLowerCase() === lowerTargetName) {
-                    // If we know the type, verify it matches
                     if (!lowerTargetType || !matchRefInfo.expectedType || matchRefInfo.expectedType.toLowerCase() === lowerTargetType || lowerTargetType === 'variable') {
                         // It's a match!
                         locations.push({
-                            uri: docUri,
+                            uri: normDocUri,
                             range: {
                                 start: positionAt(matchRefInfo.start, docState.sourceFile.lineOffsets),
                                 end: positionAt(matchRefInfo.end, docState.sourceFile.lineOffsets)
@@ -168,7 +179,7 @@ export async function findReferences(
                                 if (!lowerTargetType || def.type.text.toLowerCase() === lowerTargetType) {
                                     if (includeDeclaration) {
                                         locations.push({
-                                            uri: docUri,
+                                            uri: normDocUri,
                                             range: {
                                                 start: positionAt(def.name.start, docState.sourceFile.lineOffsets),
                                                 end: positionAt(def.name.end, docState.sourceFile.lineOffsets)

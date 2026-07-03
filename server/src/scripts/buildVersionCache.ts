@@ -217,6 +217,7 @@ async function buildCacheForVersion(version: string) {
         scopeManager.globalScope.schemas.clear();
         scopeManager.globalScope.interchangeableTypesMap?.clear();
         scopeManager.globalScope.interchangeableAttributesMap?.clear();
+        scopeManager.globalScope.interchangeableTypesAliasesMap?.clear();
         scopeManager.keywordSets?.clear();
         scopeManager.definitionTypeLabels?.clear();
 

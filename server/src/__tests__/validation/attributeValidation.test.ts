@@ -708,10 +708,6 @@ describe('Attribute Validation', () => {
                 d.code === DiagnosticRules.DefinitionNotInScope.code
             );
             const hasInvalidChainErrors = errors.length > 0;
-            if (hasInvalidChainErrors) {
-                console.log('Test Failed. Errors found:');
-                console.log(JSON.stringify(errors, null, 2));
-            }
             testScopeManager!.unindexScope(scope);
             
             // There shouldn't be any false MissingDefinition or DefinitionNotInScope errors for the valid parts of the chain.

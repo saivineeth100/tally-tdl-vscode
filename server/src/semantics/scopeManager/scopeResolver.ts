@@ -846,8 +846,9 @@ export function getReachableChildren(state: IScopeResolverState, scope: Scope, t
         if (visitedScopes.has(currentScope.id)) return;
         visitedScopes.add(currentScope.id);
 
-        const currentDefType = currentScope.id.split(':')[0].toLowerCase();
-        if (currentDefType === targetTypeLower) {
+        const currentDefType = state.getCanonicalTypeName(currentScope.id.split(':')[0].toLowerCase());
+        const targetCanonical = state.getCanonicalTypeName(targetTypeLower);
+        if (currentDefType === targetCanonical) {
             const defName = currentScope.id.substring(currentScope.id.indexOf(':') + 1);
             results.push({
                 name: defName,

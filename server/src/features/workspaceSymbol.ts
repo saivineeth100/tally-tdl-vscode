@@ -1,6 +1,8 @@
-import { SymbolInformation, SymbolKind as LSPSymbolKind, WorkspaceSymbolParams, TextDocuments, CancellationToken } from 'vscode-languageserver';
+import { SymbolInformation, SymbolKind as LSPSymbolKind, WorkspaceSymbolParams, CancellationToken } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { DocManager, readFileWithEncoding } from '../docManager';
+import { DocumentStateStore } from '../services/documentStateStore';
+import { DocumentRepository } from '../ports/documentRepository';
+import { DocumentLoader } from '../services/documentLoader';
 import { SymbolKind } from 'tally-tdl-shared';
 import { symbolKindToLSPSymbolKind } from '../semantics/scopeManager/types';
 import { offsetToPosition } from '../utils/positionUtils';
@@ -9,12 +11,13 @@ import * as fs from 'fs';
 import { URI } from 'vscode-uri';
 
 export async function getWorkspaceSymbols(
-    params: WorkspaceSymbolParams, 
-    docManager: DocManager,
-    docs: TextDocuments<TextDocument>,
+    queryInput: string, 
+    stateStore: DocumentStateStore,
+    docs: DocumentRepository,
+    documentLoader: DocumentLoader,
     token?: CancellationToken
 ): Promise<SymbolInformation[]> {
-    let query = params.query.trim();
+    let query = queryInput.trim();
     let typeFilter: string | undefined;
 
     // Extract type filter if query starts with:
@@ -37,11 +40,17 @@ export async function getWorkspaceSymbols(
     const result: SymbolInformation[] = [];
     const MAX_RESULTS = 100;
     
-    const tdlSymbols = docManager.tdlScopeManager.searchWorkspaceSymbols(query, typeFilter, MAX_RESULTS);
-    const xmlSymbols = docManager.xmlScopeManager.searchWorkspaceSymbols(query, typeFilter, MAX_RESULTS);
-    const matchedSymbols = [...tdlSymbols, ...xmlSymbols].slice(0, MAX_RESULTS);
+    const matchedSymbols: any[] = [];
+    for (const [uri] of stateStore.getAllIndexedUris()) {
+        if (token?.isCancellationRequested) break;
+        const scopeMgr = stateStore.getScopeManager(uri);
+        if (scopeMgr) {
+            matchedSymbols.push(...scopeMgr.searchWorkspaceSymbols(query, typeFilter, MAX_RESULTS));
+        }
+    }
+    const finalMatchedSymbols = matchedSymbols.slice(0, MAX_RESULTS);
 
-    for (const sym of matchedSymbols) {
+    for (const sym of finalMatchedSymbols) {
         if (token?.isCancellationRequested) return [];
         let range = {
             start: { line: 0, character: 0 },
@@ -51,7 +60,7 @@ export async function getWorkspaceSymbols(
         if (sym.selectionRange) {
             range = sym.selectionRange;
         } else {
-            const textDoc = docs.get(sym.uri);
+            const textDoc = await documentLoader.loadDocument(sym.uri);
             if (textDoc) {
                 range = {
                     start: textDoc.positionAt(sym.start),
@@ -66,8 +75,8 @@ export async function getWorkspaceSymbols(
         let finalName = sym.name;
         if (typeFilter) {
             // Find the portion of the query that represents the type filter
-            const prefixLength = params.query.length - query.length;
-            const typedPrefix = params.query.substring(0, prefixLength).trim();
+            const prefixLength = queryInput.length - query.length;
+            const typedPrefix = queryInput.substring(0, prefixLength).trim();
             finalName = `${typedPrefix} ${sym.name}`;
         }
 

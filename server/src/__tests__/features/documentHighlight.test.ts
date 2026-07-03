@@ -1,76 +1,62 @@
 import { describe, it, expect } from 'vitest';
-import { getDocumentHighlights } from '../../features/documentHighlight';
-import { DocManager } from '../../docManager';
-import { TextDocuments, Position, DocumentHighlightParams } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { Parser } from '../../core/parser/parser';
-import { ScopeManager } from '../../semantics/scopeManager';
-import { buildFileScope } from '../../semantics/scopeManager/scopeBuilder';
+import { getDocumentHighlights } from '../../../src/features/documentHighlight';
+import { ServerTestHarness } from '../harness/serverTestHarness';
+import { DocumentHighlightParams, Position } from 'vscode-languageserver';
 
-function setupMocks(files: Record<string, string>) {
-    const docs = new Map<string, TextDocument>();
-    const docStates = new Map<string, any>();
+async function setupHarness(files: Record<string, string>) {
+    const harness = new ServerTestHarness();
     let targetUri = '';
     let position = Position.create(0, 0);
     
-    for (const [uri, content] of Object.entries(files)) {
-        const lines = content.split('\n');
-        let cursorLine = -1;
-        let cursorChar = -1;
-        for (let i = 0; i < lines.length; i++) {
-            const idx = lines[i].indexOf('|');
-            if (idx !== -1) {
-                cursorLine = i;
-                cursorChar = idx;
-                targetUri = uri;
-                break;
-            }
-        }
-        
-        const cleanContent = content.replace('|', '');
-        const doc = TextDocument.create(uri, 'tdl', 1, cleanContent);
-        docs.set(uri, doc);
-        
-        if (targetUri === uri && cursorLine !== -1) {
-            position = Position.create(cursorLine, cursorChar);
-        }
-        
-        const parser = new Parser(cleanContent);
-        const sourceFile = parser.parse();
-        
-        docStates.set(uri, {
-            sourceFile,
-            diagnostics: []
-        });
-    }
+    // Force all files into a single mock project so cross-file tests work without explicit Include statements
+    harness.runtime.services.includeGraphManager.getProjectNodes = () => new Set(Array.from(harness.files.files.keys()).map(p => 'file:///' + p));
 
-    const mockDocs = {
-        get: (uri: string) => docs.get(uri)
-    } as unknown as TextDocuments<TextDocument>;
-
-        const scopeManager = new ScopeManager();
-
+    // Mock schema definitions for attributes
+    const scopeManager = harness.runtime.services.documentStateStore.tdlScopeManager;
     const reportAttrs = new Map<string, any>();
     reportAttrs.set('use', { name: 'Use', parameters: [{ RefersTo: 'Report' }] });
+    reportAttrs.set('part', { name: 'Part', parameters: [{ RefersTo: 'Part' }] });
+    reportAttrs.set('local', { name: 'Local', parameters: [] });
+    reportAttrs.set('set', { name: 'Set', parameters: [{ RefersTo: 'Variable' }] });
+    reportAttrs.set('set as', { name: 'Set as', parameters: [{ RefersTo: 'Variable' }] });
     scopeManager.globalScope.attributes.set('report', reportAttrs);
 
-    for (const [uri, state] of docStates.entries()) {
-        buildFileScope(scopeManager, uri, state.sourceFile);
+    const partAttrs = new Map<string, any>();
+    partAttrs.set('line', { name: 'Line', parameters: [{ RefersTo: 'Line' }] });
+    scopeManager.globalScope.attributes.set('part', partAttrs);
+
+    const fieldAttrs = new Map<string, any>();
+    fieldAttrs.set('set as', { name: 'Set as', parameters: [{ RefersTo: 'Variable' }] });
+    scopeManager.globalScope.attributes.set('field', fieldAttrs);
+    
+    // Also mock variable definition attribute mapping
+    scopeManager.globalScope.attributes.set('variable', new Map());
+
+    for (const [uri, content] of Object.entries(files)) {
+        let cleanContent = content;
+        if (content.includes('|')) {
+            const offset = content.indexOf('|');
+            cleanContent = content.replace('|', '');
+            targetUri = uri;
+            position = TextDocument.create(uri, 'tdl', 1, cleanContent).positionAt(offset);
+        }
+        
+        const fsPath = uri.replace('file:///', ''); // Naive uri to path conversion
+        const canonicalPath = harness.files.canonicalize(fsPath);
+        
+        harness.files.files.set(canonicalPath, cleanContent);
+        const doc = TextDocument.create(uri, 'tdl', 1, cleanContent);
+        harness.documents.set(uri, doc);
+        await harness.runtime.documentLifecycle!.rebuild(doc);
     }
 
-    const mockDocManager = {
-        get: (uri: string) => docStates.get(uri),
-        getAllDocs: () => docStates.entries(),
-        getProjectNodes: (uri: string) => new Set(Array.from(docs.keys())),
-        getScopeManager: (uri: string) => scopeManager
-    } as unknown as DocManager;
-    
-    return { mockDocs, mockDocManager, targetUri, position };
+    return { harness, targetUri, position };
 }
 
 describe('Document Highlight Service', () => {
     it('returns highlights for a definition name and its references within the same file', async () => {
-        const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
+        const { harness, targetUri, position } = await setupHarness({
             'file:///test.tdl': `
 [Report: |BaseReport]
 Use: BaseReport
@@ -83,13 +69,19 @@ Use: BaseReport
             position
         };
         
-        const highlights = await getDocumentHighlights(params, mockDocManager, mockDocs);
+        const highlights = await getDocumentHighlights(
+            params, 
+            harness.runtime.services.documentStateStore, 
+            harness.documents, 
+            harness.runtime.services.documentLoader,
+            harness.runtime.services.includeGraphManager
+        );
         expect(highlights).toBeDefined();
         expect(highlights!.length).toBe(3);
     });
 
     it('does NOT return highlights from other files', async () => {
-        const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
+        const { harness, targetUri, position } = await setupHarness({
             'file:///file1.tdl': `
 [Report: |TestReport]
 Use: TestReport
@@ -105,13 +97,19 @@ Use: TestReport
             position
         };
         
-        const highlights = await getDocumentHighlights(params, mockDocManager, mockDocs);
+        const highlights = await getDocumentHighlights(
+            params, 
+            harness.runtime.services.documentStateStore, 
+            harness.documents, 
+            harness.runtime.services.documentLoader,
+            harness.runtime.services.includeGraphManager
+        );
         expect(highlights).toBeDefined();
         expect(highlights!.length).toBe(2); 
     });
 
     it('returns empty array when cursor is on whitespace/non-symbol position', async () => {
-        const { mockDocs, mockDocManager, targetUri, position } = setupMocks({
+        const { harness, targetUri, position } = await setupHarness({
             'file:///test.tdl': `
 [Report: BaseReport]
 |   
@@ -124,8 +122,15 @@ Use: BaseReport
             position
         };
         
-        const highlights = await getDocumentHighlights(params, mockDocManager, mockDocs);
+        const highlights = await getDocumentHighlights(
+            params, 
+            harness.runtime.services.documentStateStore, 
+            harness.documents, 
+            harness.runtime.services.documentLoader,
+            harness.runtime.services.includeGraphManager
+        );
         expect(highlights).toBeDefined();
         expect(highlights!.length).toBe(0);
     });
 });
+

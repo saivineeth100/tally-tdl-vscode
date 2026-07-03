@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DocManager } from '../../../docManager';
+import { DocumentStateStore } from '../../../services/documentStateStore';
 import { ScopeManager } from '../../../semantics/scopeManager';
 import { findReferenceAtOffset } from '../../../features/definition';
 import { parseXmlToAst } from '../../../core/xml/xmlAdapter';
@@ -41,7 +41,7 @@ const mockDocuments = {
 
 describe('XML Reference Tests', () => {
     it('Indexes XML definitions in ScopeManager correctly to enable reference lookups', () => {
-        const manager = new DocManager(mockConnection, mockDocuments);
+        const docManager = new DocumentStateStore();
         const scopeManager = new ScopeManager();
 
         const xmlContent = mockDocuments.get('file:///test.tdlxml').getText();

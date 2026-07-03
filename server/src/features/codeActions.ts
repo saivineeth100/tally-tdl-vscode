@@ -1,8 +1,6 @@
 import { CodeActionParams, CodeAction, CodeActionKind, TextEdit } from "vscode-languageserver";
-import { DocManager } from "../docManager";
-
-import { TextDocuments } from "vscode-languageserver";
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import { DocumentStateStore } from '../services/documentStateStore';
+import { DocumentRepository } from '../ports/documentRepository';
 import { findClosestMatch } from "../utils/stringUtils";
 import { StatementNode, BlockStatementNode, IdentifierNode, LiteralNode, SyntaxKind } from "../core/ast/ast";
 import { DiagnosticRules, LabelSequenceData, MissingDefinitionData, MissingEndStatementData, UnknownDefinitionTypeData, UnknownAttributeData, UnknownSchemaPropertyData } from "../diagnostics";
@@ -11,13 +9,13 @@ import { normalizeTypeName } from '../utils/normalizeUtils';
 
 export function provideCodeActions(
     params: CodeActionParams,
-    docManager: DocManager,
-    docs: TextDocuments<TextDocument>
+    stateStore: DocumentStateStore,
+    docs: DocumentRepository
 ): CodeAction[] {
     const actions: CodeAction[] = [];
     const doc = docs.get(params.textDocument.uri);
-    const docState = docManager.get(params.textDocument.uri);
-    const scopeManager = docManager.getScopeManager(params.textDocument.uri);
+    const docState = stateStore.get(params.textDocument.uri);
+    const scopeManager = stateStore.getScopeManager(params.textDocument.uri);
 
     if (!doc || !docState) return actions;
 

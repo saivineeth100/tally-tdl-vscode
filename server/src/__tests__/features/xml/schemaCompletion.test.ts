@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { registerCompletion } from '../../../features/completion';
+import { CompletionService } from '../../../services/completionService';
+import { DocumentContextResolver } from '../../../services/documentContextResolver';
 import { ScopeManager } from '../../../semantics/scopeManager';
 import { CompletionItemKind, InsertTextFormat, CompletionList, CompletionItem } from 'vscode-languageserver';
 import { SchemaSymbol, SymbolKind } from 'tally-tdl-shared';
@@ -68,21 +69,16 @@ describe('XML Schema Completion', () => {
             get: () => dummyDoc
         };
 
-        const dummyManager = {
+        const mockMgr = {
             get: () => ({ sourceFile: { definitions: [] } }),
-                        getScopeManager: () => scopeManager,
+            getScopeManager: () => scopeManager,
             getProjectNodes: () => new Set(['test://file.xml'])
         };
         
-        const dummyConnection = {
-            onCompletion: (cb: any) => {
-                onCompletionCallback = cb;
-            },
-            onCompletionResolve: () => {}
-        };
-        registerCompletion(dummyConnection as any, dummyDocs as any, dummyManager as any);
+        const contextResolver = new DocumentContextResolver(dummyDocs as any, mockMgr as any, mockMgr as any);
+        const completionService = new CompletionService(mockMgr as any, mockMgr as any, contextResolver, () => []);
 
-        const list = await onCompletionCallback({ textDocument: { uri: 'test.xml' }, position: { line: 0, character: offset } });
+        const list = await completionService.complete({ textDocument: { uri: 'test.xml' }, position: { line: 0, character: offset } });
         return list.items;
     };
 

@@ -1,5 +1,5 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
-import { DocManager } from '../../../docManager';
+import { DocumentStateStore } from '../../../services/documentStateStore';
 import { STRUCTURAL_DEFINITION_TYPES } from '../../../validation/validationUtils';
 import { Scope } from '../../../semantics/scopeManager';
 import { CompletionContext } from '../contextAnalyzer';
@@ -11,7 +11,7 @@ import { DefinitionNode, SyntaxKind } from '../../../core/ast/ast';
 import { resolveModifierChain } from '../../../utils/modifierUtils';
 
 export function provideModifierValueCompletions(
-    manager: DocManager,
+    stateStore: DocumentStateStore,
     uri: string,
     offset: number,
     currentDef: DefinitionNode,
@@ -24,7 +24,7 @@ export function provideModifierValueCompletions(
 
     const modName = context.modifierName.toLowerCase();
     const partial = context.partial.toLowerCase();
-    const scopeManager = manager.getScopeManager(uri);
+    const scopeManager = isXml ? stateStore.xmlScopeManager : stateStore.getScopeManager(uri);
     
     if (['local', 'add', 'replace', 'delete'].includes(modName)) {
         let currentScopeDefType = currentDef.type?.text || '';

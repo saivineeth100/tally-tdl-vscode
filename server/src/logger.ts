@@ -1,4 +1,5 @@
 import { Connection } from 'vscode-languageserver';
+import { ServiceLogger } from './ports/serviceLogger';
 
 export enum LogLevel {
     Error = 0,
@@ -10,7 +11,7 @@ export enum LogLevel {
 
 export const isDebug = process.execArgv.some(arg => arg.startsWith('--inspect'));
 
-export class Logger {
+export class Logger implements ServiceLogger {
     private connection?: Connection;
     public level: LogLevel;
 
@@ -27,33 +28,38 @@ export class Logger {
         this.level = level;
     }
 
-    error(message: string) {
+    error(message: string, ...args: any[]) {
         if (this.level >= LogLevel.Error) {
-            this.connection ? this.connection.console.error(message) : console.error(message);
+            const msg = args.length ? `${message} ${args.join(' ')}` : message;
+            this.connection ? this.connection.console.error(msg) : console.error(msg);
         }
     }
 
-    warn(message: string) {
+    warn(message: string, ...args: any[]) {
         if (this.level >= LogLevel.Warn) {
-            this.connection ? this.connection.console.warn(message) : console.warn(message);
+            const msg = args.length ? `${message} ${args.join(' ')}` : message;
+            this.connection ? this.connection.console.warn(msg) : console.warn(msg);
         }
     }
 
-    info(message: string) {
+    info(message: string, ...args: any[]) {
         if (this.level >= LogLevel.Info) {
-            this.connection ? this.connection.console.info(message) : console.info(message);
+            const msg = args.length ? `${message} ${args.join(' ')}` : message;
+            this.connection ? this.connection.console.info(msg) : console.info(msg);
         }
     }
 
-    debug(message: string) {
+    debug(message: string, ...args: any[]) {
         if (this.level >= LogLevel.Debug) {
-            this.connection ? this.connection.console.log(message) : console.log(message);
+            const msg = args.length ? `${message} ${args.join(' ')}` : message;
+            this.connection ? this.connection.console.log(msg) : console.log(msg);
         }
     }
 
-    trace(message: string) {
+    trace(message: string, ...args: any[]) {
         if (this.level >= LogLevel.Trace) {
-            this.connection ? this.connection.console.log(message) : console.log(message);
+            const msg = args.length ? `${message} ${args.join(' ')}` : message;
+            this.connection ? this.connection.console.log(msg) : console.log(msg);
         }
     }
 }

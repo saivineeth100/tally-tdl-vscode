@@ -43,6 +43,7 @@ export interface GlobalScope extends BaseScope {
     
     interchangeableTypesMap: Map<string, string>;
     interchangeableAttributesMap: Map<string, string>;
+    interchangeableTypesAliasesMap: Map<string, string[]>;
     referenceIndex: ReferenceIndex;
 }
 

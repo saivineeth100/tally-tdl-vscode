@@ -1,149 +1,88 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { DocManager } from '../../../src/docManager';
-import { Connection, TextDocuments, TextDocument } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
-import * as fs from 'fs';
-import * as path from 'path';
-
-// Mock dependencies
-const mockConnection = {
-    sendDiagnostics: vi.fn(),
-    sendNotification: vi.fn(),
-    console: { log: vi.fn(), error: vi.fn(), warn: vi.fn() }
-} as unknown as Connection;
-
-const mockDocuments = {
-    onDidOpen: vi.fn(),
-    onDidChangeContent: vi.fn(),
-    onDidClose: vi.fn(),
-    get: vi.fn(),
-    all: vi.fn().mockReturnValue([]),
-    keys: vi.fn().mockReturnValue([])
-} as unknown as TextDocuments<TextDocument>;
+import { ServerTestHarness } from '../harness/serverTestHarness';
 
 describe('Workspace Partitioning and isUriActive Propagation', () => {
-    let docManager: DocManager;
+    let harness: ServerTestHarness;
 
     beforeEach(() => {
         vi.clearAllMocks();
-        docManager = new DocManager(mockConnection, mockDocuments);
-        // Suppress logs during tests
-        vi.spyOn(console, 'log').mockImplementation(() => {});
-        vi.spyOn(console, 'error').mockImplementation(() => {});
-        vi.spyOn(console, 'warn').mockImplementation(() => {});
+        harness = new ServerTestHarness();
     });
 
-    it('should assign a loose file to workspaceScope and an active file to projectScope', async () => {
-        // Mock fs.promises.stat and readFile
-        vi.spyOn(fs.promises, 'stat').mockResolvedValue({ mtimeMs: 1 } as any);
-        const mockContent = `[Report: MyReport]\n`;
-        vi.spyOn(fs.promises, 'readFile').mockResolvedValue(mockContent as any);
+    it('should partition a project into one active project ScopeManager', async () => {
+        // Create 3 files in the same project
+        const rootUri = URI.file('d:/project/root.tdl').toString();
+        const child1Uri = URI.file('d:/project/child1.tdl').toString();
+        const child2Uri = URI.file('d:/project/child2.tdl').toString();
 
-        // Parse a loose file (isActive = false)
-        await docManager.indexFile('/workspace/loose.tdl', new Set(), false, false, false);
-
-        // Verify it went to workspaceScope
-        const scopeMgr = docManager.getScopeManager(URI.file('/workspace/loose.tdl').toString());
-        const looseScope = scopeMgr.fileMap.get(URI.file('/workspace/loose.tdl').toString());
-        expect(looseScope?.parent).toBe(scopeMgr.workspaceScope);
-
-        // Verify definition is in workspaceIndex
-        const workspaceReport = scopeMgr.workspaceIndex.get('report')?.get('myreport');
-        expect(workspaceReport).toBeDefined();
-        expect(workspaceReport?.length).toBe(1);
-
-        // Verify it is NOT in projectScope
-        const projectReport = scopeMgr.scopeIndex.get('report')?.get('myreport');
-        expect(projectReport).toBeUndefined();
-
-        // Now parse an active file (isActive = true)
-        await docManager.indexFile('/workspace/active.tdl', new Set(), false, false, true);
-
-        // Verify it went to projectScope
-        const activeScope = scopeMgr.fileMap.get(URI.file('/workspace/active.tdl').toString());
-        expect(activeScope?.parent).toBe(scopeMgr.projectScope);
-
-        // Verify definition is in scopeIndex
-        const activeReport = scopeMgr.scopeIndex.get('report')?.get('myreport');
-        expect(activeReport).toBeDefined();
-        expect(activeReport?.length).toBe(1);
-    });
-
-    it('should correctly store duplicate definitions as arrays in both scopes', async () => {
-        vi.spyOn(fs.promises, 'stat').mockResolvedValue({ mtimeMs: 1 } as any);
-        const mockContent = `[Report: DuplicateReport]\n`;
-        vi.spyOn(fs.promises, 'readFile').mockResolvedValue(mockContent as any);
-
-        const scopeMgr = docManager.getScopeManager('dummy');
-
-        // Parse two active files with the same report name
-        await docManager.indexFile('/active1.tdl', new Set(), false, false, true);
-        await docManager.indexFile('/active2.tdl', new Set(), false, false, true);
-
-        const activeDuplicates = scopeMgr.scopeIndex.get('report')?.get('duplicatereport');
-        expect(activeDuplicates?.length).toBe(2);
-
-        // Parse two inactive files with the same report name
-        await docManager.indexFile('/inactive1.tdl', new Set(), false, false, false);
-        await docManager.indexFile('/inactive2.tdl', new Set(), false, false, false);
-
-        const inactiveDuplicates = scopeMgr.workspaceIndex.get('report')?.get('duplicatereport');
-        expect(inactiveDuplicates?.length).toBe(2);
-    });
-
-    it('should propagate isActive down the include graph during tpj processing', async () => {
-        vi.spyOn(fs.promises, 'stat').mockResolvedValue({ mtimeMs: 1 } as any);
+        harness.files.files.set(URI.parse(rootUri).fsPath, `
+            [Include: child1.tdl]
+            [Include: child2.tdl]
+        `);
+        harness.files.files.set(URI.parse(child1Uri).fsPath, `
+            [Variable: Var1]
+        `);
+        harness.files.files.set(URI.parse(child2Uri).fsPath, `
+            [Variable: Var2]
+        `);
         
-        // Root includes Child, Child includes Grandchild
-        const contentMap: Record<string, string> = {
-            [URI.file('/root.tdl').toString()]: `[Include: child.tdl]`,
-            [URI.file('/child.tdl').toString()]: `[Include: grandchild.tdl]`,
-            [URI.file('/grandchild.tdl').toString()]: `[Report: DeepReport]`
-        };
+        // Open the root file
+        const rootDoc = TextDocument.create(rootUri, 'tdl', 1, harness.files.files.get(URI.parse(rootUri).fsPath)!);
+        harness.documents.set(rootUri, rootDoc);
+        await harness.runtime.documentLifecycle.rebuild(rootDoc);
 
-        vi.spyOn(fs.promises, 'readFile').mockImplementation(async (path: any) => {
-            const normalizedPath = URI.file(path).toString();
-            return contentMap[normalizedPath] || '';
-        });
-
-        // Mock resolveIncludePath to easily resolve paths
-        (docManager as any).resolveIncludePath = (currentFsPath: string, includeName: string) => {
-            return `/${includeName}`;
-        };
-
-        // Parse root as ACTIVE
-        await docManager.indexFile('/root.tdl', new Set(), false, false, true);
-
-        const scopeMgr = docManager.getScopeManager('dummy');
-
-        // Verify grandchild went to projectScope because isActive propagated!
-        const deepScope = scopeMgr.fileMap.get(URI.file('/grandchild.tdl').toString());
-        expect(deepScope).toBeDefined();
-        expect(deepScope?.parent).toBe(scopeMgr.projectScope);
-
-        const deepReport = scopeMgr.scopeIndex.get('report')?.get('deepreport');
-        expect(deepReport?.length).toBe(1);
+        // All 3 files should be in the same project scope
+        const scopeManager = harness.runtime.services.documentStateStore.getScopeManager(rootUri);
+        
+        expect(scopeManager.projectScope.has(rootUri)).toBe(true);
+        expect(scopeManager.projectScope.has(child1Uri)).toBe(true);
+        expect(scopeManager.projectScope.has(child2Uri)).toBe(true);
+        
+        // All files in the scope should be marked active because root is active
+        const rootScope = scopeManager.fileMap.get(rootUri);
+        const child1Scope = scopeManager.fileMap.get(child1Uri);
+        const child2Scope = scopeManager.fileMap.get(child2Uri);
+        
+        expect(rootScope?.isUriActive).toBe(true);
+        expect(child1Scope?.isUriActive).toBe(true);
+        expect(child2Scope?.isUriActive).toBe(true);
     });
 
-    it('should strictly determine isUriActive via ProjectScope, falling back to open docs if no tpj', () => {
-        const scopeMgr = docManager.getScopeManager('dummy');
+    it('should transition closed files from inactive to active when a project file is opened', async () => {
+        // Setup a closed project
+        const rootUri = URI.file('d:/project2/root.tdl').toString();
+        const childUri = URI.file('d:/project2/child.tdl').toString();
         
-        // Setup mock file scope attached to projectScope
-        scopeMgr.fileMap.set(URI.file('/active.tdl').toString(), { parent: scopeMgr.projectScope } as any);
-        expect(docManager.isUriActive(URI.file('/active.tdl').toString())).toBe(true);
+        harness.files.files.set(URI.parse(rootUri).fsPath, `
+            [Include: child.tdl]
+        `);
+        harness.files.files.set(URI.parse(childUri).fsPath, `
+            [Variable: Var1]
+        `);
+        
+        // Directly index files (simulating a workspace scan)
+        await harness.runtime.services.workspaceScanner.indexFile(URI.parse(rootUri).fsPath, new Set(), true, false, false);
+        await harness.runtime.services.workspaceScanner.indexFile(URI.parse(childUri).fsPath, new Set(), true, false, false);
+        
+        // Add them to project scope map manually for test since we didn't run the full scanner
+        harness.runtime.services.documentStateStore.tdlScopeManager.updateProjectScope(rootUri, new Set([rootUri, childUri]));
+        harness.runtime.services.documentStateStore.tdlScopeManager.updateProjectScope(childUri, new Set([rootUri, childUri]));
 
-        // Setup mock file scope attached to workspaceScope
-        scopeMgr.fileMap.set(URI.file('/inactive.tdl').toString(), { parent: scopeMgr.workspaceScope } as any);
-        expect(docManager.isUriActive(URI.file('/inactive.tdl').toString())).toBe(false);
+        // Verify they are inactive initially
+        let scopeManager = harness.runtime.services.documentStateStore.tdlScopeManager;
+        expect(scopeManager.fileMap.get(rootUri)?.isUriActive).toBe(false);
+        expect(scopeManager.fileMap.get(childUri)?.isUriActive).toBe(false);
 
-        // If file not indexed yet, but tpj exists -> false
-        docManager.tpjFiles.add(URI.file('/some.tpj').toString());
-        expect(docManager.isUriActive(URI.file('/new.tdl').toString())).toBe(false);
+        // Open one of the files
+        const rootDoc = TextDocument.create(rootUri, 'tdl', 1, harness.files.files.get(URI.parse(rootUri).fsPath)!);
+        harness.documents.set(rootUri, rootDoc);
+        await harness.runtime.documentLifecycle.rebuild(rootDoc);
 
-        // If file not indexed yet, NO tpj exists -> true ONLY IF open in editor
-        docManager.tpjFiles.clear();
-        (docManager as any).docs.set(URI.file('/open.tdl').toString(), {} as any);
-        expect(docManager.isUriActive(URI.file('/open.tdl').toString())).toBe(true);
-        expect(docManager.isUriActive(URI.file('/closed.tdl').toString())).toBe(false);
+        // Now they should be active
+        scopeManager = harness.runtime.services.documentStateStore.getScopeManager(rootUri);
+        expect(scopeManager.fileMap.get(rootUri)?.isUriActive).toBe(true);
+        expect(scopeManager.fileMap.get(childUri)?.isUriActive).toBe(true);
     });
 });

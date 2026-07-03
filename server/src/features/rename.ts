@@ -1,14 +1,18 @@
-import { WorkspaceEdit, TextEdit, RenameParams, PrepareRenameParams, Range, TextDocuments } from 'vscode-languageserver';
+import { WorkspaceEdit, TextEdit, RenameParams, PrepareRenameParams, Range, Position } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { DocManager, readFileWithEncoding } from '../docManager';
+import { DocumentStateStore } from '../services/documentStateStore';
+import { DocumentRepository } from '../ports/documentRepository';
 import { findReferences } from './references';
 import { findReferenceAtOffset } from './definition';
-import { URI } from 'vscode-uri';
+import { DocumentLoader } from '../services/documentLoader';
+import { IncludeGraphManager } from '../services/includeGraphManager';
 
 export async function renameSymbol(
     params: RenameParams,
-    docManager: DocManager,
-    docs: TextDocuments<TextDocument>
+    stateStore: DocumentStateStore,
+    docs: DocumentRepository,
+    documentLoader: DocumentLoader,
+    includeGraphManager: IncludeGraphManager
 ): Promise<WorkspaceEdit | null> {
     const uri = params.textDocument.uri;
     const doc = docs.get(uri);
@@ -23,7 +27,7 @@ export async function renameSymbol(
     }
 
     // Get all references including definitions
-    const locations = await findReferences(docManager, docs, uri, offset, true);
+    const locations = await findReferences(stateStore, docs, documentLoader, includeGraphManager, uri, offset, true);
     if (locations.length === 0) return null;
 
     const changes: { [uri: string]: TextEdit[] } = {};
@@ -65,7 +69,7 @@ export async function renameSymbol(
         } else {
             // Document not open — use pre-computed ranges where available
             let handled = false;
-            const scopeManager = docManager.getScopeManager(loc.uri);
+            const scopeManager = stateStore.getScopeManager(loc.uri);
             const symbols = scopeManager.getSymbolsInDocument(loc.uri);
             
             for (const sym of symbols) {
@@ -83,11 +87,10 @@ export async function renameSymbol(
 
             // Fallback for references: read from disk to preserve prefixes
             try {
-                const fsPath = URI.parse(loc.uri).fsPath;
-                const content = await readFileWithEncoding(fsPath);
-                const closedDoc = TextDocument.create(loc.uri, 'tally', 1, content);
-                let startOff = closedDoc.offsetAt(loc.range.start);
-                const endOff = closedDoc.offsetAt(loc.range.end);
+                const closedDoc = await documentLoader.loadDocument(loc.uri);
+                if (closedDoc) {
+                    let startOff = closedDoc.offsetAt(loc.range.start);
+                    const endOff = closedDoc.offsetAt(loc.range.end);
                 const originalText = closedDoc.getText(loc.range);
 
                 if (originalText.startsWith('$$')) startOff += 2;
@@ -100,6 +103,7 @@ export async function renameSymbol(
                     end: closedDoc.positionAt(endOff)
                 };
                 changes[loc.uri].push(TextEdit.replace(adjustedRange, newName));
+                }
             } catch (err) {
                 console.warn(`[rename] Error reading file ${loc.uri}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
                 changes[loc.uri].push(TextEdit.replace(loc.range, newName));
@@ -110,24 +114,26 @@ export async function renameSymbol(
     return { changes };
 }
 
-export function prepareRename(
+export async function prepareRename(
     params: PrepareRenameParams,
-    docManager: DocManager,
-    docs: TextDocuments<TextDocument>
-): Range | { range: Range, placeholder: string } | null {
+    stateStore: DocumentStateStore,
+    docs: DocumentRepository,
+    documentLoader: DocumentLoader,
+    includeGraphManager: IncludeGraphManager
+): Promise<Range | { range: Range, placeholder: string } | null> {
     const uri = params.textDocument.uri;
     const doc = docs.get(uri);
     if (!doc) return null;
 
     const offset = doc.offsetAt(params.position);
-    const docState = docManager.get(uri);
+    const docState = stateStore.get(uri);
     if (!docState) return null;
 
     const refInfo = findReferenceAtOffset(
         docState.sourceFile,
         offset,
         doc.getText(),
-        docManager.getScopeManager(uri),
+        stateStore.getScopeManager(uri),
         uri
     );
 

@@ -65,33 +65,37 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     public modifierContributions = new Map<string, ModifierContribution[]>();
 
     public getProjectDefinition(defType: string, name: string): DefinitionSymbol[] {
-        const normalizedType = this.getCanonicalTypeName(normalizeTypeName(defType));
-        const projectDefs = this.scopeIndex.get(normalizedType);
-        if (projectDefs) {
-            const syms = projectDefs.get(normalizeTypeName(name));
-            if (syms && syms.length > 0) {
-                return syms
-                    .filter(s => s.kind === ScopeKind.Definition)
-                    .map(s => (s as DefinitionScope).definition)
-                    .filter(d => !!d) as DefinitionSymbol[];
-            }
-        }
-        return [];
+        return this.getDefinitionFromIndex(this.scopeIndex, defType, name);
     }
 
     public getWorkspaceDefinition(defType: string, name: string): DefinitionSymbol[] {
-        const normalizedType = this.getCanonicalTypeName(normalizeTypeName(defType));
-        const workspaceDefs = this.workspaceIndex.get(normalizedType);
-        if (workspaceDefs) {
-            const syms = workspaceDefs.get(normalizeTypeName(name));
-            if (syms && syms.length > 0) {
-                return syms
-                    .filter(s => s.kind === ScopeKind.Definition)
-                    .map(s => (s as DefinitionScope).definition)
-                    .filter(d => !!d) as DefinitionSymbol[];
+        return this.getDefinitionFromIndex(this.workspaceIndex, defType, name);
+    }
+
+    private getAliasesForType(defType: string): string[] {
+        const normalizedType = normalizeTypeName(defType);
+        const canonicalType = this.getCanonicalTypeName(normalizedType);
+        return this.globalScope.interchangeableTypesAliasesMap?.get(canonicalType) || [normalizedType];
+    }
+
+    private getDefinitionFromIndex(index: Map<string, Map<string, Scope[]>>, defType: string, name: string): DefinitionSymbol[] {
+        const targetTypes = this.getAliasesForType(defType);
+        const results: DefinitionSymbol[] = [];
+        const normalizedName = normalizeTypeName(name);
+
+        for (const type of targetTypes) {
+            const defs = index.get(type);
+            if (defs) {
+                const syms = defs.get(normalizedName);
+                if (syms && syms.length > 0) {
+                    const matched = syms
+                        .map(s => (s as DefinitionScope | FunctionScope).definition)
+                        .filter((d): d is DefinitionSymbol => !!d);
+                    results.push(...matched);
+                }
             }
         }
-        return [];
+        return results;
     }
 
     public getCanonicalTypeName(normalizedType: string): string {
@@ -135,6 +139,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
 
             interchangeableAttributesMap: new Map(),
             interchangeableTypesMap: new Map(),
+            interchangeableTypesAliasesMap: new Map(),
             referenceIndex: new ReferenceIndex()
         };
 
@@ -674,47 +679,49 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
      * Used for auto-completing reference attributes like 'Use' or 'Form'
      */
     public getGlobalDefinitionsByType(defType: string, isActive: boolean = true): import('tally-tdl-shared').DefinitionSymbol[] {
-        const normalizedType = normalizeTypeName(defType);
         const results = new Map<string, import('tally-tdl-shared').DefinitionSymbol>();
+        const targetTypes = this.getAliasesForType(defType);
 
-        // 1. Get Base TDL Definitions (Global Scope)
-        const globalDefs = this.globalScope.definitions.get(normalizedType);
-        if (globalDefs) {
-            for (const [lowerName, sym] of globalDefs.entries()) {
-                results.set(lowerName, sym);
+        for (const type of targetTypes) {
+            // 1. Get Base TDL Definitions (Global Scope)
+            const globalDefs = this.globalScope.definitions.get(type);
+            if (globalDefs) {
+                for (const [lowerName, sym] of globalDefs.entries()) {
+                    results.set(lowerName, sym);
+                }
             }
-        }
 
-        // 2. If active file, get from Project Scope (active projects)
-        if (isActive) {
-            const projectDefs = this.scopeIndex.get(normalizedType);
-            if (projectDefs) {
-                for (const [lowerName, syms] of projectDefs.entries()) {
-                    for (const sym of syms) {
-                        if (sym.kind === ScopeKind.Definition) {
-                            const ds = sym as DefinitionScope;
-                            if (ds.definition) {
-                                results.set(lowerName, ds.definition);
+            // 2. If active file, get from Project Scope (active projects)
+            if (isActive) {
+                const projectDefs = this.scopeIndex.get(type);
+                if (projectDefs) {
+                    for (const [lowerName, syms] of projectDefs.entries()) {
+                        for (const sym of syms) {
+                            if (sym.kind === ScopeKind.Definition || sym.kind === ScopeKind.Function) {
+                                const ds = sym as DefinitionScope | FunctionScope;
+                                if (ds.definition) {
+                                    results.set(lowerName, ds.definition);
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        // 3. Get from Workspace Scope (inactive files)
-        // For active files, these are added as fallback/suggestions.
-        // For inactive files, this is the ONLY local scope they see.
-        const workspaceDefs = this.workspaceIndex.get(normalizedType);
-        if (workspaceDefs) {
-            for (const [lowerName, syms] of workspaceDefs.entries()) {
-                for (const sym of syms) {
-                    if (sym.kind === ScopeKind.Definition) {
-                        const ds = sym as DefinitionScope;
-                        if (ds.definition) {
-                            // Only add if not already overridden by ProjectScope (if active)
-                            if (!results.has(lowerName)) {
-                                results.set(lowerName, ds.definition);
+            // 3. Get from Workspace Scope (inactive files)
+            // For active files, these are added as fallback/suggestions.
+            // For inactive files, this is the ONLY local scope they see.
+            const workspaceDefs = this.workspaceIndex.get(type);
+            if (workspaceDefs) {
+                for (const [lowerName, syms] of workspaceDefs.entries()) {
+                    for (const sym of syms) {
+                        if (sym.kind === ScopeKind.Definition || sym.kind === ScopeKind.Function) {
+                            const ds = sym as DefinitionScope | FunctionScope;
+                            if (ds.definition) {
+                                // Only add if not already overridden by ProjectScope (if active)
+                                if (!results.has(lowerName)) {
+                                    results.set(lowerName, ds.definition);
+                                }
                             }
                         }
                     }

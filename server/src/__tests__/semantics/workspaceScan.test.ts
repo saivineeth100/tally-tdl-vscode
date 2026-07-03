@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { DocManager } from '../../docManager';
 import { URI } from 'vscode-uri';
 import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from '../../logger';
+import { ServerTestHarness } from '../harness/serverTestHarness';
 
-// Mock fs to control what scanDirectory finds
+// Mock fs to control what scanDirectoryForProjects / scanDirectoryForStandaloneFiles find
 vi.mock('fs', async () => {
     const actualFs = await vi.importActual<typeof import('fs')>('fs');
     return {
@@ -20,34 +20,18 @@ vi.mock('fs', async () => {
     };
 });
 
-
-
 describe('Workspace scan and Folder cleanup', () => {
-    let docManager: DocManager;
-    let mockConnection: any;
-    let mockDocuments: any;
+    let harness: ServerTestHarness;
     
     beforeEach(() => {
         vi.clearAllMocks();
-        mockConnection = {
-            console: { log: vi.fn(), warn: vi.fn(), error: vi.fn(), info: vi.fn() },
-            sendDiagnostics: vi.fn()
-        };
-        mockDocuments = {
-            onDidOpen: vi.fn(),
-            onDidChangeContent: vi.fn(),
-            onDidClose: vi.fn(),
-            get: vi.fn()
-        };
-        docManager = new DocManager(mockConnection, mockDocuments);
+        harness = new ServerTestHarness();
         
         // Disable real indexing so tests run fast
-        vi.spyOn(docManager, 'indexFile').mockResolvedValue(undefined);
+        vi.spyOn(harness.runtime.services.workspaceScanner, 'indexFile').mockResolvedValue(undefined);
     });
 
     describe('Workspace scan', () => {
-
-
         it('indexes standalone .tdl files not referenced by .tpj', async () => {
             const folderPath = 'd:\\test-workspace';
             
@@ -57,11 +41,12 @@ describe('Workspace scan and Folder cleanup', () => {
                 { name: 'docs.txt', isDirectory: () => false, isFile: () => true }
             ]);
 
-            await (docManager as any).scanFolder(URI.file(folderPath).toString());
+            const indexFileSpy = vi.spyOn(harness.runtime.services.workspaceScanner, 'indexFile');
+            await harness.runtime.services.workspaceScanner.scanFolder(URI.file(folderPath).toString());
 
-            expect(docManager.indexFile).toHaveBeenCalledTimes(2);
-            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'standalone.tdl'), expect.any(Set), true, false, false);
-            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'docs.txt'), expect.any(Set), true, false, false);
+            expect(indexFileSpy).toHaveBeenCalledTimes(2);
+            expect(indexFileSpy).toHaveBeenCalledWith(path.join(folderPath, 'standalone.tdl'), expect.any(Set), true, false, false);
+            expect(indexFileSpy).toHaveBeenCalledWith(path.join(folderPath, 'docs.txt'), expect.any(Set), true, false, false);
         });
 
         it('does not double-index files referenced by .tpj AND found standalone', async () => {
@@ -73,13 +58,18 @@ describe('Workspace scan and Folder cleanup', () => {
                 { name: 'referenced.tdl', isDirectory: () => false, isFile: () => true }
             ]);
             
-            // Mock TPJ content reading
-            (fs.promises.readFile as any).mockResolvedValue(`project file=referenced.tdl`);
+            // Mock TPJ content via InMemoryFileAccess (parseProjectFile uses fileAccess.readFile)
+            const tpjPath = path.resolve(folderPath, 'project.tpj');
+            const refPath = path.resolve(folderPath, 'referenced.tdl');
+            harness.files.files.set(harness.files.canonicalize(tpjPath), `project file=referenced.tdl`);
+            // Referenced file must exist in fileAccess so fileAccess.exists() returns true
+            harness.files.files.set(harness.files.canonicalize(refPath), ``);
             
-            await (docManager as any).scanFolder(URI.file(folderPath).toString());
+            const indexFileSpy = vi.spyOn(harness.runtime.services.workspaceScanner, 'indexFile');
+            await harness.runtime.services.workspaceScanner.scanFolder(URI.file(folderPath).toString());
             
-            expect(docManager.indexFile).toHaveBeenCalledTimes(1);
-            expect(docManager.indexFile).toHaveBeenCalledWith(path.join(folderPath, 'referenced.tdl'), expect.any(Set), true, false, true);
+            expect(indexFileSpy).toHaveBeenCalledTimes(1);
+            expect(indexFileSpy).toHaveBeenCalledWith(path.join(folderPath, 'referenced.tdl'), expect.any(Set), true, false, true);
         });
     });
 
@@ -90,16 +80,16 @@ describe('Workspace scan and Folder cleanup', () => {
             const uri2 = URI.file('d:\\test-workspace\\folder2\\file2.tdl').toString();
             
             // Add fake files to scope managers
-            docManager.tdlScopeManager.fileMap.set(uri1, { id: 'file1', kind: 3 } as any);
-            docManager.tdlScopeManager.fileMap.set(uri2, { id: 'file2', kind: 3 } as any);
+            harness.runtime.services.documentStateStore.tdlScopeManager.fileMap.set(uri1, { id: 'file1', kind: 3 } as any);
+            harness.runtime.services.documentStateStore.tdlScopeManager.fileMap.set(uri2, { id: 'file2', kind: 3 } as any);
             
-            vi.spyOn(docManager.tdlScopeManager, 'removeFileScope');
+            vi.spyOn(harness.runtime.services.documentStateStore.tdlScopeManager, 'removeFileScope');
             
-            docManager.clearFolderSymbols(folderPath);
+            harness.runtime.services.workspaceScanner.clearFolderSymbols(folderPath);
             
             // Should only remove uri1
-            expect(docManager.tdlScopeManager.removeFileScope).toHaveBeenCalledWith(uri1);
-            expect(docManager.tdlScopeManager.removeFileScope).not.toHaveBeenCalledWith(uri2);
+            expect(harness.runtime.services.documentStateStore.tdlScopeManager.removeFileScope).toHaveBeenCalledWith(uri1);
+            expect(harness.runtime.services.documentStateStore.tdlScopeManager.removeFileScope).not.toHaveBeenCalledWith(uri2);
         });
 
         it('clearFolderSymbols cleans parent graph entries pointing to folder', () => {
@@ -108,12 +98,12 @@ describe('Workspace scan and Folder cleanup', () => {
             const uriOutside = URI.file('d:\\test-workspace\\folder2\\file2.tdl').toString();
             
             // uriOutside includes uriInside
-            (docManager as any).includeGraph.set(uriOutside, new Set([uriInside, 'some-other-uri']));
+            harness.runtime.services.includeGraphManager.includeGraph.set(uriOutside, new Set([uriInside, 'some-other-uri']));
             
-            docManager.clearFolderSymbols(folderPath);
+            harness.runtime.services.workspaceScanner.clearFolderSymbols(folderPath);
             
             // The set should no longer contain uriInside
-            const children = (docManager as any).includeGraph.get(uriOutside);
+            const children = harness.runtime.services.includeGraphManager.includeGraph.get(uriOutside);
             expect(children?.has(uriInside)).toBe(false);
             expect(children?.has('some-other-uri')).toBe(true);
         });
@@ -122,21 +112,21 @@ describe('Workspace scan and Folder cleanup', () => {
             const uri1 = URI.file('d:\\test-workspace\\exists.tdl').toString();
             const uri2 = URI.file('d:\\test-workspace\\deleted.tdl').toString();
             
-            (docManager as any).tpjFiles.add(uri1);
-            (docManager as any).tpjFiles.add(uri2);
-            (docManager as any).includeGraph.set(uri1, new Set());
-            (docManager as any).includeGraph.set(uri2, new Set());
+            harness.runtime.services.includeGraphManager.tpjFiles.add(uri1);
+            harness.runtime.services.includeGraphManager.tpjFiles.add(uri2);
+            harness.runtime.services.includeGraphManager.includeGraph.set(uri1, new Set());
+            harness.runtime.services.includeGraphManager.includeGraph.set(uri2, new Set());
             
             // Mock indexFile to throw for deleted.tdl to simulate ENOENT
-            vi.spyOn(docManager, 'indexFile').mockImplementation(async (fsPath: string) => {
+            const indexFileSpy = vi.spyOn(harness.runtime.services.workspaceScanner, 'indexFile').mockImplementation(async (fsPath: any) => {
                 if (fsPath.includes('deleted')) throw new Error('ENOENT');
             });
             const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
-            (docManager as any).hasInitialScanStarted = true;
-            await expect(docManager.revalidateAll([])).resolves.not.toThrow();
+            harness.runtime.services.workspaceScanner.hasInitialScanStarted = true;
+            await expect(harness.runtime.services.workspaceScanner.revalidateAll([])).resolves.not.toThrow();
             
-            expect(docManager.indexFile).toHaveBeenCalledTimes(2);
+            expect(indexFileSpy).toHaveBeenCalledTimes(2);
         });
     });
 });

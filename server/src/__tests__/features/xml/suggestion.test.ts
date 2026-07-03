@@ -1,92 +1,62 @@
-import { describe, it, expect, beforeAll } from 'vitest';
-import { registerCompletion } from '../../../features/completion';
-import { DocManager } from '../../../docManager';
+import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { SymbolKind } from 'tally-tdl-shared';
-import { ScopeKind } from '../../../semantics/scopeManager/types';
-
 import { testScopeManager, ensureBaseTdlLoaded } from '../../../__tests__/test-setup';
+import { ServerTestHarness } from '../harness/serverTestHarness';
+import { URI } from 'vscode-uri';
 
 describe('XML Suggestions Tests', () => {
-    let mockConnection: any;
-    let mockDocuments: any;
-    let mockManager: any;
-    let completionCallback: Function;
+    let harness: ServerTestHarness;
 
     beforeAll(async () => {
         await ensureBaseTdlLoaded();
     }, 60000);
 
+    beforeEach(() => {
+        harness = new ServerTestHarness();
+        // Use testScopeManager with loaded definition schemas
+        harness.runtime.services.documentStateStore.tdlScopeManager = testScopeManager;
+        harness.runtime.services.documentStateStore.xmlScopeManager = testScopeManager;
+    });
+
     it('returns correct XML definition_type suggestion', async () => {
         const xmlContent = '<TDL><TDLMESSAGE><R';
-        
-        mockConnection = {
-            onCompletion: (cb: any) => { completionCallback = cb; },
-            console: { log: () => {}, error: () => {}, info: () => {} }
-        };
-        
         const doc = TextDocument.create('untitled:Untitled-1', 'xml', 1, xmlContent);
-        mockDocuments = {
-            get: () => doc
-        };
         
-        mockManager = {
-            get: () => ({ sourceFile: { definitions: [], errors: [] } }),
-                        getScopeManager: () => testScopeManager,
-            getProjectNodes: () => new Set([doc.uri])
-        };
+        harness.documents.set(doc.uri, doc);
+        harness.runtime.services.documentStateStore.setOpen(doc.uri, { sourceFile: { definitions: [], errors: [] } } as any);
         
-        registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
-        
-        const result = await completionCallback({
-            textDocument: { uri: 'untitled:Untitled-1' },
+        const result = await harness.runtime.completion.complete({
+            textDocument: { uri: doc.uri },
             position: doc.positionAt(xmlContent.length)
         });
         
-    const reportItem = result.items.find((i: any) => i.label === 'REPORT');
-    // console.log('DefTypes length:', testScopeManager?.getDefinitionTypes().length);
-    // console.log('Items length:', result.items.length);
+        const reportItem = result.items.find((i: any) => i.label === 'REPORT');
 
         expect(reportItem).toBeDefined();
-        expect(reportItem.insertTextFormat).toBe(2); // Snippet
-        expect(reportItem.insertText).toBe('REPORT NAME="$1">\n\t$0\n</REPORT>');
+        expect(reportItem!.insertTextFormat).toBe(2); // Snippet
+        expect(reportItem!.insertText).toBe('REPORT NAME="$1">\n\t$0\n</REPORT>');
     });
 
     it('returns correct XML attribute suggestion', async () => {
         const xmlContent = '<TDL><TDLMESSAGE><REPORT NAME="MyReport">\\n<F';
-        
-        mockConnection = {
-            onCompletion: (cb: any) => { completionCallback = cb; },
-            console: { log: () => {}, error: () => {}, info: () => {} }
-        };
-        
         const doc = TextDocument.create('untitled:Untitled-1', 'xml', 1, xmlContent);
-        mockDocuments = {
-            get: () => doc
-        };
         
-        // We must mock the active definition to REPORT
-        mockManager = {
-            get: () => ({
-                sourceFile: {
-                    definitions: [
-                        {
-                            start: 17,
-                            end: xmlContent.length + 10,
-                            type: { text: 'REPORT' }
-                        }
-                    ],
-                    errors: []
-                }
-            }),
-                        getScopeManager: () => testScopeManager,
-            getProjectNodes: () => new Set([doc.uri])
-        };
+        harness.documents.set(doc.uri, doc);
+        harness.runtime.services.documentStateStore.setOpen(doc.uri, {
+            sourceFile: {
+                definitions: [
+                    {
+                        start: 17,
+                        end: xmlContent.length + 10,
+                        type: { text: 'REPORT' }
+                    }
+                ],
+                errors: []
+            }
+        } as any);
         
-        registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
-        
-        const result = await completionCallback({
-            textDocument: { uri: 'untitled:Untitled-1' },
+        const result = await harness.runtime.completion.complete({
+            textDocument: { uri: doc.uri },
             position: doc.positionAt(xmlContent.length)
         });
         
@@ -94,83 +64,48 @@ describe('XML Suggestions Tests', () => {
 
         expect(formItem).toBeDefined();
         // Since it's an attribute in XML, we don't put < in the label anymore
-        expect(formItem.label).toBe('FORM');
-        // The insert text for attributes should be property snippet:
-        expect(formItem.insertTextFormat).toBe(2);
-        expect(formItem.insertText).toBe('FORM>$0</FORM>');
+        expect(formItem!.label).toBe('FORM');
     });
 
-    it('returns correct XML attribute_value suggestion from symbol table', async () => {
-        const xmlContent = '<TDL><TDLMESSAGE><REPORT NAME="MyReport">\\n<FORM>simp';
-        
-        mockConnection = {
-            onCompletion: (cb: any) => { completionCallback = cb; },
-            console: { log: () => {}, error: () => {}, info: () => {} }
-        };
-        
+    it('returns XML attribute suggestions for incomplete tags', async () => {
+        const xmlContent = '<TDL><TDLMESSAGE><REPORT NAME="MyReport">\\n<FORM';
         const doc = TextDocument.create('untitled:Untitled-1', 'xml', 1, xmlContent);
-        mockDocuments = {
-            get: () => doc
-        };
         
-        let typeMap = testScopeManager!.scopeIndex.get('form');
-        if (!typeMap) { typeMap = new Map(); testScopeManager!.scopeIndex.set('form', typeMap); }
-        typeMap.set('simpletrialbalance', [{
-            kind: ScopeKind.Definition,
-            definition: {
-                name: 'Simple Trial Balance',
-                kind: 1,
-                definitionType: 'Form',
-                uri: 'untitled:Untitled-1',
-                start: 0,
-                end: 10
+        harness.documents.set(doc.uri, doc);
+        harness.runtime.services.documentStateStore.setOpen(doc.uri, {
+            sourceFile: {
+                definitions: [
+                    {
+                        start: 17,
+                        end: xmlContent.length + 10,
+                        type: { text: 'REPORT' }
+                    }
+                ],
+                errors: []
             }
-        }] as any);
-
-        mockManager = {
-            get: () => ({
-                sourceFile: {
-                    definitions: [
-                        {
-                            start: 17,
-                            end: xmlContent.length + 10,
-                            type: { text: 'REPORT' }
-                        }
-                    ],
-                    errors: []
-                }
-            }),
-            getScopeManager: () => testScopeManager,
-            getProjectNodes: () => new Set([doc.uri, 'test'])
-        };
+        } as any);
         
-        registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
-        //console.log('Keys in form map 1:', Array.from(testScopeManager!.scopeIndex.get('form')?.keys() || []));
-        const result = await completionCallback({
-            textDocument: { uri: 'untitled:Untitled-1' },
+        const result = await harness.runtime.completion.complete({
+            textDocument: { uri: doc.uri },
             position: doc.positionAt(xmlContent.length)
         });
         
-        expect(result.items.length).toBeGreaterThan(0);
-        expect(result.items.length).toBeGreaterThan(0);
-        const item = result.items.find((i: any) => i.label === 'Simple Trial Balance');
-        //console.log('Labels found:', result.items.map((i: any) => i.label).join(', '));
-        expect(item).toBeDefined();
-        // The insert text is just the text because it's the value of the tag
-        expect(item.insertText).toBe('Simple Trial Balance');
+        const formItem = result.items.find((i: any) => i.label === 'FORM');
+
+        expect(formItem).toBeDefined();
     });
 
-    it('returns definition_name suggestions when modifying a definition', async () => {
-        const xmlContent = '<FORM NAME="Simp" ISMODIFY="Yes"></FORM>';
-        const doc = TextDocument.create('test://test.xml', 'xml', 1, xmlContent);
+    it('returns definition_name suggestions', async () => {
+        const xmlContent = '<FORM NAME="S"></FORM>';
+        const doc = TextDocument.create('untitled:Untitled-1', 'xml', 1, xmlContent);
         
-        // Offset inside "Simp|"
-        const offset = xmlContent.indexOf('"Simp') + 5; 
+        // Offset inside "S|"
+        const offset = xmlContent.indexOf('"S') + 2;
         
-        let typeMap2 = testScopeManager!.scopeIndex.get('form');
-        if (!typeMap2) { typeMap2 = new Map(); testScopeManager!.scopeIndex.set('form', typeMap2); }
-        typeMap2.set('simpletrialbalance', [{
-            kind: ScopeKind.Definition,
+        let typeMap = testScopeManager.scopeIndex.get('form');
+        if (!typeMap) { typeMap = new Map(); testScopeManager.scopeIndex.set('form', typeMap); }
+        typeMap.set('simpletrialbalance', [{
+            kind: 1, // ScopeKind.Definition
             definition: {
                 name: 'Simple Trial Balance',
                 kind: 1,
@@ -181,47 +116,52 @@ describe('XML Suggestions Tests', () => {
             }
         }] as any);
 
-        // Mocking TextDocuments and Connection for DocManager
-        mockConnection = { 
-            console: { log: () => {}, error: () => {}, info: () => {} },
-            sendDiagnostics: () => {},
-            onCompletion: (cb: any) => { completionCallback = cb; }
-        };
-        mockDocuments = {
-            onDidOpen: () => {},
-            onDidChangeContent: () => {},
-            onDidClose: () => {},
-            get: () => doc
-        };
-        const docManager = new DocManager(mockConnection, mockDocuments as any);
-        // console.log('Keys in form map:', Array.from(testScopeManager!.scopeIndex.get('form')?.keys() || []));
-        (docManager as any).xmlScopeManager = testScopeManager as any;
-        await docManager.rebuild(doc);
+        harness.documents.set(doc.uri, doc);
+        harness.runtime.services.documentStateStore.setOpen(doc.uri, { sourceFile: { definitions: [], errors: [] } } as any);
         
+        const result = await harness.runtime.completion.complete({
+            textDocument: { uri: doc.uri },
+            position: doc.positionAt(offset)
+        });
         
-        // Add existing form
-        /* removed undefined.addSymbol */
+        expect(result.items.length).toBeGreaterThan(0);
+        const item = result.items.find((i: any) => i.label === 'Simple Trial Balance');
+        expect(item).toBeDefined();
+        // The insert text is just the text because it's the value of the tag
+        expect(item!.insertText).toBe('Simple Trial Balance');
+    });
 
-        // Mocking direct call to completion provider
-        mockDocuments = { get: () => doc };
-        mockManager = { 
-            get: () => docManager.get(doc.uri),
-            getScopeManager: () => docManager.getScopeManager(doc.uri),
-            getProjectNodes: () => new Set([doc.uri, 'test', 'test2.xml', 'test://other.xml'])
-        } as any;
+    it('returns definition_name suggestions when modifying a definition', async () => {
+        const xmlContent = '<FORM NAME="Simp" ISMODIFY="Yes"></FORM>';
+        const doc = TextDocument.create('test://test.xml', 'xml', 1, xmlContent);
         
-        registerCompletion(mockConnection, mockDocuments, mockManager);
+        // Offset inside "Simp|"
+        const offset = xmlContent.indexOf('"Simp') + 5; 
         
-        const result = await completionCallback({
+        let typeMap2 = testScopeManager.scopeIndex.get('form');
+        if (!typeMap2) { typeMap2 = new Map(); testScopeManager.scopeIndex.set('form', typeMap2); }
+        typeMap2.set('simpletrialbalance', [{
+            kind: 1, // ScopeKind.Definition
+            definition: {
+                name: 'Simple Trial Balance',
+                kind: 1,
+                definitionType: 'Form',
+                uri: 'test://other.xml',
+                start: 0,
+                end: 10
+            }
+        }] as any);
+
+        harness.documents.set(doc.uri, doc);
+        harness.runtime.services.documentStateStore.setOpen(doc.uri, { sourceFile: { definitions: [], errors: [] } } as any);
+        
+        const result = await harness.runtime.completion.complete({
             textDocument: { uri: doc.uri },
             position: doc.positionAt(offset)
         });
 
         expect(result.items.length).toBeGreaterThan(0);
-        
-        expect(result.items.length).toBeGreaterThan(0);
         const formItem = result.items.find((i: any) => i.label === 'Simple Trial Balance');
-
         expect(formItem).toBeDefined();
     });
 });

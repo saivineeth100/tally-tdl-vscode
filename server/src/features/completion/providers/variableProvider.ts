@@ -1,11 +1,11 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
-import { DocManager } from '../../../docManager';
+import { DocumentStateStore } from '../../../services/documentStateStore';
 import { getSuggestionsForDefinitionType } from './definitionProvider';
 import { getFieldsInScope } from '../../../semantics/scopeManager';
 import { ScopeManager } from '../../../semantics/scopeManager';
 
 export function provideVariableCompletions(
-    manager: DocManager,
+    stateStore: DocumentStateStore,
     uri: string,
     offset: number,
     partial: string,
@@ -14,9 +14,8 @@ export function provideVariableCompletions(
     const items: CompletionItem[] = [];
     
     // 1. All reachable variables from scope (Lexical + Structural + Use)
-    const scopeManager = manager.getScopeManager(uri);
+    const scopeManager = stateStore.getScopeManager(uri);
     const scope = scopeManager.getScopeAt(uri, offset);
-    
     if (scope) {
         const reachableVars = scopeManager.getAllVariablesInScope(scope);
         for (const [varName, varInfo] of reachableVars.entries()) {
@@ -34,23 +33,22 @@ export function provideVariableCompletions(
         }
     }
     
-    // 2. Global definitions
-    const projectScope = manager.getProjectNodes(uri);
-    items.push(...getSuggestionsForDefinitionType('Variable', partial, scopeManager, isActive, projectScope));
-    items.push(...getSuggestionsForDefinitionType('System Variable', partial, scopeManager, isActive, projectScope));
+    // 2. Fallback to Definition Index (All project variables)
+    items.push(...getSuggestionsForDefinitionType('Variable', partial, scopeManager, isActive));
+    items.push(...getSuggestionsForDefinitionType('System Variable', partial, scopeManager, isActive));
 
     return items;
 }
 
 export function provideFormulaCompletions(
-    manager: DocManager,
+    stateStore: DocumentStateStore,
     uri: string,
     offset: number,
     partial: string,
     isLocal: boolean = true
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
-    const scopeMgr = manager.getScopeManager(uri);
+    const scopeMgr = stateStore.getScopeManager(uri);
     
     if (isLocal) {
         const currentScope = scopeMgr.getScopeAt(uri, offset);
@@ -100,13 +98,13 @@ export function provideFormulaCompletions(
 }
 
 export function provideFieldReferenceCompletions(
-    manager: DocManager,
+    stateStore: DocumentStateStore,
     uri: string,
     offset: number,
     partial: string
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
-    const scopeMgr = manager.getScopeManager(uri);
+    const scopeMgr = stateStore.getScopeManager(uri);
     
     const currentScope = scopeMgr.getScopeAt(uri, offset);
     if (!currentScope) return items;

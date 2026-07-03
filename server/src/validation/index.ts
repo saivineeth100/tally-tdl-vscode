@@ -8,6 +8,8 @@ import { validateLabelSequences } from './sequenceValidator';
 import { validateDefinitionAttributes, validateSchemaObject } from "./attributeValidation";
 import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, MissingEndStatementData } from '../diagnostics';
 import { URI } from 'vscode-uri';
+import { DocumentLoader } from '../services/documentLoader';
+import { DocumentStateStore } from '../services/documentStateStore';
 import { logger } from '../logger';
 
 export * from '../diagnostics';
@@ -26,14 +28,14 @@ export async function validateSourceFile(
     symbolTable?: any, // Deprecated, keep signature for backward compatibility just in case but we pass undefined in docManager
     scopeManager?: ScopeManager,
     resolveIncludePath?: (currentPath: string, name: string) => string | null,
-    docManager?: import('../docManager').DocManager
+    includeGraphManager?: import('../services/includeGraphManager').IncludeGraphManager
 ): Promise<Diagnostic[]> {
     const diagnostics: Diagnostic[] = [];
     const isXml = doc.languageId === 'xml' || doc.languageId === 'tdlxml' || doc.uri.toLowerCase().endsWith('.xml') || doc.uri.toLowerCase().endsWith('.tdlxml');
 
     let projectNodes: Set<string> | undefined;
-    if (docManager) {
-        projectNodes = docManager.getProjectNodes(doc.uri);
+    if (includeGraphManager) {
+        projectNodes = includeGraphManager.getProjectNodes(doc.uri);
     }
 
     if (!scopeManager) {
@@ -67,8 +69,8 @@ export async function validateSourceFile(
             
             // Check for circular includes
             if (normalizedType === 'include' || normalizedType === 'import') {
-                if (def.name && docManager) {
-                    if (docManager.hasCircularIncludes(doc.uri)) {
+                if (def.name && includeGraphManager) {
+                    if (includeGraphManager.hasCircularIncludes(doc.uri)) {
                         diagnostics.push(createDiagnostic(
                             DiagnosticRules.CircularInclude,
                             { start: doc.positionAt(def.name.start), end: doc.positionAt(def.name.end) },
@@ -193,7 +195,7 @@ export async function validateSourceFile(
                                         targetDefName,
                                         targetDefType
                                     ));
-                                } else if (projectNodes && docManager) {
+                                } else if (projectNodes && includeGraphManager) {
                                     const resolvedDef = resolvedDefs[0];
                                     if (resolvedDef.uri && resolvedDef.uri !== 'global:metadata' && !resolvedDef.uri.startsWith('basetdl://')) {
                                         if (!projectNodes.has(resolvedDef.uri)) {

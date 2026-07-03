@@ -1,0 +1,80 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Runtime and Capabilities > returns the expected stable capabilities 1`] = `
+{
+  "codeActionProvider": true,
+  "codeLensProvider": {
+    "resolveProvider": true,
+  },
+  "completionProvider": {
+    "resolveProvider": true,
+    "triggerCharacters": [
+      ".",
+      ":",
+      "=",
+      """,
+      ",",
+      "(",
+      "[",
+      "$",
+      "<",
+      ">",
+    ],
+  },
+  "definitionProvider": true,
+  "documentFormattingProvider": true,
+  "documentHighlightProvider": true,
+  "documentLinkProvider": {
+    "resolveProvider": false,
+  },
+  "documentOnTypeFormattingProvider": {
+    "firstTriggerCharacter": "
+",
+    "moreTriggerCharacter": [
+      "
+",
+    ],
+  },
+  "documentSymbolProvider": true,
+  "foldingRangeProvider": true,
+  "hoverProvider": true,
+  "referencesProvider": true,
+  "renameProvider": {
+    "prepareProvider": true,
+  },
+  "semanticTokensProvider": {
+    "full": {
+      "delta": true,
+    },
+    "legend": {
+      "tokenModifiers": [],
+      "tokenTypes": [
+        "class",
+        "property",
+        "function",
+        "variable",
+        "macro",
+        "number",
+        "string",
+        "keyword",
+        "operator",
+        "comment",
+        "type",
+      ],
+    },
+  },
+  "signatureHelpProvider": {
+    "triggerCharacters": [
+      ":",
+    ],
+  },
+  "textDocumentSync": 2,
+  "workspace": {
+    "workspaceFolders": {
+      "changeNotifications": true,
+      "supported": true,
+    },
+  },
+  "workspaceSymbolProvider": true,
+}
+`;

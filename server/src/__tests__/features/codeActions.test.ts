@@ -1,28 +1,30 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { provideCodeActions } from '../../features/codeActions';
 import { CodeActionParams, Diagnostic, CodeActionKind, Range, DiagnosticSeverity } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
-import { createDiagnostic, DiagnosticRules } from '../../diagnostics';
-import { Parser } from '../../core/parser/parser';
-import { ScopeManager } from '../../semantics/scopeManager';
+import { DiagnosticRules } from '../../diagnostics';
+import { ServerTestHarness } from '../harness/serverTestHarness';
 
 describe('Code Actions', () => {
-    let mockDocManager: any;
-    let mockDocuments: any;
+    let harness: ServerTestHarness;
+
+    beforeEach(() => {
+        harness = new ServerTestHarness();
+    });
+
+    afterEach(() => {
+        harness.dispose();
+    });
 
     function setup(tdl: string) {
         const uri = 'file:///test.tdl';
-        const document = TextDocument.create(uri, 'tdl', 1, tdl);
-        const parser = new Parser(tdl);
-        const sourceFile = parser.parse();
-
-                const mockScopeManager = new ScopeManager();
-
+        
+        const scopeManager = harness.runtime.services.documentStateStore.tdlScopeManager;
+        
         // Setup mock metadata
         const reportAttrs = new Map<string, any>();
         reportAttrs.set('form', { name: 'Form' });
         reportAttrs.set('title', { name: 'Title' });
-        mockScopeManager.globalScope.attributes.set('report', reportAttrs);
+        scopeManager.globalScope.attributes.set('report', reportAttrs);
 
         // Setup mock schemas
         const voucherSchema: any = {
@@ -31,23 +33,28 @@ describe('Code Actions', () => {
                 ['Party Ledger Name', { Name: 'Party Ledger Name' }]
             ])
         };
-        mockScopeManager.globalScope.schemas.set('voucher', voucherSchema);
+        scopeManager.globalScope.schemas.set('voucher', voucherSchema);
 
-        mockDocManager = {
-            get: vi.fn().mockReturnValue({ sourceFile }),
-            getScopeManager: vi.fn().mockReturnValue(mockScopeManager)
+        harness.runtime.documentLifecycle.openDocument({
+            uri,
+            text: tdl,
+            languageId: 'tdl',
+            version: 1
+        });
+        
+        const { documentStateStore } = harness.runtime.services;
+        const { clientGateway } = harness.runtime;
+        
+        return { 
+            uri, 
+            documentStateStore, 
+            documents: clientGateway.documents 
         };
-
-        mockDocuments = {
-            get: vi.fn().mockReturnValue(document)
-        };
-
-        return { uri, document, sourceFile };
     }
 
     it('QuickFix for unknown attribute suggests closest match', () => {
         const tdl = `[Report: Test]\nTitl: My Report`;
-        const { uri } = setup(tdl);
+        const { uri, documentLifecycle, documents } = setup(tdl);
 
         const diagnostic: Diagnostic = {
             range: Range.create(1, 0, 1, 4),
@@ -63,7 +70,7 @@ describe('Code Actions', () => {
             context: { diagnostics: [diagnostic] }
         };
 
-        const actions = provideCodeActions(params, mockDocManager, mockDocuments);
+        const actions = provideCodeActions(params, documentStateStore, documents);
 
         expect(actions.length).toBe(2);
         expect(actions[0].kind).toBe(CodeActionKind.QuickFix);
@@ -74,7 +81,7 @@ describe('Code Actions', () => {
 
     it('QuickFix for missing definition creates definition', () => {
         const tdl = `[Report: Test]\nForm: MyForm`;
-        const { uri } = setup(tdl);
+        const { uri, documentLifecycle, documents } = setup(tdl);
 
         const diagnostic: Diagnostic = {
             range: Range.create(1, 6, 1, 12),
@@ -90,7 +97,7 @@ describe('Code Actions', () => {
             context: { diagnostics: [diagnostic] }
         };
 
-        const actions = provideCodeActions(params, mockDocManager, mockDocuments);
+        const actions = provideCodeActions(params, documentStateStore, documents);
 
         expect(actions.length).toBe(2);
         expect(actions[0].kind).toBe(CodeActionKind.QuickFix);
@@ -101,17 +108,19 @@ describe('Code Actions', () => {
 
     it('QuickFix for broken label sequence cascades correctly', () => {
         const tdl = `[Function: MyFunc]\n10: MsgBox: "Hello"\n30: MsgBox: "World"\n40: Return`;
-        const { uri, document } = setup(tdl);
+        const { uri, documentLifecycle, documents } = setup(tdl);
 
+        const doc = documents.get(uri)!;
         const offset = tdl.indexOf('30:');
-        const pos = document.positionAt(offset);
+        const pos = doc.positionAt(offset);
 
-        const diagnostic: Diagnostic = createDiagnostic(
-            DiagnosticRules.BrokenLabelSeqence,
-            { start: pos, end: document.positionAt(offset + 2) },
-            '20'
-        );
-        diagnostic.data = { expectedLabel: '20' };
+        const diagnostic: Diagnostic = {
+            range: { start: pos, end: doc.positionAt(offset + 2) },
+            message: 'Broken label sequence',
+            severity: DiagnosticSeverity.Error,
+            code: DiagnosticRules.BrokenLabelSeqence.code,
+            data: { expectedLabel: '20' }
+        };
 
         const params: CodeActionParams = {
             textDocument: { uri },
@@ -119,7 +128,7 @@ describe('Code Actions', () => {
             context: { diagnostics: [diagnostic] }
         };
 
-        const actions = provideCodeActions(params, mockDocManager, mockDocuments);
+        const actions = provideCodeActions(params, documentStateStore, documents);
 
         expect(actions.length).toBe(2);
         expect(actions[0].kind).toBe(CodeActionKind.QuickFix);
@@ -133,7 +142,7 @@ describe('Code Actions', () => {
 
     it('No code actions for diagnostics without fixes', () => {
         const tdl = `[Report: Test]`;
-        const { uri } = setup(tdl);
+        const { uri, documentLifecycle, documents } = setup(tdl);
 
         const diagnostic: Diagnostic = {
             range: Range.create(0, 0, 0, 0),
@@ -148,13 +157,13 @@ describe('Code Actions', () => {
             context: { diagnostics: [diagnostic] }
         };
 
-        const actions = provideCodeActions(params, mockDocManager, mockDocuments);
+        const actions = provideCodeActions(params, documentStateStore, documents);
         expect(actions.length).toBe(0);
     });
 
     it('QuickFix for unknown schema property suggests closest match', () => {
         const tdl = `[Voucher: Test]\nPartyLederName: "Test"`;
-        const { uri } = setup(tdl);
+        const { uri, documentLifecycle, documents } = setup(tdl);
 
         const diagnostic: Diagnostic = {
             range: Range.create(1, 0, 1, 14),
@@ -170,7 +179,7 @@ describe('Code Actions', () => {
             context: { diagnostics: [diagnostic] }
         };
 
-        const actions = provideCodeActions(params, mockDocManager, mockDocuments);
+        const actions = provideCodeActions(params, documentStateStore, documents);
 
         expect(actions.length).toBe(2); // One for QuickFix, one for Disable Diagnostic
         expect(actions[0].kind).toBe(CodeActionKind.QuickFix);

@@ -513,6 +513,34 @@ describe('ScopeManager', () => {
             expect(resolved).toBeDefined();
             expect(resolved?.name).toBe('My Action');
         });
+
+        it('resolves definition by alias (e.g. key and button) using O(1) interchangeableTypesAliasesMap', () => {
+            const manager = createTestScopeManager();
+            
+            // 1. Populate aliases map
+            manager.globalScope.interchangeableTypesMap.set('key', 'button');
+            manager.globalScope.interchangeableTypesMap.set('button', 'button');
+            manager.globalScope.interchangeableTypesAliasesMap.set('button', ['button', 'key']);
+            
+            // 2. Index a scope under "key"
+            const keyScope = manager.createDefinitionScope('Key:MyKey', manager.projectScope, { start: 0, end: 100 }, 'file://test.tdl');
+            keyScope.definition = {
+                name: 'MyKey',
+                kind: SymbolKind.Unknown,
+                uri: 'file://test.tdl',
+                start: 0, end: 100,
+                definitionType: 'Key'
+            } as any;
+            
+            manager.indexScope(keyScope);
+            
+            // 3. Lookup via getProjectDefinition with "button" type (the alias)
+            const resolved = manager.getProjectDefinition('button', 'MyKey');
+            expect(resolved).toBeDefined();
+            expect(resolved.length).toBe(1);
+            expect(resolved[0].name).toBe('MyKey');
+            expect(resolved[0].definitionType).toBe('Key');
+        });
     });
 
     describe('Definition Registration', () => {

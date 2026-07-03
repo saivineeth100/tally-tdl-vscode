@@ -32,7 +32,7 @@ export function filterDefinitionLocations(
     isFromModifier: boolean
 ): DefinitionSymbol[] {
     let result = [...baseDefinitions];
-    
+
     if (isFromModifier) {
         // The user clicked on the modifier itself (e.g. [#Part: BasePart])
         // They want to go to the base definition! We DO NOT add the modifiers to result.
@@ -47,7 +47,7 @@ export function filterDefinitionLocations(
         // Add the local modifiers to the results
         result.push(...modifiers);
     }
-    
+
     return result;
 }
 
@@ -90,12 +90,12 @@ export const ATTRIBUTE_REFERENCE_MAP: Record<string, string> = {
  */
 export function getExpectedTypeForAttribute(attrName: string, scopeManager?: ScopeManager): string | undefined {
     const lower = attrName.toLowerCase();
-    
+
     if (lower === 'filter' || lower === 'filters') return 'Formula';
-    
+
     // First try static map (reliable casing, available before metadata)
     if (ATTRIBUTE_REFERENCE_MAP[lower]) return ATTRIBUTE_REFERENCE_MAP[lower];
-    
+
     // Fallback to dynamic metadata map if available
     return scopeManager ? scopeManager.getCanonicalAttributeName(lower) : undefined;
 }
@@ -272,7 +272,7 @@ export function findReferenceAtOffset(
 
     // Check attribute value references
     const attr = findAttributeAtOffset(def, offset);
-    
+
     if (attr && attr.colon && offset >= attr.colon.Start && offset <= attr.end) {
         let expectedType: string | undefined;
         let paramIndex = -1;
@@ -282,14 +282,14 @@ export function findReferenceAtOffset(
         const attrNameLower = attr.name.text.toLowerCase();
         if (['add', 'replace', 'delete', 'local'].includes(attrNameLower) && scopeManager) {
             const resolved = resolveModifierChain(attrNameLower, attr.value, def.type.text, def.name?.text || '', scopeManager, offset);
-            
+
             if (resolved.cursorSegment) {
                 switch (resolved.cursorSegment) {
                     case 'defName':
                     case 'positionReference': {
                         // It's referring to an existing definition of the effective type (or target attribute's type)
                         let expectedType = resolved.effectiveDefType;
-                        
+
                         if (resolved.cursorSegment === 'positionReference') {
                             // Position reference refers to the type that the target attribute accepts
                             if (resolved.targetAttributeMeta && resolved.targetAttributeMeta.parameters && resolved.targetAttributeMeta.parameters.length > 0) {
@@ -341,7 +341,7 @@ export function findReferenceAtOffset(
                         break;
                     }
                 }
-                
+
                 // If it's a modifierKeyword, defType, targetAttribute, positionModifier, we don't resolve references (it's part of the language keywords)
                 if (resolved.cursorSegment !== 'value') {
                     return undefined;
@@ -424,7 +424,7 @@ export function findReferenceAtOffset(
             if (foundValueNode.kind !== SyntaxKind.List) {
                 deepestNode = findNodeAtOffset([foundValueNode], offset) || foundValueNode;
             }
-            
+
             let name: string = '';
             if (deepestNode.kind === SyntaxKind.List) {
                 name = (deepestNode as any).values.map((v: any) => v.text || v.value || '').join(' ');
@@ -455,10 +455,6 @@ export function findReferenceAtOffset(
                         let resolved;
                         if (isVariable) {
                             resolved = scopeManager.resolveVariable(varName, scope);
-                        } else {
-                            // Fields do not need to be resolved to return expectedType: 'Field'
-                            // However, we can check if it's a Formula (which is what @ is for) 
-                            // But since it starts with #, it's definitely a field in this branch.
                         }
                         if (resolved) {
                             return {
@@ -471,14 +467,12 @@ export function findReferenceAtOffset(
                     }
                 } 
                 
-                if (!isVariable) {
-                    return {
-                        name: varName,
-                        expectedType: 'Field',
-                        start: deepestNode.start,
-                        end: deepestNode.end
-                    };
-                }
+                return {
+                    name: varName,
+                    expectedType: isVariable ? 'Variable' : 'Field',
+                    start: deepestNode.start,
+                    end: deepestNode.end
+                };
             } else if (name.startsWith('@@') || name.startsWith('@')) {
                 const formulaName = name.replace(/^@@?/, '');
                 return {
@@ -526,3 +520,4 @@ export function findReferenceAtOffset(
 
     return undefined;
 }
+

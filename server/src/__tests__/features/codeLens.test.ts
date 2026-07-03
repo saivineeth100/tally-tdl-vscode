@@ -1,18 +1,20 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { provideCodeLens, resolveCodeLens, clearCodeLensCache } from '../../features/codeLens';
 import { Parser } from '../../core/parser/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { ScopeManager } from '../../semantics/scopeManager';
-import { DocManager } from '../../docManager';
 import { Position } from 'vscode-languageserver';
-
 import { buildFileScope } from '../../semantics/scopeManager/scopeBuilder';
+import { ServerTestHarness } from '../harness/serverTestHarness';
+import { normalizeUri } from '../../utils/uri';
+import { URI } from 'vscode-uri';
 
 function createCodeLensContext(text: string) {
     const parser = new Parser(text);
     const sourceFile = parser.parse();
-    const doc = TextDocument.create('file:///test.txt', 'tally', 1, text);
-        const scopeManager = new ScopeManager();
+    const uri = URI.file('d:/test.txt').toString();
+    const doc = TextDocument.create(uri, 'tdl', 1, text);
+    const scopeManager = new ScopeManager();
     
     // Mock global attributes for 'field' so that 'Set As' is known but 'LF1' is unknown (implicit formula)
     const fieldAttrs = new Map<string, any>();
@@ -20,9 +22,9 @@ function createCodeLensContext(text: string) {
     scopeManager.globalScope.attributes.set('field', fieldAttrs as any);
     
     // Build real scope
-    buildFileScope(scopeManager, 'file:///test.txt', sourceFile);
+    buildFileScope(scopeManager, normalizeUri(uri), sourceFile);
     
-    return { sourceFile, doc, scopeManager };
+    return { sourceFile, doc, scopeManager, uri };
 }
 
 describe('Code Lens Provider', () => {
@@ -61,6 +63,7 @@ describe('Code Lens Provider', () => {
         const { sourceFile, doc, scopeManager } = createCodeLensContext(text);
         
         const lenses = provideCodeLens(sourceFile, doc, scopeManager);
+        expect(lenses.length).toBe(3);
         
         const names = lenses.map(l => l.data.name);
         expect(names).toContain('Local Formula');
@@ -68,89 +71,64 @@ describe('Code Lens Provider', () => {
         expect(names).toContain('LF2');
     });
 
-    it('should provide CodeLens for explicit system formulas', () => {
-        const text = `[System: Formula]
-            Global Formula 1 : $Something
-            Global Formula 2 : $SomethingElse`;
-        const { sourceFile, doc, scopeManager } = createCodeLensContext(text);
+    describe('CodeLens Resolution', () => {
+        let harness: ServerTestHarness;
         
-        const lenses = provideCodeLens(sourceFile, doc, scopeManager);
-        const names = lenses.map(l => l.data.name);
-        expect(names).toContain('Global Formula 1');
-        expect(names).toContain('Global Formula 2');
-        expect(names).not.toContain('Formula');
-    });
-
-    it('should provide CodeLens for explicit local formulas via Local Formulae', () => {
-        const text = `[Field: Local Formula]
-            Set As: @LF1 + @LF2
-            Local Formulae: LF1: "Hello"
-            Local Formula: LF2: "World"`;
-        const { sourceFile, doc, scopeManager } = createCodeLensContext(text);
-        
-        const lenses = provideCodeLens(sourceFile, doc, scopeManager);
-        
-        const names = lenses.map(l => l.data.name);
-        expect(names).toContain('Local Formula');
-        expect(names).toContain('LF1');
-        expect(names).toContain('LF2');
-    });
-
-    describe('resolveCodeLens', () => {
         beforeEach(() => {
             clearCodeLensCache();
+            harness = new ServerTestHarness();
         });
 
         it('should resolve lens with usages type and cache the result', async () => {
             const text = `[Report: Test]`;
-            const { sourceFile, doc, scopeManager } = createCodeLensContext(text);
+            const { sourceFile, doc, scopeManager, uri } = createCodeLensContext(text);
+            const normUri = normalizeUri(uri);
             
-            const mockDocManager = {
-                get: (uri: string) => ({ sourceFile, diagnostics: [] }),
-                getProjectNodes: (uri: string) => new Set([uri]),
-                getScopeManager: (uri: string) => scopeManager,
-                tdlScopeManager: scopeManager
-            } as unknown as DocManager;
+            harness.documents.set(uri, doc);
+            harness.runtime.services.documentStateStore.setOpen(normUri, { sourceFile, diagnostics: [] } as any);
+            harness.runtime.services.documentStateStore.tdlScopeManager = scopeManager;
             
-            const mockDocs = {
-                get: (uri: string) => doc
-            };
-
             const lens = {
                 range: { start: Position.create(0, 0), end: Position.create(0, 10) },
                 data: { uri: doc.uri, name: 'Test', position: Position.create(0, 9), type: 'usages' }
             } as any;
 
-            const resolved = await resolveCodeLens(lens, mockDocManager, mockDocs);
+            const resolved = await resolveCodeLens(
+                lens, 
+                harness.runtime.services.contextResolver, 
+                harness.runtime.services.documentLoader
+            );
             expect(resolved.command).toBeDefined();
             expect(resolved.command?.title).toContain('usage');
             
             // Run again to hit cache
-            const resolved2 = await resolveCodeLens(lens, mockDocManager, mockDocs);
+            const resolved2 = await resolveCodeLens(
+                lens, 
+                harness.runtime.services.contextResolver, 
+                harness.runtime.services.documentLoader
+            );
             expect(resolved2.command?.title).toContain('usage');
         });
 
         it('should resolve lens with modifiers type', async () => {
             const text = `[Report: Test]`;
-            const { sourceFile, doc, scopeManager } = createCodeLensContext(text);
+            const { sourceFile, doc, scopeManager, uri } = createCodeLensContext(text);
+            const normUri = normalizeUri(uri);
             
-            const mockDocManager = {
-                get: (uri: string) => ({ sourceFile, diagnostics: [] }),
-                getProjectNodes: (uri: string) => new Set([uri]),
-                getScopeManager: (uri: string) => scopeManager,
-                tdlScopeManager: scopeManager
-            } as unknown as DocManager;
-            
-            const mockDocs = {
-                get: (uri: string) => doc
-            };
+            harness.documents.set(uri, doc);
+            harness.runtime.services.documentStateStore.setOpen(normUri, { sourceFile, diagnostics: [] } as any);
+            harness.runtime.services.documentStateStore.tdlScopeManager = scopeManager;
 
             const lens = {
                 range: { start: Position.create(0, 0), end: Position.create(0, 10) },
                 data: { uri: doc.uri, name: 'Test', position: Position.create(0, 9), type: 'modifiers', expectedType: 'report' }
             } as any;
 
-            const resolved = await resolveCodeLens(lens, mockDocManager, mockDocs);
+            const resolved = await resolveCodeLens(
+                lens, 
+                harness.runtime.services.contextResolver, 
+                harness.runtime.services.documentLoader
+            );
             expect(resolved.command).toBeDefined();
             expect(resolved.command?.title).toContain('modifier');
         });

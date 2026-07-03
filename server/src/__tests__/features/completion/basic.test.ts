@@ -1,10 +1,8 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { Parser } from '../../../core/parser/parser';
-import { detectCompletionContext, findDefinitionAtCursor, registerCompletion } from '../../../features/completion';
-
-
-
-import { buildFunctionDocumentation } from '../../../features/completion';
+import { detectCompletionContext, findDefinitionAtCursor } from '../../../features/completion';
+import { CompletionService } from '../../../services/completionService';
+import { DocumentContextResolver } from '../../../services/documentContextResolver';import { buildFunctionDocumentation } from '../../../features/completion';
 import { FunctionSymbol, SymbolKind } from 'tally-tdl-shared';
 
 describe('Function Documentation Builder', () => {
@@ -115,9 +113,10 @@ describe('TDL Suggestions Tests', () => {
             getProjectNodes: () => new Set(['untitled:Untitled-1', 'test'])
         };
         
-        registerCompletion(mockConnection, mockDocuments as any, mockManager as any);
+        const contextResolver = new DocumentContextResolver(mockDocuments as any, mockManager as any, mockManager as any);
+        const completionService = new CompletionService(mockManager as any, mockManager as any, contextResolver, () => []);
         
-        const result = await completionCallback({
+        const result = await completionService.complete({
             textDocument: { uri: 'untitled:Untitled-1' },
             position: doc.positionAt(tdlContent.length)
         });
@@ -186,9 +185,10 @@ describe('TDL Suggestions Tests', () => {
             getProjectNodes: () => new Set(['untitled:Untitled-2', 'test'])
         };
         
-        registerCompletion(mockConn as any, mockDocs as any, mockMgr as any);
+        const contextResolver = new DocumentContextResolver(mockDocs as any, mockMgr as any, mockMgr as any);
+        const completionService = new CompletionService(mockMgr as any, mockMgr as any, contextResolver, () => []);
         
-        const result = await completionCb({
+        const result = await completionService.complete({
             textDocument: { uri: 'untitled:Untitled-2' },
             position: doc.positionAt(tdlContent.length)
         });

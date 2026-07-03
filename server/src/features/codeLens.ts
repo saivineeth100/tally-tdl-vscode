@@ -1,9 +1,11 @@
 import { CodeLens } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { SourceFile } from '../core/ast/ast';
-import { DocManager } from '../docManager';
+import { DocumentStateStore } from '../services/documentStateStore';
 import { findReferences } from './references';
 import { ScopeManager } from '../semantics/scopeManager';
+import { DocumentContextResolver } from '../services/documentContextResolver';
+import { DocumentLoader } from '../services/documentLoader';
 
 export function provideCodeLens(sourceFile: SourceFile, doc: TextDocument, scopeManager: ScopeManager): CodeLens[] {
     const lenses: CodeLens[] = [];
@@ -96,8 +98,13 @@ export function invalidateRefCountCache(uri?: string) {
         refCache.clear();
     }
 }
-export async function resolveCodeLens(lens: CodeLens, docManager: DocManager, docs: any): Promise<CodeLens> {
-    const offset = docManager.get(lens.data.uri)?.sourceFile ? docs.get(lens.data.uri)?.offsetAt(lens.data.position) : 0;
+export async function resolveCodeLens(
+    lens: CodeLens, 
+    resolver: DocumentContextResolver,
+    documentLoader: DocumentLoader
+): Promise<CodeLens> {
+    const doc = resolver.documents.get(lens.data.uri);
+    const offset = doc ? doc.offsetAt(lens.data.position) : 0;
     if (offset === undefined || offset === null) return lens;
 
     const cacheKey = `${lens.data.uri}:${offset}`;
@@ -110,7 +117,7 @@ export async function resolveCodeLens(lens: CodeLens, docManager: DocManager, do
         references = cached.locations;
         count = cached.count;
     } else {
-        references = await findReferences(docManager, docs, lens.data.uri, offset);
+        references = await findReferences(resolver.stateStore, resolver.documents, documentLoader, resolver.graphManager, lens.data.uri, offset);
         count = references ? references.length : 0;
         refCache.set(cacheKey, { count, locations: references || [], timestamp: now });
     }
