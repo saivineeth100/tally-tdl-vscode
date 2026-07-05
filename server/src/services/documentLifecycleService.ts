@@ -13,7 +13,7 @@ import { IncludeGraphManager } from './includeGraphManager';
 import { WorkspaceScanner } from './workspaceScanner';
 import { DiagnosticPublisher } from '../ports/diagnosticPublisher';
 import { Scheduler } from '../ports/scheduler';
-import { getDiagnosticSeverity, isDiagnosticsEnabled, shouldTreatWarningsAsErrors, shouldHideWarnings } from '../utils/settingsManager';
+import { filterDiagnostics } from '../utils/settingsManager';
 
 /**
  * Manages the lifecycle of documents (open, close, change) and triggers rebuilds.
@@ -62,6 +62,9 @@ export class DocumentLifecycleService {
         const fsPath = URI.parse(uriStr).fsPath;
         this.stateStore.getScopeManager(uriStr).projectScope.referenceIndex.clearFile(uriStr);
         
+        // Invalidate active cache on open/close changes
+        this.graphManager.invalidateCache();
+        
         const isActive = this.graphManager.isUriActive(uriStr);
         this.scanner.indexFile(fsPath, new Set(), false, false, isActive).catch(err => {
             logger.warn(`Failed to re-index closed file: ${err instanceof Error ? err.stack || err.message : String(err)}`);
@@ -91,16 +94,7 @@ export class DocumentLifecycleService {
         if (isXml) {
             sourceFile = parseXmlToAst(text, scopeMgr);
         } else {
-            const getFunctionArity = (name: string): number | null => {
-                const func = scopeMgr.globalScope.functions.get(name.toLowerCase());
-                if (!func || !func.parameters) return null;
-                let hasVarArgs = false;
-                for (const p of func.parameters) {
-                    if (p.IsList || p.IsVariableArgument) hasVarArgs = true;
-                }
-                return hasVarArgs ? null : func.parameters.length;
-            };
-            const parser = new Parser(text, oldSourceFile, getFunctionArity);
+            const parser = new Parser(text, oldSourceFile, scopeMgr.getFunctionArity.bind(scopeMgr));
             sourceFile = parser.parse();
         }
         const t1 = Date.now();
@@ -161,15 +155,12 @@ export class DocumentLifecycleService {
         }
         const t4 = Date.now();
 
-        if (!this.graphManager.isUriActive(normUri)) {
-            diagnostics.length = 0;
-        }
         this.stateStore.setOpen(normUri, { sourceFile, diagnostics, document: doc });
         
         // Ensure parent scope pointers are up-to-date across all files if the include graph changed
         this.graphManager.notifyActiveUrisChanged();
 
-        const finalDiagnostics = this.filterDiagnostics(diagnostics);
+        const finalDiagnostics = filterDiagnostics(diagnostics);
 
         this.diagnosticPublisher.publish(doc.uri, finalDiagnostics);
         
@@ -177,31 +168,6 @@ export class DocumentLifecycleService {
         this.client.refreshSemanticTokens();
         
         logger.trace(`[Perf] validateAndPublish ${path.basename(doc.uri)}: Total=${t4-t2}ms (Includes=${t3-t2}ms, Validate=${t4-t3}ms)`);
-    }
-
-    private filterDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
-        const treatAsError = shouldTreatWarningsAsErrors();
-        const hideWarnings = shouldHideWarnings();
-
-        return isDiagnosticsEnabled() ? diagnostics.filter(d => {
-            if (d.code && typeof d.code === 'string') {
-                const setting = getDiagnosticSeverity(d.code);
-                if (setting === 'none') return false;
-                if (setting === 'error') d.severity = DiagnosticSeverity.Error;
-                if (setting === 'warning') d.severity = DiagnosticSeverity.Warning;
-                if (setting === 'information') d.severity = DiagnosticSeverity.Information;
-                if (setting === 'hint') d.severity = DiagnosticSeverity.Hint;
-            }
-
-            if (d.severity === DiagnosticSeverity.Warning) {
-                if (treatAsError) {
-                    d.severity = DiagnosticSeverity.Error;
-                } else if (hideWarnings) {
-                    return false;
-                }
-            }
-            return true;
-        }) : [];
     }
 
     public dispose(): void {

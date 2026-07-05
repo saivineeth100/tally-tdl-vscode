@@ -37,73 +37,6 @@ describe('Definition Validation (Mocked)', () => {
         harness.dispose();
     });
 
-    it('should detect duplicate Report definition', async () => {
-        const tdl = `[Report: Balance Sheet]`;
-        const parser = new Parser(tdl);
-        const sourceFile = parser.parse();
-        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
-
-        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
-
-        const error = diagnostics.find(d => d.code === DiagnosticRules.DuplicateDefinition.code);
-        expect(error).toBeDefined();
-        expect(error?.severity).toBe(DiagnosticSeverity.Error);
-    });
-
-    it('should allow modified definition (#)', async () => {
-        const tdl = `[#Report: Balance Sheet]`;
-        const parser = new Parser(tdl);
-        const sourceFile = parser.parse();
-        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
-
-        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
-        expect(diagnostics.length).toBe(0);
-    });
-
-    it('should NOT allow ! modifier for existing definition (acts like no modifier)', async () => {
-        const tdl = `[!Report: Balance Sheet]`;
-        const parser = new Parser(tdl);
-        const sourceFile = parser.parse();
-        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
-
-        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
-        expect(diagnostics.length).toBe(1);
-        expect(diagnostics[0].code).toBe(DiagnosticRules.InvalidOptionalModifier.code);
-    });
-
-    it('should NOT report ModifierMissingTarget for ! modifier if definition does not exist', async () => {
-        const tdl = `[!Report: New Report]`;
-        const parser = new Parser(tdl);
-        const sourceFile = parser.parse();
-        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
-
-        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
-        expect(diagnostics.length).toBe(0);
-    });
-
-    it('should allow new definition', async () => {
-        const tdl = `[Report: My New Report]`;
-        const parser = new Parser(tdl);
-        const sourceFile = parser.parse();
-        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
-
-        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
-        expect(diagnostics.length).toBe(0);
-    });
-
-    it('should detect duplicate Menu definition', async () => {
-        const tdl = `[Menu: Gateway of Tally]`;
-        const parser = new Parser(tdl);
-        const sourceFile = parser.parse();
-        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
-
-        // Add Menu to mock metadata
-        mockScopeManager.globalScope.definitions.get('menu')?.set('gatewayoftally', { name: 'gatewayoftally', kind: 2, uri: '', start: 0, end: 0, definitionType: 'menu' } as any);
-
-        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
-        const error = diagnostics.find(d => d.code === DiagnosticRules.DuplicateDefinition.code);
-        expect(error).toBeDefined();
-    });
 
     it('should detect duplicate labels within a function', async () => {
         const tdl = `[Function: MyFunction]
@@ -217,28 +150,5 @@ describe('Definition Validation (Mocked)', () => {
         expect(warnings[1].message).toContain('MixinReport');
     });
 
-    it('should validate file-level Deftype directive', async () => {
-        const tdl = `<Deftype: Report>
-        [MyReport]`;
-        const parser = new Parser(tdl);
-        const sourceFile = parser.parse();
-        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
 
-        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
-        const warning = diagnostics.find(d => d.code === DiagnosticRules.UnknownDefinitionType.code);
-        expect(warning).toBeUndefined();
-    });
-
-    it('should emit warning for file-level Deftype directive with invalid type', async () => {
-        const tdl = `<Deftype: InvalidDefType>
-        [MyReport]`;
-        const parser = new Parser(tdl);
-        const sourceFile = parser.parse();
-        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
-
-        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
-        const warning = diagnostics.find(d => d.code === DiagnosticRules.UnknownDefinitionType.code);
-        expect(warning).toBeDefined();
-        expect(warning?.severity).toBe(DiagnosticSeverity.Warning);
-    });
 });

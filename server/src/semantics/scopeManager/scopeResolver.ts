@@ -1,6 +1,7 @@
 import { SymbolInfo, SymbolKind, FunctionSymbol, VariableSymbol, FormulaSymbol, DefinitionSymbol, AttributeSymbol, ActionSymbol, SchemaSymbol } from 'tally-tdl-shared';
 import { Scope, ScopeKind, hasFunctionsAndActions, hasDefinitions, hasAttributes, hasSchemas, GlobalScope, ProjectScope } from './types';
 import { normalizeTypeName } from '../../utils/normalizeUtils';
+import { normalizeUri } from '../../utils/uri';
 
 export interface IScopeResolverState {
     useInheritance: Map<string, Set<string>>;
@@ -633,17 +634,23 @@ export function resolveFunction(
     callerContext?: ResolutionContext
 ): FunctionSymbol | undefined {
     const normalizedName = normalizeTypeName(name);
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
-    
-    const match = traverseScopes(context, scope => {
-        if (hasFunctionsAndActions(scope)) {
-            return scope.functions.get(normalizedName);
-        }
-        return undefined;
-    });
-    if (match) return match;
 
-    return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Function) as FunctionSymbol | undefined;
+    // 1. User definitions (Workspace / Project scope index)
+    let syms = state.getProjectDefinition('function', name);
+    if (projectScope && syms.length > 0) {
+        syms = syms.filter(s => s.uri && projectScope.has(normalizeUri(s.uri).toLowerCase()));
+    }
+    if (syms && syms.length > 0) return syms[0] as unknown as FunctionSymbol;
+
+    const wsSyms = state.getWorkspaceDefinition('function', name);
+    if (wsSyms && wsSyms.length > 0) return wsSyms[0] as unknown as FunctionSymbol;
+
+    // 2. Metadata fallback for system functions
+    if (state.globalScope.functions?.has(normalizedName)) {
+        return state.globalScope.functions.get(normalizedName);
+    }
+
+    return undefined;
 }
 
 export function resolveAction(
@@ -654,18 +661,23 @@ export function resolveAction(
     callerContext?: ResolutionContext
 ): ActionSymbol | undefined {
     const normalizedName = normalizeTypeName(name);
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
-    
-    const match = traverseScopes(context, scope => {
-        if (hasFunctionsAndActions(scope)) {
-            return scope.actions.get(normalizedName);
-        }
-        return undefined;
-    });
-    if (match) return match;
 
-    // Action definitions in Global fallback
-    return state.findGlobalSymbolsByName(name, projectScope).find(s => s.kind === SymbolKind.Function) as ActionSymbol | undefined; // SymbolKind is shared for now
+    // 1. User definitions (Workspace / Project scope index)
+    let syms = state.getProjectDefinition('action', name);
+    if (projectScope && syms.length > 0) {
+        syms = syms.filter(s => s.uri && projectScope.has(normalizeUri(s.uri).toLowerCase()));
+    }
+    if (syms && syms.length > 0) return syms[0] as unknown as ActionSymbol;
+
+    const wsSyms = state.getWorkspaceDefinition('action', name);
+    if (wsSyms && wsSyms.length > 0) return wsSyms[0] as unknown as ActionSymbol;
+
+    // 2. Metadata fallback for system actions
+    if (state.globalScope.actions?.has(normalizedName)) {
+        return state.globalScope.actions.get(normalizedName);
+    }
+
+    return undefined;
 }
 
 export function resolveDefinition(
@@ -680,58 +692,44 @@ export function resolveDefinition(
     const normalizedType = normalizeTypeName(defType);
     const canonicalType = state.getCanonicalTypeName(normalizedType);
 
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
-    
-    const match = traverseScopes(context, scope => {
-        if (scope.kind === ScopeKind.Project) {
-            const syms = state.getProjectDefinition(canonicalType, normalizedName);
-            if (syms && syms.length > 0) return syms;
-        } else if (scope.kind === ScopeKind.Workspace) {
-            const syms = state.getWorkspaceDefinition(canonicalType, normalizedName);
-            if (syms && syms.length > 0) return syms;
-        } else if (hasDefinitions(scope)) {
-            const sym = scope.definitions.get(canonicalType)?.get(normalizedName);
-            if (sym) return [sym];
-        }
-        if (hasFunctionsAndActions(scope)) {
-            if (canonicalType === state.getCanonicalTypeName('function')) {
-                const sym = scope.functions.get(normalizedName);
-                if (sym) return [sym as unknown as DefinitionSymbol];
-            }
-            if (canonicalType === state.getCanonicalTypeName('action')) {
-                const sym = scope.actions.get(normalizedName);
-                if (sym) return [sym as unknown as DefinitionSymbol];
-            }
-        }
-        return undefined;
-    });
-    if (match) return match as DefinitionSymbol[];
+    // 1. User definitions (Workspace / Project scope index)
+    let syms = state.getProjectDefinition(canonicalType, normalizedName);
+    if (projectScope && syms.length > 0) {
+        // If projectScope is specified, filter by active URIs
+        syms = syms.filter(s => s.uri && projectScope.has(normalizeUri(s.uri).toLowerCase()));
+    }
+    if (syms && syms.length > 0) return syms;
 
-    // SymbolTable fallback (user definitions)
-    const globalMatch = state.findGlobalSymbolsByName(name, projectScope).find(s => {
-        if (!s.definitionType) return false;
-        return state.getCanonicalTypeName(normalizeTypeName(s.definitionType)) === canonicalType;
-    });
-    if (globalMatch) return [globalMatch as DefinitionSymbol];
+    // Check workspace definition index
+    const wsSyms = state.getWorkspaceDefinition(canonicalType, normalizedName);
+    if (wsSyms && wsSyms.length > 0) return wsSyms;
 
-    // Metadata fallback for system definitions
+    // 2. Metadata fallback for system definitions
     const typeSet = state.globalScope.definitions.get(canonicalType);
     if (typeSet && typeSet.has(normalizedName)) {
         return [typeSet.get(normalizedName) as DefinitionSymbol];
     }
-    if (canonicalType === state.getCanonicalTypeName('function') && state.globalScope.functions?.has(normalizedName)) {
-        return [state.globalScope.functions.get(normalizedName) as unknown as DefinitionSymbol];
+    
+    // Functions/Actions/Formulas fallbacks
+    if (canonicalType === state.getCanonicalTypeName('function')) {
+        if (state.globalScope.functions?.has(normalizedName)) {
+            return [state.globalScope.functions.get(normalizedName) as unknown as DefinitionSymbol];
+        }
     }
-    if (canonicalType === state.getCanonicalTypeName('action') && state.globalScope.actions?.has(normalizedName)) {
-        return [state.globalScope.actions.get(normalizedName) as unknown as DefinitionSymbol];
+    if (canonicalType === state.getCanonicalTypeName('action')) {
+        if (state.globalScope.actions?.has(normalizedName)) {
+            return [state.globalScope.actions.get(normalizedName) as unknown as DefinitionSymbol];
+        }
     }
-    if (canonicalType === state.getCanonicalTypeName('formula') && state.globalScope.formulas?.has(normalizedName)) {
-        return [state.globalScope.formulas.get(normalizedName) as unknown as DefinitionSymbol];
+    if (canonicalType === state.getCanonicalTypeName('formula')) {
+        if (state.globalScope.formulas?.has(normalizedName)) {
+            return [state.globalScope.formulas.get(normalizedName) as unknown as DefinitionSymbol];
+        }
     }
 
-    // Fallback to WorkspaceScope if not found anywhere else
-    const wsSyms = state.getWorkspaceDefinition(canonicalType, normalizedName);
-    if (wsSyms && wsSyms.length > 0) return wsSyms;
+    // 3. Fallback to ProjectScope (scopeIndex) unfiltered if not found in active project scope
+    const unfilteredSyms = state.getProjectDefinition(canonicalType, normalizedName);
+    if (unfilteredSyms && unfilteredSyms.length > 0) return unfilteredSyms;
 
     return [];
 }
@@ -776,22 +774,10 @@ export function resolveSchema(
     callerContext?: ResolutionContext
 ): SchemaSymbol | undefined {
     const normalizedName = normalizeTypeName(name);
-    const context: ResolutionContext = { visitedScopes: new Set(), state, initialScope, caller: callerContext };
-    
-    const match = traverseScopes(context, scope => {
-        if (hasSchemas(scope)) {
-            return scope.schemas.get(normalizedName);
-        }
-        return undefined;
-    });
-    if (match) return match;
-
-    // Metadata fallback for system schemas
     if (state.globalScope.schemas?.has(normalizedName)) {
         return state.globalScope.schemas.get(normalizedName);
     }
-
-    return undefined; // Schemas are fully indexed in scope maps
+    return undefined;
 }
 
 export function getAllVariablesInScope(

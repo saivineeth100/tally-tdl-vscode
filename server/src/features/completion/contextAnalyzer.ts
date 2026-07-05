@@ -106,6 +106,38 @@ export function detectCompletionContext(
         }
     }
 
+    // 4. Check for open bracket context (typing definition header)
+    const openBracketIdx = trimmed.lastIndexOf('[');
+    const closeBracketIdx = trimmed.lastIndexOf(']');
+    if (openBracketIdx !== -1 && openBracketIdx > closeBracketIdx) {
+        // We're inside an unclosed bracket
+        let content = trimmed.slice(openBracketIdx + 1);
+        let modifier: string | undefined;
+
+        if (content.startsWith('#') || content.startsWith('!') || content.startsWith('*')) {
+            modifier = content[0];
+            content = content.slice(1).trim();
+        }
+
+        const colonIdx = content.indexOf(':');
+        if (colonIdx !== -1) {
+            return {
+                type: 'definition_name',
+                partial: content.slice(colonIdx + 1).trim(),
+                hasModifier: !!modifier,
+                modifier,
+                defType: content.slice(0, colonIdx).trim()
+            };
+        } else {
+            return {
+                type: 'definition_type',
+                partial: content.trim(),
+                hasModifier: !!modifier,
+                modifier
+            };
+        }
+    }
+
     // 1. Check for $$ (function context)
     const dollarIdx = trimmed.lastIndexOf('$$');
     if (dollarIdx !== -1) {
@@ -180,37 +212,7 @@ export function detectCompletionContext(
         }
     }
 
-    // 4. Check for open bracket context (typing definition header)
-    const openBracketIdx = trimmed.lastIndexOf('[');
-    const closeBracketIdx = trimmed.lastIndexOf(']');
-    if (openBracketIdx !== -1 && openBracketIdx > closeBracketIdx) {
-        // We're inside an unclosed bracket
-        let content = trimmed.slice(openBracketIdx + 1);
-        let modifier: string | undefined;
 
-        if (content.startsWith('#') || content.startsWith('!') || content.startsWith('*')) {
-            modifier = content[0];
-            content = content.slice(1).trim();
-        }
-
-        const colonIdx = content.indexOf(':');
-        if (colonIdx !== -1) {
-            return {
-                type: 'definition_name',
-                partial: content.slice(colonIdx + 1).trim(),
-                hasModifier: !!modifier,
-                modifier,
-                defType: content.slice(0, colonIdx).trim()
-            };
-        } else {
-            return {
-                type: 'definition_type',
-                partial: content.trim(),
-                hasModifier: !!modifier,
-                modifier
-            };
-        }
-    }
 
     // 5. Check if inside a complete definition body - attribute completion
     if (currentDef && !currentDef.isIncomplete) {

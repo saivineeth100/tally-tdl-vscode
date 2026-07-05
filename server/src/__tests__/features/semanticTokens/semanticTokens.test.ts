@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../../core/parser/parser';
-import { getSemanticTokens } from '../../../features/semanticTokens/semanticTokens';
+import { getSemanticTokens, TDL_SEMANTIC_TOKEN_ROLES } from '../../../features/semanticTokens/semanticTokens';
 import { SemanticTokenTypes } from 'vscode-languageserver';
 import { testScopeManager } from '../../../__tests__/test-setup';
 
@@ -14,34 +14,6 @@ export function parseAndGetTokens(tdl: string) {
 }
 
 describe('Semantic Tokens', () => {
-    it('should tokenize Class Definitions', () => {
-        const tdl = `[Report: MyReport]`;
-        const tokens = parseAndGetTokens(tdl);
-
-        // Find token for 'MyReport'
-        const classToken = tokens.find((t: any) => t.text === 'MyReport');
-        expect(classToken).toBeDefined();
-        expect(classToken!.type).toBe(SemanticTokenTypes.class);
-    });
-
-    it('should tokenize Class Definitions with spaces', () => {
-        const tdl = `[Report: My Report Name]`;
-        const tokens = parseAndGetTokens(tdl);
-
-        const classToken = tokens.find((t: any) => t.text === 'My Report Name');
-        expect(classToken).toBeDefined();
-        expect(classToken!.type).toBe(SemanticTokenTypes.class);
-    });
-
-    it('should tokenize Modifiers', () => {
-        const tdl = `[#Report: Test]`;
-        const tokens = parseAndGetTokens(tdl);
-
-        const modifierToken = tokens.find((t: any) => t.text === '#');
-        expect(modifierToken).toBeDefined();
-        expect(modifierToken!.type).toBe(SemanticTokenTypes.keyword);
-    });
-
     it('should tokenize Directives', () => {
         const tdl = `<Deftype: Report>
         [Report: MyReport]

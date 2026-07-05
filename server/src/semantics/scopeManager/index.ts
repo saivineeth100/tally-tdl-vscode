@@ -108,6 +108,16 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         return this.globalScope.interchangeableAttributesMap?.get(normalizedAttributeName);
     }
 
+    public getFunctionArity(name: string): number | null {
+        const func = this.globalScope.functions.get(name.toLowerCase());
+        if (!func || !func.parameters) return null;
+        let hasVarArgs = false;
+        for (const p of func.parameters) {
+            if (p.IsList || p.IsVariableArgument) hasVarArgs = true;
+        }
+        return hasVarArgs ? null : func.parameters.length;
+    }
+
     constructor() {
         // Initialize Root Scopes
         this.globalScope = this.createGlobalScope('global');
@@ -269,9 +279,9 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
                             const defScope = c as DefinitionScope;
                             if (defScope.definition && defScope.definition.name) {
                                 const name = normalizeTypeName(defScope.definition.name);
-                                const arr = this.nameIndex.get(name);
+                                 const arr = this.nameIndex.get(name);
                                 if (arr) {
-                                    const filtered = arr.filter(s => s.uri?.toLowerCase() !== lowerUri);
+                                    const filtered = arr.filter(s => !s.uri || normalizeUri(s.uri).toLowerCase() !== lowerUri);
                                     if (filtered.length === 0) this.nameIndex.delete(name);
                                     else this.nameIndex.set(name, filtered);
                                 }
@@ -290,13 +300,13 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         // Remove global symbols that were defined in this file
         const clearFlatMap = (map: Map<string, any>) => {
             for (const [key, sym] of map.entries()) {
-                if (sym?.uri?.toLowerCase() === lowerUri) map.delete(key);
+                if (sym?.uri && normalizeUri(sym.uri).toLowerCase() === lowerUri) map.delete(key);
             }
         };
         const clearNestedMap = (outerMap: Map<string, Map<string, any>>) => {
             for (const [outerKey, innerMap] of outerMap.entries()) {
                 for (const [innerKey, sym] of innerMap.entries()) {
-                    if (sym?.uri?.toLowerCase() === lowerUri) innerMap.delete(innerKey);
+                    if (sym?.uri && normalizeUri(sym.uri).toLowerCase() === lowerUri) innerMap.delete(innerKey);
                 }
                 if (innerMap.size === 0) outerMap.delete(outerKey);
             }
@@ -584,7 +594,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         const normalizedName = normalizeTypeName(name);
         const symbols = this.nameIndex.get(normalizedName) || [];
         if (projectScope) {
-            return symbols.filter(s => projectScope.has(s.uri.toLowerCase()));
+            return symbols.filter(s => s.uri && projectScope.has(normalizeUri(s.uri).toLowerCase()));
         }
         return symbols;
     }

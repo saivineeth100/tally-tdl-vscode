@@ -13,7 +13,7 @@ import { DocumentStateStore } from './documentStateStore';
 import { IncludeGraphManager } from './includeGraphManager';
 import { FileAccess } from '../ports/fileAccess';
 import { DiagnosticPublisher } from '../ports/diagnosticPublisher';
-import { getDiagnosticSeverity, isDiagnosticsEnabled, shouldTreatWarningsAsErrors, shouldHideWarnings } from '../utils/settingsManager';
+import { filterDiagnostics } from '../utils/settingsManager';
 
 /**
  * Handles workspace-wide file scanning, parsing, and bulk validations.
@@ -297,6 +297,7 @@ export class WorkspaceScanner {
                     if (await this.fileAccess.exists(targetPath)) {
                         const targetUri = normalizeUri(URI.file(targetPath).toString());
                         this.graphManager.tpjFiles.add(targetUri);
+                        this.graphManager.invalidateCache();
                         promises.push(this.indexFile(targetPath, visited, true, false, true));
                     }
                 }
@@ -370,16 +371,7 @@ export class WorkspaceScanner {
                 if (isXml) {
                     sourceFile = parseXmlToAst(content, scopeMgr);
                 } else {
-                    const getFunctionArity = (name: string): number | null => {
-                        const func = scopeMgr.globalScope.functions.get(name.toLowerCase());
-                        if (!func || !func.parameters) return null;
-                        let hasVarArgs = false;
-                        for (const p of func.parameters) {
-                            if (p.IsList || p.IsVariableArgument) hasVarArgs = true;
-                        }
-                        return hasVarArgs ? null : func.parameters.length;
-                    };
-                    const parser = new Parser(content, undefined, getFunctionArity);
+                    const parser = new Parser(content, undefined, scopeMgr.getFunctionArity.bind(scopeMgr));
                     sourceFile = parser.parse();
                 }
                 
@@ -414,7 +406,7 @@ export class WorkspaceScanner {
 
             if (skipValidation) {
                 diagnostics.length = 0;
-                const finalDiagnostics = this.filterDiagnostics(diagnostics);
+                const finalDiagnostics = filterDiagnostics(diagnostics);
                 this.diagnosticPublisher.publish(uri, finalDiagnostics);
                 this.stateStore.setIndexed(uri, { sourceFile, diagnostics: finalDiagnostics });
                 return;
@@ -424,7 +416,7 @@ export class WorkspaceScanner {
 
             if (!shouldValidate) {
                 diagnostics.length = 0;
-                const finalDiagnostics = this.filterDiagnostics(diagnostics);
+                const finalDiagnostics = filterDiagnostics(diagnostics);
                 this.diagnosticPublisher.publish(uri, finalDiagnostics);
                 this.stateStore.setIndexed(uri, { sourceFile, diagnostics: finalDiagnostics });
                 return;
@@ -433,7 +425,7 @@ export class WorkspaceScanner {
             // For now, we pass `this.graphManager` since validateSourceFile usages have been updated.
             diagnostics.push(...(await validateSourceFile(sourceFile, doc, undefined, scopeMgr, this.resolveIncludePath, this.graphManager)));            
             
-            const finalDiagnostics = this.filterDiagnostics(diagnostics);
+            const finalDiagnostics = filterDiagnostics(diagnostics);
             this.diagnosticPublisher.publish(uri, finalDiagnostics);
             this.stateStore.setIndexed(uri, { sourceFile, diagnostics: finalDiagnostics });
         } catch (err) {
@@ -503,6 +495,7 @@ export class WorkspaceScanner {
     }
 
     public clearFolderSymbols(folderPath: string): void {
+        this.graphManager.invalidateCache();
         const removeURIs: string[] = [];
         for (const [uri] of this.stateStore.tdlScopeManager.fileMap) {
             if (URI.parse(uri).fsPath.startsWith(folderPath)) removeURIs.push(uri);
@@ -551,30 +544,5 @@ export class WorkspaceScanner {
                 }
             }
         }
-    }
-
-    private filterDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
-        const treatAsError = shouldTreatWarningsAsErrors();
-        const hideWarnings = shouldHideWarnings();
-
-        return isDiagnosticsEnabled() ? diagnostics.filter(d => {
-            if (d.code && typeof d.code === 'string') {
-                const setting = getDiagnosticSeverity(d.code);
-                if (setting === 'none') return false;
-                if (setting === 'error') d.severity = DiagnosticSeverity.Error;
-                if (setting === 'warning') d.severity = DiagnosticSeverity.Warning;
-                if (setting === 'information') d.severity = DiagnosticSeverity.Information;
-                if (setting === 'hint') d.severity = DiagnosticSeverity.Hint;
-            }
-
-            if (d.severity === DiagnosticSeverity.Warning) {
-                if (treatAsError) {
-                    d.severity = DiagnosticSeverity.Error;
-                } else if (hideWarnings) {
-                    return false;
-                }
-            }
-            return true;
-        }) : [];
     }
 }

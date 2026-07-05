@@ -145,11 +145,28 @@ export async function findReferences(
         const docState = stateStore.get(normDocUri);
         if (!docState) continue;
         
-        // Fast AST walk instead of text search
+        // 1. Add the definition itself if it resides in this file (once per file)
+        if (includeDeclaration) {
+            for (const def of docState.sourceFile.definitions) {
+                if (def.name && def.name.text.toLowerCase() === lowerTargetName) {
+                    if (!lowerTargetType || def.type.text.toLowerCase() === lowerTargetType) {
+                        locations.push({
+                            uri: normDocUri,
+                            range: {
+                                start: positionAt(def.name.start, docState.sourceFile.lineOffsets),
+                                end: positionAt(def.name.end, docState.sourceFile.lineOffsets)
+                            },
+                            isDefinition: true
+                        } as any);
+                    }
+                }
+            }
+        }
+
+        // 2. Fast AST walk to find references/usages only
         walkAST(docState.sourceFile, (node) => {
             if (node.kind === SyntaxKind.Identifier && (node as IdentifierNode).text?.toLowerCase() === lowerTargetName) {
                 // Use findReferenceAtOffset to verify this occurrence references our target
-                // We pass empty string for text since we modified findReferenceAtOffset to not need it
                 const matchRefInfo = findReferenceAtOffset(
                     docState.sourceFile,
                     node.start,
@@ -157,7 +174,6 @@ export async function findReferences(
                     stateStore.getScopeManager(normDocUri),
                     normDocUri
                 );
-                
                 
                 if (matchRefInfo && matchRefInfo.name.toLowerCase() === lowerTargetName) {
                     if (!lowerTargetType || !matchRefInfo.expectedType || matchRefInfo.expectedType.toLowerCase() === lowerTargetType || lowerTargetType === 'variable') {
@@ -170,27 +186,6 @@ export async function findReferences(
                             },
                             isModifier: matchRefInfo.isModifier === true
                         } as any);
-                    }
-                } else {
-                    // It might be a definition name itself
-                    for (const def of docState.sourceFile.definitions) {
-                        if (def.name && node.start >= def.name.start && node.start <= def.name.end) {
-                            if (def.name.text.toLowerCase() === lowerTargetName) {
-                                if (!lowerTargetType || def.type.text.toLowerCase() === lowerTargetType) {
-                                    if (includeDeclaration) {
-                                        locations.push({
-                                            uri: normDocUri,
-                                            range: {
-                                                start: positionAt(def.name.start, docState.sourceFile.lineOffsets),
-                                                end: positionAt(def.name.end, docState.sourceFile.lineOffsets)
-                                            },
-                                            isDefinition: true
-                                        } as any);
-                                    }
-                                }
-                            }
-                            break;
-                        }
                     }
                 }
             }

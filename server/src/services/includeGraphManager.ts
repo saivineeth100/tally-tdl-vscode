@@ -22,6 +22,14 @@ export class IncludeGraphManager {
     /** Set of root project files discovered during workspace scan (.tpj files) */
     public tpjFiles = new Set<string>();
 
+    private activeUris = new Set<string>();
+    private isActiveUrisCacheDirty = true;
+
+    public invalidateCache(): void {
+        this.isActiveUrisCacheDirty = true;
+        this.projectNodesCache.clear();
+    }
+
     constructor(
         private stateStore: DocumentStateStore,
         private client: ClientGateway,
@@ -69,7 +77,7 @@ export class IncludeGraphManager {
         }
 
         // Clear project nodes cache as graph has changed
-        this.projectNodesCache.clear();
+        this.invalidateCache();
 
         return includes;
     }
@@ -97,38 +105,87 @@ export class IncludeGraphManager {
         return dfs(startUri);
     }
 
-    public isUriActive(targetUri: string): boolean {
-        const normUri = normalizeUri(targetUri);
-        const visited = new Set<string>();
+    private rebuildActiveUrisCache(): void {
+        if (!this.isActiveUrisCacheDirty) return;
+        this.activeUris.clear();
+        const queue: string[] = [];
 
-        const checkActive = (uri: string): boolean => {
-            if (visited.has(uri)) return false;
-            visited.add(uri);
-
-            // 1. If the file itself is open, it's active
-            if (this.stateStore.getOpen(uri) !== undefined) {
-                return true;
+        if (this.tpjFiles.size > 0) {
+            // 1. If .tpj files exist, only .tpj files and their includes are active
+            for (const tpj of this.tpjFiles) {
+                const norm = normalizeUri(tpj);
+                if (!this.activeUris.has(norm)) {
+                    this.activeUris.add(norm);
+                    queue.push(norm);
+                }
             }
-
-            // 2. If it's a root project file (.tpj), it's active
-            if (this.tpjFiles.has(uri)) {
-                return true;
+            
+            // Traverse down the include graph from .tpj files
+            while (queue.length > 0) {
+                const curr = queue.pop()!;
+                const children = this.includeGraph.get(curr);
+                if (children) {
+                    for (const child of children) {
+                        const normChild = normalizeUri(child);
+                        if (!this.activeUris.has(normChild)) {
+                            this.activeUris.add(normChild);
+                            queue.push(normChild);
+                        }
+                    }
+                }
             }
+        } else {
+            // 2. If NO .tpj files exist, open files and their connected files (ancestors & descendants) are active.
+            // First, find all ancestors (roots) of the open files
+            const roots = new Set<string>();
+            const visitedParents = new Set<string>();
 
-            // 3. Recursively check parents in the include graph
-            const parents = this.parentGraph.get(uri);
-            if (parents) {
-                for (const parent of parents) {
-                    if (checkActive(parent)) {
-                        return true;
+            for (const [openUri] of this.stateStore.getAllDocs()) {
+                const norm = normalizeUri(openUri);
+                const queueParents = [norm];
+                while (queueParents.length > 0) {
+                    const curr = queueParents.pop()!;
+                    if (!visitedParents.has(curr)) {
+                        visitedParents.add(curr);
+                        const parents = this.parentGraph.get(curr);
+                        if (!parents || parents.size === 0) {
+                            roots.add(curr);
+                        } else {
+                            queueParents.push(...parents);
+                        }
                     }
                 }
             }
 
-            return false;
-        };
+            // Now, traverse down from those roots
+            for (const root of roots) {
+                if (!this.activeUris.has(root)) {
+                    this.activeUris.add(root);
+                    queue.push(root);
+                }
+            }
 
-        return checkActive(normUri);
+            while (queue.length > 0) {
+                const curr = queue.pop()!;
+                const children = this.includeGraph.get(curr);
+                if (children) {
+                    for (const child of children) {
+                        const normChild = normalizeUri(child);
+                        if (!this.activeUris.has(normChild)) {
+                            this.activeUris.add(normChild);
+                            queue.push(normChild);
+                        }
+                    }
+                }
+            }
+        }
+
+        this.isActiveUrisCacheDirty = false;
+    }
+
+    public isUriActive(targetUri: string): boolean {
+        this.rebuildActiveUrisCache();
+        return this.activeUris.has(normalizeUri(targetUri));
     }
 
     public getProjectNodes(targetUri: string): Set<string> {
@@ -142,7 +199,7 @@ export class IncludeGraphManager {
         
         const queueParents = [normUri];
         while (queueParents.length > 0) {
-            const curr = queueParents.shift()!;
+            const curr = queueParents.pop()!;
             if (!visitedParents.has(curr)) {
                 visitedParents.add(curr);
                 const parents = this.parentGraph.get(curr);
@@ -161,7 +218,7 @@ export class IncludeGraphManager {
         const projectNodes = new Set<string>();
         const queueChildren = Array.from(roots);
         while (queueChildren.length > 0) {
-            const curr = queueChildren.shift()!;
+            const curr = queueChildren.pop()!;
             if (!projectNodes.has(curr)) {
                 projectNodes.add(curr);
                 const children = this.includeGraph.get(curr);
@@ -171,22 +228,24 @@ export class IncludeGraphManager {
             }
         }
 
-        this.projectNodesCache.set(normUri, projectNodes);
-        return projectNodes;
+        const lowerProjectNodes = new Set(Array.from(projectNodes).map(u => normalizeUri(u).toLowerCase()));
+        this.projectNodesCache.set(normUri, lowerProjectNodes);
+        return lowerProjectNodes;
     }
 
     public notifyActiveUrisChanged(): void {
+        this.rebuildActiveUrisCache();
         const activeUris: string[] = [];
         
         for (const [uri, scope] of this.stateStore.tdlScopeManager.fileMap.entries()) {
-            const isActive = this.isUriActive(uri);
+            const isActive = this.activeUris.has(uri);
             scope.parent = isActive ? this.stateStore.tdlScopeManager.projectScope : this.stateStore.tdlScopeManager.workspaceScope;
             if (isActive) {
                 activeUris.push(uri);
             }
         }
         for (const [uri, scope] of this.stateStore.xmlScopeManager.fileMap.entries()) {
-            const isActive = this.isUriActive(uri);
+            const isActive = this.activeUris.has(uri);
             scope.parent = isActive ? this.stateStore.xmlScopeManager.projectScope : this.stateStore.xmlScopeManager.workspaceScope;
             if (isActive) {
                 activeUris.push(uri);

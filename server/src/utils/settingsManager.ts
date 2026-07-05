@@ -1,3 +1,5 @@
+import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
+
 export interface TallyTDLSettings {
     diagnostics?: {
         enable?: boolean;
@@ -50,4 +52,29 @@ export function shouldHideWarnings(): boolean {
 
 export function getDiagnosticSeverity(code: string): string | undefined {
     return globalSettings?.diagnostics?.severity?.[code];
+}
+
+export function filterDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
+    const treatAsError = shouldTreatWarningsAsErrors();
+    const hideWarnings = shouldHideWarnings();
+
+    return isDiagnosticsEnabled() ? diagnostics.filter(d => {
+        if (d.code && typeof d.code === 'string') {
+            const setting = getDiagnosticSeverity(d.code);
+            if (setting === 'none') return false;
+            if (setting === 'error') d.severity = DiagnosticSeverity.Error;
+            if (setting === 'warning') d.severity = DiagnosticSeverity.Warning;
+            if (setting === 'information') d.severity = DiagnosticSeverity.Information;
+            if (setting === 'hint') d.severity = DiagnosticSeverity.Hint;
+        }
+
+        if (d.severity === DiagnosticSeverity.Warning) {
+            if (treatAsError) {
+                d.severity = DiagnosticSeverity.Error;
+            } else if (hideWarnings) {
+                return false;
+            }
+        }
+        return true;
+    }) : [];
 }

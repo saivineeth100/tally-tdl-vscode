@@ -52,6 +52,26 @@ export const TDL_SEMANTIC_TOKENS_LEGEND: SemanticTokensLegend = {
     tokenModifiers: []
 };
 
+// Reusable static mapping of TDL construct/role to expected semantic token type
+export const TDL_SEMANTIC_TOKEN_ROLES = {
+    modifier: SemanticTokenTypes.keyword,
+    defType: SemanticTokenTypes.keyword,
+    defName: SemanticTokenTypes.class,
+    includeImportName: SemanticTokenTypes.string,
+    attributeName: SemanticTokenTypes.macro,
+    fieldName: SemanticTokenTypes.variable,
+    methodName: SemanticTokenTypes.function,
+    functionName: SemanticTokenTypes.function,
+    variableName: SemanticTokenTypes.variable,
+    formulaName: SemanticTokenTypes.macro, // or variable
+    comment: SemanticTokenTypes.comment,
+    operator: SemanticTokenTypes.operator,
+    directiveType: SemanticTokenTypes.macro,
+    directiveDefType: SemanticTokenTypes.keyword,
+    directiveDefName: SemanticTokenTypes.class,
+    property: SemanticTokenTypes.property,
+} as const;
+
 // Map string types to indices in the legend
 const TOKEN_TYPE_MAP: Record<string, number> = {
     [SemanticTokenTypes.class]: 0,
@@ -242,7 +262,7 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
             line: 0,
             startChar: comment.start,
             length: comment.end - comment.start,
-            type: SemanticTokenTypes.comment,
+            type: TDL_SEMANTIC_TOKEN_ROLES.comment,
             text: comment.text
         });
     }
@@ -259,7 +279,7 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 line: 0,
                 startChar: def.modifier.Start,
                 length: def.modifier.Length,
-                type: SemanticTokenTypes.keyword,
+                type: TDL_SEMANTIC_TOKEN_ROLES.modifier,
                 text: def.modifier.Text
             });
         }
@@ -268,7 +288,7 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 line: 0,
                 startChar: def.type.start,
                 length: def.type.end - def.type.start,
-                type: SemanticTokenTypes.keyword,
+                type: TDL_SEMANTIC_TOKEN_ROLES.defType,
                 text: def.type?.text
             });
         }
@@ -277,14 +297,14 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 line: 0,
                 startChar: def.closeType.start,
                 length: def.closeType.end - def.closeType.start,
-                type: SemanticTokenTypes.keyword,
+                type: TDL_SEMANTIC_TOKEN_ROLES.defType,
                 text: def.closeType?.text
             });
         }
         if (def.name) {
-            let tokenType = SemanticTokenTypes.class;
+            let tokenType: string = TDL_SEMANTIC_TOKEN_ROLES.defName;
             if (def.type && (def.type?.text?.trim().toLowerCase() === 'include' || def.type?.text?.trim().toLowerCase() === 'import')) {
-                tokenType = SemanticTokenTypes.string;
+                tokenType = TDL_SEMANTIC_TOKEN_ROLES.includeImportName;
             }
 
             tokens.push({

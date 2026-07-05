@@ -3,6 +3,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { SourceFile, SyntaxKind, IdentifierNode, FunctionCallNode, BinaryExpressionNode, Node, BreakNode, ContinueNode, ReturnNode, SetNode, ExchangeNode, IncrementNode, DecrementNode, WhileNode, WalkNode, ForNode, DoIfNode, BlockStatementNode, InUseDirectiveNode, DefTypeDirectiveNode } from '../core/ast/ast';
 
 import { normalizeTypeName } from '../utils/normalizeUtils';
+import { normalizeUri } from '../utils/uri';
 import { ScopeManager } from '../semantics/scopeManager';
 import { validateLabelSequences } from './sequenceValidator';
 import { validateDefinitionAttributes, validateSchemaObject } from "./attributeValidation";
@@ -17,6 +18,7 @@ export * from './validationUtils';
 export * from './attributeValidation';
 export * from './expressionValidation';
 import { validateActionArity } from './arityValidation';
+import { SymbolKind } from 'tally-tdl-shared';
 
 /**
  * Validate an entire source file
@@ -80,8 +82,48 @@ export async function validateSourceFile(
                 }
             }
 
-            // System definitions use a different attribute structure, skip them
+            const hasDeftypeDirective = sourceFile.directives.some(d => d.kind === SyntaxKind.DefTypeDirective);
+            const isImplicitDeftype = hasDeftypeDirective && !def.colon;
+
+            if (!isImplicitDeftype) {
+                const kind = definitionTypeToSymbolKind(normalizedType, scopeManager);
+                const isKnownType = 
+                    kind !== SymbolKind.Unknown ||
+                    normalizedType === 'include' ||
+                    normalizedType === 'import' ||
+                    normalizedType === 'system' ||
+                    scopeManager.globalScope.definitions.has(normalizedType) ||
+                    scopeManager.globalScope.schemas.has(normalizedType) ||
+                    scopeManager.scopeIndex.has(normalizedType) ||
+                    scopeManager.definitionTypeLabels.has(normalizedType);
+
+                if (!isKnownType) {
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.UnknownDefinitionType,
+                        { start: doc.positionAt(def.type.start), end: doc.positionAt(def.type.end) },
+                        def.type.text
+                    ));
+                }
+            }
+
+            // System definitions use a different attribute structure, validate sub-type and skip them
             if (normalizedType === 'system') {
+                if (def.modifier) {
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.InvalidModifierForSystem,
+                        { start: doc.positionAt(def.modifier.Start), end: doc.positionAt(def.modifier.Start + def.modifier.Length) }
+                    ));
+                }
+                if (def.name) {
+                    const normalizedName = normalizeTypeName(def.name.text);
+                    if (!SYSTEM_DEFINITION_NAMES_LOWER.includes(normalizedName)) {
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.UnknownDefinitionType,
+                            { start: doc.positionAt(def.name.start), end: doc.positionAt(def.name.end) },
+                            def.name.text
+                        ));
+                    }
+                }
                 continue;
             }
         }
@@ -198,7 +240,8 @@ export async function validateSourceFile(
                                 } else if (projectNodes && includeGraphManager) {
                                     const resolvedDef = resolvedDefs[0];
                                     if (resolvedDef.uri && resolvedDef.uri !== 'global:metadata' && !resolvedDef.uri.startsWith('basetdl://')) {
-                                        if (!projectNodes.has(resolvedDef.uri)) {
+                                        const normUri = normalizeUri(resolvedDef.uri).toLowerCase();
+                                        if (!projectNodes.has(normUri)) {
                                             const diag = createDiagnostic(
                                                 DiagnosticRules.MissingDefinition,
                                                 { start: doc.positionAt(target.defNameStart || dir.start), end: doc.positionAt(target.defNameEnd || dir.end) },
@@ -413,4 +456,4 @@ export async function validateSourceFile(
     return diagnostics;
 }
 
-import { definitionTypeToSymbolKind } from '../semantics/scopeManager/types';
+import { definitionTypeToSymbolKind, SYSTEM_DEFINITION_NAMES_LOWER } from '../semantics/scopeManager/types';

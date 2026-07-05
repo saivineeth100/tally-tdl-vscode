@@ -15,5 +15,6 @@ export const DefinitionRules = {
     InvalidKeyword: { code: 'TDL2011', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Invalid keyword '{0}'. Expected one of: {1}.", description: "Keyword is invalid." },
     UnknownFieldReference: { code: 'TDL2012', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Field '{0}' is not in scope.", description: "Referenced field is not available in the current context." },
     DefinitionNotInScope: { code: 'TDL2013', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "{1} '{0}' is not in scope of current definition.", description: "Referenced definition exists but is not reachable from the current scope." },
-    InvalidOptionalModifier: { code: 'TDL2014', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "The '!' modifier can only be used on new definitions. '{0}' already exists.", description: "Optional modifier used on existing definition." }
+    InvalidOptionalModifier: { code: 'TDL2014', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "The '!' modifier can only be used on new definitions. '{0}' already exists.", description: "Optional modifier used on existing definition." },
+    InvalidModifierForSystem: { code: 'TDL2015', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "Modifiers are not allowed on System definitions.", description: "System definition cannot have a modifier." }
 } as const;

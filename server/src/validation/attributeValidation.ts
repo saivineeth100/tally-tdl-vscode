@@ -3,6 +3,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNode } from '../core/ast/ast';
 
 import { normalizeTypeName } from '../utils/normalizeUtils';
+import { normalizeUri } from '../utils/uri';
 import { areTypesCompatible, inferExpressionType, STRUCTURAL_DEFINITION_TYPES } from "./validationUtils";
 import { validateFunctionCall, validateBinaryExpression, walkAndValidateExpression } from "./expressionValidation";
 import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, UnknownAttributeData, MissingDefinitionData, DefinitionNotInScopeData, UnknownSchemaPropertyData } from '../diagnostics';
@@ -494,7 +495,8 @@ export function validateAttributeParameters(
                 diagnostics.push(diag);
             } else if (resolvedDef.uri !== 'global:metadata' && !resolvedDef.uri.startsWith('basetdl://') && projectNodes) {
                 // Check if the resolved definition is within the project
-                if (!projectNodes.has(resolvedDef.uri)) {
+                const normUri = normalizeUri(resolvedDef.uri).toLowerCase();
+                if (!projectNodes.has(normUri)) {
                     const diag = createDiagnosticWithData<MissingDefinitionData>(
                         DiagnosticRules.MissingDefinition,
                         { start: startPos, end: endPos },

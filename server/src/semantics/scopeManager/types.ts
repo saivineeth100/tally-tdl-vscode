@@ -116,6 +116,18 @@ export interface ModifierContribution {
     order: number;
 }
 
+export const SYSTEM_DEFINITION_NAMES = [
+    'Formula',
+    'Formulae',
+    'Variable',
+    'Variables',
+    'TDL Name',
+    'TDL Names',
+    'UDF'
+];
+
+export const SYSTEM_DEFINITION_NAMES_LOWER = SYSTEM_DEFINITION_NAMES.map(name => normalizeTypeName(name));
+
 /**
  * Helper to map TDL definition type string to SymbolKind
  */

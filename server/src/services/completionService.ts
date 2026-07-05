@@ -66,7 +66,7 @@ export class CompletionService {
 
             case 'definition_type':
                 const defTypes = scopeManager.getDefinitionTypes();
-                items.push(...provideDefinitionTypeCompletions(context.partial, isXml, defTypes, scopeManager, context.directiveName, context.hasTrailingColon));
+                items.push(...provideDefinitionTypeCompletions(context.partial, isXml, defTypes, scopeManager, context.directiveName, context.hasTrailingColon, context.hasModifier));
                 break;
 
             case 'directive_file_level':
@@ -98,7 +98,7 @@ export class CompletionService {
                     const lowerType = context.defType.toLowerCase();
                     if (lowerType === 'include' || lowerType === 'import') {
                         items.push(...(await provideFilePathCompletions(params.textDocument.uri, context.partial, this.getWorkspaceFolders())));
-                    } else if (context.hasModifier || context.isInUse || isXml) {
+                    } else if (context.hasModifier || context.isInUse || isXml || lowerType === 'system') {
                         items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, true));
                     }
                 }

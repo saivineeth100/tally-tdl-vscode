@@ -91,17 +91,15 @@ export class NavigationService {
                 }
 
                 // Add modifier contributions if it's a definition
-                if (ref.isModifier) {
-                    const mods: any[] = [];
-                    const normId = `${ref.expectedType.toLowerCase()}/${ref.name.toLowerCase()}`;
-                    for (const [id, contribs] of scopeManager.modifierContributions.entries()) {
-                        if (id.includes(normId)) {
-                            mods.push(...contribs);
-                        }
-                    }
+                const key = scopeManager.normalizeScopeId(`${ref.expectedType}:${ref.name}`);
+                const mods = scopeManager.modifierContributions.get(key);
+                if (mods && mods.length > 0) {
                     const modSymbols = mods.map(m => (m.scope as any).definition).filter(d => !!d);
-                    
-                    resolvedArray = filterDefinitionLocations(resolvedArray, modSymbols as import('tally-tdl-shared').DefinitionSymbol[], ref.isModifier === true);
+                    resolvedArray = filterDefinitionLocations(
+                        resolvedArray, 
+                        modSymbols as import('tally-tdl-shared').DefinitionSymbol[], 
+                        ref.isModifier === true
+                    );
                 }
 
                 const originSelectionRange = {

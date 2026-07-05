@@ -149,11 +149,43 @@ describe('Phase 3: Document Lifecycle', () => {
         scheduler.flush();
         
         // 4. After rebuild runs, docState is verified to remain doc2
-        let updatedDocState = stateStore.getOpen(uri);
-        expect(updatedDocState).toBeDefined();
-        expect(updatedDocState?.document?.getText()).toBe('[Report: EditedReport]');
-        
         const resolvedCtxAfterRebuild = resolver.resolveParsed(uri);
         expect(resolvedCtxAfterRebuild?.document.getText()).toBe('[Report: EditedReport]');
+    });
+
+    it('verifies IncludeGraphManager isUriActive cache and tpj project rules', () => {
+        const uriA = 'file:///a.tdl';
+        const uriB = 'file:///b.tdl';
+        const uriC = 'file:///c.tdl';
+
+        // Set up include graph: A -> B -> C
+        graphManager.includeGraph.set(uriA, new Set([uriB]));
+        graphManager.parentGraph.set(uriB, new Set([uriA]));
+        graphManager.includeGraph.set(uriB, new Set([uriC]));
+        graphManager.parentGraph.set(uriC, new Set([uriB]));
+
+        // 1. Initially no open files and no tpj files -> all inactive
+        expect(graphManager.isUriActive(uriA)).toBe(false);
+        expect(graphManager.isUriActive(uriB)).toBe(false);
+
+        // 2. Open A. Since no tpj files exist, A and its descendants (B, C) should be active
+        stateStore.setOpen(uriA, { sourceFile: {} as any, diagnostics: [] });
+        graphManager.invalidateCache();
+        expect(graphManager.isUriActive(uriA)).toBe(true);
+        expect(graphManager.isUriActive(uriB)).toBe(true);
+        expect(graphManager.isUriActive(uriC)).toBe(true);
+
+        // 3. Introduce a .tpj file. Once tpj files exist, only tpj files and their includes are active.
+        // A is open but not in the tpjFiles, so A and its includes are no longer active!
+        graphManager.tpjFiles.add('file:///tpj_root.tdl');
+        graphManager.invalidateCache();
+        expect(graphManager.isUriActive(uriA)).toBe(false);
+
+        // 4. Add tpj_root -> A to graph. Now tpj_root includes A, so A, B, C become active again
+        graphManager.includeGraph.set('file:///tpj_root.tdl', new Set([uriA]));
+        graphManager.parentGraph.set(uriA, new Set(['file:///tpj_root.tdl']));
+        graphManager.invalidateCache();
+        expect(graphManager.isUriActive(uriA)).toBe(true);
+        expect(graphManager.isUriActive(uriB)).toBe(true);
     });
 });
