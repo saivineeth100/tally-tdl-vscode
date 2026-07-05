@@ -12,6 +12,7 @@ export interface FileStat {
  */
 export interface FileAccess {
     exists(path: string): Promise<boolean>;
+    existsSync(path: string): boolean;
     readFile(path: string, encoding?: string): Promise<string>;
     readDirectory(path: string): Promise<string[]>;
     stat(path: string): Promise<FileStat | undefined>;

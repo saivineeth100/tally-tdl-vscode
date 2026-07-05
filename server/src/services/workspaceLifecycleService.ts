@@ -23,7 +23,8 @@ export class WorkspaceLifecycleService {
 
     constructor(
         private client: import('../ports/clientGateway').ClientGateway,
-        private stateStore: DocumentStateStore
+        private stateStore: DocumentStateStore,
+        private fileAccess: import('../ports/fileAccess').FileAccess
     ) {
         // Bind functions so they can be easily passed to connection.onX
         this.resolveIncludePath = this.resolveIncludePath.bind(this);
@@ -32,7 +33,7 @@ export class WorkspaceLifecycleService {
     public resolveIncludePath(currentPath: string, includeName: string): string | null {
         // 1. Try relative to current file's directory
         const relativePath = path.resolve(path.dirname(currentPath), includeName);
-        if (fs.existsSync(relativePath)) {
+        if (this.fileAccess.existsSync(relativePath)) {
             try {
                 return fs.realpathSync.native(relativePath);
             } catch {
@@ -43,7 +44,7 @@ export class WorkspaceLifecycleService {
         // 2. Try relative to each workspace folder root
         for (const folder of this.globalWorkspaceFolders) {
             const rootPath = path.resolve(folder, includeName);
-            if (fs.existsSync(rootPath)) {
+            if (this.fileAccess.existsSync(rootPath)) {
                 try {
                     return fs.realpathSync.native(rootPath);
                 } catch {

@@ -6,6 +6,7 @@ import { ScopeViewerService } from './scopeViewerService';
 import { IScopeManager, buildFileScope } from './scopeBuilder';
 import { IScopeResolverState, resolveVariable, resolveFormula, resolveFunction, resolveAction, resolveDefinition, resolveAttribute, resolveSchema, getAllVariablesInScope, getAllFormulasInScope, getReachableChildren, getDefinitionsInScope, ResolutionContext } from './scopeResolver';
 import { ReferenceIndex } from '../symbols/referenceIndex';
+import { normalizeUri } from '../../utils/uri';
 
 export * from './types';
 export * from './scopeBuilder';
@@ -249,6 +250,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
      * Remove scopes associated with a file
      */
     public removeFileScope(uri: string): void {
+        uri = normalizeUri(uri);
         this.definitionsInScopeCache.clear();
 
         const lowerUri = uri.toLowerCase();
@@ -280,6 +282,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
 
                 this.unindexScope(fileScope);
                 this.projectScope.childScopes = this.projectScope.childScopes.filter(s => s !== fileScope);
+                this.workspaceScope.childScopes = this.workspaceScope.childScopes.filter(s => s !== fileScope);
                 this.fileMap.delete(scopeUri);
             }
         }
@@ -398,13 +401,30 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
      * Find the most specific scope at a given offset in a document
      */
     getScopeAt(uri: string, offset: number): Scope | undefined {
-        const fileScope = this.fileMap.get(uri);
+        const fileScope = this.fileMap.get(normalizeUri(uri));
         if (!fileScope) return undefined;
 
         return this.findScopeRecursive(fileScope, offset);
     }
 
     private findScopeRecursive(scope: Scope, offset: number): Scope {
+        if (scope.kind === ScopeKind.File) {
+            const sortedChildren = [...scope.childScopes]
+                .filter(c => c.range)
+                .sort((a, b) => a.range!.start - b.range!.start);
+            
+            for (let i = 0; i < sortedChildren.length; i++) {
+                const child = sortedChildren[i];
+                const start = child.range!.start;
+                const nextStart = i < sortedChildren.length - 1 ? sortedChildren[i + 1].range!.start : Infinity;
+                
+                if (offset >= start && offset < nextStart) {
+                    return this.findScopeRecursive(child, offset);
+                }
+            }
+            return scope;
+        }
+
         for (const child of scope.childScopes) {
             if (child.range && offset >= child.range.start && offset <= child.range.end) {
                 return this.findScopeRecursive(child, offset);

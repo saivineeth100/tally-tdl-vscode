@@ -12,9 +12,7 @@ export function getServerCapabilities(): ServerCapabilities {
         documentSymbolProvider: true,
         semanticTokensProvider: {
             legend: TDL_SEMANTIC_TOKENS_LEGEND,
-            full: {
-                delta: true
-            }
+            full: true
         },
         documentFormattingProvider: true,
         hoverProvider: true,

@@ -34,7 +34,8 @@ describe('Phase 3: Document Lifecycle', () => {
             graphManager,
             scanner,
             diagnostics,
-            scheduler
+            scheduler,
+            client
         );
 
         // Mock rebuild to just track calls, avoiding full AST parse in these structural tests
@@ -110,5 +111,49 @@ describe('Phase 3: Document Lifecycle', () => {
         scheduler.flush();
         
         expect(lifecycle.rebuild).not.toHaveBeenCalled();
+    });
+
+    it('verifies that edits sync the matching document and AST to the state store', async () => {
+        const rebuildSpy = vi.spyOn(lifecycle, 'rebuild');
+        rebuildSpy.mockRestore();
+
+        const uri = 'file:///test.tdl';
+        const doc1 = TextDocument.create(uri, 'tdl', 1, '[Report: MyReport]');
+        
+        // 1. Initial open
+        await lifecycle.onDidOpen(doc1);
+        
+        let docState = stateStore.getOpen(uri);
+        expect(docState).toBeDefined();
+        expect(docState?.document?.getText()).toBe('[Report: MyReport]');
+        
+        // 2. Make an edit (document version updates immediately in the editor)
+        const doc2 = TextDocument.create(uri, 'tdl', 2, '[Report: EditedReport]');
+        lifecycle.onDidChangeContent(doc2);
+        
+        // Immediately after change, the docState is updated to doc2 immediately so AST/document sync is instant
+        let immediateDocState = stateStore.getOpen(uri);
+        expect(immediateDocState?.document?.getText()).toBe('[Report: EditedReport]');
+
+        // Using DocumentContextResolver resolves the updated doc2 immediately
+        const { DocumentContextResolver } = await import('../../services/documentContextResolver');
+        const resolver = new DocumentContextResolver(
+            { get: () => doc2 } as any, // Simulate editor document store having doc2
+            stateStore,
+            graphManager
+        );
+        const resolvedCtx = resolver.resolveParsed(uri);
+        expect(resolvedCtx?.document.getText()).toBe('[Report: EditedReport]');
+        
+        // 3. Flush the debounce timer for validation
+        scheduler.flush();
+        
+        // 4. After rebuild runs, docState is verified to remain doc2
+        let updatedDocState = stateStore.getOpen(uri);
+        expect(updatedDocState).toBeDefined();
+        expect(updatedDocState?.document?.getText()).toBe('[Report: EditedReport]');
+        
+        const resolvedCtxAfterRebuild = resolver.resolveParsed(uri);
+        expect(resolvedCtxAfterRebuild?.document.getText()).toBe('[Report: EditedReport]');
     });
 });

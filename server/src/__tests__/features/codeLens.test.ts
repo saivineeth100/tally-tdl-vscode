@@ -81,12 +81,16 @@ describe('Code Lens Provider', () => {
 
         it('should resolve lens with usages type and cache the result', async () => {
             const text = `[Report: Test]`;
-            const { sourceFile, doc, scopeManager, uri } = createCodeLensContext(text);
+            const parser = new Parser(text);
+            const sourceFile = parser.parse();
+            const uri = URI.file('d:/test.txt').toString();
             const normUri = normalizeUri(uri);
+            const doc = TextDocument.create(uri, 'tdl', 1, text);
+            
+            harness.runtime.services.documentStateStore.tdlScopeManager.buildFileScope(normUri, sourceFile);
             
             harness.documents.set(uri, doc);
             harness.runtime.services.documentStateStore.setOpen(normUri, { sourceFile, diagnostics: [] } as any);
-            harness.runtime.services.documentStateStore.tdlScopeManager = scopeManager;
             
             const lens = {
                 range: { start: Position.create(0, 0), end: Position.create(0, 10) },
@@ -112,12 +116,16 @@ describe('Code Lens Provider', () => {
 
         it('should resolve lens with modifiers type', async () => {
             const text = `[Report: Test]`;
-            const { sourceFile, doc, scopeManager, uri } = createCodeLensContext(text);
+            const parser = new Parser(text);
+            const sourceFile = parser.parse();
+            const uri = URI.file('d:/test.txt').toString();
             const normUri = normalizeUri(uri);
+            const doc = TextDocument.create(uri, 'tdl', 1, text);
+            
+            harness.runtime.services.documentStateStore.tdlScopeManager.buildFileScope(normUri, sourceFile);
             
             harness.documents.set(uri, doc);
             harness.runtime.services.documentStateStore.setOpen(normUri, { sourceFile, diagnostics: [] } as any);
-            harness.runtime.services.documentStateStore.tdlScopeManager = scopeManager;
 
             const lens = {
                 range: { start: Position.create(0, 0), end: Position.create(0, 10) },

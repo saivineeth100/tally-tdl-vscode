@@ -73,7 +73,11 @@ function mapMetaTypeToToken(refersTo?: string, dataType?: string, scopeManager?:
         refersTo = normalizeTypeName(refersTo);
         // Use metadata to check if it's a valid definition type
         if (scopeManager) {
-            if (scopeManager.globalScope.attributes.has(refersTo)) {
+            if (
+                scopeManager.globalScope.attributes.has(refersTo) ||
+                scopeManager.globalScope.interchangeableTypesMap.has(refersTo) ||
+                scopeManager.definitionTypeLabels.has(refersTo)
+            ) {
                 return SemanticTokenTypes.class;
             }
         }
@@ -408,9 +412,6 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
         if (attr.name) {
             const attrNameLower = normalizeTypeName(attr.name?.text || '');
             let tokenType = SemanticTokenTypes.macro;
-            if (scopeManager && scopeManager.globalScope.attributes.has(attrNameLower)) {
-                tokenType = SemanticTokenTypes.keyword;
-            }
 
             tokens.push({
                 line: 0,

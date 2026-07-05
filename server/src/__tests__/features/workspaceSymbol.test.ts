@@ -79,7 +79,7 @@ describe('Workspace Symbols', () => {
         );
         
         expect(symbols.length).toBe(1);
-        expect(symbols[0].name).toBe('MyField');
+        expect(symbols[0].name).toBe('#field: MyField');
     });
 
     it('Type filter without query returns all of type', async () => {
@@ -97,15 +97,15 @@ describe('Workspace Symbols', () => {
         );
         
         expect(symbols.length).toBe(2);
-        expect(symbols[0].name).toBe('MyField');
-        expect(symbols[1].name).toBe('MyField2');
+        expect(symbols[0].name).toBe('#field: MyField');
+        expect(symbols[1].name).toBe('#field: MyField2');
     });
 
     it('Space separated type filter syntax', async () => {
         addSymbol('MyReport', SymbolKind.Report, 'Report');
         addSymbol('MyField', SymbolKind.Field, 'Field');
         
-        const params: WorkspaceSymbolParams = { query: 'field MyFi' };
+        const params: WorkspaceSymbolParams = { query: '#field MyFi' };
         const symbols = await getWorkspaceSymbols(
             params.query, 
             harness.runtime.services.documentStateStore, 
@@ -115,7 +115,7 @@ describe('Workspace Symbols', () => {
         );
         
         expect(symbols.length).toBe(1);
-        expect(symbols[0].name).toBe('MyField');
+        expect(symbols[0].name).toBe('#field MyField');
     });
 
     it('Empty query returns all', async () => {

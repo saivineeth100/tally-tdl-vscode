@@ -3,6 +3,8 @@ import { provideCodeActions } from '../../features/codeActions';
 import { CodeActionParams, Diagnostic, CodeActionKind, Range, DiagnosticSeverity } from 'vscode-languageserver';
 import { DiagnosticRules } from '../../diagnostics';
 import { ServerTestHarness } from '../harness/serverTestHarness';
+import { Parser } from '../../core/parser/parser';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 describe('Code Actions', () => {
     let harness: ServerTestHarness;
@@ -35,26 +37,30 @@ describe('Code Actions', () => {
         };
         scopeManager.globalScope.schemas.set('voucher', voucherSchema);
 
-        harness.runtime.documentLifecycle.openDocument({
-            uri,
-            text: tdl,
-            languageId: 'tdl',
-            version: 1
-        });
-        
         const { documentStateStore } = harness.runtime.services;
-        const { clientGateway } = harness.runtime;
+        
+        const doc = TextDocument.create(uri, 'tdl', 1, tdl);
+        harness.documents.set(uri, doc);
+        
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        
+        documentStateStore.setOpen(uri, {
+            sourceFile,
+            document: doc,
+            diagnostics: []
+        });
         
         return { 
             uri, 
             documentStateStore, 
-            documents: clientGateway.documents 
+            documents: harness.documents 
         };
     }
 
     it('QuickFix for unknown attribute suggests closest match', () => {
         const tdl = `[Report: Test]\nTitl: My Report`;
-        const { uri, documentLifecycle, documents } = setup(tdl);
+        const { uri, documentStateStore, documents } = setup(tdl);
 
         const diagnostic: Diagnostic = {
             range: Range.create(1, 0, 1, 4),
@@ -81,7 +87,7 @@ describe('Code Actions', () => {
 
     it('QuickFix for missing definition creates definition', () => {
         const tdl = `[Report: Test]\nForm: MyForm`;
-        const { uri, documentLifecycle, documents } = setup(tdl);
+        const { uri, documentStateStore, documents } = setup(tdl);
 
         const diagnostic: Diagnostic = {
             range: Range.create(1, 6, 1, 12),
@@ -108,7 +114,7 @@ describe('Code Actions', () => {
 
     it('QuickFix for broken label sequence cascades correctly', () => {
         const tdl = `[Function: MyFunc]\n10: MsgBox: "Hello"\n30: MsgBox: "World"\n40: Return`;
-        const { uri, documentLifecycle, documents } = setup(tdl);
+        const { uri, documentStateStore, documents } = setup(tdl);
 
         const doc = documents.get(uri)!;
         const offset = tdl.indexOf('30:');
@@ -142,7 +148,7 @@ describe('Code Actions', () => {
 
     it('No code actions for diagnostics without fixes', () => {
         const tdl = `[Report: Test]`;
-        const { uri, documentLifecycle, documents } = setup(tdl);
+        const { uri, documentStateStore, documents } = setup(tdl);
 
         const diagnostic: Diagnostic = {
             range: Range.create(0, 0, 0, 0),
@@ -163,7 +169,7 @@ describe('Code Actions', () => {
 
     it('QuickFix for unknown schema property suggests closest match', () => {
         const tdl = `[Voucher: Test]\nPartyLederName: "Test"`;
-        const { uri, documentLifecycle, documents } = setup(tdl);
+        const { uri, documentStateStore, documents } = setup(tdl);
 
         const diagnostic: Diagnostic = {
             range: Range.create(1, 0, 1, 14),

@@ -42,7 +42,7 @@ describe.skipIf(!hasSamples)('Parser - Full Sample File Validation', () => {
 
     it(`should have found sample files`, () => {
         expect(allTxtFiles.length).toBeGreaterThan(0);
-        // console.log(`Found ${allTxtFiles.length} TDL sample files`);
+
     });
 
     allTxtFiles.forEach(filePath => {

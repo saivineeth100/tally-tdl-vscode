@@ -4,6 +4,7 @@ import { Scope, ScopeKind} from './types';
 import { normalizeTypeName } from '../../utils/normalizeUtils';
 import { resolveModifierChain } from '../../utils/modifierUtils';
 import { STRUCTURAL_DEFINITION_TYPES } from '../../validation/validationUtils';
+import { normalizeUri } from '../../utils/uri';
 // We need to interface with ScopeManager without a circular dependency if possible,
 // or just use any/duck typing. Let's define the interface needed from ScopeManager:
 export interface IScopeManager {
@@ -32,6 +33,7 @@ export interface IScopeManager {
 }
 
 export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: SourceFile, doc?: import('vscode-languageserver-textdocument').TextDocument, parentScope?: Scope): Scope {
+    uri = normalizeUri(uri);
     // Ensure any existing file scope and global symbols are removed first
     manager.removeFileScope(uri);
 

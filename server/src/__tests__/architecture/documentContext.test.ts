@@ -11,6 +11,7 @@ import { normalizeUri } from '../../utils/uri';
 // Mock dependencies since we only need getters
 const mockStateStore = {
     get: vi.fn(),
+    getOpen: vi.fn(),
     getScopeManager: vi.fn()
 } as any;
 

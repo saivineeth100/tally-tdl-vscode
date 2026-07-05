@@ -1,33 +1,41 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Parser } from '../../core/parser/parser';
 import { validateSourceFile } from '../../validation';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { DiagnosticSeverity } from 'vscode-languageserver';
-import { normalizeTypeName } from '../../utils/normalizeUtils';
 import { DiagnosticRules } from '../../diagnostics';
 import { ScopeKind } from '../../semantics/scopeManager';
-import { ScopeManager } from '../../semantics/scopeManager';
 import { SymbolKind } from 'tally-tdl-shared';
+import { ServerTestHarness } from '../harness/serverTestHarness';
 
 describe('Definition Validation (Mocked)', () => {
-    // Mock ScopeManager
-        const mockScopeManager = new ScopeManager();
-    
-    // Add existing definitions directly to the scope manager
-    mockScopeManager.globalScope.definitions = new Map([
-        ['report', new Map([['balancesheet', { name: 'balancesheet', kind: 0, uri: '', start: 0, end: 0, definitionType: 'report' } as any], ['trialbalance', { name: 'trialbalance', kind: 0, uri: '', start: 0, end: 0, definitionType: 'report' } as any]])],
-        ['field', new Map([['name', { name: 'name', kind: 0, uri: '', start: 0, end: 0, definitionType: 'field' } as any], ['amount', { name: 'amount', kind: 0, uri: '', start: 0, end: 0, definitionType: 'field' } as any]])],
-        ['menu', new Map()],
-        ['form', new Map()]
-    ]);
+    let harness: ServerTestHarness;
+    let mockScopeManager: any;
 
-    // Mock definitions map for attributes using attributes map in globalScope
-    const reportAttrs = new Map<string, any>();
-    reportAttrs.set('use', {
-        name: 'Use',
-        parameters: [{ RefersTo: 'Report' }]
+    beforeEach(() => {
+        harness = new ServerTestHarness();
+        mockScopeManager = harness.runtime.services.documentStateStore.tdlScopeManager;
+        
+        // Add existing definitions directly to the scope manager
+        mockScopeManager.globalScope.definitions = new Map([
+            ['report', new Map([['balancesheet', { name: 'balancesheet', kind: 0, uri: '', start: 0, end: 0, definitionType: 'report' } as any], ['trialbalance', { name: 'trialbalance', kind: 0, uri: '', start: 0, end: 0, definitionType: 'report' } as any]])],
+            ['field', new Map([['name', { name: 'name', kind: 0, uri: '', start: 0, end: 0, definitionType: 'field' } as any], ['amount', { name: 'amount', kind: 0, uri: '', start: 0, end: 0, definitionType: 'field' } as any]])],
+            ['menu', new Map()],
+            ['form', new Map()]
+        ]);
+
+        // Mock definitions map for attributes using attributes map in globalScope
+        const reportAttrs = new Map<string, any>();
+        reportAttrs.set('use', {
+            name: 'Use',
+            parameters: [{ RefersTo: 'Report' }]
+        });
+        mockScopeManager.globalScope.attributes.set('report', reportAttrs);
     });
-    mockScopeManager.globalScope.attributes.set('report', reportAttrs);
+
+    afterEach(() => {
+        harness.dispose();
+    });
 
     it('should detect duplicate Report definition', async () => {
         const tdl = `[Report: Balance Sheet]`;
@@ -125,12 +133,10 @@ describe('Definition Validation (Mocked)', () => {
         const sourceFile = parser.parse();
         const doc = TextDocument.create('file:///main.tdl', 'tally', 1, tdl);
 
-        const mockDocManager = {
-            hasCircularIncludes: () => true,
-            getProjectNodes: () => new Set<string>()
-        } as any;
+        vi.spyOn(harness.runtime.services.includeGraphManager, 'hasCircularIncludes').mockReturnValue(true);
+        vi.spyOn(harness.runtime.services.includeGraphManager, 'getProjectNodes').mockReturnValue(new Set<string>());
 
-        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager, undefined, mockDocManager);
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager, undefined, harness.runtime.services.includeGraphManager);
         const error = diagnostics.find(d => d.code === DiagnosticRules.CircularInclude.code);
         expect(error).toBeDefined();
         expect(error?.severity).toBe(DiagnosticSeverity.Error);
@@ -143,16 +149,14 @@ describe('Definition Validation (Mocked)', () => {
         const sourceFile = parser.parse();
         const doc = TextDocument.create('file:///main.tdl', 'tally', 1, tdl);
 
-        const mockDocManager = {
-            hasCircularIncludes: () => false,
-            getProjectNodes: () => new Set<string>(['file:///main.tdl'])
-        } as any;
+        vi.spyOn(harness.runtime.services.includeGraphManager, 'hasCircularIncludes').mockReturnValue(false);
+        vi.spyOn(harness.runtime.services.includeGraphManager, 'getProjectNodes').mockReturnValue(new Set<string>(['file:///main.tdl']));
 
         let typeMap = mockScopeManager.scopeIndex.get('report');
         if (!typeMap) { typeMap = new Map(); mockScopeManager.scopeIndex.set('report', typeMap); }
         typeMap.set('otherreport', [{ kind: ScopeKind.Definition, definition: { name: 'OtherReport', definitionType: 'Report', kind: SymbolKind.Report, uri: 'file:///unlinked.tdl' } }] as any);
 
-        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager, undefined, mockDocManager);
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager, undefined, harness.runtime.services.includeGraphManager);
         const warning = diagnostics.find(d => d.message.includes('not included in the project'));
         expect(warning).toBeDefined();
         expect(warning?.severity).toBe(DiagnosticSeverity.Warning);

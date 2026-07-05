@@ -42,7 +42,7 @@ describe('Workspace scan and Folder cleanup', () => {
             ]);
 
             const indexFileSpy = vi.spyOn(harness.runtime.services.workspaceScanner, 'indexFile');
-            await harness.runtime.services.workspaceScanner.scanFolder(URI.file(folderPath).toString());
+            await (harness.runtime.services.workspaceScanner as any)['scanFolder'](URI.file(folderPath).toString());
 
             expect(indexFileSpy).toHaveBeenCalledTimes(2);
             expect(indexFileSpy).toHaveBeenCalledWith(path.join(folderPath, 'standalone.tdl'), expect.any(Set), true, false, false);
@@ -66,7 +66,7 @@ describe('Workspace scan and Folder cleanup', () => {
             harness.files.files.set(harness.files.canonicalize(refPath), ``);
             
             const indexFileSpy = vi.spyOn(harness.runtime.services.workspaceScanner, 'indexFile');
-            await harness.runtime.services.workspaceScanner.scanFolder(URI.file(folderPath).toString());
+            await (harness.runtime.services.workspaceScanner as any)['scanFolder'](URI.file(folderPath).toString());
             
             expect(indexFileSpy).toHaveBeenCalledTimes(1);
             expect(indexFileSpy).toHaveBeenCalledWith(path.join(folderPath, 'referenced.tdl'), expect.any(Set), true, false, true);
@@ -123,7 +123,7 @@ describe('Workspace scan and Folder cleanup', () => {
             });
             const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
-            harness.runtime.services.workspaceScanner.hasInitialScanStarted = true;
+            (harness.runtime.services.workspaceScanner as any)['hasInitialScanStarted'] = true;
             await expect(harness.runtime.services.workspaceScanner.revalidateAll([])).resolves.not.toThrow();
             
             expect(indexFileSpy).toHaveBeenCalledTimes(2);

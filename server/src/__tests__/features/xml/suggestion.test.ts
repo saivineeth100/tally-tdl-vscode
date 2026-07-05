@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { testScopeManager, ensureBaseTdlLoaded } from '../../../__tests__/test-setup';
-import { ServerTestHarness } from '../harness/serverTestHarness';
+import { ServerTestHarness } from '../../harness/serverTestHarness';
 import { URI } from 'vscode-uri';
 
 describe('XML Suggestions Tests', () => {
@@ -13,9 +13,8 @@ describe('XML Suggestions Tests', () => {
 
     beforeEach(() => {
         harness = new ServerTestHarness();
-        // Use testScopeManager with loaded definition schemas
-        harness.runtime.services.documentStateStore.tdlScopeManager = testScopeManager;
-        harness.runtime.services.documentStateStore.xmlScopeManager = testScopeManager;
+        harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+        harness.runtime.services.documentStateStore.xmlScopeManager.globalScope = testScopeManager!.globalScope;
     });
 
     it('returns correct XML definition_type suggestion', async () => {
@@ -102,19 +101,16 @@ describe('XML Suggestions Tests', () => {
         // Offset inside "S|"
         const offset = xmlContent.indexOf('"S') + 2;
         
-        let typeMap = testScopeManager.scopeIndex.get('form');
-        if (!typeMap) { typeMap = new Map(); testScopeManager.scopeIndex.set('form', typeMap); }
-        typeMap.set('simpletrialbalance', [{
-            kind: 1, // ScopeKind.Definition
-            definition: {
-                name: 'Simple Trial Balance',
-                kind: 1,
-                definitionType: 'Form',
-                uri: 'test://other.xml',
-                start: 0,
-                end: 10
-            }
-        }] as any);
+        let definitionsMap = testScopeManager!.globalScope.definitions.get('form');
+        if (!definitionsMap) { definitionsMap = new Map(); testScopeManager!.globalScope.definitions.set('form', definitionsMap); }
+        definitionsMap.set('simpletrialbalance', {
+            name: 'Simple Trial Balance',
+            kind: 1, // Form
+            definitionType: 'Form',
+            uri: 'test://other.xml',
+            start: 0,
+            end: 10
+        } as any);
 
         harness.documents.set(doc.uri, doc);
         harness.runtime.services.documentStateStore.setOpen(doc.uri, { sourceFile: { definitions: [], errors: [] } } as any);
@@ -138,19 +134,16 @@ describe('XML Suggestions Tests', () => {
         // Offset inside "Simp|"
         const offset = xmlContent.indexOf('"Simp') + 5; 
         
-        let typeMap2 = testScopeManager.scopeIndex.get('form');
-        if (!typeMap2) { typeMap2 = new Map(); testScopeManager.scopeIndex.set('form', typeMap2); }
-        typeMap2.set('simpletrialbalance', [{
-            kind: 1, // ScopeKind.Definition
-            definition: {
-                name: 'Simple Trial Balance',
-                kind: 1,
-                definitionType: 'Form',
-                uri: 'test://other.xml',
-                start: 0,
-                end: 10
-            }
-        }] as any);
+        let definitionsMap2 = testScopeManager!.globalScope.definitions.get('form');
+        if (!definitionsMap2) { definitionsMap2 = new Map(); testScopeManager!.globalScope.definitions.set('form', definitionsMap2); }
+        definitionsMap2.set('simpletrialbalance', {
+            name: 'Simple Trial Balance',
+            kind: 1, // Form
+            definitionType: 'Form',
+            uri: 'test://other.xml',
+            start: 0,
+            end: 10
+        } as any);
 
         harness.documents.set(doc.uri, doc);
         harness.runtime.services.documentStateStore.setOpen(doc.uri, { sourceFile: { definitions: [], errors: [] } } as any);

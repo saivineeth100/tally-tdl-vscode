@@ -5,11 +5,15 @@ import { FileAccess, FileStat } from '../ports/fileAccess';
 export class NodeFileAccess implements FileAccess {
     async exists(filePath: string): Promise<boolean> {
         try {
-            await fs.promises.access(filePath);
+            await fs.promises.access(filePath, fs.constants.F_OK);
             return true;
         } catch {
             return false;
         }
+    }
+
+    existsSync(filePath: string): boolean {
+        return fs.existsSync(filePath);
     }
 
     async readFile(filePath: string, encoding: string = 'utf-8'): Promise<string> {

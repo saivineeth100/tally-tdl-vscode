@@ -360,9 +360,10 @@ export class WorkspaceScanner {
                 content = await this.fileAccess.readFile(filePath, 'utf-8');
             } else {
                 this.fileTimestamps.set(uri, stat.mtimeMs);
-                content = await this.fileAccess.readFile(filePath, 'utf-8'); // TDL encoding resolution is handled in legacy readFile, but for indexing we may need utf16 support here too.
+                content = await this.fileAccess.readFile(filePath, 'utf-8'); // FileAccess handles UTF-16LE BOM detection automatically
                 
-                // Yield to event loop
+                // Yield to event loop right before heavy CPU work (AST parsing)
+                // This prevents event loop starvation/blocking and keeps the LSP responsive
                 await new Promise(resolve => setImmediate(resolve));
                 
                 const scopeMgr = this.stateStore.getScopeManager(uri);

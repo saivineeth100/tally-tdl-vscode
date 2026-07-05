@@ -43,9 +43,7 @@ exports[`Runtime and Capabilities > returns the expected stable capabilities 1`]
     "prepareProvider": true,
   },
   "semanticTokensProvider": {
-    "full": {
-      "delta": true,
-    },
+    "full": true,
     "legend": {
       "tokenModifiers": [],
       "tokenTypes": [

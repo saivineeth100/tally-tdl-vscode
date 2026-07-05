@@ -18,7 +18,7 @@ export function createServerRuntime(dependencies: ServerRuntimeDependencies): Se
     const graphManager = new IncludeGraphManager(stateStore, dependencies.client);
     
     // We instantiate WorkspaceLifecycleService early to get resolveIncludePath
-    const workspaceLifecycleService = new WorkspaceLifecycleService(dependencies.client, stateStore);
+    const workspaceLifecycleService = new WorkspaceLifecycleService(dependencies.client, stateStore, dependencies.files);
     
     // Wire up the circular dependencies for include resolution
     graphManager.resolveIncludePath = workspaceLifecycleService.resolveIncludePath.bind(workspaceLifecycleService);
@@ -40,6 +40,7 @@ export function createServerRuntime(dependencies: ServerRuntimeDependencies): Se
         workspaceScanner, 
         dependencies.diagnostics, 
         dependencies.scheduler, 
+        dependencies.client,
         workspaceLifecycleService.resolveIncludePath.bind(workspaceLifecycleService),
         documentLoader
     );

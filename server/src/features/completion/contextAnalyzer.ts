@@ -391,6 +391,18 @@ export function detectXmlCompletionContext(xmlText: string, offset: number, curr
     if (lastOpenIdx > lastCloseIdx) {
         // Inside a tag declaration
         const tagText = textBefore.slice(lastOpenIdx + 1);
+
+        // Check if cursor is inside NAME attribute
+        const nameAttrMatch = tagText.match(/\bNAME\s*=\s*["']([^"']*)$/i);
+        if (nameAttrMatch) {
+            const tagName = tagText.split(/\s+/)[0];
+            return {
+                type: 'definition_name',
+                partial: nameAttrMatch[1],
+                hasModifier: false,
+                defType: tagName
+            };
+        }
         
         // Find parent tag path
         let searchIdx = lastOpenIdx;

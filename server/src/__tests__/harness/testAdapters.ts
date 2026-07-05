@@ -68,7 +68,15 @@ export class MockDiagnosticPublisher implements DiagnosticPublisher {
 export class InMemoryFileAccess implements FileAccess {
     public files = new Map<string, string>();
 
+    set(filePath: string, content: string) {
+        this.files.set(this.canonicalize(filePath), content);
+    }
+
     async exists(filePath: string): Promise<boolean> {
+        return this.existsSync(filePath);
+    }
+
+    existsSync(filePath: string): boolean {
         return this.files.has(this.canonicalize(filePath));
     }
 

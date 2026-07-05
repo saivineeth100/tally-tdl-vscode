@@ -28,6 +28,7 @@ export class DocumentLifecycleService {
         private scanner: WorkspaceScanner,
         private diagnosticPublisher: DiagnosticPublisher,
         private scheduler: Scheduler,
+        private client: import('../ports/clientGateway').ClientGateway,
         private resolveIncludePath?: (currentPath: string, name: string) => string | null,
         private documentLoader?: import('./documentLoader').DocumentLoader
     ) {}
@@ -41,6 +42,10 @@ export class DocumentLifecycleService {
 
     public onDidChangeContent(document: TextDocument): void {
         const uri = document.uri;
+        
+        // Immediately parse and update AST/Scope so that coordinates are always in sync for other LSP requests
+        this.updateAstAndScope(document);
+
         const existing = this.rebuildTimers.get(uri);
         if (existing) this.scheduler.clearTimeout(existing);
         
@@ -67,6 +72,11 @@ export class DocumentLifecycleService {
     }
 
     public async rebuild(doc: TextDocument): Promise<void> {
+        this.updateAstAndScope(doc);
+        await this.validateAndPublish(doc);
+    }
+
+    public updateAstAndScope(doc: TextDocument): void {
         const t0 = Date.now();
         let sourceFile: SourceFile;
         const text = doc.getText();
@@ -95,20 +105,8 @@ export class DocumentLifecycleService {
         }
         const t1 = Date.now();
 
-        const diagnostics: Diagnostic[] = sourceFile.errors.map(error => {
-            const startPos = doc.positionAt(error.start);
-            const endPos = doc.positionAt(error.end);
-            return {
-                severity: DiagnosticSeverity.Error,
-                range: { start: startPos, end: endPos },
-                message: error.message,
-                code: error.code,
-                source: 'tdl'
-            };
-        });
-
         // Ensure it is in docs before we check isUriActive so it correctly identifies as an open document
-        this.stateStore.setOpen(normUri, { sourceFile, diagnostics: [], document: doc });
+        this.stateStore.setOpen(normUri, { sourceFile, diagnostics: oldDocState?.diagnostics || [], document: doc });
 
         const isActive = this.graphManager.isUriActive(normUri);
         scopeMgr.buildFileScope(normUri, sourceFile, !isActive);
@@ -118,6 +116,19 @@ export class DocumentLifecycleService {
             scopeMgr.projectScope.referenceIndex.indexFile(normUri, sourceFile);
         }
         const t2 = Date.now();
+        logger.trace(`[Perf] updateAstAndScope ${path.basename(doc.uri)}: Total=${t2-t0}ms (Parse=${t1-t0}ms, Sym/Scope=${t2-t1}ms)`);
+    }
+
+    public async validateAndPublish(doc: TextDocument): Promise<void> {
+        const t2 = Date.now();
+        const normUri = normalizeUri(doc.uri);
+        const docState = this.stateStore.getOpen(normUri);
+        if (!docState) return;
+
+        const sourceFile = docState.sourceFile;
+        const scopeMgr = this.stateStore.getScopeManager(normUri);
+        const isXml = doc.languageId === 'xml';
+        const isActive = this.graphManager.isUriActive(normUri);
 
         const oldIncludes = this.graphManager.includeGraph.get(normUri) || new Set<string>();
         const includes = this.graphManager.updateIncludeGraph(normUri, sourceFile);
@@ -132,6 +143,19 @@ export class DocumentLifecycleService {
         }
 
         const t3 = Date.now();
+        
+        const diagnostics: Diagnostic[] = sourceFile.errors.map(error => {
+            const startPos = doc.positionAt(error.start);
+            const endPos = doc.positionAt(error.end);
+            return {
+                severity: DiagnosticSeverity.Error,
+                range: { start: startPos, end: endPos },
+                message: error.message,
+                code: error.code,
+                source: 'tdl'
+            };
+        });
+
         if (!this.scanner.scanningInProgress && this.stateStore.isMetadataLoaded) {
             diagnostics.push(...(await validateSourceFile(sourceFile, doc, diagnostics, scopeMgr, this.resolveIncludePath, this.graphManager)));
         }
@@ -141,12 +165,18 @@ export class DocumentLifecycleService {
             diagnostics.length = 0;
         }
         this.stateStore.setOpen(normUri, { sourceFile, diagnostics, document: doc });
+        
+        // Ensure parent scope pointers are up-to-date across all files if the include graph changed
+        this.graphManager.notifyActiveUrisChanged();
 
         const finalDiagnostics = this.filterDiagnostics(diagnostics);
 
         this.diagnosticPublisher.publish(doc.uri, finalDiagnostics);
         
-        logger.trace(`[Perf] rebuild ${path.basename(doc.uri)}: Total=${t4-t0}ms (Parse=${t1-t0}ms, Sym/Scope=${t2-t1}ms, Includes=${t3-t2}ms, Validate=${t4-t3}ms)`);
+        // Refresh semantic tokens now that the rebuilt AST is fully resolved and stored
+        this.client.refreshSemanticTokens();
+        
+        logger.trace(`[Perf] validateAndPublish ${path.basename(doc.uri)}: Total=${t4-t2}ms (Includes=${t3-t2}ms, Validate=${t4-t3}ms)`);
     }
 
     private filterDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {

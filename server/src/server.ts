@@ -40,6 +40,11 @@ const dependencies: ServerRuntimeDependencies = {
 // Compose the runtime
 const runtime = createServerRuntime(dependencies);
 
+// Wire up document lifecycle events
+docs.onDidOpen((e) => runtime.documentLifecycle.onDidOpen(e.document));
+docs.onDidChangeContent((e) => runtime.documentLifecycle.onDidChangeContent(e.document));
+docs.onDidClose((e) => runtime.documentLifecycle.onDidClose(e.document));
+
 // Register all LSP handlers
 registerLspHandlers(connection, runtime);
 

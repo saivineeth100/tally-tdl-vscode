@@ -1,24 +1,21 @@
-import { describe, it, expect, vi } from 'vitest';
-import { ScopeManager } from '../../../src/semantics/scopeManager';
-import { DocumentStateStore } from '../../services/documentStateStore';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SymbolKind } from 'tally-tdl-shared';
-import { ScopeKind } from '../../../src/semantics/scopeManager/types';
-import { TextDocuments, TextDocument } from 'vscode-languageserver';
+import { ScopeKind } from '../../semantics/scopeManager/types';
+import { ServerTestHarness } from '../harness/serverTestHarness';
 
 describe('onDefinition Multiple (Duplicates and Modifiers)', () => {
+    let harness: ServerTestHarness;
+
+    beforeEach(() => {
+        harness = new ServerTestHarness();
+    });
+
+    afterEach(() => {
+        harness.dispose();
+    });
+
     it('should return multiple definition locations when resolving duplicates and modifiers', () => {
-        // Mock a DocManager to intercept getScopeManager
-        const mockDocuments = {
-            onDidOpen: vi.fn(),
-            onDidChangeContent: vi.fn(),
-            onDidClose: vi.fn(),
-            get: vi.fn(),
-            all: vi.fn().mockReturnValue([]),
-            keys: vi.fn().mockReturnValue([])
-        } as unknown as TextDocuments<TextDocument>;
-        
-        const docManager = new DocumentStateStore();
-        const scopeMgr = docManager.tdlScopeManager;
+        const scopeMgr = harness.runtime.services.documentStateStore.tdlScopeManager;
 
         // Add 2 duplicate base definitions for Report 'MyReport'
         scopeMgr.scopeIndex.set('report', new Map([
@@ -64,7 +61,7 @@ describe('onDefinition Multiple (Duplicates and Modifiers)', () => {
         }
 
         // 2. Resolve Modifiers
-        const mods = scopeMgr.modifierContributions.get(`${ref.expectedType.toLowerCase()}|${ref.name.toLowerCase().replace(/\s+/g, '')}`);
+        const mods = scopeMgr.modifierContributions.get(`${ref.expectedType.toLowerCase()}|${ref.name.toLowerCase().replace(/\\s+/g, '')}`);
         if (mods) {
             for (const mod of mods) {
                 locations.push({

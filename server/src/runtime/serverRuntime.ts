@@ -30,7 +30,7 @@ export interface ServerRuntime {
     completion: CompletionService;
     navigation: NavigationService;
     documentFeatures: ReturnType<typeof createDocumentFeatures>;
-    documentLifecycle?: DocumentLifecycleService;
+    documentLifecycle: DocumentLifecycleService;
     workspaceLifecycle: WorkspaceLifecycleService;
     customRequests: CustomRequestsService;
     

@@ -94,7 +94,7 @@ Use: BaseReport
         
         expect(edit).toBeDefined();
         expect(edit?.changes).toBeDefined();
-        console.log("RENAME EDITS:", JSON.stringify(edit?.changes, null, 2));
+
         if (edit?.changes) {
             const edits = edit.changes[targetUri];
             expect(edits.length).toBe(2);

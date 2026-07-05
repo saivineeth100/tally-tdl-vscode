@@ -260,7 +260,7 @@ describe('Definition Service - Modifier References', () => {
             const contributions = manager.modifierContributions.get('report:basereport');
             expect(contributions).toBeDefined();
             expect(contributions?.length).toBe(1);
-            expect(contributions![0].uri).toBe('file://B.tdl');
+            expect(contributions![0].uri).toBe('file:///B.tdl');
 
             // Verify inheritance resolving
             const resolvedBaseVar = resolveVariable(manager, 'BaseVar', baseScope!);

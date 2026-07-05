@@ -98,7 +98,7 @@ export class CompletionService {
                     const lowerType = context.defType.toLowerCase();
                     if (lowerType === 'include' || lowerType === 'import') {
                         items.push(...(await provideFilePathCompletions(params.textDocument.uri, context.partial, this.getWorkspaceFolders())));
-                    } else if (context.hasModifier || context.isInUse) {
+                    } else if (context.hasModifier || context.isInUse || isXml) {
                         items.push(...getSuggestionsForDefinitionType(context.defType, context.partial, scopeManager, true));
                     }
                 }

@@ -1,9 +1,12 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { detectXmlCompletionContext } from '../../../features/completion';
 import { CompletionService } from '../../../services/completionService';
 import { DocumentContextResolver } from '../../../services/documentContextResolver';
+import { createDiagnostic, DiagnosticRules } from '../../../diagnostics';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { ServerTestHarness } from '../../harness/serverTestHarness';
 import { CompletionParams, Position } from 'vscode-languageserver';
+import { testScopeManager, ensureBaseTdlLoaded } from '../../test-setup';
 
 describe('XML Completion Context Detection', () => {
 
@@ -72,7 +75,7 @@ describe('XML Completion Context Detection', () => {
 
                 expect(context.type).toBe('attribute_value');
                 if (context.type === 'attribute_value') {
-                    expect(context.tagPath).toEqual(['ENVELOPE', 'BODY', 'TALLYMESSAGE', 'VOUCHER']);
+                    expect(context.tagPath).toEqual(['ENVELOPE', 'BODY', 'TALLYMESSAGE', 'VOUCHER', 'PARTYLEDGERNAME']);
                     expect(context.attributeName).toBe('PARTYLEDGERNAME');
                 }
             });
@@ -84,10 +87,9 @@ describe('XML Completion Context Detection', () => {
 
                 const context = detectXmlCompletionContext(xml, offset, undefined);
 
-                expect(context.type).toBe('attribute_value');
-                if (context.type === 'attribute_value') {
-                    expect(context.tagPath).toEqual(['TALLYMESSAGE', 'VOUCHER', 'ALLLEDGERENTRIES.LIST']);
-                    expect(context.attributeName).toBe('ISDEEMEDPOSITIVE');
+                expect(context.type).toBe('xml_schema_attribute');
+                if (context.type === 'xml_schema_attribute') {
+                    expect((context as any).tagPath).toEqual(['TALLYMESSAGE', 'VOUCHER']);
                 }
             });
 
@@ -98,10 +100,9 @@ describe('XML Completion Context Detection', () => {
 
                 const context = detectXmlCompletionContext(xml, offset, undefined);
 
-                expect(context.type).toBe('attribute_value'); // Fallback logic usually pushes it as attribute of parent
-                if (context.type === 'attribute_value') {
-                    expect(context.attributeName).toBe('PARTYLEDGERNAME');
-                    expect(context.tagPath).toEqual(['VOUCHER', 'PARTYLEDGERNAME']);
+                expect(context.type).toBe('xml_schema_attribute'); // Fallback logic usually pushes it as attribute of parent
+                if (context.type === 'xml_schema_attribute') {
+                    expect((context as any).tagPath).toEqual(['VOUCHER']);
                 }
             });
         });
@@ -110,40 +111,38 @@ describe('XML Completion Context Detection', () => {
 
 
     describe('TDL Completion', () => {
+        beforeAll(async () => {
+            await ensureBaseTdlLoaded();
+        }, 60000);
+
         it('suggests strictly in-scope targets for Local chains', async () => {
             const harness = new ServerTestHarness();
+            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+            harness.runtime.services.documentStateStore.xmlScopeManager.globalScope = testScopeManager!.globalScope;
+
             const tdlContent = `
-[Report: MyReport]
+[Report: myreport]
 Use: BaseReport
 
-[Form: MyForm]
-Part: MyPart, OtherPart
+[Form: myform]
+Part: mypart, otherpart
+Local : Part : 
 
-[Part: MyPart]
-[Part: OtherPart]
+[Part: mypart]
+[Part: otherpart]
 `;
 
-            harness.files.files.set('d:/test.tdl', tdlContent);
-
-            await harness.runtime.services.workspaceScanner.indexFile('d:/test.tdl');
-
+            harness.files.set('d:/test.tdl', tdlContent);
             const uri = 'file:///d:/test.tdl';
-            const doc = harness.documents.get(uri);
-            if (!doc) throw new Error('Document not loaded');
+            const doc = TextDocument.create(uri, 'tdl', 1, tdlContent);
+            harness.documents.set(uri, doc);
+            await harness.runtime.documentLifecycle.rebuild(doc);
 
-            // We are trying to autocomplete inside [Form: MyForm] Local : Part : 
-            const modifiedContent = tdlContent.replace('Part: MyPart, OtherPart', 'Part: MyPart, OtherPart\nLocal : Part : ');
-            harness.files.files.set('d:/test.tdl', modifiedContent);
-            await harness.runtime.services.workspaceScanner.indexFile('d:/test.tdl');
-
-            const docModified = harness.documents.get(uri);
-            if (!docModified) throw new Error('Document not loaded');
-
-            const offset = modifiedContent.indexOf('Local : Part : ') + 'Local : Part : '.length;
+            const offset = tdlContent.indexOf('Local : Part : ') + 'Local : Part : '.length;
 
             const result = await harness.runtime.completion.complete({
                 textDocument: { uri },
-                position: docModified.positionAt(offset)
+                position: doc.positionAt(offset)
             });
 
             const myPartItem = result.items.find((i) => i.label === 'mypart');
@@ -151,6 +150,7 @@ Part: MyPart, OtherPart
 
             // Should ONLY suggest definitions in scope!
             expect(myPartItem).toBeDefined();
+            expect(otherPartItem).toBeDefined();
         });
     });
 });

@@ -99,15 +99,36 @@ export class IncludeGraphManager {
 
     public isUriActive(targetUri: string): boolean {
         const normUri = normalizeUri(targetUri);
-        const fileScope = this.stateStore.tdlScopeManager.fileMap.get(normUri);
-        if (fileScope) {
-            return fileScope.parent === this.stateStore.tdlScopeManager.projectScope;
-        }
-        
-        if (this.tpjFiles.size > 0) {
-            return this.tpjFiles.has(normUri);
-        }
-        return this.stateStore.getOpen(normUri) !== undefined;
+        const visited = new Set<string>();
+
+        const checkActive = (uri: string): boolean => {
+            if (visited.has(uri)) return false;
+            visited.add(uri);
+
+            // 1. If the file itself is open, it's active
+            if (this.stateStore.getOpen(uri) !== undefined) {
+                return true;
+            }
+
+            // 2. If it's a root project file (.tpj), it's active
+            if (this.tpjFiles.has(uri)) {
+                return true;
+            }
+
+            // 3. Recursively check parents in the include graph
+            const parents = this.parentGraph.get(uri);
+            if (parents) {
+                for (const parent of parents) {
+                    if (checkActive(parent)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        };
+
+        return checkActive(normUri);
     }
 
     public getProjectNodes(targetUri: string): Set<string> {
@@ -158,12 +179,16 @@ export class IncludeGraphManager {
         const activeUris: string[] = [];
         
         for (const [uri, scope] of this.stateStore.tdlScopeManager.fileMap.entries()) {
-            if (scope.parent === this.stateStore.tdlScopeManager.projectScope) {
+            const isActive = this.isUriActive(uri);
+            scope.parent = isActive ? this.stateStore.tdlScopeManager.projectScope : this.stateStore.tdlScopeManager.workspaceScope;
+            if (isActive) {
                 activeUris.push(uri);
             }
         }
         for (const [uri, scope] of this.stateStore.xmlScopeManager.fileMap.entries()) {
-            if (scope.parent === this.stateStore.xmlScopeManager.projectScope) {
+            const isActive = this.isUriActive(uri);
+            scope.parent = isActive ? this.stateStore.xmlScopeManager.projectScope : this.stateStore.xmlScopeManager.workspaceScope;
+            if (isActive) {
                 activeUris.push(uri);
             }
         }
