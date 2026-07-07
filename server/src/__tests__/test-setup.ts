@@ -40,8 +40,8 @@ beforeAll(async () => {
         
         testScopeManager = new ScopeManager();
         
-        // Pass true to rebuild metadata from JSON directly so that our metadata enhancements are active
-        await loadMetadata(metadataPath, "7.0", testScopeManager, true, false);
+        // Pass false so that it loads the metadata from the downloaded binary cache
+        await loadMetadata(metadataPath, "7.0", testScopeManager, false, false);
     } catch (error) {
         console.error('Test Setup Error:', error);
     }

@@ -28,3 +28,5 @@ verify_hover.ts
 node_modules/**
 coverage/
 server/coverage/
+samples/**
+.tmp/**

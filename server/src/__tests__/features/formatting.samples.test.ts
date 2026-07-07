@@ -15,7 +15,7 @@ describe('Document Formatting - Real Samples', () => {
         trimFinalNewlines: true
     };
 
-    const samplesDir = "c:/Program Files/TallyPrimeDeveloper_6/Samples";
+    const samplesDir = path.resolve(process.env.TDL_SAMPLES_DIR || "c:/Program Files/TallyPrimeDeveloper_6/Samples");
     const samplesTxtPath = path.join(samplesDir, "Samples.txt");
 
     it('should format Samples.txt without crashing and preserving structure', () => {

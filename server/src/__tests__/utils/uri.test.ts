@@ -3,7 +3,9 @@ import { normalizeUri } from '../../utils/uri';
 import { URI } from 'vscode-uri';
 
 describe('URI Normalization', () => {
-    it('should normalize drive letters to ensure standard VS Code URI format', () => {
+    const isWindows = process.platform === 'win32';
+
+    it.runIf(isWindows)('should normalize drive letters to ensure standard VS Code URI format', () => {
         const uri1 = 'file:///C:/Program%20Files/file.tdl';
         const norm1 = normalizeUri(uri1);
         
@@ -11,7 +13,7 @@ describe('URI Normalization', () => {
         expect(norm1).toBe(URI.file('C:\\Program Files\\file.tdl').toString());
     });
 
-    it('should handle URIs that are already normalized gracefully', () => {
+    it.runIf(isWindows)('should handle URIs that are already normalized gracefully', () => {
         const expected = URI.file('c:\\test\\my_file.tdl').toString();
         expect(normalizeUri(expected)).toBe(expected);
     });

@@ -8,7 +8,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { testScopeManager } from '../../../__tests__/test-setup';
 
 const samplesPath = 'c:/Program Files/TallyPrimeDeveloper_7/Samples';
-const SAMPLES_DIR = process.env.TDL_SAMPLES_DIR || samplesPath
+const SAMPLES_DIR = path.resolve(process.env.TDL_SAMPLES_DIR || samplesPath);
 const hasSamples = fs.existsSync(SAMPLES_DIR);
 
 /**

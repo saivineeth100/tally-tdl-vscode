@@ -121,6 +121,8 @@ describe('Workspace scan and Folder cleanup', () => {
             harness.runtime.services.includeGraphManager.tpjFiles.add(uri2);
             harness.runtime.services.includeGraphManager.includeGraph.set(uri1, new Set());
             harness.runtime.services.includeGraphManager.includeGraph.set(uri2, new Set());
+            harness.runtime.services.documentStateStore.setIndexed(uri1, {} as any);
+            harness.runtime.services.documentStateStore.setIndexed(uri2, {} as any);
             
             // Mock indexFile to throw for deleted.tdl to simulate ENOENT
             const indexFileSpy = vi.spyOn(harness.runtime.services.workspaceScanner, 'indexFile').mockImplementation(async (fsPath: any) => {

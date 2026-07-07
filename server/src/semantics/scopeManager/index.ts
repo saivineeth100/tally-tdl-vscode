@@ -51,6 +51,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
 
     // Performance cache for getDefinitionsInScope
     public definitionsInScopeCache = new Map<string, import('tally-tdl-shared').SymbolInfo[]>();
+    public isBulkRevalidating = false;
 
     /** URI -> Set of graph relationship keys contributed by that URI */
     public uriGraphContributions = new Map<string, {
@@ -261,7 +262,9 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
      */
     public removeFileScope(uri: string): void {
         uri = normalizeUri(uri);
-        this.definitionsInScopeCache.clear();
+        if (!this.isBulkRevalidating) {
+            this.definitionsInScopeCache.clear();
+        }
 
         const lowerUri = uri.toLowerCase();
         let fileScopeKeysToRemove: string[] = [];

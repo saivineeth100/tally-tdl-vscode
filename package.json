@@ -329,7 +329,8 @@
         "typecheck": "tsc -b",
         "lint": "eslint .",
         "test": "vitest run",
-        "package:vsix": "npx @vscode/vsce package --no-dependencies"
+        "package:vsix": "npx @vscode/vsce package --no-dependencies",
+        "download-cache": "node scripts/download-cache.js"
     },
     "devDependencies": {
         "@types/mocha": "^10.0.6",

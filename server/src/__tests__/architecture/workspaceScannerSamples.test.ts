@@ -4,8 +4,10 @@ import { NodeFileAccess } from '../../adapters/nodeFileAccess';
 import * as fs from 'fs';
 import { URI } from 'vscode-uri';
 
+import * as path from 'path';
+
 const samplesPath = 'c:/Program Files/TallyPrimeDeveloper_7/Samples';
-const SAMPLES_DIR = process.env.TDL_SAMPLES_DIR || samplesPath;
+const SAMPLES_DIR = path.resolve(process.env.TDL_SAMPLES_DIR || samplesPath);
 const hasSamples = fs.existsSync(SAMPLES_DIR);
 
 describe.runIf(hasSamples)('WorkspaceScanner - Real Samples Folder', () => {

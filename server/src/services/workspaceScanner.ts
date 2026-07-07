@@ -511,6 +511,9 @@ export class WorkspaceScanner {
                     resolve();
                     return;
                 }
+                this.stateStore.tdlScopeManager.isBulkRevalidating = true;
+                this.stateStore.xmlScopeManager.isBulkRevalidating = true;
+                
                 logger.trace(`[Perf] revalidateAll started for ${openDocs.length} open docs...`);
 
                 const allKnownUris = new Set<string>();
@@ -554,6 +557,12 @@ export class WorkspaceScanner {
 
                 const elapsed = Date.now() - t0;
                 logger.trace(`[Perf] revalidateAll completed in ${elapsed}ms for ${openDocs.length} open docs and ${allKnownUris.size} project nodes.`);
+                
+                this.stateStore.tdlScopeManager.isBulkRevalidating = false;
+                this.stateStore.xmlScopeManager.isBulkRevalidating = false;
+                this.stateStore.tdlScopeManager.definitionsInScopeCache.clear();
+                this.stateStore.xmlScopeManager.definitionsInScopeCache.clear();
+                
                 this.graphManager.notifyActiveUrisChanged();
                 resolve();
             }, 500);

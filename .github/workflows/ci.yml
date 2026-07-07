@@ -17,5 +17,13 @@ jobs:
         with:
           node-version: '24'
       - run: npm install
+      - name: Download Cache and Samples
+        run: node scripts/download-cache.js
+        env:
+          META_CACHE_URL_7_0: ${{ secrets.META_CACHE_URL_7_0 }}
+          SAMPLES_URL_7_0: ${{ secrets.SAMPLES_URL_7_0 }}
       - run: npm run compile
       - run: npm test
+        env:
+          TDL_SAMPLES_DIR: samples/7.0
+

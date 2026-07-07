@@ -4,9 +4,11 @@ import { TokenKind } from '../../../core/lexer/tokenKind';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const samplesDir = process.env.TDL_SAMPLES_DIR 
-    ? path.join(process.env.TDL_SAMPLES_DIR, 'Symbols & Prefixes')
-    : 'c:/Program Files/TallyPrimeDeveloper_6/Samples/Symbols & Prefixes';
+const samplesDir = path.resolve(
+    process.env.TDL_SAMPLES_DIR 
+        ? path.join(process.env.TDL_SAMPLES_DIR, 'Symbols & Prefixes')
+        : 'c:/Program Files/TallyPrimeDeveloper_6/Samples/Symbols & Prefixes'
+);
 const hasSamples = fs.existsSync(samplesDir);
 
 describe.skipIf(!hasSamples)('Lexer Samples Verification', () => {
