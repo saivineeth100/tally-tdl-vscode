@@ -714,6 +714,34 @@ describe('Attribute Validation', () => {
             expect(hasInvalidChainErrors).toBe(false);
         });
     });
+
+    describe('Variable and Variables Definition Validation', () => {
+        it('should validate attributes of Variable definition', async () => {
+            const tdl = `[Variable: MyVar]
+                Volatile: InvalidValue
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('file:///test_var.tdl', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const logicalDiag = diagnostics.find(d => d.code === DiagnosticRules.InvalidLogicalValue.code);
+            expect(logicalDiag).toBeDefined();
+        });
+
+        it('should validate attributes of Variables (alias) definition', async () => {
+            const tdl = `[Variables: MyVar]
+                Volatile: InvalidValue
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('file:///test_var.tdl', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const logicalDiag = diagnostics.find(d => d.code === DiagnosticRules.InvalidLogicalValue.code);
+            expect(logicalDiag).toBeDefined();
+        });
+    });
 });
 
 import { definitionTypeToSymbolKind } from '../../semantics/scopeManager/types';

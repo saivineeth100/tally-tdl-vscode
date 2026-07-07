@@ -3,7 +3,7 @@ import { detectXmlCompletionContext } from '../../../features/completion';
 import { CompletionService } from '../../../services/completionService';
 import { DocumentContextResolver } from '../../../services/documentContextResolver';
 import { createDiagnostic, DiagnosticRules } from '../../../diagnostics';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+
 import { ServerTestHarness } from '../../harness/serverTestHarness';
 import { CompletionParams, Position } from 'vscode-languageserver';
 import { testScopeManager, ensureBaseTdlLoaded } from '../../test-setup';
@@ -134,9 +134,8 @@ Local : Part :
 
             harness.files.set('d:/test.tdl', tdlContent);
             const uri = 'file:///d:/test.tdl';
-            const doc = TextDocument.create(uri, 'tdl', 1, tdlContent);
-            harness.documents.set(uri, doc);
-            await harness.runtime.documentLifecycle.rebuild(doc);
+            const doc = harness.simulateOpen(uri, 'tdl', tdlContent);
+            harness.runtime.documentLifecycle.processPendingDocuments();
 
             const offset = tdlContent.indexOf('Local : Part : ') + 'Local : Part : '.length;
 
@@ -151,6 +150,247 @@ Local : Part :
             // Should ONLY suggest definitions in scope!
             expect(myPartItem).toBeDefined();
             expect(otherPartItem).toBeDefined();
+        });
+
+        it('suggests Option definitions for Option attribute completions', async () => {
+            const harness = new ServerTestHarness();
+            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+
+            const tdlContent = `
+[Option: MyOpt]
+[Part: MyPart]
+Option : 
+`;
+            harness.files.set('d:/test_opt.tdl', tdlContent);
+            const uri = 'file:///d:/test_opt.tdl';
+            const doc = harness.simulateOpen(uri, 'tdl', tdlContent);
+            harness.runtime.documentLifecycle.processPendingDocuments();
+
+            const offset = tdlContent.indexOf('Option : ') + 'Option : '.length;
+
+            const result = await harness.runtime.completion.complete({
+                textDocument: { uri },
+                position: doc.positionAt(offset)
+            });
+
+            const optionItem = result.items.find((i) => i.label === 'MyOpt');
+            expect(optionItem).toBeDefined();
+        });
+
+        it('suggests Option definitions for Switch attribute completions at parameter index 1', async () => {
+            const harness = new ServerTestHarness();
+            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+
+            const tdlContent = `
+[Option: TargetOpt]
+[Part: MyPart]
+Switch : CaseLabel : 
+`;
+            harness.files.set('d:/test_sw.tdl', tdlContent);
+            const uri = 'file:///d:/test_sw.tdl';
+            const doc = harness.simulateOpen(uri, 'tdl', tdlContent);
+            harness.runtime.documentLifecycle.processPendingDocuments();
+
+            const offset = tdlContent.indexOf('Switch : CaseLabel : ') + 'Switch : CaseLabel : '.length;
+
+            const result = await harness.runtime.completion.complete({
+                textDocument: { uri },
+                position: doc.positionAt(offset)
+            });
+
+            const optionItem = result.items.find((i) => i.label === 'TargetOpt');
+            expect(optionItem).toBeDefined();
+        });
+
+        it('suggests current definition type matching items for Use completions', async () => {
+            const harness = new ServerTestHarness();
+            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+
+            const tdlContent = `
+[Part: BasePart]
+[Part: MyPart]
+Use : 
+`;
+            harness.files.set('d:/test_use.tdl', tdlContent);
+            const uri = 'file:///d:/test_use.tdl';
+            const doc = harness.simulateOpen(uri, 'tdl', tdlContent);
+            harness.runtime.documentLifecycle.processPendingDocuments();
+
+            const offset = tdlContent.indexOf('Use : ') + 'Use : '.length;
+
+            const result = await harness.runtime.completion.complete({
+                textDocument: { uri },
+                position: doc.positionAt(offset)
+            });
+
+            const basePartItem = result.items.find((i) => i.label === 'BasePart');
+            expect(basePartItem).toBeDefined();
+        });
+
+        it('suggests restricted definition types (Form, Part, Line, Field) for Local modifier completions', async () => {
+            const harness = new ServerTestHarness();
+            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+
+            const tdlContent = `
+[Form: MyForm]
+Local : 
+`;
+            harness.files.set('d:/test_local_types.tdl', tdlContent);
+            const uri = 'file:///d:/test_local_types.tdl';
+            const doc = harness.simulateOpen(uri, 'tdl', tdlContent);
+            harness.runtime.documentLifecycle.processPendingDocuments();
+
+            const offset = tdlContent.indexOf('Local : ') + 'Local : '.length;
+
+            const result = await harness.runtime.completion.complete({
+                textDocument: { uri },
+                position: doc.positionAt(offset)
+            });
+
+
+
+            const formItem = result.items.find((i) => i.label === 'Form');
+            const partItem = result.items.find((i) => i.label === 'Part');
+            const lineItem = result.items.find((i) => i.label === 'Line');
+            const fieldItem = result.items.find((i) => i.label === 'Field');
+
+            expect(formItem).toBeDefined();
+            expect(partItem).toBeDefined();
+            expect(lineItem).toBeDefined();
+            expect(fieldItem).toBeDefined();
+
+            const reportItem = result.items.find((i) => i.label === 'Report');
+            const menuItem = result.items.find((i) => i.label === 'Menu');
+            expect(reportItem).toBeUndefined();
+            expect(menuItem).toBeUndefined();
+        });
+
+        it('suggests attribute value completions for target attribute inside Local chain', async () => {
+            const harness = new ServerTestHarness();
+            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+
+            const tdlContent = `
+[Part: MyPart]
+Local : Field : MyField : Set As : @@
+`;
+            harness.files.set('d:/test_local_val.tdl', tdlContent);
+            const uri = 'file:///d:/test_local_val.tdl';
+            const doc = harness.simulateOpen(uri, 'tdl', tdlContent);
+            harness.runtime.documentLifecycle.processPendingDocuments();
+
+            const offset = tdlContent.indexOf('Set As : @@') + 'Set As : @@'.length;
+
+            const result = await harness.runtime.completion.complete({
+                textDocument: { uri },
+                position: doc.positionAt(offset)
+            });
+
+            // Should suggest formulas (such as DSPMSTNameStyleStr, etc.)
+            expect(result.items.length).toBeGreaterThan(0);
+            const formulaItem = result.items.find((i) => i.label.toLowerCase() === 'dspmstnamestylestr');
+            expect(formulaItem).toBeDefined();
+        });
+
+        it('suggests nested modifier elements inside Local chains', async () => {
+            const harness = new ServerTestHarness();
+            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+
+            const tdlContent = `
+[Part: MyPart]
+Local : Part : MyPart : add : Line : 
+
+[Line: MyLine]
+`;
+            harness.files.set('d:/test_local_nested.tdl', tdlContent);
+            const uri = 'file:///d:/test_local_nested.tdl';
+            const doc = harness.simulateOpen(uri, 'tdl', tdlContent);
+            harness.runtime.documentLifecycle.processPendingDocuments();
+
+            const offset = tdlContent.indexOf('Line : ') + 'Line : '.length;
+
+            const result = await harness.runtime.completion.complete({
+                textDocument: { uri },
+                position: doc.positionAt(offset)
+            });
+
+            // Should suggest position modifiers (Before, After, etc.)
+            const beforeItem = result.items.find((i) => i.label === 'Before');
+            const afterItem = result.items.find((i) => i.label === 'After');
+            expect(beforeItem).toBeDefined();
+            expect(afterItem).toBeDefined();
+
+            // Should ALSO suggest Line definition names in scope
+            const lineItem = result.items.find((i) => i.label === 'MyLine');
+            expect(lineItem).toBeDefined();
+        });
+
+        it('suggests top-level Add modifier elements', async () => {
+            const harness = new ServerTestHarness();
+            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+
+            const tdlContent = `
+[Part: MyPart]
+add : Line : 
+
+[Line: MyLine]
+`;
+            harness.files.set('d:/test_toplevel_nested.tdl', tdlContent);
+            const uri = 'file:///d:/test_toplevel_nested.tdl';
+            const doc = harness.simulateOpen(uri, 'tdl', tdlContent);
+            harness.runtime.documentLifecycle.processPendingDocuments();
+
+            const offset = tdlContent.indexOf('Line : ') + 'Line : '.length;
+
+            const result = await harness.runtime.completion.complete({
+                textDocument: { uri },
+                position: doc.positionAt(offset)
+            });
+
+            // Should suggest position modifiers (Before, After, etc.)
+            const beforeItem = result.items.find((i) => i.label === 'Before');
+            const afterItem = result.items.find((i) => i.label === 'After');
+            expect(beforeItem).toBeDefined();
+            expect(afterItem).toBeDefined();
+
+            // Should ALSO suggest Line definition names in scope
+            const lineItem = result.items.find((i) => i.label === 'MyLine');
+            expect(lineItem).toBeDefined();
+        });
+
+        it('suggests top-level and nested Delete modifier elements', async () => {
+            const harness = new ServerTestHarness();
+            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+
+            const tdlContent = `
+[Form: MyForm]
+Delete : Part : 
+Local : Part : MyPart : Delete : Line : 
+
+[Part: MyPart]
+[Line: MyLine]
+`;
+            harness.files.set('d:/test_delete_completions.tdl', tdlContent);
+            const uri = 'file:///d:/test_delete_completions.tdl';
+            const doc = harness.simulateOpen(uri, 'tdl', tdlContent);
+            harness.runtime.documentLifecycle.processPendingDocuments();
+
+            // 1. Check top-level Delete : Part : 
+            const offsetToplevel = tdlContent.indexOf('Delete : Part : ') + 'Delete : Part : '.length;
+            const resultToplevel = await harness.runtime.completion.complete({
+                textDocument: { uri },
+                position: doc.positionAt(offsetToplevel)
+            });
+            const partItem = resultToplevel.items.find((i) => i.label === 'MyPart');
+            expect(partItem).toBeDefined();
+
+            // 2. Check nested Delete : Line : 
+            const offsetNested = tdlContent.indexOf('Delete : Line : ') + 'Delete : Line : '.length;
+            const resultNested = await harness.runtime.completion.complete({
+                textDocument: { uri },
+                position: doc.positionAt(offsetNested)
+            });
+            const lineItem = resultNested.items.find((i) => i.label === 'MyLine');
+            expect(lineItem).toBeDefined();
         });
     });
 });

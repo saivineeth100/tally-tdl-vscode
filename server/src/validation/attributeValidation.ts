@@ -10,6 +10,7 @@ import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, UnknownAtt
 import { ScopeManager } from '../semantics/scopeManager';
 import { getExpectedTypeForMenuItem } from '../utils/attributeUtils';
 import { URI } from 'vscode-uri';
+import { isValidDataType, isValidSubType, isValidFormat } from '../utils/dataTypeUtils';
 
 export function validateDefinitionAttributes(
     def: DefinitionNode,
@@ -30,9 +31,86 @@ export function validateDefinitionAttributes(
     const declaredVariables = new Set<string>();
     const seenAttributes = new Map<string, number>();
 
+    const typeAttr = def.attributes.find(a => normalizeTypeName(a.name.text) === 'type');
+    let declaredDataType: string | undefined;
+    if (typeAttr && typeAttr.value.length > 0) {
+        const firstVal = typeAttr.value[0];
+        if (firstVal.kind === SyntaxKind.Identifier) {
+            declaredDataType = (firstVal as IdentifierNode).text;
+        } else if (firstVal.kind === SyntaxKind.Literal) {
+            declaredDataType = (firstVal as LiteralNode).value.toString();
+        }
+    }
+
     for (const attr of def.attributes) {
         const attrName = attr.name.text;
         const attrNameLower = normalizeTypeName(attrName);
+
+        // Validate DataType and SubTypes for Type attribute
+        if (attrNameLower === 'type' && attr.value.length > 0) {
+            const firstVal = attr.value[0];
+            const cleanVal = doc.getText({ start: doc.positionAt(firstVal.start), end: doc.positionAt(firstVal.end) }).replace(/^["']|["']$/g, '').trim();
+            if (firstVal.kind !== SyntaxKind.Empty && !cleanVal.startsWith('##') && !cleanVal.startsWith('$') && !cleanVal.startsWith('@')) {
+                if (!isValidDataType(cleanVal)) {
+                    const currentScope = scopeManager.getScopeAt(doc.uri, firstVal.start) || scopeManager.projectScope;
+                    const defs = scopeManager.resolveDefinition(cleanVal, 'Variable', currentScope, projectNodes);
+                    if (!defs || defs.length === 0) {
+                        diagnostics.push(createDiagnostic(
+                            DiagnosticRules.InvalidDataType,
+                            { start: doc.positionAt(firstVal.start), end: doc.positionAt(firstVal.end) },
+                            cleanVal
+                        ));
+                    }
+                } else if (attr.value.length > 1) {
+                    const subVal = attr.value[1];
+                    const cleanSub = doc.getText({ start: doc.positionAt(subVal.start), end: doc.positionAt(subVal.end) }).replace(/^["']|["']$/g, '').trim();
+                    if (subVal.kind !== SyntaxKind.Empty && !cleanSub.startsWith('##') && !cleanSub.startsWith('$') && !cleanSub.startsWith('@')) {
+                        if (!isValidSubType(cleanVal, cleanSub)) {
+                            diagnostics.push(createDiagnostic(
+                                DiagnosticRules.InvalidSubType,
+                                { start: doc.positionAt(subVal.start), end: doc.positionAt(subVal.end) },
+                                cleanSub, cleanVal
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        // Validate Format keywords against the declared field type
+        if (attrNameLower === 'format' && declaredDataType && isValidDataType(declaredDataType)) {
+            for (let i = 0; i < attr.value.length; i++) {
+                const valNode = attr.value[i];
+                if (i > 0) {
+                    const prevNode = attr.value[i - 1];
+                    const prevPos = doc.positionAt(prevNode.end);
+                    const valPos = doc.positionAt(valNode.start);
+                    const textBetween = doc.getText({ start: prevPos, end: valPos });
+                    if (textBetween.includes(':')) {
+                        // This value is a parameter of the preceding format keyword (e.g. 'Decimal: 2'), so skip it
+                        continue;
+                    }
+                }
+                if (valNode.kind === SyntaxKind.Identifier || valNode.kind === SyntaxKind.Literal) {
+                    let formatVal = '';
+                    if (valNode.kind === SyntaxKind.Identifier) {
+                        formatVal = (valNode as IdentifierNode).text;
+                    } else if (valNode.kind === SyntaxKind.Literal) {
+                        formatVal = (valNode as LiteralNode).value.toString();
+                    }
+                    formatVal = formatVal.replace(/^["']|["']$/g, '').trim();
+                    if (formatVal && !formatVal.startsWith('##') && !formatVal.startsWith('$') && !formatVal.startsWith('@')) {
+                        if (!isValidFormat(declaredDataType, formatVal)) {
+                            diagnostics.push(createDiagnostic(
+                                DiagnosticRules.InvalidFormat,
+                                { start: doc.positionAt(valNode.start), end: doc.positionAt(valNode.end) },
+                                formatVal, declaredDataType
+                            ));
+                        }
+                    }
+                }
+            }
+        }
 
         if (['local', 'add', 'replace', 'delete'].includes(attrNameLower)) {
             // Validate Local targets dynamically
@@ -42,6 +120,7 @@ export function validateDefinitionAttributes(
             let targetAttribute: IdentifierNode | undefined;
             let targetAttributeIndex = -1;
             let previousWasModifier = false;
+            let currentModifierKind = attrNameLower;
 
             for (let i = 0; i < attr.value.length; i++) {
                 const val = attr.value[i];
@@ -53,6 +132,7 @@ export function validateDefinitionAttributes(
                 const tDefType = tDefTypeNode.text.toLowerCase();
 
                 if (['local', 'add', 'replace', 'delete'].includes(tDefType)) {
+                    currentModifierKind = tDefType;
                     previousWasModifier = true;
                     continue;
                 }
@@ -71,7 +151,7 @@ export function validateDefinitionAttributes(
                 let treatAsChainedTarget = false;
 
                 // Check if tDefType is a known definition type in the global scope
-                if (scopeManager.globalScope.attributes.has(normalizeTypeName(tDefType))) {
+                if (currentModifierKind === 'local' && scopeManager.globalScope.attributes.has(normalizeTypeName(tDefType))) {
                     if (i + 1 < attr.value.length && attr.value[i + 1].kind === SyntaxKind.Identifier) {
                         if (previousWasModifier) {
                             treatAsChainedTarget = true;
@@ -88,6 +168,16 @@ export function validateDefinitionAttributes(
                 previousWasModifier = false;
 
                 if (treatAsChainedTarget) {
+                    if (validSoFar && currentModifierKind === 'local' && !['form', 'part', 'line', 'field'].includes(tDefType)) {
+                        diagnostics.push(createDiagnosticWithData(
+                            DiagnosticRules.InvalidKeyword,
+                            { start: doc.positionAt(tDefTypeNode.start), end: doc.positionAt(tDefTypeNode.end) },
+                            {} as any,
+                            tDefTypeNode.text,
+                            'Form, Part, Line, Field'
+                        ));
+                        validSoFar = false;
+                    }
                     const tDefNameNode = attr.value[i + 1] as IdentifierNode;
                     const tDefName = tDefNameNode.text;
 
@@ -153,7 +243,7 @@ export function validateDefinitionAttributes(
             }
 
             // Once targets are validated, validate the target attribute
-            if (targetAttribute && validSoFar) {
+            if (targetAttribute && validSoFar && !['delete', 'replace'].includes(currentModifierKind)) {
                 const targetAttrs = scopeManager.globalScope.attributes.get(normalizeTypeName(currentScopeDefType));
                 const targetAttrName = targetAttribute.text;
                 const targetAttrNameLower = normalizeTypeName(targetAttrName);
@@ -161,11 +251,25 @@ export function validateDefinitionAttributes(
                 if (targetAttrs && !targetAttrs.has(targetAttrNameLower)) {
                     // Implicitly Local Formula, no unknown attribute warning
                 } else if (targetAttrs && targetAttrs.has(targetAttrNameLower)) {
+                    let mockValue = attr.value.slice(targetAttributeIndex + 1);
+                    if (currentModifierKind === 'add' && mockValue.length > 0) {
+                        const firstVal = mockValue[0];
+                        if (firstVal.kind === SyntaxKind.Identifier) {
+                            const firstValText = (firstVal as IdentifierNode).text.toLowerCase();
+                            if (['before', 'after', 'at beginning', 'at end'].includes(firstValText)) {
+                                if (firstValText === 'before' || firstValText === 'after') {
+                                    mockValue = mockValue.slice(2);
+                                } else {
+                                    mockValue = mockValue.slice(1);
+                                }
+                            }
+                        }
+                    }
                     // We need a mock attribute node that uses targetAttribute as name and the rest as value
                     const mockAttr = {
                         ...attr,
                         name: targetAttribute,
-                        value: attr.value.slice(targetAttributeIndex + 1)
+                        value: mockValue
                     };
                     validateAttributeParameters(
                         mockAttr,
@@ -475,6 +579,9 @@ export function validateAttributeParameters(
 
             if (refersToLower === 'system formulae' || refersToLower === 'formula' || refersToLower === 'formulae') {
                 resolvedDef = scopeManager.resolveFormula(cleanValue, currentScope, projectNodes);
+            } else if (refersToLower === 'variable' && isValidDataType(cleanValue)) {
+                // Bypass reference validation for built-in TDL data type keywords
+                continue;
             } else if (refersToLower === 'variable' || refersToLower === 'system variable') {
                 resolvedDef = scopeManager.resolveVariable(cleanValue, currentScope, projectNodes);
             } else {
@@ -495,7 +602,7 @@ export function validateAttributeParameters(
                 diagnostics.push(diag);
             } else if (resolvedDef.uri !== 'global:metadata' && !resolvedDef.uri.startsWith('basetdl://') && projectNodes) {
                 // Check if the resolved definition is within the project
-                const normUri = normalizeUri(resolvedDef.uri).toLowerCase();
+                const normUri = normalizeUri(resolvedDef.uri);
                 if (!projectNodes.has(normUri)) {
                     const diag = createDiagnosticWithData<MissingDefinitionData>(
                         DiagnosticRules.MissingDefinition,

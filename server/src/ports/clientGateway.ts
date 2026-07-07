@@ -13,6 +13,7 @@ export interface ClientGateway {
     showInformationMessage(message: string): void;
     showErrorMessage(message: string): void;
     refreshSemanticTokens(): Promise<void> | void;
+    refreshCodeLens(): Promise<void> | void;
     getConfiguration<T>(section: string): Promise<T | undefined>;
     getWorkspaceFolders(): Promise<WorkspaceFolder[] | null>;
 }

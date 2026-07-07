@@ -228,10 +228,8 @@ export class AttributeNode implements Node {
     isIncomplete: boolean = false;
 
     // Modifier flags
-    public isAdd: boolean = false;
-    public isDelete: boolean = false;
-    public isReplace: boolean = false;
-    public isLocal: boolean = false;
+    public isAttributeModifier: boolean = false;
+    public modifierType?: 'add' | 'delete' | 'replace' | 'local' | 'option' | 'switch' | 'use';
 
     constructor(start: number, end: number, name: IdentifierNode, colon: Token, value: (IdentifierNode | LiteralNode | ExpressionNode | EmptyNode)[]) {
         this.start = start;

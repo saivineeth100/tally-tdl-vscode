@@ -1,4 +1,4 @@
-import { SourceFile, SyntaxKind, IdentifierNode, StatementNode, BlockStatementNode, ForNode, WalkNode, IfNode, WhileNode, LiteralNode } from '../../core/ast/ast';
+import { SourceFile, SyntaxKind, IdentifierNode, StatementNode, BlockStatementNode, ForNode, WalkNode, IfNode, WhileNode, LiteralNode, ListNode } from '../../core/ast/ast';
 import { SymbolInfo, SymbolKind, VariableSymbol, DefinitionSymbol, FormulaSymbol } from 'tally-tdl-shared';
 import { Scope, ScopeKind} from './types';
 import { normalizeTypeName } from '../../utils/normalizeUtils';
@@ -258,30 +258,62 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                         defScope.computedFields.add((attr.value[0] as IdentifierNode).text.toLowerCase());
                     }
                 }
-            } else if (attrNameLower === 'variable' || attrNameLower === 'listvariable') {
-                if (attr.value.length > 0 && attr.value[0].kind === SyntaxKind.Identifier) {
-                    const varNameNode = attr.value[0] as IdentifierNode;
-                    const varName = varNameNode.text;
-                    const symbol: VariableSymbol = {
-                        name: varName,
-                        kind: SymbolKind.Variable,
-                        uri: uri,
-                        start: varNameNode.start,
-                        end: varNameNode.end,
-                        definitionType: 'Variable'
-                    };
+            } else if (
+                (manager.globalScope.attributes.get(normalizeTypeName(def.type?.text || ''))?.get(attrNameLower)?.type?.toLowerCase() === 'variable list') ||
+                (def.type?.text?.toLowerCase() === 'system' && 
+                 ['variable', 'variables'].includes(normalizeTypeName(def.name?.text || '')) && 
+                 ['variable', 'variables', 'listvariable', 'listvariables', 'listvar', 'staticvariable'].includes(attrNameLower))
+            ) {
+                if (attr.value.length > 0) {
+                    const varNodes: IdentifierNode[] = [];
+                    let dataTypeNode: IdentifierNode | undefined;
 
-                    // If it is a global [System: ...] or [System: Variable]
-                    const defTypeLower = def.type?.text?.toLowerCase();
-                    if (defTypeLower === 'system') {
-                        manager.projectScope.variables.set(varName.toLowerCase(), symbol);
-                    } else {
-                        // Local to the current definition
-                        defScope.variables.set(varName.toLowerCase(), symbol);
+                    let currentPart = 0; // 0 = varNames, 1 = dataType, 2 = defaultValue
+                    
+                    for (let i = 0; i < attr.value.length; i++) {
+                        const valNode = attr.value[i];
+                        if (i > 0) {
+                            const prevNode = attr.value[i - 1];
+                            const textBetween = sourceFile.text.substring(prevNode.end, valNode.start);
+                            if (textBetween.includes(':')) {
+                                currentPart++;
+                            }
+                        }
+                        
+                        if (currentPart === 0) {
+                            if (valNode.kind === SyntaxKind.Identifier) {
+                                varNodes.push(valNode as IdentifierNode);
+                            }
+                        } else if (currentPart === 1) {
+                            if (valNode.kind === SyntaxKind.Identifier) {
+                                dataTypeNode = valNode as IdentifierNode;
+                            }
+                        }
+                    }
+
+                    const typeName = dataTypeNode?.text;
+                    for (const nameNode of varNodes) {
+                        const varName = nameNode.text;
+                        const symbol: VariableSymbol = {
+                            name: varName,
+                            kind: SymbolKind.Variable,
+                            uri: uri,
+                            start: nameNode.start,
+                            end: nameNode.end,
+                            definitionType: 'Variable',
+                            dataType: typeName
+                        };
+                        const key = normalizeTypeName(varName);
+                        const defTypeLower = def.type?.text?.toLowerCase();
+                        if (defTypeLower === 'system') {
+                            manager.projectScope.variables.set(key, symbol);
+                        } else {
+                            defScope.variables.set(key, symbol);
+                        }
                     }
                 }
             } else if (def.type?.text?.toLowerCase() === 'system') {
-                const systemDefName = def.name?.text?.toLowerCase();
+                const systemDefName = normalizeTypeName(def.name?.text || '');
                 if (systemDefName === 'variable' || systemDefName === 'variables') {
                     // [System: Variable] MyGlobalVar : "" -> MyGlobalVar is the variable!
                     const varName = attr.name.text;
@@ -293,7 +325,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                         end: attr.name.end,
                         definitionType: 'Variable'
                     };
-                    manager.projectScope.variables.set(varName.toLowerCase(), symbol);
+                    manager.projectScope.variables.set(normalizeTypeName(varName), symbol);
                 } else if (systemDefName === 'formula' || systemDefName === 'formulae' || systemDefName === 'formulas') {
                     // [System: Formula] MyURL : "" -> MyURL is the formula!
                     const formulaName = attr.name.text;
@@ -305,7 +337,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                         end: attr.name.end,
                         definitionType: 'Formula'
                     };
-                    manager.projectScope.formulas.set(formulaName.toLowerCase(), symbol);
+                    manager.projectScope.formulas.set(normalizeTypeName(formulaName), symbol);
                 }
             } else if (def.type?.text?.toLowerCase() === 'function' && attrNameLower === 'parameter') {
                 // Parse function parameters

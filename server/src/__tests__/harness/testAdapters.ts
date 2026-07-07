@@ -22,6 +22,10 @@ export class InMemoryDocumentRepository implements DocumentRepository {
     set(uri: string, doc: TextDocument) {
         this.docs.set(uri, doc);
     }
+
+    delete(uri: string): boolean {
+        return this.docs.delete(uri);
+    }
 }
 
 export class MockClientGateway implements ClientGateway {
@@ -46,6 +50,10 @@ export class MockClientGateway implements ClientGateway {
 
     refreshSemanticTokens(): Promise<void> | void {
         this.semanticTokensRefreshed = true;
+    }
+
+    refreshCodeLens(): Promise<void> | void {
+        // No-op in mock
     }
 
     async getConfiguration<T>(section: string): Promise<T | undefined> {

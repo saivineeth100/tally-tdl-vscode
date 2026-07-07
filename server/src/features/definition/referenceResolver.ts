@@ -367,7 +367,6 @@ export function findReferenceAtOffset(
                     attrDef = attrMap.get(normalizeTypeName(attr.name.text));
                 }
             }
-
             if (attrDef?.type?.toLowerCase() === 'menu item list' && normalizeTypeName(attr.name.text) !== 'indent') {
                 const isKeyItem = normalizeTypeName(attr.name.text) === 'keyitem';
                 const actionIndex = isKeyItem ? 2 : 1;

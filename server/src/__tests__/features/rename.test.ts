@@ -60,9 +60,8 @@ async function setupHarness(files: Record<string, string>) {
         const normUri = normalizeUri(uri);
         
         harness.files.files.set(canonicalPath, cleanContent);
-        const doc = TextDocument.create(normUri, 'tdl', 1, cleanContent);
-        harness.documents.set(normUri, doc);
-        await harness.runtime.documentLifecycle!.rebuild(doc);
+        harness.simulateOpen(normUri, 'tdl', cleanContent);
+        harness.runtime.documentLifecycle.processPendingDocuments();
     }
 
     return { harness, targetUri, position };

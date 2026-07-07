@@ -102,11 +102,11 @@ export function activate(context: ExtensionContext) {
             clientOptions.workspaceFolder = folder;
         }
         const client = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
-        // Wait for client to be started before registering notification
-        client.start().then(() => {
-            tdlDecorationProvider = new TdlFileDecorationProvider(client);
-            context.subscriptions.push(window.registerFileDecorationProvider(tdlDecorationProvider));
-        }).catch((err: any) => {
+        
+        tdlDecorationProvider = new TdlFileDecorationProvider(client);
+        context.subscriptions.push(window.registerFileDecorationProvider(tdlDecorationProvider));
+
+        client.start().catch((err: any) => {
             outputChannel.appendLine(`[Error] Client failed to start: ${err}`);
         });
         

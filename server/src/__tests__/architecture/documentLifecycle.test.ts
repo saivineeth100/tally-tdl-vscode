@@ -46,6 +46,7 @@ describe('Phase 3: Document Lifecycle', () => {
         const doc = TextDocument.create('file:///test.tdl', 'tdl', 1, 'text');
         
         lifecycle.onDidOpen(doc);
+        lifecycle.processPendingDocuments();
         
         expect(lifecycle.rebuild).toHaveBeenCalledTimes(1);
         expect(lifecycle.rebuild).toHaveBeenCalledWith(doc);
@@ -121,7 +122,8 @@ describe('Phase 3: Document Lifecycle', () => {
         const doc1 = TextDocument.create(uri, 'tdl', 1, '[Report: MyReport]');
         
         // 1. Initial open
-        await lifecycle.onDidOpen(doc1);
+        lifecycle.onDidOpen(doc1);
+        lifecycle.processPendingDocuments();
         
         let docState = stateStore.getOpen(uri);
         expect(docState).toBeDefined();

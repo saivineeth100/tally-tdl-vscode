@@ -59,4 +59,34 @@ describe('Parser Complex Attributes Tests', () => {
         expect(sourceFile.errors).toEqual([]);
         expect(cleanAST(sourceFile)).toMatchSnapshot();
     });
+
+    test('should parse and set isAttributeModifier and modifierType on modifier attributes', () => {
+        const tdl = `
+[Report: MyReport]
+    Add: Part: MyPart
+    Delete: Part: OldPart
+    Replace: Part: OldPart: NewPart
+    Local: Field: MyField: Set As: "Val"
+`;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        expect(sourceFile.errors).toEqual([]);
+        
+        const attributes = sourceFile.definitions[0].attributes;
+        expect(attributes.length).toBe(4);
+
+        expect(attributes[0].isAttributeModifier).toBe(true);
+        expect(attributes[0].modifierType).toBe('add');
+
+        expect(attributes[1].isAttributeModifier).toBe(true);
+        expect(attributes[1].modifierType).toBe('delete');
+
+        expect(attributes[2].isAttributeModifier).toBe(true);
+        expect(attributes[2].modifierType).toBe('replace');
+
+        expect(attributes[3].isAttributeModifier).toBe(true);
+        expect(attributes[3].modifierType).toBe('local');
+
+        expect(cleanAST(sourceFile)).toMatchSnapshot();
+    });
 });

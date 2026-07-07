@@ -233,9 +233,13 @@ export class DefinitionsParser extends StatementsParser {
                         end = values[values.length - 1].end;
                     }
 
-                    defNode.attributes.push(
-                        new AttributeNode(start, end, attrName!, colon, values),
-                    );
+                    const attrNode = new AttributeNode(start, end, attrName!, colon, values);
+                    const attrNameLower = attrName!.text.toLowerCase();
+                    if (['add', 'delete', 'replace', 'local', 'option', 'switch', 'use'].includes(attrNameLower)) {
+                        attrNode.isAttributeModifier = true;
+                        attrNode.modifierType = attrNameLower as any;
+                    }
+                    defNode.attributes.push(attrNode);
                 } else {
                     this.addError("Expected Attribute Name and :", this.CurrentToken.Start, this.CurrentToken.Start);
                     this.sync(); // Panic mode recovery
@@ -425,7 +429,11 @@ export class DefinitionsParser extends StatementsParser {
                 }
 
                 const attrNode = new AttributeNode(start, end, attrName, colon, values);
-
+                const attrNameLower = attrName.text.toLowerCase();
+                if (['add', 'delete', 'replace', 'local', 'option', 'switch', 'use'].includes(attrNameLower)) {
+                    attrNode.isAttributeModifier = true;
+                    attrNode.modifierType = attrNameLower as any;
+                }
                 defNode.attributes.push(attrNode);
             } else {
                 this.addError("Expected : after Attribute Name", this.CurrentToken.Start, this.CurrentToken.Start);

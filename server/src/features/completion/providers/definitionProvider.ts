@@ -1,4 +1,4 @@
-import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
+import { CompletionItem, CompletionItemKind, Range, TextEdit } from 'vscode-languageserver/node';
 import { normalizeTypeName } from '../../../utils/normalizeUtils';
 import { ScopeManager } from '../../../semantics/scopeManager';
 import { SYSTEM_DEFINITION_NAMES } from '../../../semantics/scopeManager/types';
@@ -86,13 +86,13 @@ export function provideDefinitionTypeCompletions(
     scopeManager: ScopeManager,
     directiveName?: string,
     hasTrailingColon?: boolean,
-    hasModifier?: boolean
+    modifierInfo?: { char: string; range: Range }
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     const normalizedPartial = normalizeTypeName(partial);
 
     // Suggest modifiers (#, !, *) if there is no modifier already present and we are at definition start
-    if (!isXml && directiveName !== 'deftype' && normalizedPartial === '' && !hasModifier) {
+    if (!isXml && directiveName !== 'deftype' && normalizedPartial === '' && !modifierInfo) {
         items.push({
             label: '#',
             kind: CompletionItemKind.Keyword,
@@ -120,22 +120,36 @@ export function provideDefinitionTypeCompletions(
     }
 
     // Suggest System: Formula, System: Variable, etc. directly when typing the definition type
-
     if (!isXml && directiveName !== 'deftype') {
         for (const subtype of SYSTEM_DEFINITION_NAMES) {
             const fullLabel = `System : ${subtype}`;
             const normalizedFull = normalizeTypeName(fullLabel);
             if (normalizedPartial === '' || normalizedFull.includes(normalizedPartial)) {
+                let textEdit: TextEdit | undefined;
+                let filterText: string | undefined;
+                let insertText = fullLabel;
+
+                if (modifierInfo) {
+                    filterText = modifierInfo.char + fullLabel;
+                    textEdit = {
+                        range: modifierInfo.range,
+                        newText: modifierInfo.char + fullLabel
+                    };
+                }
+
                 items.push({
                     label: fullLabel,
                     kind: CompletionItemKind.Keyword,
                     detail: 'System Definition Type',
-                    insertText: fullLabel,
+                    insertText: textEdit ? undefined : insertText,
+                    textEdit,
+                    filterText,
                     sortText: 'system_' + subtype.toLowerCase()
                 });
             }
         }
     }
+
     for (const defType of defTypes) {
         const normalizedDefType = normalizeTypeName(defType);
         if (normalizedDefType.startsWith('system') && normalizedDefType !== 'system') {
@@ -154,6 +168,17 @@ export function provideDefinitionTypeCompletions(
             const insertSuffix = isDeftype || hasTrailingColon ? '' : ' : ';
             const insertText = isXml ? `${displayType} NAME="$1">\n\t$0\n</${displayType}>` : `${displayType}${insertSuffix}`;
 
+            let textEdit: TextEdit | undefined;
+            let filterText: string | undefined;
+
+            if (modifierInfo && !isXml) {
+                filterText = modifierInfo.char + displayType;
+                textEdit = {
+                    range: modifierInfo.range,
+                    newText: modifierInfo.char + displayType + insertSuffix
+                };
+            }
+
             // Only trigger auto-suggest if we appended a colon
             const command = (!isXml && !isDeftype) ? { title: 'Suggest', command: 'editor.action.triggerSuggest' } : undefined;
 
@@ -161,7 +186,9 @@ export function provideDefinitionTypeCompletions(
                 label: displayType,
                 kind: CompletionItemKind.Class,
                 detail: 'TDL Definition Type',
-                insertText,
+                insertText: textEdit ? undefined : insertText,
+                textEdit,
+                filterText,
                 insertTextFormat: isXml ? 2 : undefined,
                 sortText: defType.toLowerCase(),
                 command

@@ -127,20 +127,28 @@ export async function findReferences(
     const lowerTargetName = targetName.toLowerCase();
     const lowerTargetType = targetType?.toLowerCase();
 
-    const candidateUris = stateStore.getScopeManager(normUri).projectScope.referenceIndex.getCandidateUris(targetName);
+    var scopeManager = stateStore.getScopeManager(normUri)
+    const candidateUris = scopeManager.projectScope.referenceIndex.getCandidateUris(targetName);
     
     if (candidateUris && candidateUris.size === 0) return locations;
-
-    const projectScope = scopeUri ? new Set([scopeUri]) : includeGraphManager.getProjectNodes(normUri);
-   
-
-    // Iterate through project documents
-    for (const docUri of projectScope) {
+    
+    const searchScope = candidateUris || new Set<string>();
+    const scopeMgr = stateStore.getScopeManager(normUri);
+    const targetScopeUri = scopeUri ? normalizeUri(scopeUri) : null;
+    
+    // Iterate through candidate documents containing the symbol
+    for (const docUri of searchScope) {
         const normDocUri = normalizeUri(docUri);
         
-        // We must check against the normalized URI because candidateUris are normalized
-        const searchUri = normalizeUri(docUri);
-        if (candidateUris && !candidateUris.has(searchUri) && !candidateUris.has(searchUri.toLowerCase()) && !candidateUris.has(docUri)) continue;
+        // 1. If searching within a specific file scope, match the URI
+        if (targetScopeUri && normDocUri !== targetScopeUri) {
+            continue;
+        }
+        
+        // 2. If searching project-wide, skip standalone files (workspace scope) except the file itself
+        if (!targetScopeUri && normDocUri !== normUri && scopeMgr.isFileWorkspaceScope(normDocUri)) {
+            continue;
+        }
 
         const docState = stateStore.get(normDocUri);
         if (!docState) continue;

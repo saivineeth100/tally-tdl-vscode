@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { Parser } from '../../core/parser/parser';
 import { findReferenceAtOffset, findDefinitionByName, getDefinitionLocation } from '../../features/definition';
 import { ScopeManager } from '../../semantics/scopeManager';
+import { createTestScopeManager } from '../../__tests__/test-setup';
 import { ScopeKind } from '../../semantics/scopeManager/types';
 import { SymbolKind } from 'tally-tdl-shared';
 import { resolveVariable } from '../../semantics/scopeManager/scopeResolver';
@@ -243,7 +244,7 @@ describe('Definition Service - Modifier References', () => {
             const fileB = `[#Report: BaseReport]
     Variable: ModVar`;
 
-            const manager = new ScopeManager();
+            const manager = createTestScopeManager();
             
             const parserA = new Parser(fileA);
             const sourceA = parserA.parse();
@@ -271,7 +272,7 @@ describe('Definition Service - Modifier References', () => {
         });
 
         it('should remove modifier contribution when file is removed', () => {
-            const manager = new ScopeManager();
+            const manager = createTestScopeManager();
             // Create base definition
             const baseSource = new Parser(`[Report: SomeReport]`).parse();
             manager.buildFileScope('file://base.tdl', baseSource);
@@ -286,7 +287,7 @@ describe('Definition Service - Modifier References', () => {
         });
 
         it('should resolve modifier applied to a default tally definition (metadata)', () => {
-            const manager = new ScopeManager();
+            const manager = createTestScopeManager();
             
             // Mock metadata for default definition 'Daybook'
             manager.globalScope.definitions.set('report', new Map([['daybook', { name: 'daybook', kind: 0, uri: '', start: 0, end: 0, definitionType: 'report' } as any]]));

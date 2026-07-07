@@ -41,6 +41,11 @@ describe('Workspace scan and Folder cleanup', () => {
                 { name: 'docs.txt', isDirectory: () => false, isFile: () => true }
             ]);
 
+            const standalonePath = path.resolve(folderPath, 'standalone.tdl');
+            const docsPath = path.resolve(folderPath, 'docs.txt');
+            harness.files.files.set(harness.files.canonicalize(standalonePath), '');
+            harness.files.files.set(harness.files.canonicalize(docsPath), '');
+
             const indexFileSpy = vi.spyOn(harness.runtime.services.workspaceScanner, 'indexFile');
             await (harness.runtime.services.workspaceScanner as any)['scanFolder'](URI.file(folderPath).toString());
 

@@ -19,7 +19,8 @@ export function normalizeUri(uriStr: string): string {
         const parsed = URI.parse(uriStr);
         if (parsed.scheme === 'file') {
             // Converts C:/ to c%3A/ to ensure standard VS Code URI format
-            return URI.file(parsed.fsPath).toString();
+            const fsPath = process.platform === 'win32' ? parsed.fsPath : parsed.fsPath;
+            return URI.file(fsPath).toString();
         }
         return uriStr;
     } catch {

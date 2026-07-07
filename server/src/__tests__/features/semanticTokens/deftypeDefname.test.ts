@@ -5,7 +5,8 @@
  */
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../../core/parser/parser';
-import { getSemanticTokens, TDL_SEMANTIC_TOKEN_ROLES } from '../../../features/semanticTokens/semanticTokens';
+import { getSemanticTokens } from '../../../features/semanticTokens/semanticTokens';
+import { SemanticTokenTypes, SemanticTokenModifiers } from 'vscode-languageserver';
 import { testScopeManager } from '../../../__tests__/test-setup';
 
 /**
@@ -26,12 +27,13 @@ describe('Semantic Tokens - [deftype:defname]', () => {
         // Find token for 'MyReport'
         const classToken = tokens.find((t: any) => t.text === 'MyReport');
         expect(classToken).toBeDefined();
-        expect(classToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defName);
+        expect(classToken!.type).toBe(SemanticTokenTypes.class);
+        expect(classToken!.modifiers).toContain(SemanticTokenModifiers.declaration);
 
         // Find token for 'Report'
         const typeToken = tokens.find((t: any) => t.text === 'Report');
         expect(typeToken).toBeDefined();
-        expect(typeToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defType);
+        expect(typeToken!.type).toBe(SemanticTokenTypes.keyword);
     });
 
     it('should tokenize Class Definitions with spaces', () => {
@@ -40,7 +42,8 @@ describe('Semantic Tokens - [deftype:defname]', () => {
 
         const classToken = tokens.find((t: any) => t.text === 'My Report Name');
         expect(classToken).toBeDefined();
-        expect(classToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defName);
+        expect(classToken!.type).toBe(SemanticTokenTypes.class);
+        expect(classToken!.modifiers).toContain(SemanticTokenModifiers.declaration);
     });
 
     it('should tokenize Modifiers', () => {
@@ -49,7 +52,12 @@ describe('Semantic Tokens - [deftype:defname]', () => {
 
         const modifierToken = tokens.find((t: any) => t.text === '#');
         expect(modifierToken).toBeDefined();
-        expect(modifierToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.modifier);
+        expect(modifierToken!.type).toBe(SemanticTokenTypes.modifier);
+
+        const nameToken = tokens.find((t: any) => t.text === 'Test');
+        expect(nameToken).toBeDefined();
+        expect(nameToken!.type).toBe(SemanticTokenTypes.class);
+        expect(nameToken!.modifiers).toContain(SemanticTokenModifiers.modification);
     });
 
     // New tests for detailed roles, spaces, and whitespaces
@@ -62,13 +70,14 @@ describe('Semantic Tokens - [deftype:defname]', () => {
         const nameToken = tokens.find((t: any) => t.text === 'MyReport');
 
         expect(modifierToken).toBeDefined();
-        expect(modifierToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.modifier);
+        expect(modifierToken!.type).toBe(SemanticTokenTypes.modifier);
 
         expect(typeToken).toBeDefined();
-        expect(typeToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defType);
+        expect(typeToken!.type).toBe(SemanticTokenTypes.keyword);
 
         expect(nameToken).toBeDefined();
-        expect(nameToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defName);
+        expect(nameToken!.type).toBe(SemanticTokenTypes.class);
+        expect(nameToken!.modifiers).toContain(SemanticTokenModifiers.modification);
     });
 
     it('should handle definition names containing spaces', () => {
@@ -79,10 +88,11 @@ describe('Semantic Tokens - [deftype:defname]', () => {
         const nameToken = tokens.find((t: any) => t.text === 'Balance Sheet');
 
         expect(typeToken).toBeDefined();
-        expect(typeToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defType);
+        expect(typeToken!.type).toBe(SemanticTokenTypes.keyword);
 
         expect(nameToken).toBeDefined();
-        expect(nameToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defName);
+        expect(nameToken!.type).toBe(SemanticTokenTypes.class);
+        expect(nameToken!.modifiers).toContain(SemanticTokenModifiers.declaration);
     });
 
     it('should assign correct semantic roles for System: Formula, System: Variable, System: TDL Name and System: UDF headers', () => {
@@ -97,20 +107,24 @@ describe('Semantic Tokens - [deftype:defname]', () => {
 
         expect(typeTokens.length).toBe(4);
         typeTokens.forEach(t => {
-            expect(t.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defType);
+            expect(t.type).toBe(SemanticTokenTypes.keyword);
         });
 
         expect(formulaToken).toBeDefined();
-        expect(formulaToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defName);
+        expect(formulaToken!.type).toBe(SemanticTokenTypes.class);
+        expect(formulaToken!.modifiers).toContain(SemanticTokenModifiers.declaration);
 
         expect(variableToken).toBeDefined();
-        expect(variableToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defName);
+        expect(variableToken!.type).toBe(SemanticTokenTypes.class);
+        expect(variableToken!.modifiers).toContain(SemanticTokenModifiers.declaration);
 
         expect(tdlNameToken).toBeDefined();
-        expect(tdlNameToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defName);
+        expect(tdlNameToken!.type).toBe(SemanticTokenTypes.class);
+        expect(tdlNameToken!.modifiers).toContain(SemanticTokenModifiers.declaration);
 
         expect(udfToken).toBeDefined();
-        expect(udfToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defName);
+        expect(udfToken!.type).toBe(SemanticTokenTypes.class);
+        expect(udfToken!.modifiers).toContain(SemanticTokenModifiers.declaration);
     });
 
     it('should only tokenize non-whitespace segments and ignore extra spacing', () => {
@@ -125,11 +139,12 @@ describe('Semantic Tokens - [deftype:defname]', () => {
         const nameToken = tokens.find((t: any) => t.text === 'Balance Sheet');
 
         expect(typeToken).toBeDefined();
-        expect(typeToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defType);
+        expect(typeToken!.type).toBe(SemanticTokenTypes.keyword);
         expect(typeToken!.length).toBe(6);
 
         expect(nameToken).toBeDefined();
-        expect(nameToken!.type).toBe(TDL_SEMANTIC_TOKEN_ROLES.defName);
+        expect(nameToken!.type).toBe(SemanticTokenTypes.class);
+        expect(nameToken!.modifiers).toContain(SemanticTokenModifiers.declaration);
         expect(nameToken!.length).toBe(13);
     });
 });

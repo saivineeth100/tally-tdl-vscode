@@ -46,6 +46,8 @@ export function provideModifierValueCompletions(
         const fakeOffset = Math.max(0, (mockNodes.length - 1) * 10);
         
         const resolved = resolveModifierChain(modName, mockNodes, currentScopeDefType, currentScopeDefName, scopeManager, fakeOffset);
+        const effectiveDefType = resolved.effectiveDefType || currentScopeDefType;
+        const effectiveDefName = resolved.effectiveDefName || currentScopeDefName;
 
         let expectingDefNameFor = resolved.cursorSegment === 'defName' ? resolved.effectiveDefType : undefined;
         let isAttribute = resolved.cursorSegment === 'targetAttribute' || resolved.cursorSegment === 'value';
@@ -116,12 +118,15 @@ export function provideModifierValueCompletions(
 
             // Typing either a <Definition Type> OR an <Attribute> for currentScopeDefType
             // 1. Suggest Definition Types
-            const defTypes = scopeManager.getDefinitionTypes();
+            let defTypes = scopeManager.getDefinitionTypes();
+            if (resolved.modifierKind === 'local') {
+                defTypes = ['Form', 'Part', 'Line', 'Field'];
+            }
             items.push(...provideDefinitionTypeCompletions(partial, isXml, defTypes, scopeManager, undefined, context.hasTrailingColon));
 
-            // 2. Suggest Attributes for currentScopeDefType
-            if (currentScopeDefType) {
-                const normalizedDefType = normalizeTypeName(currentScopeDefType);
+            // 2. Suggest Attributes for effectiveDefType
+            if (effectiveDefType) {
+                const normalizedDefType = normalizeTypeName(effectiveDefType);
                 const matchingDefAttributes = scopeManager.globalScope.attributes.get(normalizedDefType);
 
                 if (matchingDefAttributes) {
@@ -133,10 +138,10 @@ export function provideModifierValueCompletions(
                             items.push({
                                 label: displayAttr,
                                 kind: CompletionItemKind.Property,
-                                detail: `${currentScopeDefType} attribute`,
+                                detail: `${effectiveDefType} attribute`,
                                 insertText: isXml ? `${displayAttr}>$0</${displayAttr}>` : `${displayAttr}${context.hasTrailingColon ? '' : ' : '}`,
                                 insertTextFormat: isXml ? 2 : undefined,
-                                data: { type: 'attribute', defType: currentScopeDefType, name: attr.name },
+                                data: { type: 'attribute', defType: effectiveDefType, name: attr.name },
                                 sortText: '2_' + attr.name.toLowerCase()});
                         }
                     }
@@ -155,17 +160,43 @@ export function provideModifierValueCompletions(
             const currentScope = effectiveScope || scopeManager.getScopeAt(uri, offset);
             items.push(...provideAttributeValueCompletions(
                 scopeManager, 
-                currentScopeDefType || currentDef.type.text, 
+                effectiveDefType || currentDef.type.text, 
                 mockContext, 
                 undefined, // projectScope not easily available here, but mostly used for formulas
                 currentScope
             ));
+
+            if (resolved.modifierKind === 'add' && (resolved.cursorIndexInValues === 0 || resolved.cursorSegment === 'positionModifier')) {
+                const suffix = context.hasTrailingColon ? '' : ' : ';
+                const positions = ['Before', 'After', 'At Beginning', 'At End'];
+                for (const pos of positions) {
+                    if (partial === '' || pos.toLowerCase().includes(partial)) {
+                        items.push({
+                            label: pos,
+                            kind: CompletionItemKind.Keyword,
+                            detail: 'Position modifier',
+                            insertText: `${pos}${suffix}`,
+                            sortText: '0_' + pos.toLowerCase()
+                        });
+                    }
+                }
+            }
         }
     } else if (modName === 'use') {
         // Use : <Definition Name>
         if (context.paramIndex === 0) {
             const defTypeName = currentDef.type.text;
             items.push(...getSuggestionsForDefinitionType(defTypeName, context.partial, scopeManager, isActive));
+        }
+    } else if (modName === 'option') {
+        // Option : <Option Name> : <Condition>
+        if (context.paramIndex === 0) {
+            items.push(...getSuggestionsForDefinitionType('Option', context.partial, scopeManager, isActive));
+        }
+    } else if (modName === 'switch') {
+        // Switch : <Case Label> : <Option Name> : <Condition>
+        if (context.paramIndex === 1) {
+            items.push(...getSuggestionsForDefinitionType('Option', context.partial, scopeManager, isActive));
         }
     }
     return items;

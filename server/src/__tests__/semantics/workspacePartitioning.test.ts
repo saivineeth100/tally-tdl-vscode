@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import { ServerTestHarness } from '../harness/serverTestHarness';
 import { normalizeUri } from '../../utils/uri';
@@ -37,9 +36,9 @@ describe('Workspace Partitioning and isUriActive Propagation', () => {
         await harness.runtime.services.workspaceScanner.indexFile(URI.parse(child2Uri).fsPath, new Set(), true, false, false);
 
         // Open the root file
-        const rootDoc = TextDocument.create(rootUri, 'tdl', 1, harness.files.files.get(harness.files.canonicalize(URI.parse(rootUri).fsPath))!);
-        harness.documents.set(rootUri, rootDoc);
-        await harness.runtime.documentLifecycle.rebuild(rootDoc);
+        const rootContent = harness.files.files.get(harness.files.canonicalize(URI.parse(rootUri).fsPath))!;
+        harness.simulateOpen(rootUri, 'tdl', rootContent);
+        harness.runtime.documentLifecycle.processPendingDocuments();
 
         // Wait a little for any async include resolution
         await new Promise(r => setTimeout(r, 50));
@@ -92,9 +91,9 @@ describe('Workspace Partitioning and isUriActive Propagation', () => {
         expect(scopeManager.fileMap.get(normChild)?.parent).toBe(scopeManager.workspaceScope);
 
         // Open one of the files
-        const rootDoc = TextDocument.create(rootUri, 'tdl', 1, harness.files.files.get(harness.files.canonicalize(URI.parse(rootUri).fsPath))!);
-        harness.documents.set(rootUri, rootDoc);
-        await harness.runtime.documentLifecycle.rebuild(rootDoc);
+        const rootContent = harness.files.files.get(harness.files.canonicalize(URI.parse(rootUri).fsPath))!;
+        harness.simulateOpen(rootUri, 'tdl', rootContent);
+        harness.runtime.documentLifecycle.processPendingDocuments();
 
         // Wait a little for any async include resolution
         await new Promise(r => setTimeout(r, 50));

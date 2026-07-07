@@ -24,7 +24,7 @@ export async function loadMetadata(basePath: string, version: string, manager: S
     const versionPath = path.join(basePath, version);
     const metaBinPath = path.join(basePath, `${version}_metadata.bin`);
     const baseBinPath = path.join(basePath, `${version}_basetdl.bin`);
-    
+
     // We only skip rebuilding if BOTH files exist (or if it's the old single .bin)
     const oldBinPath = path.join(basePath, `${version}.bin`);
     // If loadBaseTdl is false, we only need the metaBinPath to exist.
@@ -68,16 +68,19 @@ export async function loadMetadata(basePath: string, version: string, manager: S
                         manager.globalScope.referenceIndex = newIndex;
                     }
 
-                if (baseDeserialized.childDefinitions) manager.childDefinitions = baseDeserialized.childDefinitions;
-                if (baseDeserialized.parentDefinitions) manager.parentDefinitions = baseDeserialized.parentDefinitions;
-                if (baseDeserialized.useInheritance) manager.useInheritance = baseDeserialized.useInheritance;
-                if (baseDeserialized.inUseInheritance) manager.inUseInheritance = baseDeserialized.inUseInheritance;
-                if ((baseDeserialized as any).nameIndex) manager.nameIndex = (baseDeserialized as any).nameIndex;
-                if (baseDeserialized.scopeIndex) manager.scopeIndex = baseDeserialized.scopeIndex;
-                if (baseDeserialized.modifierContributions) manager.modifierContributions = baseDeserialized.modifierContributions;
-                if (baseDeserialized.uriGraphContributions) manager.uriGraphContributions = baseDeserialized.uriGraphContributions;
+                    if (baseDeserialized.childDefinitions) manager.childDefinitions = baseDeserialized.childDefinitions;
+                    if (baseDeserialized.parentDefinitions) manager.parentDefinitions = baseDeserialized.parentDefinitions;
+                    if (baseDeserialized.useInheritance) manager.useInheritance = baseDeserialized.useInheritance;
+                    if (baseDeserialized.inUseInheritance) manager.inUseInheritance = baseDeserialized.inUseInheritance;
+                    if ((baseDeserialized as any).nameIndex) manager.nameIndex = (baseDeserialized as any).nameIndex;
+                    if (baseDeserialized.scopeIndex) manager.scopeIndex = baseDeserialized.scopeIndex;
+                    if (baseDeserialized.modifierContributions) manager.modifierContributions = baseDeserialized.modifierContributions;
+                    if (baseDeserialized.uriGraphContributions) manager.uriGraphContributions = baseDeserialized.uriGraphContributions;
+
+                    logger.debug(`[Cache] base TDL structures loaded - ${manager.getSymbolCount()}`);
+                    
                 }
-            } 
+            }
 
             logger.info(`[Cache] Cache data loaded successfully.`);
             return;
@@ -223,6 +226,30 @@ async function loadDefinitionAliases(versionPath: string, manager: ScopeManager)
             }
         }
     }
+
+    // Ensure variables and formulae aliases are correctly interchangeable
+    manager.globalScope.interchangeableTypesMap.set('variables', 'variable');
+    manager.globalScope.interchangeableAttributesMap.set('variables', 'Variable');
+    let varAliases = manager.globalScope.interchangeableTypesAliasesMap.get('variable');
+    if (!varAliases) {
+        varAliases = ['variable'];
+        manager.globalScope.interchangeableTypesAliasesMap.set('variable', varAliases);
+    }
+    if (!varAliases.includes('variables')) {
+        varAliases.push('variables');
+    }
+
+    manager.globalScope.interchangeableTypesMap.set('formulae', 'formula');
+    manager.globalScope.interchangeableTypesMap.set('formulas', 'formula');
+    manager.globalScope.interchangeableAttributesMap.set('formulae', 'Formula');
+    manager.globalScope.interchangeableAttributesMap.set('formulas', 'Formula');
+    let formAliases = manager.globalScope.interchangeableTypesAliasesMap.get('formula');
+    if (!formAliases) {
+        formAliases = ['formula'];
+        manager.globalScope.interchangeableTypesAliasesMap.set('formula', formAliases);
+    }
+    if (!formAliases.includes('formulae')) formAliases.push('formulae');
+    if (!formAliases.includes('formulas')) formAliases.push('formulas');
 }
 
 async function loadFunctions(versionPath: string, manager: ScopeManager) {
@@ -257,6 +284,103 @@ async function loadFunctions(versionPath: string, manager: ScopeManager) {
                 }
             }
         }
+    }
+    initializeListFunctions(manager);
+}
+
+function initializeListFunctions(manager: ScopeManager) {
+    const listFuncs: any[] = [
+        {
+            name: '$$ListKey',
+            kind: SymbolKind.Function,
+            uri: 'global:metadata',
+            start: 0, end: 0,
+            definitionType: 'Function',
+            parameters: [
+                { ParameterType: 'Variable', DataType: 'String' },
+                { ParameterType: 'Index', DataType: 'Number' }
+            ],
+            returnType: 'String'
+        },
+        {
+            name: '$$ListIndex',
+            kind: SymbolKind.Function,
+            uri: 'global:metadata',
+            start: 0, end: 0,
+            definitionType: 'Function',
+            parameters: [
+                { ParameterType: 'Variable', DataType: 'String' },
+                { ParameterType: 'Key', DataType: 'String' }
+            ],
+            returnType: 'Number'
+        },
+        {
+            name: '$$ListCount',
+            kind: SymbolKind.Function,
+            uri: 'global:metadata',
+            start: 0, end: 0,
+            definitionType: 'Function',
+            parameters: [
+                { ParameterType: 'Variable', DataType: 'String' }
+            ],
+            returnType: 'Number'
+        },
+        {
+            name: '$$ListFind',
+            kind: SymbolKind.Function,
+            uri: 'global:metadata',
+            start: 0, end: 0,
+            definitionType: 'Function',
+            parameters: [
+                { ParameterType: 'Variable', DataType: 'String' },
+                { ParameterType: 'Key', DataType: 'String' }
+            ],
+            returnType: 'Logical'
+        },
+        {
+            name: '$$ListValueFind',
+            kind: SymbolKind.Function,
+            uri: 'global:metadata',
+            start: 0, end: 0,
+            definitionType: 'Function',
+            parameters: [
+                { ParameterType: 'Variable', DataType: 'String' },
+                { ParameterType: 'Index', DataType: 'Number' },
+                { ParameterType: 'Value', DataType: 'String' },
+                { ParameterType: 'Member', DataType: 'String' }
+            ],
+            returnType: 'Logical'
+        },
+        {
+            name: '$$ListValue',
+            kind: SymbolKind.Function,
+            uri: 'global:metadata',
+            start: 0, end: 0,
+            definitionType: 'Function',
+            parameters: [
+                { ParameterType: 'Variable', DataType: 'String' },
+                { ParameterType: 'Key', DataType: 'String' },
+                { ParameterType: 'Member', DataType: 'String' }
+            ],
+            returnType: 'Any'
+        },
+        {
+            name: '$$ListValueEx',
+            kind: SymbolKind.Function,
+            uri: 'global:metadata',
+            start: 0, end: 0,
+            definitionType: 'Function',
+            parameters: [
+                { ParameterType: 'Variable', DataType: 'String' },
+                { ParameterType: 'Index', DataType: 'Number' },
+                { ParameterType: 'Member', DataType: 'String' }
+            ],
+            returnType: 'Any'
+        }
+    ];
+
+    for (const f of listFuncs) {
+        manager.globalScope.functions.set(normalizeTypeName(f.name), f);
     }
 }
 
@@ -371,7 +495,7 @@ async function loadDefinitionAttributes(versionPath: string, manager: ScopeManag
                         targetDefType = normalizeTypeName(refersTo);
                     }
                 }
-                
+
                 if (!targetDefType && manager.globalScope.interchangeableTypesMap?.has(attrName)) {
                     targetDefType = attrName;
                 }
@@ -401,6 +525,16 @@ async function loadDefinitionAttributes(versionPath: string, manager: ScopeManag
                         if (!manager.keywordSets.has(normalizedKey)) {
                             manager.keywordSets.set(normalizedKey, param.Keywords.map((k: string) => k.trim()));
                         }
+                    }
+                }
+            }
+
+            // Also copy the attribute map to all aliases of this definition type
+            const aliases = manager.globalScope.interchangeableTypesAliasesMap?.get(normalizedDefType);
+            if (aliases) {
+                for (const alias of aliases) {
+                    if (alias !== normalizedDefType) {
+                        manager.globalScope.attributes.set(alias, attrMap);
                     }
                 }
             }

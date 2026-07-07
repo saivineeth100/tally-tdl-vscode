@@ -240,7 +240,7 @@ export async function validateSourceFile(
                                 } else if (projectNodes && includeGraphManager) {
                                     const resolvedDef = resolvedDefs[0];
                                     if (resolvedDef.uri && resolvedDef.uri !== 'global:metadata' && !resolvedDef.uri.startsWith('basetdl://')) {
-                                        const normUri = normalizeUri(resolvedDef.uri).toLowerCase();
+                                        const normUri = normalizeUri(resolvedDef.uri);
                                         if (!projectNodes.has(normUri)) {
                                             const diag = createDiagnostic(
                                                 DiagnosticRules.MissingDefinition,

@@ -16,5 +16,8 @@ export const DefinitionRules = {
     UnknownFieldReference: { code: 'TDL2012', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Field '{0}' is not in scope.", description: "Referenced field is not available in the current context." },
     DefinitionNotInScope: { code: 'TDL2013', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "{1} '{0}' is not in scope of current definition.", description: "Referenced definition exists but is not reachable from the current scope." },
     InvalidOptionalModifier: { code: 'TDL2014', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "The '!' modifier can only be used on new definitions. '{0}' already exists.", description: "Optional modifier used on existing definition." },
-    InvalidModifierForSystem: { code: 'TDL2015', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "Modifiers are not allowed on System definitions.", description: "System definition cannot have a modifier." }
+    InvalidModifierForSystem: { code: 'TDL2015', defaultSeverity: DiagnosticSeverity.Error, messageFormat: "Modifiers are not allowed on System definitions.", description: "System definition cannot have a modifier." },
+    InvalidDataType: { code: 'TDL2020', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Invalid data type '{0}'.", description: "Data type is not recognized." },
+    InvalidSubType: { code: 'TDL2021', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Invalid sub-type '{0}' for data type '{1}'.", description: "Sub-type does not exist for this data type." },
+    InvalidFormat: { code: 'TDL2022', defaultSeverity: DiagnosticSeverity.Warning, messageFormat: "Format '{0}' is not applicable to data type '{1}'.", description: "Format is not valid for the field/variable data type." }
 } as const;

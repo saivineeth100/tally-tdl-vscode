@@ -1,4 +1,5 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
+import { DefinitionNode } from '../../../core/ast/ast';
 import { ScopeManager } from '../../../semantics/scopeManager/index';
 import { normalizeTypeName, normalizeXMLTypeName } from '../../../utils/normalizeUtils';
 import { getFunctionSuggestions } from './functionProvider';
@@ -9,6 +10,7 @@ import { IScopeResolverState } from '../../../semantics/scopeManager/scopeResolv
 import { resolveSchema } from '../../../semantics/scopeManager/scopeResolver';
 import { SymbolKind } from 'tally-tdl-shared';
 import { getExpectedTypeForMenuItem } from '../../../utils/attributeUtils';
+import { getDataTypeSpec, TDL_DATATYPES } from '../../../utils/dataTypeUtils';
 
 export function provideAttributeCompletions(
     scopeManager: ScopeManager,
@@ -53,7 +55,8 @@ export function provideAttributeValueCompletions(
     defTypeName: string,
     context: CompletionContext,
     scope?: Set<string>,
-    currentScope?: Scope
+    currentScope?: Scope,
+    currentDef?: DefinitionNode
 ): CompletionItem[] {
     const items: CompletionItem[] = [];
     if (!context.attributeName || context.paramIndex === undefined) return items;
@@ -248,6 +251,59 @@ export function provideAttributeValueCompletions(
 
     if (!attrMap) return items;
 
+    // Custom Datatypes Sub-type completion
+    if (normalizedAttr === 'type' && context.paramIndex === 1 && context.valueParts && context.valueParts.length > 0) {
+        const primaryType = context.valueParts[0].trim();
+        const spec = getDataTypeSpec(primaryType);
+        if (spec && spec.subTypes) {
+            for (const subType of spec.subTypes) {
+                if (context.partial === '' || subType.toLowerCase().includes(context.partial.toLowerCase())) {
+                    items.push({
+                        label: subType,
+                        kind: CompletionItemKind.EnumMember,
+                        detail: `Subtype of ${spec.name}`,
+                        insertText: subType,
+                        sortText: '0_' + subType.toLowerCase()
+                    });
+                }
+            }
+        }
+    }
+
+    // Custom Datatypes Formats completion
+    if (normalizedAttr === 'format') {
+        let declaredDataType: string | undefined;
+        const defNode = currentDef;
+        if (defNode) {
+            const typeAttr = defNode.attributes?.find((a: any) => normalizeTypeName(a.name.text) === 'type');
+            if (typeAttr && typeAttr.value.length > 0) {
+                const firstVal = typeAttr.value[0];
+                if (firstVal.kind === 3) { // SyntaxKind.Identifier
+                    declaredDataType = (firstVal as any).text;
+                } else if (firstVal.kind === 4) { // SyntaxKind.Literal
+                    declaredDataType = (firstVal as any).value.toString();
+                }
+            }
+        }
+
+        if (declaredDataType) {
+            const spec = getDataTypeSpec(declaredDataType);
+            if (spec && spec.formats) {
+                for (const format of spec.formats) {
+                    if (context.partial === '' || format.toLowerCase().includes(context.partial.toLowerCase())) {
+                        items.push({
+                            label: format,
+                            kind: CompletionItemKind.EnumMember,
+                            detail: `Format for ${spec.name}`,
+                            insertText: format,
+                            sortText: '0_' + format.toLowerCase()
+                        });
+                    }
+                }
+            }
+        }
+    }
+
     const attrDef = attrMap.get(normalizedAttr);
     
     // Special handling for Menu Item List attributes
@@ -371,6 +427,40 @@ export function provideAttributeValueCompletions(
                 };
                 if (scopeManager.projectScope) addGlobalFormulas(scopeManager.projectScope.formulas);
                 if (scopeManager.globalScope) addGlobalFormulas(scopeManager.globalScope.formulas);
+            } else if (refersToType.toLowerCase() === 'variable') {
+                const addedVars = new Set<string>();
+                const addVar = (name: string, detail: string) => {
+                    const lower = name.toLowerCase();
+                    if (!addedVars.has(lower)) {
+                        addedVars.add(lower);
+                        items.push({
+                            label: name,
+                            kind: CompletionItemKind.Variable,
+                            detail: detail,
+                            insertText: name,
+                            sortText: '0_' + lower
+                        });
+                    }
+                };
+
+                // 1. Scoped local/parent variables
+                if (currentScope) {
+                    const reachableVars = scopeManager.getAllVariablesInScope(currentScope);
+                    for (const [varName, varInfo] of reachableVars.entries()) {
+                        if (context.partial === '' || varName.toLowerCase().includes(context.partial.toLowerCase())) {
+                            addVar(varInfo.name || varName, `Scoped Variable`);
+                        }
+                    }
+                }
+
+                // 2. Global variables defined in [System: Variable] / [System: Variables]
+                if (scopeManager.projectScope) {
+                    for (const [varName, varInfo] of scopeManager.projectScope.variables.entries()) {
+                        if (context.partial === '' || varName.toLowerCase().includes(context.partial.toLowerCase())) {
+                            addVar(varInfo.name || varName, `Global/System Variable`);
+                        }
+                    }
+                }
             } else if (refersToType) {
                 items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, scopeManager, true, scope));
             }

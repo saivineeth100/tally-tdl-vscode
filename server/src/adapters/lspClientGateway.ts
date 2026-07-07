@@ -20,6 +20,10 @@ export class LspClientGateway implements ClientGateway {
         return this.connection.languages.semanticTokens.refresh();
     }
 
+    refreshCodeLens(): Promise<void> | void {
+        this.connection.sendRequest('workspace/codeLens/refresh').catch(() => {});
+    }
+
     getConfiguration<T>(section: string): Promise<T | undefined> {
         return this.connection.workspace.getConfiguration(section);
     }

@@ -4,7 +4,6 @@
  * and definition names, handling modifiers and spaces as expected.
  */
 import { describe, it, expect } from 'vitest';
-import { TextDocument } from 'vscode-languageserver-textdocument';
 import { ServerTestHarness } from '../../harness/serverTestHarness';
 import { testScopeManager } from '../../test-setup';
 import { SymbolKind } from 'tally-tdl-shared';
@@ -41,11 +40,8 @@ describe('Completion Provider - [deftype:defname]', () => {
 
         const cleanContent = content.replace('|', '');
         harness.files.set(uri.replace('file:///', ''), cleanContent);
-        const doc = TextDocument.create(uri, 'tdl', 1, cleanContent);
-        harness.documents.set(uri, doc);
-
-        // Rebuild/parse the document to populate stateStore
-        await harness.runtime.documentLifecycle.rebuild(doc);
+        const doc = harness.simulateOpen(uri, 'tdl', cleanContent);
+        harness.runtime.documentLifecycle.processPendingDocuments();
 
         return { harness, doc, offset: content.indexOf('|'), uri };
     }
@@ -161,5 +157,26 @@ describe('Completion Provider - [deftype:defname]', () => {
             expect(item?.kind).toBe(CompletionItemKind.Keyword);
             expect(item?.detail).toBe('System Definition Type');
         }
+    });
+
+    it('should return textEdit and filterText matching the modifier when modifier is present', async () => {
+        const { harness, doc, offset } = await setupHarness('[#|');
+        const result = await harness.runtime.completion.complete({
+            textDocument: { uri: doc.uri },
+            position: doc.positionAt(offset)
+        });
+
+        const reportItem = result.items.find(i => i.label === 'Report');
+        expect(reportItem).toBeDefined();
+        expect(reportItem?.insertText).toBeUndefined(); // Should use textEdit instead of insertText
+        expect(reportItem?.filterText).toBe('#Report');
+        expect(reportItem?.textEdit).toBeDefined();
+        expect(reportItem?.textEdit?.newText).toBe('#Report : ');
+        
+        // Range should replace the '#' character at position (line 0, character 1) to cursor (line 0, character 2)
+        expect((reportItem?.textEdit as any)?.range).toEqual({
+            start: { line: 0, character: 1 },
+            end: { line: 0, character: 2 }
+        });
     });
 });

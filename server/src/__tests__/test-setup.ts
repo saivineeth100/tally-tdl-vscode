@@ -16,17 +16,15 @@ export let testScopeManager: ScopeManager | undefined;
 export function createTestScopeManager(): ScopeManager {
     const manager = new ScopeManager();
     
-    // Mock structural relationships needed for isolated tests
-    manager.globalScope.interchangeableAttributesMap.set('form', 'form');
-    manager.globalScope.interchangeableAttributesMap.set('forms', 'form');
-    manager.globalScope.interchangeableAttributesMap.set('part', 'part');
-    manager.globalScope.interchangeableAttributesMap.set('parts', 'part');
-    manager.globalScope.interchangeableAttributesMap.set('line', 'line');
-    manager.globalScope.interchangeableAttributesMap.set('lines', 'line');
-    manager.globalScope.interchangeableAttributesMap.set('field', 'field');
-    manager.globalScope.interchangeableAttributesMap.set('fields', 'field');
-    manager.globalScope.interchangeableAttributesMap.set('collection', 'collection');
-    manager.globalScope.interchangeableAttributesMap.set('system', 'system');
+    if (testScopeManager) {
+        manager.globalScope.attributes = testScopeManager.globalScope.attributes;
+        manager.globalScope.definitions = testScopeManager.globalScope.definitions;
+        manager.globalScope.functions = testScopeManager.globalScope.functions;
+        manager.globalScope.actions = testScopeManager.globalScope.actions;
+        manager.globalScope.interchangeableTypesMap = testScopeManager.globalScope.interchangeableTypesMap;
+        manager.globalScope.interchangeableAttributesMap = testScopeManager.globalScope.interchangeableAttributesMap;
+        manager.globalScope.interchangeableTypesAliasesMap = testScopeManager.globalScope.interchangeableTypesAliasesMap;
+    }
     
     return manager;
 }
@@ -42,8 +40,8 @@ beforeAll(async () => {
         
         testScopeManager = new ScopeManager();
         
-        // Pass false to use the pre-built .bin cache instead of rebuilding from JSON
-        await loadMetadata(metadataPath, "7.0", testScopeManager, false, false);
+        // Pass true to rebuild metadata from JSON directly so that our metadata enhancements are active
+        await loadMetadata(metadataPath, "7.0", testScopeManager, true, false);
     } catch (error) {
         console.error('Test Setup Error:', error);
     }

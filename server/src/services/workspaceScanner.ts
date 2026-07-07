@@ -65,7 +65,7 @@ import { filterDiagnostics } from '../utils/settingsManager';
  */
 export class WorkspaceScanner {
     public scanningInProgress = false;
-    private hasInitialScanStarted = false;
+    public hasInitialScanStarted = false;
     private scanQueue: string[][] = [];
     public workspaceFolders: string[] = [];
 
@@ -75,6 +75,7 @@ export class WorkspaceScanner {
     public onScanComplete?: () => void;
 
     private revalidateTimeout: NodeJS.Timeout | null = null;
+    public documentLifecycle?: import('./documentLifecycleService').DocumentLifecycleService;
 
     constructor(
         private stateStore: DocumentStateStore,
@@ -83,7 +84,7 @@ export class WorkspaceScanner {
         private diagnosticPublisher: DiagnosticPublisher,
         private resolveIncludePath?: (currentPath: string, name: string) => string | null,
         private documentLoader?: import('./documentLoader').DocumentLoader
-    ) {}
+    ) { }
 
     /**
      * Store patterns indicating which files/folders should be skipped during scan.
@@ -98,6 +99,64 @@ export class WorkspaceScanner {
                 this.excludeRegexes.push({ regex: null, pattern });
             }
         }
+        this.cleanupExcludedFiles();
+    }
+
+    private cleanupExcludedFiles(): void {
+        const excludedUris: string[] = [];
+
+        const checkAndCollect = (uri: string) => {
+            try {
+                const fsPath = URI.parse(normalizeUri(uri)).fsPath;
+                if (this.isExcluded(fsPath)) {
+                    excludedUris.push(uri);
+                }
+            } catch {}
+        };
+
+        for (const uri of this.stateStore.tdlScopeManager.fileMap.keys()) checkAndCollect(uri);
+        for (const uri of this.stateStore.xmlScopeManager.fileMap.keys()) checkAndCollect(uri);
+        for (const [uri] of this.stateStore.getAllDocs()) checkAndCollect(uri);
+        for (const uri of this.stateStore.getAllIndexedUris()) checkAndCollect(uri);
+
+        const uniqueUris = Array.from(new Set(excludedUris));
+        if (uniqueUris.length === 0) return;
+
+        logger.info(`[Exclude Cleanup] Removing ${uniqueUris.length} excluded files from state and diagnostics.`);
+
+        for (const uri of uniqueUris) {
+            // 1. Remove scopes
+            this.stateStore.tdlScopeManager.removeFileScope(uri);
+            this.stateStore.xmlScopeManager.removeFileScope(uri);
+
+            // 2. Clear diagnostics in VS Code
+            this.diagnosticPublisher.publish(uri, []);
+
+            // 3. Delete from state store
+            this.stateStore.deleteOpen(uri);
+            this.stateStore.deleteIndexed(uri);
+
+            // 4. Clean up include graphs
+            this.graphManager.includeGraph.delete(uri);
+            this.graphManager.parentGraph.delete(uri);
+
+            // Clean up parents and children references
+            for (const [parent, children] of this.graphManager.includeGraph.entries()) {
+                if (children.has(uri)) {
+                    children.delete(uri);
+                    if (children.size === 0) this.graphManager.includeGraph.delete(parent);
+                }
+            }
+            for (const [child, parents] of this.graphManager.parentGraph.entries()) {
+                if (parents.has(uri)) {
+                    parents.delete(uri);
+                    if (parents.size === 0) this.graphManager.parentGraph.delete(child);
+                }
+            }
+        }
+
+        this.graphManager.invalidateCache();
+        this.graphManager.notifyActiveUrisChanged();
     }
 
     private isExcluded(fullPath: string): boolean {
@@ -115,159 +174,132 @@ export class WorkspaceScanner {
      * Scan workspace folders for TDL files (async, non-blocking)
      * @param workspaceFolders Array of workspace folder URIs
      */
-    public scanWorkspaceFolders(workspaceFolders: string[]): void {
+    public scanWorkspaceFolders(workspaceFolders: string[]): Promise<void> {
         this.hasInitialScanStarted = true;
         if (this.scanningInProgress) {
             this.scanQueue.push(workspaceFolders);
-            return;
+            return Promise.resolve();
         }
         this.scanningInProgress = true;
 
-        setTimeout(async () => {
-            const startTime = Date.now();
-            logger.trace(`[Perf] Starting workspace scan for ${workspaceFolders.length} folders...`);
-            try {
-                for (const folderUri of workspaceFolders) {
-                    await this.scanFolder(folderUri);
-                }
-                const count = this.stateStore.tdlScopeManager.getSymbolCount() + this.stateStore.xmlScopeManager.getSymbolCount();
-                logger.trace(`[Perf] Workspace scan complete in ${Date.now() - startTime}ms. ${count} definitions indexed.`);
-            } catch (error) {
-                logger.error(`Workspace scan error: ${error}`);
-            } finally {
-                this.scanningInProgress = false;
-                
-                if (this.scanQueue.length > 0) {
-                    const nextScan = this.scanQueue.shift()!;
-                    this.scanWorkspaceFolders(nextScan);
-                } else {
-                    // All queued scans complete! Revalidate open docs so initial 'Missing Definition' diagnostics go away.
-                    const openDocs = Array.from(this.stateStore.getAllDocs()).map(([_, state]) => ({ uri: _, ...state }));
-                    this.revalidateAll(openDocs).catch(e => logger.error(`Revalidation failed: ${e}`));
-                    // Also notify the client of the initial active URIs list
-                    this.graphManager.notifyActiveUrisChanged();
-                    if (this.onScanComplete) {
-                        this.onScanComplete();
+        return new Promise<void>((resolve) => {
+            setTimeout(async () => {
+                const startTime = Date.now();
+                logger.trace(`[Perf] Starting workspace scan for ${workspaceFolders.length} folders...`);
+                try {
+                    for (const folderUri of workspaceFolders) {
+                        await this.scanFolder(folderUri);
                     }
+                    const count = this.stateStore.tdlScopeManager.getSymbolCount();
+                    logger.trace(`[Perf] Workspace scan complete in ${Date.now() - startTime}ms. ${count} definitions indexed.`);
+                } catch (error) {
+                    logger.error(`Workspace scan error: ${error}`);
+                } finally {
+                    this.scanningInProgress = false;
+
+                    if (this.scanQueue.length > 0) {
+                        const nextScan = this.scanQueue.shift()!;
+                        await this.scanWorkspaceFolders(nextScan);
+                    } else {
+                        // Process any open documents that were queued during the scan
+                        if (this.documentLifecycle) {
+                            this.documentLifecycle.processPendingDocuments();
+                        }
+                        // All queued scans complete! Revalidate open docs so initial 'Missing Definition' diagnostics go away.
+                        const openDocs = Array.from(this.stateStore.getAllDocs()).map(([_, state]) => ({ uri: _, ...state }));
+                        this.revalidateAll(openDocs).catch(e => logger.error(`Revalidation failed: ${e}`));
+                        // Also notify the client of the initial active URIs list
+                        this.graphManager.notifyActiveUrisChanged();
+                        if (this.onScanComplete) {
+                            this.onScanComplete();
+                        }
+                    }
+                    resolve();
                 }
-            }
-        }, 0);
+            }, 0);
+        });
     }
 
     /**
      * Orchestrates scanning of a single workspace folder.
-     * Splits into two global phases to prevent race conditions:
-     *   Phase 1: Find and process ALL .tpj files across ALL subdirectories (sequential)
+     * Performs a single directory traversal to collect all .tpj and standalone files.
+     *   Phase 1: Process ALL .tpj files (sequential to ensure include chains are mapped)
      *   Phase 2: Index standalone files not covered by any project (parallel)
      */
     private async scanFolder(folderUri: string): Promise<void> {
-        const folderPath = URI.parse(folderUri).fsPath;
+        const folderPath = URI.parse(normalizeUri(folderUri)).fsPath;
         try {
             const visited = new Set<string>();
-            // Phase 1: Recursively find and process ALL .tpj project files first.
-            // This ensures all project files and their include chains are indexed
-            // with isActive=true (project scope) before any standalone files.
-            // The visited set is populated with all project-referenced URIs.
-            await this.scanDirectoryForProjects(folderPath, visited);
+            const tpjList: string[] = [];
+            const tdlList: string[] = [];
+
+            // Single pass traversal to collect all relevant files
+            await this.collectFiles(folderPath, tpjList, tdlList);
+
+            // Phase 1: Process project files first to build the complete include graph
+            // and determine which files are active.
+            for (const tpj of tpjList) {
+                await this.parseProjectFile(tpj, visited);
+            }
+
             // Phase 2: Recursively process standalone files that were not part
-            // of any project. Files already in the visited set (from Phase 1)
-            // are skipped via indexFile's indexed.has() guard.
-            await this.scanDirectoryForStandaloneFiles(folderPath, visited);
+            // of any project.
+            const standalonePromises: Promise<void>[] = [];
+            for (const tdl of tdlList) {
+                const fullUri = normalizeUri(URI.file(tdl).toString());
+                if (!this.graphManager.isUriActive(fullUri)) {
+                    standalonePromises.push(this.indexFile(tdl, visited, true, false, false));
+                }
+            }
+
+            if (standalonePromises.length > 0) {
+                await Promise.all(standalonePromises);
+            }
         } catch (error) {
             logger.error(`Error scanning ${folderPath}: ${error}`);
         }
     }
 
-    /**
-     * Phase 1: Recursively scan directories to find and process ALL .tpj files.
-     * Runs sequentially to ensure all project files and their full include chains
-     * are indexed (with isActive=true → project scope) before standalone file
-     * processing begins in Phase 2.
-     *
-     * For each .tpj found:
-     *   1. Parse .tpj to find root `Project File` entries
-     *   2. Add root files to `graphManager.tpjFiles`
-     *   3. Index root files via `indexFile`, which recursively follows `[Include: ...]`
-     *   4. All included files are added to `includeGraph`, `parentGraph`, and `visited`
-     */
-    private async scanDirectoryForProjects(dirPath: string, visited: Set<string>): Promise<void> {
+    private async collectFiles(dirPath: string, tpjList: string[], tdlList: string[]): Promise<void> {
         if (this.isExcluded(dirPath)) return;
 
-        const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
+        try {
+            const entries = await this.fileAccess.readDirectory(dirPath);
 
-        // Process .tpj files in this directory
-        for (const entry of entries) {
-            if (entry.isFile()) {
-                const ext = path.extname(entry.name).toLowerCase();
-                if (ext === '.tpj') {
-                    const fullPath = path.join(dirPath, entry.name);
-                    if (!this.isExcluded(fullPath)) {
-                        await this.parseProjectFile(fullPath, visited);
+
+            for (const entry of entries) {
+                const entryName = typeof entry === 'string' ? entry : (entry as any).name;
+                const fullPath = path.join(dirPath, entryName);
+                if (this.isExcluded(fullPath)) continue;
+
+                let isDir = false;
+                let isFil = false;
+                if (typeof entry !== 'string') {
+                    isDir = typeof (entry as any).isDirectory === 'function' ? (entry as any).isDirectory() : false;
+                    isFil = typeof (entry as any).isFile === 'function' ? (entry as any).isFile() : false;
+                } else {
+                    const stat = await this.fileAccess.stat(fullPath);
+                    if (stat) {
+                        isDir = stat.isDirectory();
+                        isFil = stat.isFile();
+                    }
+                }
+
+                if (isDir) {
+                    if (!entryName.startsWith('.') && entryName !== 'node_modules') {
+                        await this.collectFiles(fullPath, tpjList, tdlList);
+                    }
+                } else if (isFil) {
+                    const ext = path.extname(entryName).toLowerCase();
+                    if (ext === '.tpj') {
+                        tpjList.push(fullPath);
+                    } else if (['.txt', '.tdl', '.xml', '.tdlxml', '.dat'].includes(ext)) {
+                        tdlList.push(fullPath);
                     }
                 }
             }
-        }
-
-        // Recurse into subdirectories (sequential to ensure deterministic ordering
-        // and complete project discovery before Phase 2)
-        for (const entry of entries) {
-            if (entry.isDirectory()) {
-                const fullPath = path.join(dirPath, entry.name);
-                if (!this.isExcluded(fullPath) && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
-                    await this.scanDirectoryForProjects(fullPath, visited);
-                }
-            }
-        }
-    }
-
-    /**
-     * Phase 2: Recursively scan directories for standalone .tdl/.txt/.xml/.tdlxml/.dat
-     * files that were NOT already indexed during Phase 1.
-     *
-     * A file is skipped if:
-     *   - It is a root project entry (in `graphManager.tpjFiles`), OR
-     *   - It was already indexed via a project's include chain (in `visited` set,
-     *     checked by `indexFile`'s `indexed.has()` guard)
-     *
-     * Standalone files are indexed with isActive=false → workspace scope.
-     * Their symbols are available for auto-completion but they receive no diagnostics.
-     */
-    private async scanDirectoryForStandaloneFiles(dirPath: string, visited: Set<string>): Promise<void> {
-        if (this.isExcluded(dirPath)) return;
-
-        const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
-        const promises: Promise<void>[] = [];
-
-        for (const entry of entries) {
-            const fullPath = path.join(dirPath, entry.name);
-            if (this.isExcluded(fullPath)) continue;
-
-            if (entry.isDirectory()) {
-                if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
-                    promises.push(this.scanDirectoryForStandaloneFiles(fullPath, visited));
-                }
-            } else if (entry.isFile()) {
-                const ext = path.extname(entry.name).toLowerCase();
-                if (['.tdl', '.txt', '.xml', '.tdlxml', '.dat'].includes(ext)) {
-                    // Skip root project files (already indexed in Phase 1)
-                    if (!this.graphManager.tpjFiles.has(normalizeUri(URI.file(fullPath).toString()))) {
-                        // Files already in visited (indexed via project include chains)
-                        // will be skipped by indexFile's indexed.has() guard
-                        promises.push(this.indexFile(fullPath, visited, true, false, false).catch(err => {
-                            logger.error(`Error indexing standalone file ${fullPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
-                        }));
-                    }
-                }
-            }
-
-            if (promises.length >= 50) {
-                await Promise.all(promises);
-                promises.length = 0;
-            }
-        }
-
-        if (promises.length > 0) {
-            await Promise.all(promises);
+        } catch (err) {
+            logger.warn(`Could not read directory ${dirPath}: ${err}`);
         }
     }
 
@@ -277,13 +309,13 @@ export class WorkspaceScanner {
             const lines = content.split(/\r?\n/);
             const dirPath = path.dirname(tpjPath);
             const promises: Promise<void>[] = [];
-            
+
             for (let line of lines) {
                 line = line.trim();
                 if (!line || line.startsWith(';') || line.startsWith('[') || line.startsWith(']')) {
                     continue;
                 }
-                
+
                 let entryFile = '';
                 if (line.toLowerCase().startsWith('project file=')) {
                     entryFile = line.substring('project file='.length).trim();
@@ -336,9 +368,33 @@ export class WorkspaceScanner {
         const uri = normalizeUri(URI.file(filePath).toString());
         if (indexed.has(uri)) return;
         indexed.add(uri);
-        
-        // If file is open in editor, skip indexing as it's handled by rebuild()
-        if (this.stateStore.getOpen(uri)) return;
+
+        // If file is open in editor, skip parsing but still recursively index its includes in the correct scope
+        const openState = this.stateStore.getOpen(uri);
+        if (openState) {
+            const scopeMgr = this.stateStore.getScopeManager(uri);
+            const hasScope = scopeMgr.fileMap.has(uri);
+            const wasWorkspace = hasScope ? scopeMgr.isFileWorkspaceScope(uri) : undefined;
+            const isWorkspace = !isActive;
+
+            if (!hasScope || wasWorkspace !== isWorkspace) {
+                scopeMgr.buildFileScope(uri, openState.sourceFile, isWorkspace);
+                scopeMgr.projectScope.referenceIndex.clearFile(uri);
+                if (!uri.endsWith('.xml') && !uri.endsWith('.tdlxml')) {
+                    scopeMgr.projectScope.referenceIndex.indexFile(uri, openState.sourceFile);
+                }
+            }
+
+            const includes = this.graphManager.updateIncludeGraph(uri, openState.sourceFile);
+            const promises: Promise<void>[] = [];
+            for (const includedUri of includes) {
+                promises.push(this.indexFile(URI.parse(normalizeUri(includedUri)).fsPath, indexed, skipValidation, forceValidation, isActive));
+            }
+            if (promises.length > 0) {
+                await Promise.all(promises);
+            }
+            return;
+        }
 
         let sourceFile: SourceFile;
         let content: string;
@@ -352,21 +408,23 @@ export class WorkspaceScanner {
 
             const lastMtime = this.fileTimestamps.get(uri);
             const cached = this.stateStore.getIndexed(uri);
+            const wasWorkspace = scopeMgr.isFileWorkspaceScope(uri);
+            const isWorkspace = !isActive;
 
-            if (lastMtime !== undefined && lastMtime === stat.mtimeMs && cached) {
+            if (lastMtime !== undefined && lastMtime === stat.mtimeMs && cached && wasWorkspace === isWorkspace) {
                 if (!forceValidation) {
-                    return; 
+                    return;
                 }
                 sourceFile = cached.sourceFile;
                 content = await this.fileAccess.readFile(filePath, 'utf-8');
             } else {
                 this.fileTimestamps.set(uri, stat.mtimeMs);
                 content = await this.fileAccess.readFile(filePath, 'utf-8'); // FileAccess handles UTF-16LE BOM detection automatically
-                
+
                 // Yield to event loop right before heavy CPU work (AST parsing)
                 // This prevents event loop starvation/blocking and keeps the LSP responsive
                 await new Promise(resolve => setImmediate(resolve));
-                
+
                 const scopeMgr = this.stateStore.getScopeManager(uri);
                 if (isXml) {
                     sourceFile = parseXmlToAst(content, scopeMgr);
@@ -374,20 +432,20 @@ export class WorkspaceScanner {
                     const parser = new Parser(content, undefined, scopeMgr.getFunctionArity.bind(scopeMgr));
                     sourceFile = parser.parse();
                 }
-                
+
                 scopeMgr.buildFileScope(uri, sourceFile, !isActive);
 
                 const includes = this.graphManager.updateIncludeGraph(uri, sourceFile);
-                
+
                 const promises: Promise<void>[] = [];
                 for (const includedUri of includes) {
-                    if (!this.stateStore.getOpen(includedUri)) {
-                        promises.push(this.indexFile(URI.parse(includedUri).fsPath, indexed, skipValidation, forceValidation, isActive));
-                    }
+                    promises.push(this.indexFile(URI.parse(normalizeUri(includedUri)).fsPath, indexed, skipValidation, forceValidation, isActive));
                 }
 
                 scopeMgr.projectScope.referenceIndex.clearFile(uri);
-                scopeMgr.projectScope.referenceIndex.indexFile(uri, sourceFile);
+                if (!isXml) {
+                    scopeMgr.projectScope.referenceIndex.indexFile(uri, sourceFile);
+                }
 
                 if (promises.length > 0) {
                     await Promise.all(promises);
@@ -395,7 +453,7 @@ export class WorkspaceScanner {
             }
 
             const doc = TextDocument.create(uri, isXml ? 'xml' : 'tdl', 1, content);
-            
+
             const diagnostics: Diagnostic[] = sourceFile.errors.map(error => ({
                 severity: DiagnosticSeverity.Error,
                 range: { start: doc.positionAt(error.start), end: doc.positionAt(error.end) },
@@ -408,7 +466,9 @@ export class WorkspaceScanner {
                 diagnostics.length = 0;
                 const finalDiagnostics = filterDiagnostics(diagnostics);
                 this.diagnosticPublisher.publish(uri, finalDiagnostics);
-                this.stateStore.setIndexed(uri, { sourceFile, diagnostics: finalDiagnostics });
+                if (!isXml) {
+                    this.stateStore.setIndexed(uri, { sourceFile, diagnostics: finalDiagnostics });
+                }
                 return;
             }
 
@@ -418,62 +478,66 @@ export class WorkspaceScanner {
                 diagnostics.length = 0;
                 const finalDiagnostics = filterDiagnostics(diagnostics);
                 this.diagnosticPublisher.publish(uri, finalDiagnostics);
-                this.stateStore.setIndexed(uri, { sourceFile, diagnostics: finalDiagnostics });
+                if (!isXml) {
+                    this.stateStore.setIndexed(uri, { sourceFile, diagnostics: finalDiagnostics });
+                }
                 return;
             }
-            
+
             // For now, we pass `this.graphManager` since validateSourceFile usages have been updated.
-            diagnostics.push(...(await validateSourceFile(sourceFile, doc, undefined, scopeMgr, this.resolveIncludePath, this.graphManager)));            
-            
+            diagnostics.push(...(await validateSourceFile(sourceFile, doc, undefined, scopeMgr, this.resolveIncludePath, this.graphManager)));
+
             const finalDiagnostics = filterDiagnostics(diagnostics);
             this.diagnosticPublisher.publish(uri, finalDiagnostics);
-            this.stateStore.setIndexed(uri, { sourceFile, diagnostics: finalDiagnostics });
+            if (!isXml) {
+                this.stateStore.setIndexed(uri, { sourceFile, diagnostics: finalDiagnostics });
+            }
         } catch (err) {
             logger.warn(`Error indexing file ${filePath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
         }
     }
 
-    public async revalidateAll(openDocs: {uri: string}[]): Promise<void> {
+    public async revalidateAll(openDocs: { uri: string }[]): Promise<void> {
         if (this.revalidateTimeout) {
             clearTimeout(this.revalidateTimeout);
         }
-        
+
         return new Promise((resolve) => {
             this.revalidateTimeout = setTimeout(async () => {
                 this.revalidateTimeout = null;
-                
+
+                const t0 = Date.now();
                 if (!this.hasInitialScanStarted || this.scanningInProgress) {
                     resolve();
                     return;
                 }
+                logger.trace(`[Perf] revalidateAll started for ${openDocs.length} open docs...`);
 
                 const allKnownUris = new Set<string>();
-
-                for (const doc of openDocs) {
-                    const projectNodes = this.graphManager.getProjectNodes(doc.uri);
-                    for (const node of projectNodes) {
-                        allKnownUris.add(node);
-                    }
-                }
-                
-                for (const tpj of this.graphManager.tpjFiles) {
-                    const projectNodes = this.graphManager.getProjectNodes(tpj);
-                    for (const node of projectNodes) {
-                        allKnownUris.add(node);
-                    }
+                for (const uri of this.stateStore.getAllIndexedUris()) {
+                    allKnownUris.add(uri);
                 }
 
-                // Since rebuild is owned by lifecycle service now, we just let it handle open docs if needed.
-                // However, revalidateAll historically triggered a rebuild on open docs. 
-                // That logic moves to DocumentLifecycleService. 
-                // We'll just index closed files here.
+                // 1. Revalidate all open documents first so the user gets diagnostics immediately
+                const openPromises: Promise<void>[] = [];
+                for (const docInfo of openDocs) {
+                    const openState = this.stateStore.getOpen(normalizeUri(docInfo.uri));
+                    if (openState && openState.document && this.documentLifecycle) {
+                        openPromises.push(this.documentLifecycle.rebuild(openState.document));
+                    }
+                }
+                if (openPromises.length > 0) {
+                    await Promise.all(openPromises);
+                }
 
+                // 2. Validate closed project files in the background
                 const promises: Promise<void>[] = [];
                 for (const uriStr of allKnownUris) {
-                    if (this.stateStore.getOpen(normalizeUri(uriStr))) continue;
+                    const normUri = normalizeUri(uriStr);
+                    if (this.stateStore.getOpen(normUri)) continue;
 
-                    const fsPath = URI.parse(uriStr).fsPath;
-                    const isActive = this.graphManager.isUriActive(uriStr);
+                    const fsPath = URI.parse(normUri).fsPath;
+                    const isActive = this.graphManager.isUriActive(normUri);
                     promises.push(this.indexFile(fsPath, new Set(), false, true, isActive).catch(err => {
                         logger.error(`Error indexing file ${fsPath}: ${err instanceof Error ? err.stack || err.message : String(err)}`);
                     }));
@@ -487,7 +551,9 @@ export class WorkspaceScanner {
                 if (promises.length > 0) {
                     await Promise.all(promises);
                 }
-                
+
+                const elapsed = Date.now() - t0;
+                logger.trace(`[Perf] revalidateAll completed in ${elapsed}ms for ${openDocs.length} open docs and ${allKnownUris.size} project nodes.`);
                 this.graphManager.notifyActiveUrisChanged();
                 resolve();
             }, 500);
@@ -507,7 +573,7 @@ export class WorkspaceScanner {
             this.stateStore.getScopeManager(uri).removeFileScope(uri);
             this.stateStore.getScopeManager(uri).projectScope.referenceIndex.clearFile(uri);
         }
-        
+
         for (const [uri, children] of this.graphManager.includeGraph.entries()) {
             if (URI.parse(uri).fsPath.startsWith(folderPath)) {
                 this.graphManager.includeGraph.delete(uri);
@@ -517,19 +583,12 @@ export class WorkspaceScanner {
                         children.delete(childUri);
                     }
                 }
+                if (children.size === 0) {
+                    this.graphManager.includeGraph.delete(uri);
+                }
             }
         }
-        for (const [uri] of Array.from(this.stateStore.getAllDocs())) {
-            if (URI.parse(uri).fsPath.startsWith(folderPath)) {
-                this.stateStore.deleteOpen(uri);
-            }
-        }
-        
-        for (const uri of Array.from(this.stateStore.getAllIndexedUris())) {
-            if (URI.parse(uri).fsPath.startsWith(folderPath)) {
-                this.stateStore.deleteIndexed(uri);
-            }
-        }
+
         for (const [uri, parents] of this.graphManager.parentGraph.entries()) {
             if (URI.parse(uri).fsPath.startsWith(folderPath)) {
                 this.graphManager.parentGraph.delete(uri);

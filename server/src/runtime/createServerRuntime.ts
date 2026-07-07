@@ -48,6 +48,8 @@ export function createServerRuntime(dependencies: ServerRuntimeDependencies): Se
     // Provide the scanner back to the workspace lifecycle service
     (workspaceLifecycleService as any).scanner = workspaceScanner;
     (workspaceLifecycleService as any).documentLifecycle = documentLifecycle;
+    (workspaceLifecycleService as any).graphManager = graphManager;
+    (workspaceScanner as any).documentLifecycle = documentLifecycle;
 
     const contextResolver = new DocumentContextResolver(dependencies.documents, stateStore, graphManager);
     const documentFeatures = createDocumentFeatures(contextResolver, documentLoader, workspaceLifecycleService.resolveIncludePath.bind(workspaceLifecycleService), documentLifecycle);

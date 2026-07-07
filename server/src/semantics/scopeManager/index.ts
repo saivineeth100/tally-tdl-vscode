@@ -279,7 +279,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
                             const defScope = c as DefinitionScope;
                             if (defScope.definition && defScope.definition.name) {
                                 const name = normalizeTypeName(defScope.definition.name);
-                                 const arr = this.nameIndex.get(name);
+                                const arr = this.nameIndex.get(name);
                                 if (arr) {
                                     const filtered = arr.filter(s => !s.uri || normalizeUri(s.uri).toLowerCase() !== lowerUri);
                                     if (filtered.length === 0) this.nameIndex.delete(name);
@@ -407,6 +407,12 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         return buildFileScope(this, uri, sourceFile, undefined, isWorkspace ? this.workspaceScope : this.projectScope);
     }
 
+    public isFileWorkspaceScope(uri: string): boolean {
+        const scope = this.fileMap.get(normalizeUri(uri));
+        if (!scope) return false;
+        return this.getRootKind(scope) === ScopeKind.Workspace;
+    }
+
     /**
      * Find the most specific scope at a given offset in a document
      */
@@ -422,12 +428,12 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             const sortedChildren = [...scope.childScopes]
                 .filter(c => c.range)
                 .sort((a, b) => a.range!.start - b.range!.start);
-            
+
             for (let i = 0; i < sortedChildren.length; i++) {
                 const child = sortedChildren[i];
                 const start = child.range!.start;
                 const nextStart = i < sortedChildren.length - 1 ? sortedChildren[i + 1].range!.start : Infinity;
-                
+
                 if (offset >= start && offset < nextStart) {
                     return this.findScopeRecursive(child, offset);
                 }
@@ -594,7 +600,7 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
         const normalizedName = normalizeTypeName(name);
         const symbols = this.nameIndex.get(normalizedName) || [];
         if (projectScope) {
-            return symbols.filter(s => s.uri && projectScope.has(normalizeUri(s.uri).toLowerCase()));
+            return symbols.filter(s => s.uri && projectScope.has(normalizeUri(s.uri)));
         }
         return symbols;
     }

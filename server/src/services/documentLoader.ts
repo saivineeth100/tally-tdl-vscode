@@ -32,7 +32,7 @@ export class DocumentLoader {
         try {
             const fsPath = URI.parse(uri).fsPath;
             if (await this.fileAccess.exists(fsPath)) {
-                const content = await this.fileAccess.readFile(fsPath, 'utf-16le');
+                const content = await this.fileAccess.readFile(fsPath, 'utf-8');
                 
                 let languageId = 'tally';
                 const lowerPath = fsPath.toLowerCase();

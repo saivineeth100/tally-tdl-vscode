@@ -638,7 +638,7 @@ export function resolveFunction(
     // 1. User definitions (Workspace / Project scope index)
     let syms = state.getProjectDefinition('function', name);
     if (projectScope && syms.length > 0) {
-        syms = syms.filter(s => s.uri && projectScope.has(normalizeUri(s.uri).toLowerCase()));
+        syms = syms.filter(s => s.uri && projectScope.has(normalizeUri(s.uri)));
     }
     if (syms && syms.length > 0) return syms[0] as unknown as FunctionSymbol;
 
@@ -665,7 +665,7 @@ export function resolveAction(
     // 1. User definitions (Workspace / Project scope index)
     let syms = state.getProjectDefinition('action', name);
     if (projectScope && syms.length > 0) {
-        syms = syms.filter(s => s.uri && projectScope.has(normalizeUri(s.uri).toLowerCase()));
+        syms = syms.filter(s => s.uri && projectScope.has(normalizeUri(s.uri)));
     }
     if (syms && syms.length > 0) return syms[0] as unknown as ActionSymbol;
 
@@ -696,7 +696,7 @@ export function resolveDefinition(
     let syms = state.getProjectDefinition(canonicalType, normalizedName);
     if (projectScope && syms.length > 0) {
         // If projectScope is specified, filter by active URIs
-        syms = syms.filter(s => s.uri && projectScope.has(normalizeUri(s.uri).toLowerCase()));
+        syms = syms.filter(s => s.uri && projectScope.has(normalizeUri(s.uri)));
     }
     if (syms && syms.length > 0) return syms;
 

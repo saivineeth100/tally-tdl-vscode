@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SymbolKind } from 'tally-tdl-shared';
 import { ScopeKind } from '../../semantics/scopeManager/types';
 import { ServerTestHarness } from '../harness/serverTestHarness';
-import { TextDocument } from 'vscode-languageserver-textdocument';
 import { loadMetadata } from '../../semantics/metadataLoader';
 import * as path from 'path';
 
@@ -91,11 +90,8 @@ describe('onDefinition Multiple (Duplicates and Modifiers)', () => {
 
     it('should resolve modifier definitions through actual NavigationService.definition', async () => {
         const uri = 'file:///active1.tdl';
-        const doc = TextDocument.create(uri, 'tdl', 1, '[Part: MyPart]\n[#Part: MyPart]\n[Form: MyForm]\n    Part: MyPart');
-        harness.documents.set(uri, doc);
-        
-        // Load the document using documentLifecycle so it is parsed and indexed
-        await harness.runtime.documentLifecycle.onDidOpen(doc);
+        harness.simulateOpen(uri, 'tdl', '[Part: MyPart]\n[#Part: MyPart]\n[Form: MyForm]\n    Part: MyPart');
+        harness.runtime.documentLifecycle.processPendingDocuments();
         
         // Click position on "MyPart" in normal usage (inside Form)
         const params = {
@@ -115,10 +111,8 @@ describe('onDefinition Multiple (Duplicates and Modifiers)', () => {
 
     it('should navigate to base definition when clicking on a modifier itself', async () => {
         const uri = 'file:///active1.tdl';
-        const doc = TextDocument.create(uri, 'tdl', 1, '[Part: MyPart]\n[#Part: MyPart]');
-        harness.documents.set(uri, doc);
-        
-        await harness.runtime.documentLifecycle.onDidOpen(doc);
+        harness.simulateOpen(uri, 'tdl', '[Part: MyPart]\n[#Part: MyPart]');
+        harness.runtime.documentLifecycle.processPendingDocuments();
         
         // Click position on "MyPart" inside "[#Part: MyPart]" (line 1, char 8)
         const params = {
@@ -139,15 +133,8 @@ describe('onDefinition Multiple (Duplicates and Modifiers)', () => {
 
     it('should resolve definitions through Use attribute references', async () => {
         const uri = 'file:///active1.tdl';
-        const doc = TextDocument.create(
-            uri,
-            'tdl',
-            1,
-            '[Report: BaseReport]\n[Report: MyReport]\n    Use: BaseReport'
-        );
-        harness.documents.set(uri, doc);
-        
-        await harness.runtime.documentLifecycle.onDidOpen(doc);
+        harness.simulateOpen(uri, 'tdl', '[Report: BaseReport]\n[Report: MyReport]\n    Use: BaseReport');
+        harness.runtime.documentLifecycle.processPendingDocuments();
         
         // Position of "BaseReport" in "    Use: BaseReport" (line 2, char 9)
         const params = {
@@ -168,19 +155,14 @@ describe('onDefinition Multiple (Duplicates and Modifiers)', () => {
         const uriA = 'file:///active_proj.tdl';
         const uriB = 'file:///loose.tdl';
         
-        // Active file defining the base Line
-        const docA = TextDocument.create(uriA, 'tdl', 1, '[Line: CollAmtTotalLine]\n    Fields: Long Prompt, CollAmtTotal');
-        // Inactive loose file inheriting from it
-        const docB = TextDocument.create(uriB, 'tdl', 1, '[Line: NumItemsLine]\n    Use: CollAmtTotalLine');
-        
-        harness.documents.set(uriA, docA);
-        harness.documents.set(uriB, docB);
-        
         // Add active_proj.tdl to tpj files to force loose.tdl to be inactive
         harness.runtime.services.includeGraphManager.tpjFiles.add(uriA);
         
-        await harness.runtime.documentLifecycle.onDidOpen(docA);
-        await harness.runtime.documentLifecycle.onDidOpen(docB);
+        // Active file defining the base Line
+        harness.simulateOpen(uriA, 'tdl', '[Line: CollAmtTotalLine]\n    Fields: Long Prompt, CollAmtTotal');
+        // Inactive loose file inheriting from it
+        harness.simulateOpen(uriB, 'tdl', '[Line: NumItemsLine]\n    Use: CollAmtTotalLine');
+        harness.runtime.documentLifecycle.processPendingDocuments();
         
         // Position of "CollAmtTotalLine" in "    Use: CollAmtTotalLine" (line 1, char 9)
         const params = {

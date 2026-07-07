@@ -83,10 +83,23 @@ export function resolveModifierChain(
             }
 
             if (expectingDefNameFor) {
+                if (nodeText === '') {
+                    result.effectiveDefType = expectingDefNameFor;
+                    if (offset !== undefined && offset >= node.start && offset <= node.end) {
+                        result.cursorSegment = 'defName';
+                    }
+                    break;
+                }
                 result.effectiveDefType = expectingDefNameFor;
                 result.effectiveDefName = nodeText;
                 expectingDefNameFor = undefined;
             } else if (!isAttribute) {
+                if (nodeText === '') {
+                    if (offset !== undefined && offset >= node.start && offset <= node.end) {
+                        result.cursorSegment = 'defType';
+                    }
+                    break;
+                }
                 if (nodeTextLower === 'local') {
                     if (offset !== undefined && offset >= node.start && offset <= node.end) {
                         result.cursorSegment = 'modifierKeyword';
@@ -134,6 +147,7 @@ export function resolveModifierChain(
                         if (offset !== undefined && offset >= node.start && offset <= node.end) {
                             result.cursorSegment = 'targetAttribute';
                         }
+                        currentIndex++; // Skip the target attribute itself
                     }
                     break;
                 }

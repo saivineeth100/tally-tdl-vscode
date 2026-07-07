@@ -888,6 +888,7 @@ describe('ScopeManager', () => {
 
         it('should handle attributes search and empty states', () => {
             const manager = createTestScopeManager();
+            manager.globalScope.attributes = new Map();
             
             // Empty AttributesCategory
             const emptyResult = manager.viewer.getSymbolsPaginated('global', 'AttributesCategory', 1, 10);
@@ -942,6 +943,7 @@ describe('ScopeManager', () => {
         
         it('should extract correct scope ID when passed Category suffix', () => {
             const manager = createTestScopeManager();
+            manager.globalScope.attributes = new Map();
             
             manager.globalScope.schemas.set('schema1', { name: 'Schema1', kind: SymbolKind.Object } as any);
             

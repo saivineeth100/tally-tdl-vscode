@@ -58,10 +58,10 @@ export class WorkspaceLifecycleService {
     }
 
     public async loadMetadata(version: string) {
-        // When bundled to dist/, __dirname is dist/. When running from src/, __dirname is src/.
-        const dataDir = __dirname.endsWith('src') || __dirname.endsWith('src\\') || __dirname.endsWith('src/')
-            ? path.resolve(__dirname, '../../data') // Adjusted because this file is in services/ 
-            : path.resolve(__dirname, './data');
+        let dataDir = path.resolve(__dirname, './data');
+        if (!fs.existsSync(dataDir)) {
+            dataDir = path.resolve(__dirname, '../../data');
+        }
 
         // Initialize Global Scope in ScopeManagers
         this.stateStore.tdlScopeManager.initializeGlobalScope();
@@ -100,6 +100,7 @@ export class WorkspaceLifecycleService {
         if (this.scanner) {
             this.scanner.onScanComplete = () => {
                 this.client.refreshSemanticTokens();
+                this.client.refreshCodeLens();
             };
         }
 
@@ -125,6 +126,7 @@ export class WorkspaceLifecycleService {
         
         // Tell client to refresh semantic tokens since we now have base symbols
         this.client.refreshSemanticTokens();
+        this.client.refreshCodeLens();
         
         if (settings) {
             if (settings.excludePaths && Array.isArray(settings.excludePaths)) {
@@ -235,6 +237,7 @@ export class WorkspaceLifecycleService {
                 await this.loadMetadata(this.currentTargetVersion);
                 this.stateStore.isMetadataLoaded = true;
                 this.client.refreshSemanticTokens();
+                this.client.refreshCodeLens();
             }
 
             // Reload external libraries if configured
@@ -242,6 +245,7 @@ export class WorkspaceLifecycleService {
                 await loadExternalLibraries(change.settings.tallyTDL.externalLibraries, this.stateStore.tdlScopeManager);
                 await loadExternalLibraries(change.settings.tallyTDL.externalLibraries, this.stateStore.xmlScopeManager);
                 this.client.refreshSemanticTokens();
+                this.client.refreshCodeLens();
             }
 
             // Re-validate all documents (open and indexed)

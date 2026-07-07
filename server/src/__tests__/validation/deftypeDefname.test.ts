@@ -238,4 +238,15 @@ describe('Validation - [deftype:defname]', () => {
         // It might report syntax/missing bracket error, but should not crash or throw exceptions
         expect(diagnostics).toBeDefined();
     });
+
+    it('should recognize Variable and Variables definition types as valid headers', async () => {
+        const tdl = `[Variable: MyVariable1]\n[Variables: MyVariable2]`;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
+
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
+        const unknownTypeDiag = diagnostics.find(d => d.code === DiagnosticRules.UnknownDefinitionType.code);
+        expect(unknownTypeDiag).toBeUndefined();
+    });
 });

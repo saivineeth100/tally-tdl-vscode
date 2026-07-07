@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest';
-import { TextDocument } from 'vscode-languageserver-textdocument';
 import { findReferences } from '../../features/references';
 import { ServerTestHarness } from '../harness/serverTestHarness';
 import * as fs from 'fs';
@@ -48,9 +47,8 @@ async function setupHarness(files: Record<string, string>) {
         const canonicalPath = harness.files.canonicalize(fsPath);
         
         harness.files.files.set(canonicalPath, cleanContent);
-        const doc = TextDocument.create(uri, 'tdl', 1, cleanContent);
-        harness.documents.set(uri, doc);
-        await harness.runtime.documentLifecycle!.rebuild(doc);
+        harness.simulateOpen(uri, 'tdl', cleanContent);
+        harness.runtime.documentLifecycle.processPendingDocuments();
     }
 
     return { harness, targetUri, offset };
@@ -282,6 +280,11 @@ describe('References Service', () => {
         expect(refs).toBeDefined();
         // Should find 3 references: 2 modifiers (#Part, !Part) and 1 actual usage (Part: MyPart)
         expect(refs.length).toBe(3); 
+        
+        const modifiers = refs.filter((r: any) => r.isModifier);
+        const usages = refs.filter((r: any) => !r.isModifier);
+        expect(modifiers.length).toBe(2);
+        expect(usages.length).toBe(1);
     });
 
     it('should return the exact same reference count when triggered from the modifier', async () => {
@@ -310,5 +313,10 @@ describe('References Service', () => {
         // Should STILL find 3 references (the search is global for the identifier "MyPart")
         // Base definition is correctly ignored.
         expect(refs.length).toBe(3); 
+
+        const modifiers = refs.filter((r: any) => r.isModifier);
+        const usages = refs.filter((r: any) => !r.isModifier);
+        expect(modifiers.length).toBe(2);
+        expect(usages.length).toBe(1);
     });
 });

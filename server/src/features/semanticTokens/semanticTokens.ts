@@ -1,5 +1,6 @@
 import {
     SemanticTokenTypes,
+    SemanticTokenModifiers,
     SemanticTokensBuilder,
     SemanticTokensLegend,
     SemanticTokens,
@@ -24,6 +25,7 @@ import { normalizeTypeName } from '../../utils/normalizeUtils';
 import { SymbolKind } from 'tally-tdl-shared';
 import { getExpectedTypeForMenuItem } from '../../utils/attributeUtils';
 import { resolveModifierChain } from '../../utils/modifierUtils';
+import { isValidDataType } from '../../utils/dataTypeUtils';
 
 export interface SemanticToken {
     line: number;
@@ -34,58 +36,76 @@ export interface SemanticToken {
     text?: string;
 }
 
-// Define the legend used by the server
-export const TDL_SEMANTIC_TOKENS_LEGEND: SemanticTokensLegend = {
-    tokenTypes: [
-        SemanticTokenTypes.class,     // 0
-        SemanticTokenTypes.property,  // 1
-        SemanticTokenTypes.function,  // 2
-        SemanticTokenTypes.variable,  // 3
-        SemanticTokenTypes.macro,     // 4
-        SemanticTokenTypes.number,    // 5
-        SemanticTokenTypes.string,    // 6
-        SemanticTokenTypes.keyword,   // 7
-        SemanticTokenTypes.operator,  // 8
-        SemanticTokenTypes.comment,   // 9
-        SemanticTokenTypes.type       // 10
-    ],
-    tokenModifiers: []
-};
+export interface SemanticRole {
+    readonly type: string;
+    readonly modifiers?: string[];
+}
 
 // Reusable static mapping of TDL construct/role to expected semantic token type
-export const TDL_SEMANTIC_TOKEN_ROLES = {
-    modifier: SemanticTokenTypes.keyword,
-    defType: SemanticTokenTypes.keyword,
-    defName: SemanticTokenTypes.class,
-    includeImportName: SemanticTokenTypes.string,
-    attributeName: SemanticTokenTypes.macro,
-    fieldName: SemanticTokenTypes.variable,
-    methodName: SemanticTokenTypes.function,
-    functionName: SemanticTokenTypes.function,
-    variableName: SemanticTokenTypes.variable,
-    formulaName: SemanticTokenTypes.macro, // or variable
-    comment: SemanticTokenTypes.comment,
-    operator: SemanticTokenTypes.operator,
-    directiveType: SemanticTokenTypes.macro,
-    directiveDefType: SemanticTokenTypes.keyword,
-    directiveDefName: SemanticTokenTypes.class,
-    property: SemanticTokenTypes.property,
-} as const;
+export const TDL_SEMANTIC_TOKEN_ROLES: Record<string, SemanticRole> = {
+    modifier: { type: SemanticTokenTypes.modifier },
+    defType: { type: SemanticTokenTypes.keyword },
+    defNameDeclaration: { type: SemanticTokenTypes.class, modifiers: [SemanticTokenModifiers.declaration] },
+    defNameModification: { type: SemanticTokenTypes.class, modifiers: [SemanticTokenModifiers.modification] },
+    includeImportName: { type: SemanticTokenTypes.string },
+    attributeName: { type: SemanticTokenTypes.macro },
+    fieldName: { type: SemanticTokenTypes.variable },
+    methodName: { type: SemanticTokenTypes.function },
+    functionName: { type: SemanticTokenTypes.function },
+    variableName: { type: SemanticTokenTypes.variable },
+    formulaName: { type: SemanticTokenTypes.macro, modifiers: [] },
+    comment: { type: SemanticTokenTypes.comment },
+    operator: { type: SemanticTokenTypes.operator },
+    directiveType: { type: SemanticTokenTypes.macro },
+    directiveDefType: { type: SemanticTokenTypes.keyword },
+    directiveDefName: { type: SemanticTokenTypes.class },
+    property: { type: SemanticTokenTypes.property },
+    variable: { type: SemanticTokenTypes.variable },
+    systemDefName: { type: SemanticTokenTypes.decorator },
 
-// Map string types to indices in the legend
-const TOKEN_TYPE_MAP: Record<string, number> = {
-    [SemanticTokenTypes.class]: 0,
-    [SemanticTokenTypes.property]: 1,
-    [SemanticTokenTypes.function]: 2,
-    [SemanticTokenTypes.variable]: 3,
-    [SemanticTokenTypes.macro]: 4,
-    [SemanticTokenTypes.number]: 5,
-    [SemanticTokenTypes.string]: 6,
-    [SemanticTokenTypes.keyword]: 7,
-    [SemanticTokenTypes.operator]: 8,
-    [SemanticTokenTypes.comment]: 9,
-    [SemanticTokenTypes.type]: 10
+    // Explicitly added to ensure they are registered in the Legend
+    number: { type: SemanticTokenTypes.number },
+    type: { type: SemanticTokenTypes.type }
 };
+
+// Extract unique token types from roles to build the Legend
+const uniqueTokenTypes = Array.from(new Set(
+    Object.values(TDL_SEMANTIC_TOKEN_ROLES).map(role => role.type)
+));
+
+// Extract unique token modifiers from roles
+const uniqueTokenModifiers = Array.from(new Set(
+    Object.values(TDL_SEMANTIC_TOKEN_ROLES).flatMap(role => (role as any).modifiers || [])
+));
+
+// Define the legend used by the server
+export const TDL_SEMANTIC_TOKENS_LEGEND: SemanticTokensLegend = {
+    tokenTypes: uniqueTokenTypes,
+    tokenModifiers: uniqueTokenModifiers as string[]
+};
+
+// Map string types to indices in the legend dynamically
+const TOKEN_TYPE_MAP: Record<string, number> = Object.fromEntries(
+    uniqueTokenTypes.map((type, index) => [type, index])
+);
+
+// Map string modifiers to indices dynamically
+const TOKEN_MODIFIER_MAP: Record<string, number> = Object.fromEntries(
+    uniqueTokenModifiers.map((mod, index) => [mod, index])
+);
+
+export function getModifierBitmask(modifiers?: readonly string[]): number {
+    if (!modifiers) return 0;
+    let bitmask = 0;
+    for (const mod of modifiers) {
+        const index = TOKEN_MODIFIER_MAP[mod];
+        if (index !== undefined) {
+            bitmask |= (1 << index);
+        }
+    }
+    return bitmask;
+}
+
 
 // Helper mapping for RefersTo/DataType to SemanticTokenTypes
 function mapMetaTypeToToken(refersTo?: string, dataType?: string, scopeManager?: ScopeManager): string | undefined {
@@ -140,16 +160,17 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
 
     tokens.sort((a, b) => a.startChar - b.startChar);
 
-    interface TokenSegment { line: number, char: number, len: number, typeIdx: number }
+    interface TokenSegment { line: number, char: number, len: number, typeIdx: number, modMask: number }
     const segments: TokenSegment[] = [];
 
     for (const t of tokens) {
         const startPos = doc.positionAt(t.startChar);
         const endPos = doc.positionAt(t.startChar + t.length);
         const typeIdx = TOKEN_TYPE_MAP[t.type] ?? 0;
+        const modMask = getModifierBitmask(t.modifiers);
 
         if (startPos.line === endPos.line) {
-            segments.push({ line: startPos.line, char: startPos.character, len: t.length, typeIdx });
+            segments.push({ line: startPos.line, char: startPos.character, len: t.length, typeIdx, modMask });
         } else {
             for (let line = startPos.line; line <= endPos.line; line++) {
                 const lineOffsets = (sourceFile as any).lineOffsets;
@@ -171,7 +192,7 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
                 const len = effectiveTokenEnd - intersectionStart;
 
                 if (len > 0) {
-                    segments.push({ line: pos.line, char: pos.character, len, typeIdx });
+                    segments.push({ line: pos.line, char: pos.character, len, typeIdx, modMask });
                 }
             }
         }
@@ -179,12 +200,12 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
 
     segments.sort((a, b) => a.line !== b.line ? a.line - b.line : a.char - b.char);
     for (const s of segments) {
-        builder.push(s.line, s.char, s.len, s.typeIdx, 0);
+        builder.push(s.line, s.char, s.len, s.typeIdx, s.modMask);
     }
 
     const res = builder.build();
     const t2 = Date.now();
-    console.info(`[Perf] provideSemanticTokens for ${doc.uri}: Total=${t2-t0}ms (getSemanticTokens=${t1-t0}ms, build=${t2-t1}ms)`);
+    console.info(`[Perf] provideSemanticTokens for ${doc.uri}: Total=${t2 - t0}ms (getSemanticTokens=${t1 - t0}ms, build=${t2 - t1}ms)`);
     if (res.resultId) {
         builder.previousResult(res.resultId);
     }
@@ -205,16 +226,17 @@ export function provideSemanticTokensEdits(sourceFile: SourceFile, doc: any, pre
     const tokens = getSemanticTokens(sourceFile, scopeManager, doc.uri, token);
     tokens.sort((a, b) => a.startChar - b.startChar);
 
-    interface TokenSegment { line: number, char: number, len: number, typeIdx: number }
+    interface TokenSegment { line: number, char: number, len: number, typeIdx: number, modMask: number }
     const segments: TokenSegment[] = [];
 
     for (const t of tokens) {
         const startPos = doc.positionAt(t.startChar);
         const endPos = doc.positionAt(t.startChar + t.length);
         const typeIdx = TOKEN_TYPE_MAP[t.type] ?? 0;
+        const modMask = getModifierBitmask(t.modifiers);
 
         if (startPos.line === endPos.line) {
-            segments.push({ line: startPos.line, char: startPos.character, len: t.length, typeIdx });
+            segments.push({ line: startPos.line, char: startPos.character, len: t.length, typeIdx, modMask });
         } else {
             for (let line = startPos.line; line <= endPos.line; line++) {
                 const lineOffsets = (sourceFile as any).lineOffsets;
@@ -233,14 +255,14 @@ export function provideSemanticTokensEdits(sourceFile: SourceFile, doc: any, pre
                 const effectiveTokenEnd = Math.min(t.startChar + t.length, nextLineStart);
                 const pos = doc.positionAt(intersectionStart);
                 const len = effectiveTokenEnd - intersectionStart;
-                if (len > 0) segments.push({ line: pos.line, char: pos.character, len, typeIdx });
+                if (len > 0) segments.push({ line: pos.line, char: pos.character, len, typeIdx, modMask });
             }
         }
     }
 
     segments.sort((a, b) => a.line !== b.line ? a.line - b.line : a.char - b.char);
     for (const s of segments) {
-        builder.push(s.line, s.char, s.len, s.typeIdx, 0);
+        builder.push(s.line, s.char, s.len, s.typeIdx, s.modMask);
     }
 
     const result = builder.buildEdits();
@@ -262,7 +284,8 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
             line: 0,
             startChar: comment.start,
             length: comment.end - comment.start,
-            type: TDL_SEMANTIC_TOKEN_ROLES.comment,
+            type: TDL_SEMANTIC_TOKEN_ROLES.comment.type,
+            modifiers: TDL_SEMANTIC_TOKEN_ROLES.comment.modifiers as any,
             text: comment.text
         });
     }
@@ -279,7 +302,8 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 line: 0,
                 startChar: def.modifier.Start,
                 length: def.modifier.Length,
-                type: TDL_SEMANTIC_TOKEN_ROLES.modifier,
+                type: TDL_SEMANTIC_TOKEN_ROLES.modifier.type,
+                modifiers: TDL_SEMANTIC_TOKEN_ROLES.modifier.modifiers as any,
                 text: def.modifier.Text
             });
         }
@@ -288,7 +312,8 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 line: 0,
                 startChar: def.type.start,
                 length: def.type.end - def.type.start,
-                type: TDL_SEMANTIC_TOKEN_ROLES.defType,
+                type: TDL_SEMANTIC_TOKEN_ROLES.defType.type,
+                modifiers: TDL_SEMANTIC_TOKEN_ROLES.defType.modifiers as any,
                 text: def.type?.text
             });
         }
@@ -297,31 +322,36 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
                 line: 0,
                 startChar: def.closeType.start,
                 length: def.closeType.end - def.closeType.start,
-                type: TDL_SEMANTIC_TOKEN_ROLES.defType,
+                type: TDL_SEMANTIC_TOKEN_ROLES.defType.type,
+                modifiers: TDL_SEMANTIC_TOKEN_ROLES.defType.modifiers as any,
                 text: def.closeType?.text
             });
         }
         if (def.name) {
-            let tokenType: string = TDL_SEMANTIC_TOKEN_ROLES.defName;
+            let role = def.modifier
+                ? TDL_SEMANTIC_TOKEN_ROLES.defNameModification
+                : TDL_SEMANTIC_TOKEN_ROLES.defNameDeclaration;
+
             if (def.type && (def.type?.text?.trim().toLowerCase() === 'include' || def.type?.text?.trim().toLowerCase() === 'import')) {
-                tokenType = TDL_SEMANTIC_TOKEN_ROLES.includeImportName;
+                role = TDL_SEMANTIC_TOKEN_ROLES.includeImportName;
             }
 
             tokens.push({
                 line: 0,
                 startChar: def.name.start,
                 length: def.name.end - def.name.start,
-                type: tokenType,
+                type: role.type,
+                modifiers: role.modifiers as any,
                 text: def.name?.text
             });
         }
         const defNameText = normalizeTypeName(def.name?.text || '');
         const defTypeName = normalizeTypeName(def.type?.text || '');
-        
+
         if (def.attributes) {
             traverseAttributes(def.attributes, tokens, defTypeName, defNameText, scopeManager, uri);
         }
-        
+
         for (const dir of def.directives) {
             tokenizeDirective(dir, tokens);
         }
@@ -342,7 +372,7 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
 function tokenizeDirective(dir: any, tokens: SemanticToken[]) {
     const startChar = dir.start;
     const nameStart = startChar + 1;
-    
+
     // Tokenize < and >
     tokens.push({ line: 0, startChar: dir.start, length: 1, type: SemanticTokenTypes.operator, text: '<' });
     if (dir.end > dir.start) {
@@ -471,7 +501,7 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
                     const paramNode = attr.value[i];
                     const offset = paramNode.start + 1;
                     const resolved = resolveModifierChain(attrNameLower, attr.value, defTypeName, defName, scopeManager, offset);
-                    
+
                     if (resolved.cursorSegment) {
                         switch (resolved.cursorSegment) {
                             case 'modifierKeyword':
@@ -700,9 +730,21 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
     if (node.kind === SyntaxKind.Identifier) {
         const idNode = node as IdentifierNode;
 
-        // 1. Keyword Highlighting
-        if (isKeyword(idNode)) {
+        // 1. Keyword Highlighting (skip if it is part of a definition name reference)
+        if (isKeyword(idNode) && expectedType !== SemanticTokenTypes.class) {
             tokens.push(keywordToken(idNode));
+            return;
+        }
+
+        // 2. Data Type Highlighting
+        if (isValidDataType(idNode.text)) {
+            tokens.push({
+                line: 0,
+                startChar: idNode.start,
+                length: idNode.end - idNode.start,
+                type: SemanticTokenTypes.type,
+                text: idNode?.text
+            });
             return;
         }
 
@@ -749,7 +791,7 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
                 // For 'CollectionField', etc.
                 const key = Object.keys(FUNCTION_PARAMETER_CONTEXT).find(k => normalizeTypeName(k) === funcName);
                 if (key) {
-                     paramContexts = FUNCTION_PARAMETER_CONTEXT[key];
+                    paramContexts = FUNCTION_PARAMETER_CONTEXT[key];
                 }
             }
 
@@ -765,8 +807,8 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
         if (varNode.variableName) {
             tokens.push({
                 line: 0,
-                startChar: varNode.variableName.start,
-                length: varNode.variableName.end - varNode.variableName.start,
+                startChar: varNode.start,
+                length: varNode.end - varNode.start,
                 type: SemanticTokenTypes.variable,
                 text: varNode.variableName?.text
             });
@@ -776,8 +818,8 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
         if (formulaNode.formulaName) {
             tokens.push({
                 line: 0,
-                startChar: formulaNode.formulaName.start,
-                length: formulaNode.formulaName.end - formulaNode.formulaName.start,
+                startChar: formulaNode.start,
+                length: formulaNode.end - formulaNode.start,
                 type: SemanticTokenTypes.macro,
                 text: formulaNode.formulaName?.text
             });
@@ -787,8 +829,8 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
         if (fieldNode.fieldName) {
             tokens.push({
                 line: 0,
-                startChar: fieldNode.fieldName.start,
-                length: fieldNode.fieldName.end - fieldNode.fieldName.start,
+                startChar: fieldNode.start,
+                length: fieldNode.end - fieldNode.start,
                 type: SemanticTokenTypes.variable,
                 text: fieldNode.fieldName?.text
             });
@@ -839,6 +881,16 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
     } else if (node.kind === SyntaxKind.Statement || ('operator' in node)) {
         const binNode = node as any;
         if (binNode.left) traverseNode(binNode.left, tokens, scopeManager, uri, expectedType);
+        if (binNode.operator) {
+            const opTokenType = expectedType === SemanticTokenTypes.class ? expectedType : SemanticTokenTypes.operator;
+            tokens.push({
+                line: 0,
+                startChar: binNode.operator.Start,
+                length: binNode.operator.Length,
+                type: opTokenType,
+                text: binNode.operator.Text || ''
+            });
+        }
         if (binNode.right) traverseNode(binNode.right, tokens, scopeManager, uri, expectedType);
     }
 }

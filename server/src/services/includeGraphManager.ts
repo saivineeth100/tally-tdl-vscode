@@ -182,7 +182,6 @@ export class IncludeGraphManager {
 
         this.isActiveUrisCacheDirty = false;
     }
-
     public isUriActive(targetUri: string): boolean {
         this.rebuildActiveUrisCache();
         return this.activeUris.has(normalizeUri(targetUri));
@@ -228,9 +227,9 @@ export class IncludeGraphManager {
             }
         }
 
-        const lowerProjectNodes = new Set(Array.from(projectNodes).map(u => normalizeUri(u).toLowerCase()));
-        this.projectNodesCache.set(normUri, lowerProjectNodes);
-        return lowerProjectNodes;
+        const normalizedProjectNodes = new Set(Array.from(projectNodes).map(u => normalizeUri(u)));
+        this.projectNodesCache.set(normUri, normalizedProjectNodes);
+        return normalizedProjectNodes;
     }
 
     public notifyActiveUrisChanged(): void {

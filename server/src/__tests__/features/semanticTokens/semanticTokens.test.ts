@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Parser } from '../../../core/parser/parser';
-import { getSemanticTokens, TDL_SEMANTIC_TOKEN_ROLES } from '../../../features/semanticTokens/semanticTokens';
+import { getSemanticTokens } from '../../../features/semanticTokens/semanticTokens';
 import { SemanticTokenTypes } from 'vscode-languageserver';
 import { testScopeManager } from '../../../__tests__/test-setup';
 
@@ -173,5 +173,27 @@ describe('Semantic Tokens', () => {
         const methodToken = tokens.find((t: any) => t.text?.includes('MyMethod'));
         expect(methodToken).toBeDefined();
         expect(methodToken!.type).toBe(SemanticTokenTypes.function); // Methods are functions
+    });
+
+    it('should tokenize Datatypes as type and Variables with prefixes', () => {
+        const tdl = `[Report: TestReport]
+            Variable: TestVar : String
+            Set: TestVar : "fgb"
+            Formula: ##TestVar + #TestVar
+        `;
+        const tokens = parseAndGetTokens(tdl);
+
+        // 1. Verify 'String' is highlighted as a type
+        const typeToken = tokens.find((t: any) => t.text === 'String');
+        expect(typeToken).toBeDefined();
+        expect(typeToken!.type).toBe(SemanticTokenTypes.type);
+
+        // 2. Verify variable references including prefixes are highlighted
+        const varRefTokens = tokens.filter((t: any) => t.type === SemanticTokenTypes.variable);
+        const doubleHashToken = varRefTokens.find((t: any) => t.length === 9); // ##TestVar
+        const singleHashToken = varRefTokens.find((t: any) => t.length === 8); // #TestVar
+
+        expect(doubleHashToken).toBeDefined();
+        expect(singleHashToken).toBeDefined();
     });
 });

@@ -1,4 +1,4 @@
-import { CompletionItem, CompletionItemKind, CompletionParams, CompletionList, MarkupKind } from 'vscode-languageserver/node';
+import { CompletionItem, CompletionItemKind, CompletionParams, CompletionList, MarkupKind, Range } from 'vscode-languageserver/node';
 import { DocumentStateStore } from './documentStateStore';
 import { IncludeGraphManager } from './includeGraphManager';
 import { DocumentContextResolver } from './documentContextResolver';
@@ -66,7 +66,30 @@ export class CompletionService {
 
             case 'definition_type':
                 const defTypes = scopeManager.getDefinitionTypes();
-                items.push(...provideDefinitionTypeCompletions(context.partial, isXml, defTypes, scopeManager, context.directiveName, context.hasTrailingColon, context.hasModifier));
+                let modifierInfo: { char: string; range: Range } | undefined;
+                if (context.hasModifier && context.modifier) {
+                    const lineText = textBefore;
+                    const lastOpenBracket = lineText.lastIndexOf('[');
+                    const modifierIdx = lineText.indexOf(context.modifier, lastOpenBracket + 1);
+                    if (modifierIdx !== -1) {
+                        modifierInfo = {
+                            char: context.modifier,
+                            range: {
+                                start: { line: params.position.line, character: modifierIdx },
+                                end: params.position
+                            }
+                        };
+                    }
+                }
+                items.push(...provideDefinitionTypeCompletions(
+                    context.partial,
+                    isXml,
+                    defTypes,
+                    scopeManager,
+                    context.directiveName,
+                    context.hasTrailingColon,
+                    modifierInfo
+                ));
                 break;
 
             case 'directive_file_level':
@@ -142,7 +165,7 @@ export class CompletionService {
                 }
                 if (!xmlHandled && currentDef) {
                     const currentScope = scopeManager.getScopeAt(params.textDocument.uri, offset);
-                    items.push(...provideAttributeValueCompletions(scopeManager, currentDef.type.text, context, undefined, currentScope));
+                    items.push(...provideAttributeValueCompletions(scopeManager, currentDef.type.text, context, undefined, currentScope, currentDef));
                 }
                 break;
 
@@ -216,8 +239,46 @@ export class CompletionService {
                                 }
                             }
                         }
-                          if (param.RefersTo && context.defType !== 'Function') {
-                            items.push(...getSuggestionsForDefinitionType(param.RefersTo.trim(), context.partial, scopeManager, true, projectScope));
+                        if (param.RefersTo) {
+                            const refersToType = param.RefersTo.trim();
+                            if (refersToType.toLowerCase() === 'variable' || refersToType.toLowerCase() === 'system variable') {
+                                const currentScope = scopeManager.getScopeAt(params.textDocument.uri, offset);
+                                const addedVars = new Set<string>();
+                                const addVar = (name: string, detail: string) => {
+                                    const lower = name.toLowerCase();
+                                    if (!addedVars.has(lower)) {
+                                        addedVars.add(lower);
+                                        items.push({
+                                            label: name,
+                                            kind: CompletionItemKind.Variable,
+                                            detail: detail,
+                                            insertText: name,
+                                            sortText: '0_' + lower
+                                        });
+                                    }
+                                };
+
+                                if (currentScope) {
+                                    const reachableVars = scopeManager.getAllVariablesInScope(currentScope);
+                                    for (const [varName, varInfo] of reachableVars.entries()) {
+                                        if (context.partial === '' || varName.toLowerCase().includes(context.partial.toLowerCase())) {
+                                            addVar(varInfo.name || varName, `Scoped Variable`);
+                                        }
+                                    }
+                                }
+
+                                if (scopeManager.projectScope) {
+                                    for (const [varName, varInfo] of scopeManager.projectScope.variables.entries()) {
+                                        if (context.partial === '' || varName.toLowerCase().includes(context.partial.toLowerCase())) {
+                                            addVar(varInfo.name || varName, `Global/System Variable`);
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (context.defType !== 'Function') {
+                                    items.push(...getSuggestionsForDefinitionType(refersToType, context.partial, scopeManager, true, projectScope));
+                                }
+                            }
                         } else if (param.DataType?.toLowerCase() === 'string') {
                             items.push({
                                 label: '"..."',

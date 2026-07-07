@@ -46,9 +46,8 @@ async function setupHarness(files: Record<string, string>) {
         const canonicalPath = harness.files.canonicalize(fsPath);
         
         harness.files.files.set(canonicalPath, cleanContent);
-        const doc = TextDocument.create(uri, 'tdl', 1, cleanContent);
-        harness.documents.set(uri, doc);
-        await harness.runtime.documentLifecycle!.rebuild(doc);
+        harness.simulateOpen(uri, 'tdl', cleanContent);
+        harness.runtime.documentLifecycle.processPendingDocuments();
     }
 
     return { harness, targetUri, position };
