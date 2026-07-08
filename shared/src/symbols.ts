@@ -19,6 +19,18 @@ export enum SymbolKind {
     Style = 'Style',
     Color = 'Color',
     Object = 'Object',
+    Exchange = 'Exchange',
+    ExplodeOwner = 'ExplodeOwner',
+    ImportFile = 'ImportFile',
+    Include = 'Include',
+    NameSet = 'NameSet',
+    ObjectMap = 'ObjectMap',
+    QueryBox = 'QueryBox',
+    Recon = 'Recon',
+    Resource = 'Resource',
+    Ruleset = 'Ruleset',
+    Table = 'Table',
+    Theme = 'Theme',
     Formula = 'Formula',
     Unknown = 'Unknown'
 }

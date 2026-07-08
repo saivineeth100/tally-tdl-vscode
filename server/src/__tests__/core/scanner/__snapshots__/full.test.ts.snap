@@ -140,7 +140,7 @@ exports[`Lexer Full Tests > Identifiers 1`] = `
     "length": 9,
     "start": 19,
     "text": "report123",
-    "value": "",
+    "value": "report123",
   },
   {
     "kind": "EndOfFileToken",
@@ -461,7 +461,7 @@ exports[`Lexer Full Tests > Symbols and Prefixes 1`] = `
     "length": 1,
     "start": 19,
     "text": "_",
-    "value": "",
+    "value": "_",
   },
   {
     "kind": "EndOfFileToken",

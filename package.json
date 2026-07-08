@@ -313,6 +313,111 @@
                             "none"
                         ]
                     }
+                },
+                "tallyTDL.formatting.indentDefinitionBody": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Indent content inside definition blocks."
+                },
+                "tallyTDL.formatting.indentComplexObjectBody": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Indent content inside complex object blocks."
+                },
+                "tallyTDL.formatting.indentBlockStatementBody": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Indent procedural block bodies (IF/WHILE/FOR/WALK)."
+                },
+                "tallyTDL.formatting.spaceBeforeColon": {
+                    "type": "string",
+                    "enum": ["space", "tab", "none"],
+                    "default": "space",
+                    "description": "Spacing before ':' in attributes."
+                },
+                "tallyTDL.formatting.spaceAfterColon": {
+                    "type": "string",
+                    "enum": ["space", "tab", "none"],
+                    "default": "space",
+                    "description": "Spacing after ':' in attributes."
+                },
+                "tallyTDL.formatting.spaceBeforeDefinitionColon": {
+                    "type": "string",
+                    "enum": ["space", "tab", "none"],
+                    "default": "none",
+                    "description": "Spacing before ':' in definition headers [Type : Name]."
+                },
+                "tallyTDL.formatting.spaceAfterDefinitionColon": {
+                    "type": "string",
+                    "enum": ["space", "tab", "none"],
+                    "default": "space",
+                    "description": "Spacing after ':' in definition headers [Type : Name]."
+                },
+                "tallyTDL.formatting.blankLinesBetweenDefinitions": {
+                    "type": "number",
+                    "default": 1,
+                    "minimum": 0,
+                    "maximum": 5,
+                    "description": "Number of blank lines between top-level definitions."
+                },
+                "tallyTDL.formatting.blankLinesAfterDefinitionHeader": {
+                    "type": "number",
+                    "default": 1,
+                    "minimum": 0,
+                    "maximum": 5,
+                    "description": "Number of blank lines after definition header before starting attributes."
+                },
+                "tallyTDL.formatting.blankLinesBetweenAttributes": {
+                    "type": "number",
+                    "default": -1,
+                    "minimum": -1,
+                    "maximum": 3,
+                    "description": "Number of blank lines between attributes. Set to -1 to preserve original blank lines up to maxConsecutiveBlankLines."
+                },
+                "tallyTDL.formatting.maxConsecutiveBlankLines": {
+                    "type": "number",
+                    "default": 2,
+                    "minimum": 0,
+                    "maximum": 10,
+                    "description": "Maximum consecutive blank lines allowed."
+                },
+                "tallyTDL.formatting.trimTrailingWhitespace": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Remove trailing whitespace from lines."
+                },
+                "tallyTDL.formatting.insertFinalNewline": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ensure file ends with a newline."
+                },
+                "tallyTDL.formatting.definitionTypeCasing": {
+                    "type": "string",
+                    "enum": ["preserve", "uppercase", "lowercase", "titlecase"],
+                    "default": "preserve",
+                    "description": "Casing for definition type keywords (Report, Form, etc.)."
+                },
+                "tallyTDL.formatting.booleanKeywordCasing": {
+                    "type": "string",
+                    "enum": ["preserve", "uppercase", "lowercase", "titlecase"],
+                    "default": "preserve",
+                    "description": "Casing for boolean keywords (Yes/No/True/False)."
+                },
+                "tallyTDL.formatting.attributeNameCasing": {
+                    "type": "string",
+                    "enum": ["preserve", "uppercase", "lowercase", "titlecase"],
+                    "default": "preserve",
+                    "description": "Casing for attribute name keywords."
+                },
+                "tallyTDL.formatting.spaceAroundOperators": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ensure spaces around binary operators (+, -, *, /, =, etc.)."
+                },
+                "tallyTDL.formatting.spaceAfterComma": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ensure space after commas in lists."
                 }
             }
         },

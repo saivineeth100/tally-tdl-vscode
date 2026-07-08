@@ -35,17 +35,23 @@
         ["'", "'"]
     ],
    "indentationRules": {
-    // Rule 1: A line that starts a new block (e.g., "[Report: ...]")
-    // should DECREASE the indent level. This snaps it back to the
-    // base level, correctly formatting it underneath the previous block.
+    // Rule 1: A line that starts a new block or matches END*/ELSE statement
+    // should DECREASE the indent level.
     "decreaseIndentPattern": {
-      "pattern": "^\\s*\\["
+      "pattern": "(?:^\\s*\\[)|(?:^\\s*(?:\\w+\\s*:\\s*)?(?:END\\s*(?:IF|WHILE|WALK|FOR|BLOCK|if|while|walk|for|block)|ELSE|else)\\b)"
     },
-    // Rule 2: A line that starts a new block should also cause the
-    // NEXT line to be INDENTED.
+    // Rule 2: A line that starts a new block or matches a block statement start
+    // should cause the NEXT line to be INDENTED.
     "increaseIndentPattern": {
-      "pattern": "^\\s*\\["
+      "pattern": "(?:^\\s*\\[)|(?:^\\s*(?:\\w+\\s*:\\s*)?(?:IF|WHILE|ELSE|if|while|else)\\s*:)|(?:^\\s*(?:\\w+\\s*:\\s*)?(?:WALK\\s+COLLECTION|FOR\\s+COLLECTION|FOR\\s+TOKEN|FOR\\s+RANGE|START\\s+BLOCK|walk\\s+collection|for\\s+collection|for\\s+token|for\\s+range|start\\s+block)\\b)"
     }
   },
-
+  "onEnterRules": [
+    {
+      "beforeText": "\\+\\s*$",
+      "action": {
+        "indentAction": "none"
+      }
+    }
+  ]
 }

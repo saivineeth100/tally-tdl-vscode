@@ -1,4 +1,5 @@
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
+import { FormattingRules, mergeFormattingRules } from '../features/formatting/formattingRules';
 
 export interface TallyTDLSettings {
     diagnostics?: {
@@ -8,6 +9,7 @@ export interface TallyTDLSettings {
         severity?: Record<string, string>;
     };
     targetVersion?: string;
+    formatting?: Partial<FormattingRules>;
     [key: string]: any;
 }
 
@@ -36,6 +38,10 @@ export function updateSettings(newSettings: TallyTDLSettings) {
 
 export function getSettings(): TallyTDLSettings {
     return globalSettings;
+}
+
+export function getFormattingRules(): FormattingRules {
+    return mergeFormattingRules(globalSettings.formatting ?? {});
 }
 
 export function isDiagnosticsEnabled(): boolean {

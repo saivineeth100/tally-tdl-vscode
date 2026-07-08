@@ -239,21 +239,27 @@ async function buildCacheForVersion(version: string, baseTdlDir?: string, skipSa
 
         try {
             await zipVersionCache(version, dataPath);
-            if (!skipSamples) {
-                const targetSamplesDir = samplesDir || baseTdlDir;
-                if (targetSamplesDir && fs.existsSync(targetSamplesDir)) {
-                    await zipSamplesFolder(version, targetSamplesDir, dataPath);
-                } else {
-                    console.warn(`[Warning] Samples directory not found or not specified: ${targetSamplesDir}. Skipping samples zip.`);
-                }
-            } else {
-                console.log(`[Skip] Skipping samples zip generation for version ${version}.`);
-            }
         } catch (zipErr) {
-            console.error(`Failed to zip cache files or samples for version ${version}:`, zipErr);
+            console.error(`Failed to zip cache files for version ${version}:`, zipErr);
         }
     } else {
         console.log(`Successfully built metadata cache for version ${version} (${(metaBuffer.length / 1024 / 1024).toFixed(2)} MB)\n`);
+    }
+
+    // Phase 3: Zip Samples Folder if not skipped
+    if (!skipSamples) {
+        const targetSamplesDir = samplesDir || baseTdlDir;
+        if (targetSamplesDir && fs.existsSync(targetSamplesDir)) {
+            try {
+                await zipSamplesFolder(version, targetSamplesDir, dataPath);
+            } catch (zipErr) {
+                console.error(`Failed to zip samples for version ${version}:`, zipErr);
+            }
+        } else {
+            console.warn(`[Warning] Samples directory not found or not specified: ${targetSamplesDir}. Skipping samples zip.`);
+        }
+    } else {
+        console.log(`[Skip] Skipping samples zip generation for version ${version}.`);
     }
 }
 

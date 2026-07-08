@@ -294,7 +294,7 @@ exports[`Lexer simple tests > Basic TDL with spaces in Identifier 1`] = `
     "length": 8,
     "start": 89,
     "text": "Template",
-    "value": "",
+    "value": "Template",
   },
   {
     "kind": "EndOfFileToken",

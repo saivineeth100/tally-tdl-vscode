@@ -387,7 +387,7 @@ exports[`Lexer - Line Continuation > should tokenize + and newlines correctly 1`
     "length": 4,
     "start": 46,
     "text": "Arg3",
-    "value": "",
+    "value": "Arg3",
   },
   {
     "kind": "EndOfFileToken",

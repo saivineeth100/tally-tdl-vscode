@@ -333,7 +333,7 @@ that stops here",
     "length": 4,
     "start": 91,
     "text": "Test",
-    "value": "",
+    "value": "Test",
   },
   {
     "kind": "EndOfFileToken",
@@ -469,7 +469,7 @@ exports[`Lexer Error and Edge Cases > Unclosed String Literal 2`] = `
     "length": 4,
     "start": 50,
     "text": "Test",
-    "value": "",
+    "value": "Test",
   },
   {
     "kind": "EndOfFileToken",

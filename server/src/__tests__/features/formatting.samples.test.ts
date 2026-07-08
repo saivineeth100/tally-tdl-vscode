@@ -5,6 +5,7 @@ import { Parser } from '../../core/parser/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as fs from 'fs';
 import * as path from 'path';
+import { DEFAULT_FORMATTING_RULES } from '../../features/formatting/formattingRules';
 
 describe('Document Formatting - Real Samples', () => {
     const options: FormattingOptions = {
@@ -33,7 +34,7 @@ describe('Document Formatting - Real Samples', () => {
         expect(originalDefCount).toBeGreaterThan(0);
 
         // Run Formatter
-        const edits = formatDocument(input, sourceFile, options);
+        const edits = formatDocument(input, sourceFile, options, DEFAULT_FORMATTING_RULES);
         expect(edits).toBeDefined();
         
         const doc = TextDocument.create('file://test', 'tdl', 1, input);

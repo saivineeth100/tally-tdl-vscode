@@ -15,6 +15,7 @@ import { provideSemanticTokens, provideSemanticTokensEdits } from '../features/s
 import { DocumentContextResolver, ParsedDocumentContext, PositionedDocumentContext } from './documentContextResolver';
 import { DocumentLoader } from './documentLoader';
 import { DocumentLifecycleService } from './documentLifecycleService';
+import { getFormattingRules } from '../utils/settingsManager';
 
 export function createDocumentFeatures(
     resolver: DocumentContextResolver, 
@@ -81,7 +82,7 @@ export function createDocumentFeatures(
         },
 
         formatDocument: withParsed([], (ctx, params: DocumentFormattingParams) => {
-            return formatDocument(ctx.document.getText(), ctx.sourceFile, params.options);
+            return formatDocument(ctx.document.getText(), ctx.sourceFile, params.options, getFormattingRules());
         }),
 
         formatOnType: withParsed([], (ctx, params: DocumentOnTypeFormattingParams) => {

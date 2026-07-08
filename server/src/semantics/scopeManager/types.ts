@@ -40,7 +40,7 @@ export interface GlobalScope extends BaseScope {
     attributes: Map<string, Map<string, AttributeSymbol>>; // Outer key: definitionType (e.g. 'Field'), Inner key: attribute name
     schemas: Map<string, SchemaSymbol>;
     definitions: Map<string, Map<string, DefinitionSymbol>>; // Outer key: definitionType (e.g. 'Form'), Inner key: name
-    
+
     interchangeableTypesMap: Map<string, string>;
     interchangeableAttributesMap: Map<string, string>;
     interchangeableTypesAliasesMap: Map<string, string[]>;
@@ -117,13 +117,18 @@ export interface ModifierContribution {
 }
 
 export const SYSTEM_DEFINITION_NAMES = [
+    'Event',
+    'Events',
+    'Form Keys',
     'Formula',
     'Formulae',
-    'Variable',
-    'Variables',
+    'Formulas',
+    'Menu Keys',
     'TDL Name',
     'TDL Names',
-    'UDF'
+    'UDF',
+    'Variable',
+    'Variables',
 ];
 
 export const SYSTEM_DEFINITION_NAMES_LOWER = SYSTEM_DEFINITION_NAMES.map(name => normalizeTypeName(name));
@@ -139,6 +144,7 @@ export function definitionTypeToSymbolKind(defType: string, manager?: any): Symb
     }
     return Direct(canonicalType);
 }
+
 
 function Direct(defType: string): SymbolKind {
     switch (defType) {
@@ -156,8 +162,20 @@ function Direct(defType: string): SymbolKind {
         case 'style': return SymbolKind.Style;
         case 'color': return SymbolKind.Color;
         case 'colour': return SymbolKind.Color;
-        case 'object': return SymbolKind.Object;
+        case 'exchange': return SymbolKind.Exchange;
+        case 'explodeowner': return SymbolKind.ExplodeOwner;
         case 'import': return SymbolKind.Unknown; // Import is special
+        case 'importfile': return SymbolKind.ImportFile;
+        case 'include': return SymbolKind.Include;
+        case 'nameset': return SymbolKind.NameSet;
+        case 'object': return SymbolKind.Object;
+        case 'objectmap': return SymbolKind.ObjectMap;
+        case 'querybox': return SymbolKind.QueryBox;
+        case 'recon': return SymbolKind.Recon;
+        case 'resource': return SymbolKind.Resource;
+        case 'ruleset': return SymbolKind.Ruleset;
+        case 'table': return SymbolKind.Table;
+        case 'theme': return SymbolKind.Theme;
         case 'variable': return SymbolKind.Variable;
         case 'variables': return SymbolKind.Variable;
         case 'formula': return SymbolKind.Formula;
@@ -186,9 +204,21 @@ export function getSemanticTypeFromSymbol(symbol: SymbolInfo): string {
         case SymbolKind.Style:
         case SymbolKind.Color:
         case SymbolKind.Object:
+        case SymbolKind.Exchange:
+        case SymbolKind.ExplodeOwner:
+        case SymbolKind.ImportFile:
+        case SymbolKind.Include:
+        case SymbolKind.NameSet:
+        case SymbolKind.ObjectMap:
+        case SymbolKind.QueryBox:
+        case SymbolKind.Recon:
+        case SymbolKind.Resource:
+        case SymbolKind.Ruleset:
+        case SymbolKind.Table:
+        case SymbolKind.Theme:
             return SemanticTokenTypes.class;
         case SymbolKind.Function: return SemanticTokenTypes.function;
-        case SymbolKind.Variable: 
+        case SymbolKind.Variable:
         case SymbolKind.Formula:
             return SemanticTokenTypes.variable;
         default: return SemanticTokenTypes.variable;
@@ -215,7 +245,20 @@ export function symbolKindToLSPSymbolKind(kind: SymbolKind): LSPSymbolKind {
         case SymbolKind.Color: return LSPSymbolKind.Constant;
         case SymbolKind.Function: return LSPSymbolKind.Function;
         case SymbolKind.Variable: return LSPSymbolKind.Variable;
-        case SymbolKind.Object: return LSPSymbolKind.Class;
+        case SymbolKind.Object:
+        case SymbolKind.Exchange:
+        case SymbolKind.ExplodeOwner:
+        case SymbolKind.ImportFile:
+        case SymbolKind.Include:
+        case SymbolKind.NameSet:
+        case SymbolKind.ObjectMap:
+        case SymbolKind.QueryBox:
+        case SymbolKind.Recon:
+        case SymbolKind.Resource:
+        case SymbolKind.Ruleset:
+        case SymbolKind.Table:
+        case SymbolKind.Theme:
+            return LSPSymbolKind.Class;
         default: return LSPSymbolKind.Object;
     }
 }

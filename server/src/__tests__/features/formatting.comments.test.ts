@@ -3,6 +3,7 @@ import { formatDocument } from '../../features/formatting';
 import { FormattingOptions } from 'vscode-languageserver';
 import { Parser } from '../../core/parser/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { DEFAULT_FORMATTING_RULES } from '../../features/formatting/formattingRules';
 
 describe('Formatting - User Snippets', () => {
     const options: FormattingOptions = {
@@ -21,7 +22,7 @@ describe('Formatting - User Snippets', () => {
 
         const parser = new Parser(input);
         const sourceFile = parser.parse();
-        const edits = formatDocument(input, sourceFile, options);
+        const edits = formatDocument(input, sourceFile, options, DEFAULT_FORMATTING_RULES);
 
         const doc = TextDocument.create('file://test', 'tdl', 1, input);
         const output = TextDocument.applyEdits(doc, edits);

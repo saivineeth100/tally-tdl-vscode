@@ -129,8 +129,8 @@ export class TokenScanner {
                 this.state._pos++;
                 continue;
             }
-            return this.state.GetText(start_pos);
+            break;
         }
-        return "";
+        return this.state.GetText(start_pos);
     }
 }
