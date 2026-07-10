@@ -86,7 +86,7 @@ export function createDocumentFeatures(
         }),
 
         formatOnType: withParsed([], (ctx, params: DocumentOnTypeFormattingParams) => {
-            return provideOnTypeFormatting(ctx.document, params.position, params.ch, params.options);
+            return provideOnTypeFormatting(ctx.document, params.position, params.ch, params.options, getFormattingRules());
         }),
 
         documentHighlight: (params: DocumentHighlightParams) => {

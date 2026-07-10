@@ -38,7 +38,7 @@ describe('onTypeFormatting', () => {
         const edits = provideOnTypeFormatting(doc, Position.create(2, 0), '\n', defaultOptions);
         
         expect(edits.length).toBe(2);
-        expect(edits[0].newText).toBe('006 : ');
+        expect(edits[0].newText).toBe('006 :     ');
         expect(edits[1].newText).toBe('\n007 : ENDIF');
     });
 
@@ -47,7 +47,7 @@ describe('onTypeFormatting', () => {
         const edits = provideOnTypeFormatting(doc, Position.create(2, 0), '\n', defaultOptions);
         
         expect(edits.length).toBe(2);
-        expect(edits[0].newText).toBe('ab : ');
+        expect(edits[0].newText).toBe('ab :     ');
         expect(edits[1].newText).toBe('\nac : ENDWHILE');
     });
 
@@ -66,7 +66,7 @@ describe('onTypeFormatting', () => {
             const edits = provideOnTypeFormatting(doc, Position.create(2, 0), '\n', defaultOptions);
             
             expect(edits.length).toBe(2);
-            expect(edits[0].newText).toBe('02 : ');
+            expect(edits[0].newText).toBe('02 :     ');
             expect(edits[1].newText).toBe(`\n03 : ${block.close}`);
         }
     });
@@ -118,5 +118,38 @@ describe('onTypeFormatting', () => {
         const edits = provideOnTypeFormatting(doc, Position.create(2, 0), '\n', defaultOptions);
         
         expect(edits).toEqual([]);
+    });
+
+    it('should suggest correct indentation on enter inside nested blocks', () => {
+        const doc = createMockDocument(
+            '[Function: Test]\n' +
+            '01 : IF ##Condition\n' +
+            '02 :     IF ##Inner\n' +
+            '03 :         SET : Val : 10\n' +
+            '04 :     ENDIF\n' +
+            '05 : ENDIF\n' +
+            ']\n'
+        );
+        // User hits Enter after line 3 (SET statement)
+        const edits = provideOnTypeFormatting(doc, Position.create(4, 0), '\n', defaultOptions);
+        
+        expect(edits.length).toBe(1);
+        expect(edits[0].newText).toBe('04 :         '); // 2 tabs/8 spaces of action indent
+    });
+
+    it('should suggest correct indentation on enter after ELSE', () => {
+        const doc = createMockDocument(
+            '[Function: Test]\n' +
+            '01 : IF ##Condition\n' +
+            '02 :     SET : Val : 10\n' +
+            '03 : ELSE :\n' +
+            '04 : ENDIF\n' +
+            ']\n'
+        );
+        // User hits Enter after ELSE (line 3)
+        const edits = provideOnTypeFormatting(doc, Position.create(4, 0), '\n', defaultOptions);
+        
+        expect(edits.length).toBe(1);
+        expect(edits[0].newText).toBe('04 :         '); // 2 indents (8 spaces) for else body
     });
 });

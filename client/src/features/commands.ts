@@ -46,8 +46,8 @@ export function registerCommands(
             let userArgs = config.get<string[]>('tallyCommandLineArgs') || [];
             userArgs = userArgs.map(arg => arg.replace('${file}', document.uri.fsPath));
 
-            const finalArgs = ['/TDL', document.uri.fsPath, ...userArgs];
-
+            const finalArgs = [`/TDL:${document.uri.fsPath}`, ...userArgs];
+            outputChannel.appendLine(`Launching Tally with Args - ${finalArgs.join(" ")}...`)
             window.showInformationMessage(`Launching Tally with ${path.basename(document.fileName)}...`);
             const child = spawn(tallyExePath, finalArgs, { detached: true, stdio: 'ignore' });
             child.unref();

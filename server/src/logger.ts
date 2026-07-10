@@ -52,7 +52,7 @@ export class Logger implements ServiceLogger {
     debug(message: string, ...args: any[]) {
         if (this.level >= LogLevel.Debug) {
             const msg = args.length ? `${message} ${args.join(' ')}` : message;
-            this.connection ? this.connection.console.log(msg) : console.log(msg);
+            this.connection ? this.connection.console.debug(msg) : console.log(msg);
         }
     }
 

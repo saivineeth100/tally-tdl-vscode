@@ -26,6 +26,7 @@ import { SymbolKind } from 'tally-tdl-shared';
 import { getExpectedTypeForMenuItem } from '../../utils/attributeUtils';
 import { resolveModifierChain } from '../../utils/modifierUtils';
 import { isValidDataType } from '../../utils/dataTypeUtils';
+import { logger } from '../../logger';
 
 export interface SemanticToken {
     line: number;
@@ -205,7 +206,7 @@ export function provideSemanticTokens(sourceFile: SourceFile, doc: any, scopeMan
 
     const res = builder.build();
     const t2 = Date.now();
-    console.info(`[Perf] provideSemanticTokens for ${doc.uri}: Total=${t2 - t0}ms (getSemanticTokens=${t1 - t0}ms, build=${t2 - t1}ms)`);
+    logger.debug(`[Perf] provideSemanticTokens for ${doc.uri}: Total=${t2 - t0}ms (getSemanticTokens=${t1 - t0}ms, build=${t2 - t1}ms)`);
     if (res.resultId) {
         builder.previousResult(res.resultId);
     }

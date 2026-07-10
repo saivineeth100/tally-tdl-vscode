@@ -110,7 +110,7 @@ Title : "Title"
 03 : ENDIF`;
             const expected = `[Function: MyFunc]
     01 : IF : ##Check
-        02 : SET : Val : 10
+    02 :     SET : Val : 10
     03 : ENDIF
 `;
             apply(input, expected);
@@ -150,10 +150,50 @@ Title: "My Title Part 1" +
 05 : ENDIF`;
             const expected = `[Function: NestedFunc]
     01 : IF : ##CheckOuter
-        02 : IF : ##CheckInner
-            03 : SET : Val : 10
-        04 : ENDIF
+    02 :     IF : ##CheckInner
+    03 :         SET : Val : 10
+    04 :     ENDIF
     05 : ENDIF
+`;
+            apply(input, expected);
+        });
+
+        it('should format IF/ELSE/ENDIF block statements correctly with aligned labels', () => {
+            const input = `[Function: IfElseFunc]
+01 : IF : ##Cond
+02 : SET : Val : 1
+03 : ELSE :
+04 : SET : Val : 2
+05 : ENDIF`;
+            const expected = `[Function: IfElseFunc]
+    01 : IF : ##Cond
+    02 :     SET : Val : 1
+    03 : ELSE :
+    04 :     SET : Val : 2
+    05 : ENDIF
+`;
+            apply(input, expected);
+        });
+
+        it('should format SWITCH/CASE/DEFAULT block statements correctly with aligned labels', () => {
+            const input = `[Function: SwitchFunc]
+01 : SWITCH : ##Val
+02 : CASE : 1
+03 : SET : Res : "one"
+04 : CASE : 2
+05 : SET : Res : "two"
+06 : DEFAULT :
+07 : SET : Res : "other"
+08 : ENDSWITCH`;
+            const expected = `[Function: SwitchFunc]
+    01 : SWITCH : ##Val
+    02 :     CASE : 1
+    03 :         SET : Res : "one"
+    04 :     CASE : 2
+    05 :         SET : Res : "two"
+    06 :     DEFAULT :
+    07 :         SET : Res : "other"
+    08 : ENDSWITCH
 `;
             apply(input, expected);
         });

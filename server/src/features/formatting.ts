@@ -1,5 +1,5 @@
 import { TextEdit, FormattingOptions, Range, Position, CancellationToken } from 'vscode-languageserver';
-import { SourceFile, DefinitionNode, AttributeNode, ComplexObjectNode, StatementNode, BlockStatementNode, Node, SyntaxKind } from '../core/ast/ast';
+import { SourceFile, DefinitionNode, AttributeNode, ComplexObjectNode, StatementNode, BlockStatementNode, Node, SyntaxKind, IfNode, SwitchNode } from '../core/ast/ast';
 import { TokenKind } from '../core/lexer/tokenKind';
 import { Token } from '../core/lexer/token';
 import { FormattingRules } from './formatting/formattingRules';
@@ -10,6 +10,8 @@ interface TokenContext {
     casing: "definitionType" | "attributeName" | "boolean" | "none";
     isDefinitionColon: boolean;
     isAttributeColon: boolean;
+    isStatementLabelColon: boolean;
+    actionIndentDepth: number;
     isOperator: boolean;
     isComma: boolean;
     blankLinesBefore: number;
@@ -21,6 +23,8 @@ const defaultContext: TokenContext = {
     casing: "none",
     isDefinitionColon: false,
     isAttributeColon: false,
+    isStatementLabelColon: false,
+    actionIndentDepth: 0,
     isOperator: false,
     isComma: false,
     blankLinesBefore: -1
@@ -128,7 +132,7 @@ export function formatDocument(
 
     const contextMap = new Map<Token, TokenContext>();
 
-    function traverseAST(node: Node, depth: number) {
+    function traverseAST(node: Node, depth: number, baseDepth: number) {
         if (!node) return;
 
         if (node.kind === SyntaxKind.Definition) {
@@ -142,6 +146,8 @@ export function formatDocument(
                     casing: token === def.type?.tokens?.[0] ? "definitionType" : "none",
                     isDefinitionColon: token === def.colon,
                     isAttributeColon: false,
+                    isStatementLabelColon: false,
+                    actionIndentDepth: 0,
                     isOperator: false,
                     isComma: false,
                     blankLinesBefore: -1
@@ -160,7 +166,9 @@ export function formatDocument(
             const startLine = getLineFromOffset(def.start);
             const endLine = getLineFromOffset(def.end);
             for (let j = startLine + 1; j <= endLine; j++) {
-                lineIndents[j] = Math.max(lineIndents[j] || 0, bodyDepth);
+                const current = lineIndents[j];
+                const currentNum = typeof current === 'number' ? current : 0;
+                lineIndents[j] = Math.max(currentNum, bodyDepth);
             }
 
             const children = [
@@ -172,7 +180,7 @@ export function formatDocument(
 
             let isFirstChild = true;
             for (const child of children) {
-                traverseAST(child, bodyDepth);
+                traverseAST(child, bodyDepth, bodyDepth);
                 const childTokens = getTokensInRange(sourceFile.tokens, child.start, child.end);
                 if (childTokens.length > 0) {
                     const first = childTokens[0];
@@ -207,6 +215,8 @@ export function formatDocument(
                     casing,
                     isDefinitionColon: false,
                     isAttributeColon: token === attr.colon,
+                    isStatementLabelColon: false,
+                    actionIndentDepth: 0,
                     isOperator,
                     isComma,
                     blankLinesBefore: -1
@@ -231,6 +241,8 @@ export function formatDocument(
                     casing: "none",
                     isDefinitionColon: false,
                     isAttributeColon: false,
+                    isStatementLabelColon: false,
+                    actionIndentDepth: 0,
                     isOperator: false,
                     isComma: false,
                     blankLinesBefore: -1
@@ -240,7 +252,9 @@ export function formatDocument(
             const startLine = getLineFromOffset(obj.start);
             const endLine = getLineFromOffset(obj.end);
             for (let j = startLine; j <= endLine; j++) {
-                lineIndents[j] = Math.max(lineIndents[j] || 0, depth);
+                const current = lineIndents[j];
+                const currentNum = typeof current === 'number' ? current : 0;
+                lineIndents[j] = Math.max(currentNum, depth);
             }
 
             const bodyDepth = rules.indentComplexObjectBody ? depth + 1 : depth;
@@ -250,7 +264,7 @@ export function formatDocument(
             ].sort((a, b) => a.start - b.start);
 
             for (const child of children) {
-                traverseAST(child, bodyDepth);
+                traverseAST(child, bodyDepth, baseDepth);
             }
         } else if (node instanceof StatementNode) {
             const stmt = node as StatementNode;
@@ -261,11 +275,39 @@ export function formatDocument(
                 bodyDepth = rules.indentBlockStatementBody ? depth + 1 : depth;
                 const block = stmt as BlockStatementNode;
                 for (const subStmt of block.statements) {
-                    traverseAST(subStmt, bodyDepth);
+                    traverseAST(subStmt, bodyDepth, baseDepth);
                 }
                 if (block.endStatement) {
-                    traverseAST(block.endStatement, depth);
+                    traverseAST(block.endStatement, depth, baseDepth);
                 }
+            }
+
+            if (stmt instanceof IfNode) {
+                const ifNode = stmt as IfNode;
+                if (ifNode.elseStatements) {
+                    for (const elseSubStmt of ifNode.elseStatements) {
+                        const isElseKeyword = elseSubStmt.action && 
+                            elseSubStmt.action.text.toUpperCase().replace(/\s+/g, '') === 'ELSE';
+                        const subDepth = isElseKeyword ? depth : bodyDepth;
+                        traverseAST(elseSubStmt, subDepth, baseDepth);
+                    }
+                }
+            }
+
+            if (stmt instanceof SwitchNode) {
+                const switchNode = stmt as SwitchNode;
+                for (const caseNode of switchNode.cases) {
+                    traverseAST(caseNode, bodyDepth, baseDepth);
+                }
+                if (switchNode.defaultCase) {
+                    traverseAST(switchNode.defaultCase, bodyDepth, baseDepth);
+                }
+            }
+
+            let labelColonToken: Token | undefined;
+            if (stmt.label) {
+                const afterLabelTokens = getTokensInRange(sourceFile.tokens, stmt.label.end, stmt.end);
+                labelColonToken = afterLabelTokens.find(t => t.Kind === TokenKind.ColonToken);
             }
 
             for (const token of stmtTokens) {
@@ -277,12 +319,30 @@ export function formatDocument(
                     const isOperator = isOperatorToken(token);
                     const isComma = token.Kind === TokenKind.CommaToken;
 
+                    let tokenIndent = depth;
+                    let isStatementLabelColon = false;
+                    let actionIndentDepth = 0;
+
+                    if (stmt.label && rules.indentBlockStatementBody) {
+                        if (token.Start < stmt.label.end) {
+                            tokenIndent = baseDepth;
+                        } else if (token === labelColonToken) {
+                            tokenIndent = baseDepth;
+                            isStatementLabelColon = true;
+                            actionIndentDepth = Math.max(0, depth - baseDepth);
+                        } else {
+                            tokenIndent = depth;
+                        }
+                    }
+
                     contextMap.set(token, {
-                        indentDepth: depth,
+                        indentDepth: tokenIndent,
                         isDefinitionHeader: false,
                         casing,
                         isDefinitionColon: false,
                         isAttributeColon: false,
+                        isStatementLabelColon,
+                        actionIndentDepth,
                         isOperator,
                         isComma,
                         blankLinesBefore: -1
@@ -292,11 +352,18 @@ export function formatDocument(
 
             const startLine = getLineFromOffset(stmt.start);
             if (stmt instanceof BlockStatementNode) {
-                lineIndents[startLine] = Math.max((lineIndents[startLine] as number) || 0, depth);
+                const current = lineIndents[startLine];
+                const currentNum = typeof current === 'number' ? current : 0;
+                lineIndents[startLine] = Math.max(currentNum, (stmt.label && rules.indentBlockStatementBody) ? baseDepth : depth);
             } else {
                 const endLine = getLineFromOffset(stmt.end);
-                for (let j = startLine; j <= endLine; j++) {
-                    lineIndents[j] = Math.max((lineIndents[j] as number) || 0, depth);
+                const currentStart = lineIndents[startLine];
+                const currentStartNum = typeof currentStart === 'number' ? currentStart : 0;
+                lineIndents[startLine] = Math.max(currentStartNum, (stmt.label && rules.indentBlockStatementBody) ? baseDepth : depth);
+                for (let j = startLine + 1; j <= endLine; j++) {
+                    const currentJ = lineIndents[j];
+                    const currentJNum = typeof currentJ === 'number' ? currentJ : 0;
+                    lineIndents[j] = Math.max(currentJNum, depth);
                 }
             }
         } else if (node.kind === SyntaxKind.Directive) {
@@ -308,6 +375,8 @@ export function formatDocument(
                     casing: "none",
                     isDefinitionColon: false,
                     isAttributeColon: false,
+                    isStatementLabelColon: false,
+                    actionIndentDepth: 0,
                     isOperator: false,
                     isComma: false,
                     blankLinesBefore: -1
@@ -317,14 +386,16 @@ export function formatDocument(
             const startLine = getLineFromOffset(node.start);
             const endLine = getLineFromOffset(node.end);
             for (let j = startLine; j <= endLine; j++) {
-                lineIndents[j] = Math.max((lineIndents[j] as number) || 0, depth);
+                const current = lineIndents[j];
+                const currentNum = typeof current === 'number' ? current : 0;
+                lineIndents[j] = Math.max(currentNum, depth);
             }
         }
     }
 
     let isFirstDef = true;
     for (const def of sourceFile.definitions) {
-        traverseAST(def, 0);
+        traverseAST(def, 0, 0);
         if (isFirstDef) {
             const firstToken = getTokensInRange(sourceFile.tokens, def.start, def.end)[0];
             if (firstToken) {
@@ -335,7 +406,7 @@ export function formatDocument(
         }
     }
     for (const dir of sourceFile.directives) {
-        traverseAST(dir, 0);
+        traverseAST(dir, 0, 0);
     }
 
     let formattedText = "";
@@ -393,7 +464,11 @@ export function formatDocument(
                     if (atLineStart) {
                         const line = getLineFromOffset(trivia.Start);
                         const level = lineIndents[line] || 0;
-                        if (level > 0) formattedText += indentString.repeat(level);
+                        if (typeof level === 'string') {
+                            formattedText += level;
+                        } else if (typeof level === 'number' && level > 0) {
+                            formattedText += indentString.repeat(level);
+                        }
                         atLineStart = false;
                     }
                     formattedText += trivia.Text;
@@ -472,6 +547,9 @@ export function formatDocument(
             } else if (ctx.isAttributeColon) {
                 spaceBefore = getSpacingString(rules.spaceBeforeColon, indentString);
                 spaceAfter = getSpacingString(rules.spaceAfterColon, indentString);
+            } else if (ctx.isStatementLabelColon) {
+                spaceBefore = " ";
+                spaceAfter = " " + indentString.repeat(ctx.actionIndentDepth);
             }
 
             if (spaceBefore === "") {
