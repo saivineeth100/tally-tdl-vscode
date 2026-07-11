@@ -49,6 +49,16 @@ export interface FormattingRules {
     spaceAroundOperators: boolean;
     /** Space after commas in lists. Default: true */
     spaceAfterComma: boolean;
+
+    // ── Column Alignment ──
+    /** Enable column-alignment of colons within definition blocks. Default: false */
+    alignColons: boolean;
+    /** Strategy for colon alignment. Default: "tabStop" */
+    alignColonsStrategy: "tabStop" | "longestKey" | "fixed";
+    /** Fixed column position for colon alignment. Default: 16 */
+    alignColonsColumn: number;
+    /** Whether to align multi-colon chains. Default: false */
+    alignMultiColonChains: boolean;
 }
 
 export const DEFAULT_FORMATTING_RULES: Readonly<FormattingRules> = {
@@ -69,7 +79,11 @@ export const DEFAULT_FORMATTING_RULES: Readonly<FormattingRules> = {
     booleanKeywordCasing: "preserve",
     attributeNameCasing: "preserve",
     spaceAroundOperators: true,
-    spaceAfterComma: true
+    spaceAfterComma: true,
+    alignColons: true,
+    alignColonsStrategy: "tabStop",
+    alignColonsColumn: 16,
+    alignMultiColonChains: false
 };
 
 /** Deep-merges overrides into default rules, validating values. */
@@ -123,6 +137,16 @@ export function mergeFormattingRules(overrides: Partial<FormattingRules>): Forma
 
     if (overrides.spaceAroundOperators !== undefined) rules.spaceAroundOperators = !!overrides.spaceAroundOperators;
     if (overrides.spaceAfterComma !== undefined) rules.spaceAfterComma = !!overrides.spaceAfterComma;
+
+    if (overrides.alignColons !== undefined) rules.alignColons = !!overrides.alignColons;
+    const validStrategies = ["tabStop", "longestKey", "fixed"];
+    if (overrides.alignColonsStrategy !== undefined && validStrategies.includes(overrides.alignColonsStrategy)) {
+        rules.alignColonsStrategy = overrides.alignColonsStrategy;
+    }
+    if (overrides.alignColonsColumn !== undefined && typeof overrides.alignColonsColumn === "number") {
+        rules.alignColonsColumn = Math.max(1, overrides.alignColonsColumn);
+    }
+    if (overrides.alignMultiColonChains !== undefined) rules.alignMultiColonChains = !!overrides.alignMultiColonChains;
 
     return rules;
 }

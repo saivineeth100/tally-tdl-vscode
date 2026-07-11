@@ -6,7 +6,7 @@ import { createDiagnostic, DiagnosticRules } from '../../../diagnostics';
 
 import { ServerTestHarness } from '../../harness/serverTestHarness';
 import { CompletionParams, Position } from 'vscode-languageserver';
-import { testScopeManager, ensureBaseTdlLoaded } from '../../test-setup';
+import { testScopeManager, ensureBaseTdlLoaded, populateMetadata } from '../../test-setup';
 
 describe('XML Completion Context Detection', () => {
 
@@ -117,8 +117,7 @@ describe('XML Completion Context Detection', () => {
 
         it('suggests strictly in-scope targets for Local chains', async () => {
             const harness = new ServerTestHarness();
-            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
-            harness.runtime.services.documentStateStore.xmlScopeManager.globalScope = testScopeManager!.globalScope;
+            populateMetadata(harness);
 
             const tdlContent = `
 [Report: myreport]
@@ -154,7 +153,7 @@ Local : Part :
 
         it('suggests Option definitions for Option attribute completions', async () => {
             const harness = new ServerTestHarness();
-            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+            populateMetadata(harness);
 
             const tdlContent = `
 [Option: MyOpt]
@@ -179,7 +178,7 @@ Option :
 
         it('suggests Option definitions for Switch attribute completions at parameter index 1', async () => {
             const harness = new ServerTestHarness();
-            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+            populateMetadata(harness);
 
             const tdlContent = `
 [Option: TargetOpt]
@@ -204,7 +203,7 @@ Switch : CaseLabel :
 
         it('suggests current definition type matching items for Use completions', async () => {
             const harness = new ServerTestHarness();
-            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+            populateMetadata(harness);
 
             const tdlContent = `
 [Part: BasePart]
@@ -229,7 +228,7 @@ Use :
 
         it('suggests restricted definition types (Form, Part, Line, Field) for Local modifier completions', async () => {
             const harness = new ServerTestHarness();
-            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+            populateMetadata(harness);
 
             const tdlContent = `
 [Form: MyForm]
@@ -267,7 +266,7 @@ Local :
 
         it('suggests attribute value completions for target attribute inside Local chain', async () => {
             const harness = new ServerTestHarness();
-            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+            populateMetadata(harness);
 
             const tdlContent = `
 [Part: MyPart]
@@ -293,7 +292,7 @@ Local : Field : MyField : Set As : @@
 
         it('suggests nested modifier elements inside Local chains', async () => {
             const harness = new ServerTestHarness();
-            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+            populateMetadata(harness);
 
             const tdlContent = `
 [Part: MyPart]
@@ -326,7 +325,7 @@ Local : Part : MyPart : add : Line :
 
         it('suggests top-level Add modifier elements', async () => {
             const harness = new ServerTestHarness();
-            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+            populateMetadata(harness);
 
             const tdlContent = `
 [Part: MyPart]
@@ -359,7 +358,7 @@ add : Line :
 
         it('suggests top-level and nested Delete modifier elements', async () => {
             const harness = new ServerTestHarness();
-            harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
+            populateMetadata(harness);
 
             const tdlContent = `
 [Form: MyForm]

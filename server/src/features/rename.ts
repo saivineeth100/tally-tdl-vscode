@@ -69,7 +69,8 @@ export async function renameSymbol(
         } else {
             // Document not open — use pre-computed ranges where available
             let handled = false;
-            const scopeManager = stateStore.getScopeManager(loc.uri);
+            const docState = stateStore.get(loc.uri);
+            const scopeManager = stateStore.getScopeManager(loc.uri, docState?.document?.languageId);
             const symbols = scopeManager.getSymbolsInDocument(loc.uri);
             
             for (const sym of symbols) {
@@ -133,7 +134,7 @@ export async function prepareRename(
         docState.sourceFile,
         offset,
         doc.getText(),
-        stateStore.getScopeManager(uri),
+        stateStore.getScopeManager(uri, doc.languageId),
         uri
     );
 

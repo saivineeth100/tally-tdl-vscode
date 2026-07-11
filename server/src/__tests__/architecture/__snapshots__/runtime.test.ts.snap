@@ -33,6 +33,7 @@ exports[`Runtime and Capabilities > returns the expected stable capabilities 1`]
     "moreTriggerCharacter": [
       "
 ",
+      ":",
     ],
   },
   "documentSymbolProvider": true,

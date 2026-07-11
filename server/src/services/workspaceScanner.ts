@@ -201,23 +201,34 @@ export class WorkspaceScanner {
                         const nextScan = this.scanQueue.shift()!;
                         await this.scanWorkspaceFolders(nextScan);
                     } else {
-                        // Process any open documents that were queued during the scan
-                        if (this.documentLifecycle) {
-                            this.documentLifecycle.processPendingDocuments();
-                        }
-                        // All queued scans complete! Revalidate open docs so initial 'Missing Definition' diagnostics go away.
-                        const openDocs = Array.from(this.stateStore.getAllDocs()).map(([_, state]) => ({ uri: _, ...state }));
-                        this.revalidateAll(openDocs).catch(e => logger.error(`Revalidation failed: ${e}`));
-                        // Also notify the client of the initial active URIs list
-                        this.graphManager.notifyActiveUrisChanged();
-                        if (this.onScanComplete) {
-                            this.onScanComplete();
-                        }
+                        this.completeInitialScan();
                     }
                     resolve();
                 }
             }, 0);
         });
+    }
+
+    /**
+     * Completes initial startup tasks. Marks initial scan as started/completed
+     * and processes any pending opens.
+     */
+    public completeInitialScan(): void {
+        this.hasInitialScanStarted = true;
+        this.scanningInProgress = false;
+
+        // Process any open documents that were queued during the scan
+        if (this.documentLifecycle) {
+            this.documentLifecycle.processPendingDocuments();
+        }
+        // All queued scans complete! Revalidate open docs so initial 'Missing Definition' diagnostics go away.
+        const openDocs = Array.from(this.stateStore.getAllDocs()).map(([_, state]) => ({ uri: _, ...state }));
+        this.revalidateAll(openDocs).catch(e => logger.error(`Revalidation failed: ${e}`));
+        // Also notify the client of the initial active URIs list
+        this.graphManager.notifyActiveUrisChanged();
+        if (this.onScanComplete) {
+            this.onScanComplete();
+        }
     }
 
     /**
@@ -472,7 +483,7 @@ export class WorkspaceScanner {
                 return;
             }
 
-            const shouldValidate = this.stateStore.isMetadataLoaded && !this.scanningInProgress && (forceValidation || this.graphManager.isUriActive(uri));
+            const shouldValidate = this.stateStore.isMetadataLoaded && !this.scanningInProgress && (isActive || this.graphManager.isUriActive(uri));
 
             if (!shouldValidate) {
                 diagnostics.length = 0;

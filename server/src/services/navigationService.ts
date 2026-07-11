@@ -55,7 +55,7 @@ export class NavigationService {
             const text = doc.getText();
             const offset = doc.offsetAt(params.position);
             
-            const scopeManager = this.stateStore.getScopeManager(normUri);
+            const scopeManager = this.stateStore.getScopeManager(normUri, doc.languageId);
 
             // Find if we're on a reference
             const ref = findReferenceAtOffset(docState.sourceFile, offset, text, scopeManager, normUri);

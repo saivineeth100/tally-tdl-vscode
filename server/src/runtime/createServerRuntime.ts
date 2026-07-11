@@ -52,7 +52,7 @@ export function createServerRuntime(dependencies: ServerRuntimeDependencies): Se
     (workspaceScanner as any).documentLifecycle = documentLifecycle;
 
     const contextResolver = new DocumentContextResolver(dependencies.documents, stateStore, graphManager);
-    const documentFeatures = createDocumentFeatures(contextResolver, documentLoader, workspaceLifecycleService.resolveIncludePath.bind(workspaceLifecycleService), documentLifecycle);
+    const documentFeatures = createDocumentFeatures(contextResolver, documentLoader, workspaceLifecycleService.resolveIncludePath.bind(workspaceLifecycleService), documentLifecycle, dependencies.client);
     const completionService = new CompletionService(stateStore, graphManager, contextResolver, () => workspaceLifecycleService.globalWorkspaceFolders);
     const navigationService = new NavigationService(stateStore, graphManager, dependencies.documents, documentLoader, workspaceLifecycleService.resolveIncludePath.bind(workspaceLifecycleService));
     const customRequestsService = new CustomRequestsService(stateStore, graphManager, dependencies.documents, dependencies.client, workspaceLifecycleService.resolveIncludePath.bind(workspaceLifecycleService));

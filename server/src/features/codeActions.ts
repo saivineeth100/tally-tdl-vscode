@@ -15,7 +15,7 @@ export function provideCodeActions(
     const actions: CodeAction[] = [];
     const doc = docs.get(params.textDocument.uri);
     const docState = stateStore.get(params.textDocument.uri);
-    const scopeManager = stateStore.getScopeManager(params.textDocument.uri);
+    const scopeManager = stateStore.getScopeManager(params.textDocument.uri, doc?.languageId);
 
     if (!doc || !docState) return actions;
 

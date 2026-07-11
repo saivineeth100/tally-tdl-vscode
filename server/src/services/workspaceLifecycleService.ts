@@ -155,15 +155,21 @@ export class WorkspaceLifecycleService {
                         this.scanner.scanWorkspaceFolders(folderUris);
                     }
                 } else {
-                    this.fallbackInitParams(this.initParams);
+                    const fallbackResult = this.fallbackInitParams(this.initParams);
+                    if (!fallbackResult && this.scanner) {
+                        this.scanner.completeInitialScan();
+                    }
                 }
             });
         } else {
-            this.fallbackInitParams(this.initParams);
+            const fallbackResult = this.fallbackInitParams(this.initParams);
+            if (!fallbackResult && this.scanner) {
+                this.scanner.completeInitialScan();
+            }
         }
     }
 
-    private fallbackInitParams(params: InitializeParams | undefined) {
+    private fallbackInitParams(params: InitializeParams | undefined): boolean {
         if (params && params.rootUri) {
             const fsPath = URI.parse(params.rootUri).fsPath;
             this.globalWorkspaceFolders = [fsPath];
@@ -171,6 +177,7 @@ export class WorkspaceLifecycleService {
                 this.scanner.workspaceFolders = this.globalWorkspaceFolders;
                 this.scanner.scanWorkspaceFolders([params.rootUri]);
             }
+            return true;
         } else if (params && params.rootPath) {
             const fsPath = URI.file(params.rootPath).fsPath;
             this.globalWorkspaceFolders = [fsPath];
@@ -178,7 +185,9 @@ export class WorkspaceLifecycleService {
                 this.scanner.workspaceFolders = this.globalWorkspaceFolders;
                 this.scanner.scanWorkspaceFolders([URI.file(params.rootPath).toString()]);
             }
+            return true;
         }
+        return false;
     }
 
     private onDidChangeWorkspaceFolders(event: WorkspaceFoldersChangeEvent) {

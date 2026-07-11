@@ -42,6 +42,16 @@ beforeAll(async () => {
         
         // Pass false so that it loads the metadata from the downloaded binary cache
         await loadMetadata(metadataPath, "7.0", testScopeManager, false, false);
+
+        // Add fallback mock formula for tests requiring base TDL formulas (like completion tests)
+        // when the binary cache has not been downloaded or built.
+        testScopeManager.globalScope.formulas.set('dspmstnamestylestr', {
+            name: 'DSPMSTNameStyleStr',
+            uri: 'global:metadata',
+            start: 0,
+            end: 0,
+            definitionType: 'Formula'
+        } as any);
     } catch (error) {
         console.error('Test Setup Error:', error);
     }
@@ -61,5 +71,37 @@ export async function ensureBaseTdlLoaded() {
         isBaseTdlLoaded = true;
     } catch (error) {
         console.error('Failed to load Base TDL in test:', error);
+    }
+}
+
+/**
+ * Populates all metadata-related fields on a ServerTestHarness or standard scope managers.
+ */
+export function populateMetadata(harness: any) {
+    if (!testScopeManager) return;
+    
+    const tdlMgr = harness.runtime?.services?.documentStateStore?.tdlScopeManager || harness.tdlScopeManager;
+    const xmlMgr = harness.runtime?.services?.documentStateStore?.xmlScopeManager || harness.xmlScopeManager;
+
+    if (tdlMgr) {
+        tdlMgr.globalScope = testScopeManager.globalScope;
+        tdlMgr.keywordSets = testScopeManager.keywordSets;
+        tdlMgr.primarySchemaNames = testScopeManager.primarySchemaNames;
+        tdlMgr.definitionTypeLabels = testScopeManager.definitionTypeLabels;
+        tdlMgr.parentDefinitions = testScopeManager.parentDefinitions;
+        tdlMgr.childDefinitions = testScopeManager.childDefinitions;
+        tdlMgr.useInheritance = testScopeManager.useInheritance;
+        tdlMgr.inUseInheritance = testScopeManager.inUseInheritance;
+    }
+
+    if (xmlMgr) {
+        xmlMgr.globalScope = testScopeManager.globalScope;
+        xmlMgr.keywordSets = testScopeManager.keywordSets;
+        xmlMgr.primarySchemaNames = testScopeManager.primarySchemaNames;
+        xmlMgr.definitionTypeLabels = testScopeManager.definitionTypeLabels;
+        xmlMgr.parentDefinitions = testScopeManager.parentDefinitions;
+        xmlMgr.childDefinitions = testScopeManager.childDefinitions;
+        xmlMgr.useInheritance = testScopeManager.useInheritance;
+        xmlMgr.inUseInheritance = testScopeManager.inUseInheritance;
     }
 }

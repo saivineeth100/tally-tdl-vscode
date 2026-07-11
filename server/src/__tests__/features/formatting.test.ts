@@ -4,6 +4,7 @@ import { FormattingOptions } from 'vscode-languageserver';
 import { Parser } from '../../core/parser/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { FormattingRules, DEFAULT_FORMATTING_RULES, mergeFormattingRules } from '../../features/formatting/formattingRules';
+import { ServerTestHarness } from '../harness/serverTestHarness';
 
 describe('Document Formatting', () => {
     const options: FormattingOptions = {
@@ -14,8 +15,8 @@ describe('Document Formatting', () => {
         trimFinalNewlines: true
     };
 
-    // By default in existing tests, keep blankLinesAfterDefinitionHeader = 0 to prevent test churn
-    const testRules = mergeFormattingRules({ blankLinesAfterDefinitionHeader: 0 });
+    // By default in existing tests, keep blankLinesAfterDefinitionHeader = 0 and alignColons = false to prevent test churn
+    const testRules = mergeFormattingRules({ blankLinesAfterDefinitionHeader: 0, alignColons: false });
 
     function mergeTestRules(overrides: Partial<FormattingRules>): FormattingRules {
         return {
@@ -291,7 +292,7 @@ Form: F1`;
 Title: "R1"`;
             const expected = `[Report: R1]
 
-    Title : "R1"
+    Title   : "R1"
 `;
             // Uses DEFAULT_FORMATTING_RULES which has blankLinesAfterDefinitionHeader = 1
             apply(input, expected, DEFAULT_FORMATTING_RULES);
@@ -394,6 +395,279 @@ Fields: F1,F2,F3`;
     Fields : F1, F2, F3
 `;
             apply(input, expected);
+        });
+    });
+
+    describe('Column Alignment Rules', () => {
+        it('should align colons to next tab stop (tabStop strategy by default)', () => {
+            const input = `[Report: MyReport]
+Form: Simple Trial balance
+Title   : "Trial Balance"
+Variable: MyStkGroupName`;
+            const expected = `[Report: MyReport]
+    Form        : Simple Trial balance
+    Title       : "Trial Balance"
+    Variable    : MyStkGroupName
+`;
+            const rules = mergeTestRules({ alignColons: true });
+            apply(input, expected, rules);
+        });
+
+        it('should align colons to longest key + 1 (longestKey strategy)', () => {
+            const input = `[Report: MyReport]
+Form : Simple Trial balance
+Title : "Trial Balance"
+Variable : MyStkGroupName`;
+            const expected = `[Report: MyReport]
+    Form     : Simple Trial balance
+    Title    : "Trial Balance"
+    Variable : MyStkGroupName
+`;
+            const rules = mergeTestRules({
+                alignColons: true,
+                alignColonsStrategy: "longestKey"
+            });
+            apply(input, expected, rules);
+        });
+
+        it('should align colons to fixed column (fixed strategy)', () => {
+            const input = `[Report: MyReport]
+Form : Simple Trial balance
+Title : "Trial Balance"
+Variable : MyStkGroupName`;
+            const expected = `[Report: MyReport]
+    Form            : Simple Trial balance
+    Title           : "Trial Balance"
+    Variable        : MyStkGroupName
+`;
+            const rules = mergeTestRules({
+                alignColons: true,
+                alignColonsStrategy: "fixed",
+                alignColonsColumn: 16
+            });
+            apply(input, expected, rules);
+        });
+
+        it('should align colons independently in different definitions', () => {
+            const input = `[Report: R1]
+Form : Simple Trial balance
+Title : "Trial Balance"
+
+[Report: R2]
+Form : Simple Trial balance
+VeryLongKeyName : MyStkGroupName`;
+            const expected = `[Report: R1]
+    Form    : Simple Trial balance
+    Title   : "Trial Balance"
+
+[Report: R2]
+    Form            : Simple Trial balance
+    VeryLongKeyName : MyStkGroupName
+`;
+            const rules = mergeTestRules({
+                alignColons: true,
+                alignColonsStrategy: "tabStop",
+                blankLinesBetweenDefinitions: 1
+            });
+            apply(input, expected, rules);
+        });
+
+        it('should align colons in AutoCol Trial Balance report', () => {
+            const input = `[Report : AutoCol Trial Balance]
+
+	;;	Title		: $$LocaleString:"Trial Balance"
+
+	Form : AutoCol Trial Balance
+
+	Repeat : SVCurrentCompany, SVFromDate, SVToDate
+	ColumnReport : MyMultiColumns1
+	Variable : AutoCol TB Group, IsLedgerWise, SVPeriodicity
+
+	PrintSet    : Report Title      : $$LocaleString : "Trial Balance"
+	Set         : IsLedgerWise      : No`;
+            const expected = `[Report : AutoCol Trial Balance]
+
+\t;;	Title		: $$LocaleString:"Trial Balance"
+\tForm\t\t\t: AutoCol Trial Balance
+
+\tRepeat\t\t\t: SVCurrentCompany, SVFromDate, SVToDate
+\tColumnReport\t: MyMultiColumns1
+\tVariable\t\t: AutoCol TB Group, IsLedgerWise, SVPeriodicity
+
+\tPrintSet\t\t: Report Title      : $$LocaleString : "Trial Balance"
+\tSet\t\t\t\t: IsLedgerWise      : No
+`;
+            const rules = mergeTestRules({
+                alignColons: true,
+                alignColonsStrategy: "tabStop",
+                spaceBeforeDefinitionColon: "space",
+                spaceAfterDefinitionColon: "space"
+            });
+            const customOptions: FormattingOptions = {
+                tabSize: 4,
+                insertSpaces: false,
+                trimTrailingWhitespace: true,
+                insertFinalNewline: true,
+                trimFinalNewlines: true
+            };
+            apply(input, expected, rules, customOptions);
+        });
+
+        it('should align attribute colons and function sequence label colons independently when alignColons is true', () => {
+            const input = `[Report: MyReport]
+Form : Simple
+Title : "Test"
+
+[Function: MyFunc]
+01 : IF : ##Check
+Step02 : SET : Val : 10
+ab : ENDIF`;
+            const expected = `[Report: MyReport]
+    Form  : Simple
+    Title : "Test"
+
+[Function: MyFunc]
+    01     : IF : ##Check
+    Step02 :     SET : Val : 10
+    ab     : ENDIF
+`;
+            const rules = mergeTestRules({
+                alignColons: true,
+                alignColonsStrategy: "longestKey"
+            });
+            apply(input, expected, rules);
+        });
+
+        it('should align sequence labels in Set Value Enhanced function block when alignColons is true', () => {
+            const input = `[Function: Set Value Enhanced]
+10 : SET FILE LOG ON
+200 : log : dvvfd`;
+            const expected = `[Function: Set Value Enhanced]
+    10  : SET FILE LOG ON
+    200 : log : dvvfd
+`;
+            const rules = mergeTestRules({
+                alignColons: true,
+                alignColonsStrategy: "longestKey"
+            });
+            apply(input, expected, rules);
+        });
+
+        it('should align attributes and statement labels independently even inside the same definition', () => {
+            const input = `[Function: Set Value Enhanced]
+Returns : String
+10 : SET FILE LOG ON
+200 : log : dvvfd`;
+            const expected = `[Function: Set Value Enhanced]
+    Returns : String
+    10  : SET FILE LOG ON
+    200 : log : dvvfd
+`;
+            const rules = mergeTestRules({
+                alignColons: true,
+                alignColonsStrategy: "longestKey"
+            });
+            apply(input, expected, rules);
+        });
+
+        it('should format Set Value Enhanced function block correctly', () => {
+            const input = `[Function: Set Value Enhanced]
+
+\t10\t : SET FILE LOG ON
+
+\t20\t : WALK COLLECTION\t : Vouchers of My Objects
+\t30  : \tSET             : SVViewName \t : $$SysName : InvVchView
+\t40\t : \tNEW OBJECT\t\t : Voucher
+\t50\t : \tLOG TARGET \t\t : TgtObj.txt`;
+
+            const expected = `[Function: Set Value Enhanced]
+    10 : SET FILE LOG ON
+
+    20 : WALK COLLECTION : Vouchers of My Objects
+    30 :     SET : SVViewName : $$SysName : InvVchView
+    40 :     NEW OBJECT : Voucher
+    50 :     LOG TARGET : TgtObj.txt
+`;
+            apply(input, expected);
+        });
+
+        it('should format nested INSERT COLLECTION OBJECT and SET TARGET blocks correctly', () => {
+            const input = `[Function: NestedInsert]
+180     : INSERT COLLECTION OBJECT : INVENTORYENTRIES
+190 :SET VALUE : StockItemName : "Item 1"
+200 : SET VALUE : IsDeemedPositive : No
+210   : SET VALUE : ActualQty : -10
+250      : INSERT COLLECTION OBJECT : BATCHALLOCATIONS
+260 : SET VALUE : GodownName : "Main Location"
+320 : SET TARGET : ..
+330 : SET TARGET : Group
+340 : SET TARGET : ...`;
+
+            const expected = `[Function: NestedInsert]
+    180 : INSERT COLLECTION OBJECT : INVENTORYENTRIES
+    190 :     SET VALUE : StockItemName : "Item 1"
+    200 :     SET VALUE : IsDeemedPositive : No
+    210 :     SET VALUE : ActualQty : -10
+    250 :     INSERT COLLECTION OBJECT : BATCHALLOCATIONS
+    260 :         SET VALUE : GodownName : "Main Location"
+    320 :     SET TARGET : ..
+    330 :     SET TARGET : Group
+    340 : SET TARGET : ...
+`;
+            apply(input, expected);
+        });
+
+        it('should align colons using ServerTestHarness to mimic editor configuration', async () => {
+            const harness = new ServerTestHarness();
+            
+            // 1. Send configuration update (mimic VS Code setting changed)
+            await harness.runtime.workspaceLifecycle.onDidChangeConfiguration({
+                settings: {
+                    tallyTDL: {
+                        formatting: {
+                            alignColons: true,
+                            alignColonsStrategy: "tabStop"
+                        }
+                    }
+                }
+            });
+
+            const uri = 'file:///z:/test.tdl';
+            const input = `[Report : AutoCol Trial Balance]
+
+	Form : AutoCol Trial Balance
+	Repeat : SVCurrentCompany, SVFromDate, SVToDate
+	ColumnReport : MyMultiColumns1
+	Variable : AutoCol TB Group, IsLedgerWise, SVPeriodicity`;
+
+            // 2. Open document (this parses and indexes it, putting it in DocumentStateStore)
+            harness.simulateOpen(uri, 'tdl', input);
+            harness.runtime.documentLifecycle.processPendingDocuments();
+
+            // 3. Trigger formatDocument handler
+            const edits = await harness.runtime.documentFeatures.formatDocument({
+                textDocument: { uri },
+                options: {
+                    tabSize: 4,
+                    insertSpaces: false // using tab-padding
+                }
+            });
+
+            // 4. Verify formatting edits
+            expect(edits.length).toBe(1);
+            const doc = harness.documents.get(uri)!;
+            const formattedResult = TextDocument.applyEdits(doc, edits);
+
+            const expected = `[Report: AutoCol Trial Balance]
+
+\tForm\t\t\t: AutoCol Trial Balance
+\tRepeat\t\t\t: SVCurrentCompany, SVFromDate, SVToDate
+\tColumnReport\t: MyMultiColumns1
+\tVariable\t\t: AutoCol TB Group, IsLedgerWise, SVPeriodicity
+`;
+            expect(formattedResult).toBe(expected);
+            
+            harness.dispose();
         });
     });
 });

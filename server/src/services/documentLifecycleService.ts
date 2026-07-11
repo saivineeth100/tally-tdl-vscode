@@ -79,7 +79,7 @@ export class DocumentLifecycleService {
         this.stateStore.deleteOpen(uriStr);
         
         const fsPath = URI.parse(uriStr).fsPath;
-        this.stateStore.getScopeManager(uriStr).projectScope.referenceIndex.clearFile(uriStr);
+        this.stateStore.getScopeManager(uriStr, document.languageId).projectScope.referenceIndex.clearFile(uriStr);
         
         // Invalidate active cache on open/close changes
         this.graphManager.invalidateCache();
@@ -89,7 +89,7 @@ export class DocumentLifecycleService {
             logger.warn(`Failed to re-index closed file: ${err instanceof Error ? err.stack || err.message : String(err)}`);
         });
         
-        this.stateStore.getScopeManager(uriStr).removeFileScope(uriStr);
+        this.stateStore.getScopeManager(uriStr, document.languageId).removeFileScope(uriStr);
         this.diagnosticPublisher.publish(uriStr, []);
     }
 
@@ -105,7 +105,7 @@ export class DocumentLifecycleService {
         const isXml = doc.languageId === 'xml';
 
         const normUri = normalizeUri(doc.uri);
-        const scopeMgr = this.stateStore.getScopeManager(normUri);
+        const scopeMgr = this.stateStore.getScopeManager(normUri, doc.languageId);
         
         const oldDocState = this.stateStore.getOpen(normUri);
         const oldSourceFile = oldDocState?.sourceFile;
@@ -139,7 +139,7 @@ export class DocumentLifecycleService {
         if (!docState) return;
 
         const sourceFile = docState.sourceFile;
-        const scopeMgr = this.stateStore.getScopeManager(normUri);
+        const scopeMgr = this.stateStore.getScopeManager(normUri, doc.languageId);
         const isXml = doc.languageId === 'xml';
         const isActive = this.graphManager.isUriActive(normUri);
 

@@ -34,9 +34,25 @@ export class DocumentStateStore {
     public isMetadataLoaded = false;
 
     /**
-     * Helper to get the correct ScopeManager based on the file extension (.tdl vs .xml).
+     * Helper to get the correct ScopeManager based on language ID or file extension.
      */
-    public getScopeManager(uri: string): ScopeManager {
+    public getScopeManager(uri: string, languageId?: string): ScopeManager {
+        if (languageId === 'xml') {
+            return this.xmlScopeManager;
+        }
+        if (languageId === 'tdl') {
+            return this.tdlScopeManager;
+        }
+        const openState = this.getOpen(uri);
+        if (openState && openState.document) {
+            const docLang = openState.document.languageId;
+            if (docLang === 'xml') {
+                return this.xmlScopeManager;
+            }
+            if (docLang === 'tdl') {
+                return this.tdlScopeManager;
+            }
+        }
         const lowerUri = uri.toLowerCase();
         return lowerUri.endsWith('.xml') || lowerUri.endsWith('.tdlxml') ? this.xmlScopeManager : this.tdlScopeManager;
     }

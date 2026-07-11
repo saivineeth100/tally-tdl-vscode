@@ -2,17 +2,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SymbolKind } from 'tally-tdl-shared';
 import { ScopeKind } from '../../semantics/scopeManager/types';
 import { ServerTestHarness } from '../harness/serverTestHarness';
-import { loadMetadata } from '../../semantics/metadataLoader';
-import * as path from 'path';
+import { populateMetadata } from '../test-setup';
 
 describe('onDefinition Multiple (Duplicates and Modifiers)', () => {
     let harness: ServerTestHarness;
 
     beforeEach(async () => {
         harness = new ServerTestHarness();
-        const scopeMgr = harness.runtime.services.documentStateStore.tdlScopeManager;
-        const metadataPath = path.join(__dirname, '..', '..', '..', 'data');
-        await loadMetadata(metadataPath, "7.0", scopeMgr, false, false);
+        populateMetadata(harness);
     });
 
     afterEach(() => {

@@ -27,7 +27,7 @@ export function getServerCapabilities(): ServerCapabilities {
         codeActionProvider: true,
         documentOnTypeFormattingProvider: {
             firstTriggerCharacter: '\n',
-            moreTriggerCharacter: ['\r']
+            moreTriggerCharacter: ['\r', ':']
         },
         workspace: {
             workspaceFolders: {

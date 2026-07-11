@@ -1,8 +1,10 @@
 import { TextEdit, FormattingOptions, Range, Position, CancellationToken } from 'vscode-languageserver';
-import { SourceFile, DefinitionNode, AttributeNode, ComplexObjectNode, StatementNode, BlockStatementNode, Node, SyntaxKind, IfNode, SwitchNode } from '../core/ast/ast';
+import { SourceFile, DefinitionNode, AttributeNode, ComplexObjectNode, StatementNode, BlockStatementNode, Node, SyntaxKind, IfNode, SwitchNode, IdentifierNode, LiteralNode } from '../core/ast/ast';
 import { TokenKind } from '../core/lexer/tokenKind';
 import { Token } from '../core/lexer/token';
 import { FormattingRules } from './formatting/formattingRules';
+import { logger } from '../logger';
+import { isInsertCollectionObject, getSetTargetDotsCount } from '../utils/blockUtils';
 
 interface TokenContext {
     indentDepth: number;
@@ -11,10 +13,13 @@ interface TokenContext {
     isDefinitionColon: boolean;
     isAttributeColon: boolean;
     isStatementLabelColon: boolean;
+    isStatement?: boolean;
     actionIndentDepth: number;
     isOperator: boolean;
     isComma: boolean;
     blankLinesBefore: number;
+    alignToColumn?: number;
+    attributeKeyWidth?: number;
 }
 
 const defaultContext: TokenContext = {
@@ -24,6 +29,7 @@ const defaultContext: TokenContext = {
     isDefinitionColon: false,
     isAttributeColon: false,
     isStatementLabelColon: false,
+    isStatement: false,
     actionIndentDepth: 0,
     isOperator: false,
     isComma: false,
@@ -82,6 +88,30 @@ function getSpacingString(spacing: "space" | "tab" | "none", indentString: strin
     return "";
 }
 
+function computeAlignColumn(maxKeyWidth: number, strategy: string, tabSize: number, fixedColumn: number): number {
+    switch (strategy) {
+        case "tabStop":
+            return Math.ceil((maxKeyWidth + 1) / tabSize) * tabSize;
+        case "longestKey":
+            return maxKeyWidth + 1;
+        case "fixed":
+            return Math.max(fixedColumn, maxKeyWidth + 1);
+        default:
+            return maxKeyWidth + 1;
+    }
+}
+
+function generateAlignmentPadding(keyWidth: number, alignColumn: number, insertSpaces: boolean, tabSize: number): string {
+    const spacesNeeded = alignColumn - keyWidth;
+    if (spacesNeeded <= 0) return ' '; // At minimum 1 space
+    if (insertSpaces) {
+        return ' '.repeat(spacesNeeded);
+    } else {
+        const tabsNeeded = Math.ceil(spacesNeeded / tabSize);
+        return '\t'.repeat(tabsNeeded);
+    }
+}
+
 export function formatDocument(
     text: string, 
     sourceFile: SourceFile, 
@@ -89,6 +119,7 @@ export function formatDocument(
     rules: FormattingRules,
     cancelToken?: CancellationToken
 ): TextEdit[] {
+    // logger.info(`[Formatting] rules: ${JSON.stringify(rules)}, options: ${JSON.stringify(options)}`);
     const lineIndents: (number | string)[] = new Array(sourceFile.lineOffsets.length).fill(0);
     const indentString = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
 
@@ -132,19 +163,21 @@ export function formatDocument(
 
     const contextMap = new Map<Token, TokenContext>();
 
-    function traverseAST(node: Node, depth: number, baseDepth: number) {
-        if (!node) return;
+    function traverseAST(node: Node, depth: number, baseDepth: number, alignColumn?: number, stmtAlignColumn?: number, stmtOffset: number = 0): number {
+        if (!node) return stmtOffset;
 
         if (node.kind === SyntaxKind.Definition) {
             const def = node as DefinitionNode;
             const headerEnd = def.closeBracket ? def.closeBracket.Start + def.closeBracket.Text.length : def.end;
             const headerTokens = getTokensInRange(sourceFile.tokens, def.start, headerEnd);
             for (const token of headerTokens) {
+                const isTypeToken = def.type?.tokens?.[0] && token.Start === def.type.tokens[0].Start;
+                const isDefColon = def.colon && token.Start === def.colon.Start;
                 contextMap.set(token, {
                     indentDepth: 0,
                     isDefinitionHeader: true,
-                    casing: token === def.type?.tokens?.[0] ? "definitionType" : "none",
-                    isDefinitionColon: token === def.colon,
+                    casing: isTypeToken ? "definitionType" : "none",
+                    isDefinitionColon: !!isDefColon,
                     isAttributeColon: false,
                     isStatementLabelColon: false,
                     actionIndentDepth: 0,
@@ -171,6 +204,69 @@ export function formatDocument(
                 lineIndents[j] = Math.max(currentNum, bodyDepth);
             }
 
+            let defAlignColumn = 0;
+            if (rules.alignColons) {
+                let maxKeyWidth = 0;
+                for (const attr of def.attributes) {
+                    if (attr.name) {
+                        const keyWidth = attr.name.text.length;
+                        maxKeyWidth = Math.max(maxKeyWidth, keyWidth);
+                    }
+                }
+                defAlignColumn = computeAlignColumn(maxKeyWidth, rules.alignColonsStrategy, options.tabSize, rules.alignColonsColumn);
+            }
+
+            let stmtAlignColumn = 0;
+            if (rules.alignColons) {
+                let maxLabelWidth = 0;
+                const collectLabels = (node: Node) => {
+                    if (node instanceof StatementNode) {
+                        if (node.label) {
+                            let labelText = '';
+                            if (node.label.kind === SyntaxKind.Identifier) {
+                                labelText = (node.label as IdentifierNode).text;
+                            } else if (node.label.kind === SyntaxKind.Literal) {
+                                labelText = (node.label as LiteralNode).token.Text;
+                            }
+                            if (labelText) {
+                                maxLabelWidth = Math.max(maxLabelWidth, labelText.length);
+                            }
+                        }
+                    }
+                    if (node instanceof BlockStatementNode) {
+                        for (const sub of node.statements) {
+                            collectLabels(sub);
+                        }
+                        if (node.endStatement) {
+                            collectLabels(node.endStatement);
+                        }
+                    }
+                    if (node instanceof IfNode) {
+                        if (node.elseStatements) {
+                            for (const sub of node.elseStatements) {
+                                collectLabels(sub);
+                            }
+                        }
+                    }
+                    if (node instanceof SwitchNode) {
+                        for (const caseNode of node.cases) {
+                            collectLabels(caseNode);
+                        }
+                        if (node.defaultCase) {
+                            collectLabels(node.defaultCase);
+                        }
+                    }
+                };
+
+                for (const stmt of def.statements) {
+                    collectLabels(stmt);
+                }
+
+                if (maxLabelWidth > 0) {
+                    stmtAlignColumn = computeAlignColumn(maxLabelWidth, rules.alignColonsStrategy, options.tabSize, rules.alignColonsColumn);
+                }
+            }
+
             const children = [
                 ...def.attributes,
                 ...def.complexObjects,
@@ -180,7 +276,7 @@ export function formatDocument(
 
             let isFirstChild = true;
             for (const child of children) {
-                traverseAST(child, bodyDepth, bodyDepth);
+                traverseAST(child, bodyDepth, bodyDepth, defAlignColumn, stmtAlignColumn);
                 const childTokens = getTokensInRange(sourceFile.tokens, child.start, child.end);
                 if (childTokens.length > 0) {
                     const first = childTokens[0];
@@ -206,6 +302,8 @@ export function formatDocument(
                     casing = "boolean";
                 }
 
+                const isAttrColon = attr.colon && token.Start === attr.colon.Start;
+
                 const isOperator = isOperatorToken(token);
                 const isComma = token.Kind === TokenKind.CommaToken;
 
@@ -214,12 +312,14 @@ export function formatDocument(
                     isDefinitionHeader: false,
                     casing,
                     isDefinitionColon: false,
-                    isAttributeColon: token === attr.colon,
+                    isAttributeColon: !!isAttrColon,
                     isStatementLabelColon: false,
                     actionIndentDepth: 0,
                     isOperator,
                     isComma,
-                    blankLinesBefore: -1
+                    blankLinesBefore: -1,
+                    alignToColumn: isAttrColon && alignColumn ? alignColumn : undefined,
+                    attributeKeyWidth: isAttrColon && alignColumn && attr.name ? attr.name.text.length : undefined
                 });
             }
 
@@ -258,27 +358,54 @@ export function formatDocument(
             }
 
             const bodyDepth = rules.indentComplexObjectBody ? depth + 1 : depth;
+
+            let objAlignColumn = 0;
+            if (rules.alignColons) {
+                let maxKeyWidth = 0;
+                for (const attr of obj.attributes) {
+                    if (attr.name) {
+                        const keyWidth = attr.name.text.length;
+                        maxKeyWidth = Math.max(maxKeyWidth, keyWidth);
+                    }
+                }
+                objAlignColumn = computeAlignColumn(maxKeyWidth, rules.alignColonsStrategy, options.tabSize, rules.alignColonsColumn);
+            }
+
             const children = [
                 ...obj.attributes,
                 ...obj.complexObjects
             ].sort((a, b) => a.start - b.start);
 
             for (const child of children) {
-                traverseAST(child, bodyDepth, baseDepth);
+                traverseAST(child, bodyDepth, baseDepth, objAlignColumn);
             }
         } else if (node instanceof StatementNode) {
             const stmt = node as StatementNode;
             const stmtTokens = getTokensInRange(sourceFile.tokens, stmt.start, stmt.end);
 
-            let bodyDepth = depth;
+            let currentOffset = stmtOffset;
+            const isInsert = isInsertCollectionObject(stmt);
+            const dotsCount = getSetTargetDotsCount(stmt);
+
+            if (isInsert) {
+                // Format this statement at currentOffset, then increment offset
+            } else if (dotsCount > 0) {
+                const popLevel = Math.max(0, dotsCount - 1);
+                currentOffset = Math.max(0, currentOffset - popLevel);
+            }
+
+            const stmtDepth = depth + currentOffset;
+
+            let bodyDepth = stmtDepth;
             if (stmt instanceof BlockStatementNode) {
-                bodyDepth = rules.indentBlockStatementBody ? depth + 1 : depth;
+                bodyDepth = rules.indentBlockStatementBody ? stmtDepth + 1 : stmtDepth;
                 const block = stmt as BlockStatementNode;
+                let nestedOffset = 0;
                 for (const subStmt of block.statements) {
-                    traverseAST(subStmt, bodyDepth, baseDepth);
+                    nestedOffset = traverseAST(subStmt, bodyDepth, baseDepth, alignColumn, stmtAlignColumn, nestedOffset);
                 }
                 if (block.endStatement) {
-                    traverseAST(block.endStatement, depth, baseDepth);
+                    traverseAST(block.endStatement, stmtDepth, baseDepth, alignColumn, stmtAlignColumn, nestedOffset);
                 }
             }
 
@@ -288,8 +415,8 @@ export function formatDocument(
                     for (const elseSubStmt of ifNode.elseStatements) {
                         const isElseKeyword = elseSubStmt.action && 
                             elseSubStmt.action.text.toUpperCase().replace(/\s+/g, '') === 'ELSE';
-                        const subDepth = isElseKeyword ? depth : bodyDepth;
-                        traverseAST(elseSubStmt, subDepth, baseDepth);
+                        const subDepth = isElseKeyword ? stmtDepth : bodyDepth;
+                        traverseAST(elseSubStmt, subDepth, baseDepth, alignColumn, stmtAlignColumn, 0);
                     }
                 }
             }
@@ -297,17 +424,24 @@ export function formatDocument(
             if (stmt instanceof SwitchNode) {
                 const switchNode = stmt as SwitchNode;
                 for (const caseNode of switchNode.cases) {
-                    traverseAST(caseNode, bodyDepth, baseDepth);
+                    traverseAST(caseNode, bodyDepth, baseDepth, alignColumn, stmtAlignColumn, 0);
                 }
                 if (switchNode.defaultCase) {
-                    traverseAST(switchNode.defaultCase, bodyDepth, baseDepth);
+                    traverseAST(switchNode.defaultCase, bodyDepth, baseDepth, alignColumn, stmtAlignColumn, 0);
                 }
             }
 
             let labelColonToken: Token | undefined;
+            let labelText = '';
             if (stmt.label) {
                 const afterLabelTokens = getTokensInRange(sourceFile.tokens, stmt.label.end, stmt.end);
                 labelColonToken = afterLabelTokens.find(t => t.Kind === TokenKind.ColonToken);
+
+                if (stmt.label.kind === SyntaxKind.Identifier) {
+                    labelText = (stmt.label as IdentifierNode).text;
+                } else if (stmt.label.kind === SyntaxKind.Literal) {
+                    labelText = (stmt.label as LiteralNode).token.Text;
+                }
             }
 
             for (const token of stmtTokens) {
@@ -319,19 +453,25 @@ export function formatDocument(
                     const isOperator = isOperatorToken(token);
                     const isComma = token.Kind === TokenKind.CommaToken;
 
-                    let tokenIndent = depth;
+                    let tokenIndent = stmtDepth;
                     let isStatementLabelColon = false;
                     let actionIndentDepth = 0;
+                    let tokenAlignToColumn: number | undefined = undefined;
+                    let tokenKeyWidth: number | undefined = undefined;
 
-                    if (stmt.label && rules.indentBlockStatementBody) {
+                    if (stmt.label) {
                         if (token.Start < stmt.label.end) {
-                            tokenIndent = baseDepth;
-                        } else if (token === labelColonToken) {
-                            tokenIndent = baseDepth;
+                            tokenIndent = rules.indentBlockStatementBody ? baseDepth : stmtDepth;
+                        } else if (labelColonToken && token.Start === labelColonToken.Start) {
+                            tokenIndent = rules.indentBlockStatementBody ? baseDepth : stmtDepth;
                             isStatementLabelColon = true;
-                            actionIndentDepth = Math.max(0, depth - baseDepth);
+                            actionIndentDepth = rules.indentBlockStatementBody ? Math.max(0, stmtDepth - baseDepth) : 0;
+                            if (stmtAlignColumn) {
+                                tokenAlignToColumn = stmtAlignColumn;
+                                tokenKeyWidth = labelText.length;
+                            }
                         } else {
-                            tokenIndent = depth;
+                            tokenIndent = stmtDepth;
                         }
                     }
 
@@ -342,10 +482,13 @@ export function formatDocument(
                         isDefinitionColon: false,
                         isAttributeColon: false,
                         isStatementLabelColon,
+                        isStatement: true,
                         actionIndentDepth,
                         isOperator,
                         isComma,
-                        blankLinesBefore: -1
+                        blankLinesBefore: -1,
+                        alignToColumn: tokenAlignToColumn,
+                        attributeKeyWidth: tokenKeyWidth
                     });
                 }
             }
@@ -354,18 +497,24 @@ export function formatDocument(
             if (stmt instanceof BlockStatementNode) {
                 const current = lineIndents[startLine];
                 const currentNum = typeof current === 'number' ? current : 0;
-                lineIndents[startLine] = Math.max(currentNum, (stmt.label && rules.indentBlockStatementBody) ? baseDepth : depth);
+                lineIndents[startLine] = Math.max(currentNum, (stmt.label && rules.indentBlockStatementBody) ? baseDepth : stmtDepth);
             } else {
                 const endLine = getLineFromOffset(stmt.end);
                 const currentStart = lineIndents[startLine];
                 const currentStartNum = typeof currentStart === 'number' ? currentStart : 0;
-                lineIndents[startLine] = Math.max(currentStartNum, (stmt.label && rules.indentBlockStatementBody) ? baseDepth : depth);
+                lineIndents[startLine] = Math.max(currentStartNum, (stmt.label && rules.indentBlockStatementBody) ? baseDepth : stmtDepth);
                 for (let j = startLine + 1; j <= endLine; j++) {
                     const currentJ = lineIndents[j];
                     const currentJNum = typeof currentJ === 'number' ? currentJ : 0;
-                    lineIndents[j] = Math.max(currentJNum, depth);
+                    lineIndents[j] = Math.max(currentJNum, stmtDepth);
                 }
             }
+
+            if (isInsert) {
+                currentOffset += 1;
+            }
+
+            stmtOffset = currentOffset;
         } else if (node.kind === SyntaxKind.Directive) {
             const dirTokens = getTokensInRange(sourceFile.tokens, node.start, node.end);
             for (const token of dirTokens) {
@@ -391,6 +540,7 @@ export function formatDocument(
                 lineIndents[j] = Math.max(currentNum, depth);
             }
         }
+        return stmtOffset;
     }
 
     let isFirstDef = true;
@@ -539,6 +689,26 @@ export function formatDocument(
 
         // Custom spacing: spacing before colons
         if (token.Kind === TokenKind.ColonToken) {
+            if (ctx.alignToColumn !== undefined && ctx.attributeKeyWidth !== undefined) {
+                const padding = generateAlignmentPadding(ctx.attributeKeyWidth, ctx.alignToColumn, options.insertSpaces, options.tabSize);
+                while (formattedText.endsWith(' ') || formattedText.endsWith('\t')) {
+                    formattedText = formattedText.slice(0, -1);
+                }
+                formattedText += padding;
+                formattedText += token.Text;
+                
+                let spaceAfter = getSpacingString(rules.spaceAfterColon, indentString);
+                if (ctx.isStatementLabelColon) {
+                    spaceAfter = " " + indentString.repeat(ctx.actionIndentDepth);
+                }
+                if (spaceAfter !== "") {
+                    formattedText += spaceAfter;
+                }
+                skipNextSpace = true;
+                processTrivia(token.Trailing, tokenLine);
+                continue;
+            }
+
             let spaceBefore = " ";
             let spaceAfter = " ";
             if (ctx.isDefinitionColon) {
@@ -564,6 +734,11 @@ export function formatDocument(
                     formattedText += "\t";
                 }
             } else {
+                if (ctx.isStatementLabelColon || ctx.isStatement) {
+                    while (formattedText.endsWith(' ') || formattedText.endsWith('\t')) {
+                        formattedText = formattedText.slice(0, -1);
+                    }
+                }
                 if (!formattedText.endsWith(spaceBefore) && !formattedText.endsWith('\n') && !atLineStart) {
                     formattedText += spaceBefore;
                 }

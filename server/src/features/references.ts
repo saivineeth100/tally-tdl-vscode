@@ -37,7 +37,7 @@ export async function findReferences(
         sourceDocState.sourceFile,
         offset,
         sourceDoc.getText(),
-        stateStore.getScopeManager(normUri),
+        stateStore.getScopeManager(normUri, sourceDoc.languageId),
         uri
     );
 
@@ -96,7 +96,7 @@ export async function findReferences(
                 // Check if cursor is on an attribute name (like an implicit local formula)
                 for (const attr of def.attributes) {
                     if (attr.name && offset >= attr.name.start && offset <= attr.name.end) {
-                        const scopeMgr = stateStore.getScopeManager(normUri);
+                        const scopeMgr = stateStore.getScopeManager(normUri, sourceDoc.languageId);
                         const scope = scopeMgr.getScopeAt(uri, offset);
                         if (scope) {
                             const formulaDef = scopeMgr.resolveFormula(attr.name.text, scope);
@@ -127,13 +127,13 @@ export async function findReferences(
     const lowerTargetName = targetName.toLowerCase();
     const lowerTargetType = targetType?.toLowerCase();
 
-    var scopeManager = stateStore.getScopeManager(normUri)
+    var scopeManager = stateStore.getScopeManager(normUri, sourceDoc.languageId)
     const candidateUris = scopeManager.projectScope.referenceIndex.getCandidateUris(targetName);
     
     if (candidateUris && candidateUris.size === 0) return locations;
     
     const searchScope = candidateUris || new Set<string>();
-    const scopeMgr = stateStore.getScopeManager(normUri);
+    const scopeMgr = stateStore.getScopeManager(normUri, sourceDoc.languageId);
     const targetScopeUri = scopeUri ? normalizeUri(scopeUri) : null;
     
     // Iterate through candidate documents containing the symbol
@@ -179,7 +179,7 @@ export async function findReferences(
                     docState.sourceFile,
                     node.start,
                     '', // unused text
-                    stateStore.getScopeManager(normDocUri),
+                    stateStore.getScopeManager(normDocUri, docState.document?.languageId),
                     normDocUri
                 );
                 

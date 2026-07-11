@@ -41,4 +41,20 @@ D : Statement D
         expect(diagnostics.length).toBe(1); // Only the D after B is flagged
         expect(diagnostics[0].message).toContain("Expected: 'C'");
     });
+
+    it('should not flag nested block statements (including ELSE and ENDIF) in valid sequences', () => {
+        const text = `[Function: Test]
+00 : IF ##Condition
+01 :     log : "fgf"
+02 : Else :
+03 :     Log : "fdgdr"
+04 : ENDIF
+`;
+        const doc = createMockDocument(text);
+        const parser = new Parser(text);
+        const sourceFile = parser.parse();
+
+        const diagnostics = validateLabelSequences(sourceFile, doc);
+        expect(diagnostics.length).toBe(0);
+    });
 });

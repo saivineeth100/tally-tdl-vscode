@@ -13,8 +13,26 @@ describe('XML Suggestions Tests', () => {
 
     beforeEach(() => {
         harness = new ServerTestHarness();
-        harness.runtime.services.documentStateStore.tdlScopeManager.globalScope = testScopeManager!.globalScope;
-        harness.runtime.services.documentStateStore.xmlScopeManager.globalScope = testScopeManager!.globalScope;
+        
+        const tdlMgr = harness.runtime.services.documentStateStore.tdlScopeManager;
+        tdlMgr.globalScope = testScopeManager!.globalScope;
+        tdlMgr.keywordSets = testScopeManager!.keywordSets;
+        tdlMgr.primarySchemaNames = testScopeManager!.primarySchemaNames;
+        tdlMgr.definitionTypeLabels = testScopeManager!.definitionTypeLabels;
+        tdlMgr.parentDefinitions = testScopeManager!.parentDefinitions;
+        tdlMgr.childDefinitions = testScopeManager!.childDefinitions;
+        tdlMgr.useInheritance = testScopeManager!.useInheritance;
+        tdlMgr.inUseInheritance = testScopeManager!.inUseInheritance;
+
+        const xmlMgr = harness.runtime.services.documentStateStore.xmlScopeManager;
+        xmlMgr.globalScope = testScopeManager!.globalScope;
+        xmlMgr.keywordSets = testScopeManager!.keywordSets;
+        xmlMgr.primarySchemaNames = testScopeManager!.primarySchemaNames;
+        xmlMgr.definitionTypeLabels = testScopeManager!.definitionTypeLabels;
+        xmlMgr.parentDefinitions = testScopeManager!.parentDefinitions;
+        xmlMgr.childDefinitions = testScopeManager!.childDefinitions;
+        xmlMgr.useInheritance = testScopeManager!.useInheritance;
+        xmlMgr.inUseInheritance = testScopeManager!.inUseInheritance;
     });
 
     it('returns correct XML definition_type suggestion', async () => {

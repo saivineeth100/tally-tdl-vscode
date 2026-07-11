@@ -26,7 +26,7 @@
         "vscode": "^1.96.0"
     },
     "activationEvents": [
-        
+        "onLanguage:tdl",
         "onLanguage:xml",
         "workspaceContains:**/*.{tcp,tpj,tdl,tdlxml,xml}"
     ],
@@ -418,6 +418,29 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Ensure space after commas in lists."
+                },
+                "tallyTDL.formatting.alignColons": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Align colons vertically within definition blocks using tab padding."
+                },
+                "tallyTDL.formatting.alignColonsStrategy": {
+                    "type": "string",
+                    "enum": ["tabStop", "longestKey", "fixed"],
+                    "default": "tabStop",
+                    "description": "Strategy for colon alignment: 'tabStop' (next tab stop after longest key), 'longestKey' (pad to longest key + 1 space), or 'fixed' (fixed column)."
+                },
+                "tallyTDL.formatting.alignColonsColumn": {
+                    "type": "number",
+                    "default": 16,
+                    "minimum": 8,
+                    "maximum": 40,
+                    "description": "Fixed column position for colon alignment (only used with 'fixed' strategy)."
+                },
+                "tallyTDL.formatting.alignMultiColonChains": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Also align colons in multi-colon chains (e.g., Local : Field : Default : ...)."
                 }
             }
         },

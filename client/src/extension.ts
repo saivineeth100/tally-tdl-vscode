@@ -5,7 +5,7 @@
 import * as path from 'path';
 import {
     workspace, window, ExtensionContext, TextDocument, OutputChannel, WorkspaceFolder, Uri,
-    TextDocumentContentProvider, EventEmitter, Event, RelativePattern
+    TextDocumentContentProvider, EventEmitter, Event, RelativePattern, Position, Selection
 } from 'vscode';
 
 import {
@@ -103,6 +103,16 @@ export function activate(context: ExtensionContext) {
         }
         const client = new LanguageClient('tally-tdl-server', 'Tally TDL Language Server', serverOptions, clientOptions);
         
+        client.onNotification('tdl/setCursorPosition', (params: { line: number, character: number }) => {
+            setTimeout(() => {
+                const editor = window.activeTextEditor;
+                if (editor) {
+                    const pos = new Position(params.line, params.character);
+                    editor.selection = new Selection(pos, pos);
+                }
+            }, 50);
+        });
+
         tdlDecorationProvider = new TdlFileDecorationProvider(client);
         context.subscriptions.push(window.registerFileDecorationProvider(tdlDecorationProvider));
 
@@ -119,8 +129,7 @@ export function activate(context: ExtensionContext) {
         }
         const selector = [
             { scheme: 'file', language: 'tdl', pattern: new (RelativePattern as any)(folder.uri, '**/*') },
-            { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(folder.uri, '**/*.xml') },
-            { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(folder.uri, '**/*.tdlxml') }
+            { scheme: 'file', language: 'xml', pattern: new (RelativePattern as any)(folder.uri, '**/*') }
         ];
         const client = startClient(selector, folder);
         clients.set(folder.uri.toString(), client);

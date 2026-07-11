@@ -1,25 +1,20 @@
 import { Position, TextDocument, TextEdit, FormattingOptions, Range } from 'vscode-languageserver';
 import { incrementLabel, matchesSequencePattern } from '../utils/labelUtils';
+import { BLOCK_OPENERS, BLOCK_ENDERS, isInsertCollectionObject, getSetTargetDotsCount } from '../utils/blockUtils';
 import { Parser } from '../core/parser/parser';
-import { DefinitionNode, BlockStatementNode, StatementNode, IdentifierNode, LiteralNode, SyntaxKind, IfNode, SwitchNode } from '../core/ast/ast';
+import { Node, DefinitionNode, BlockStatementNode, StatementNode, IdentifierNode, LiteralNode, SyntaxKind, IfNode, SwitchNode } from '../core/ast/ast';
 import { FormattingRules, DEFAULT_FORMATTING_RULES } from './formatting/formattingRules';
+import { ClientGateway } from '../ports/clientGateway';
 
-function getBlockEnder(action: string): string | null {
-    action = action.toUpperCase().replace(/\s+/g, ' ');
-    if (action.startsWith('IF')) return 'ENDIF';
-    if (action.startsWith('WHILE')) return 'ENDWHILE';
-    if (action.startsWith('FOR')) return 'ENDFOR';
-    if (action.startsWith('WALK')) return 'ENDWALK';
-    if (action === 'START BLOCK') return 'END BLOCK';
-    if (action === 'START BATCH POST') return 'END BATCH POST';
-    if (action === 'START MSG BOX') return 'END MSG BOX';
-    if (action === 'START ZIP') return 'END ZIP';
-    if (action === 'START UNZIP') return 'END UNZIP';
-    
-    if (action.startsWith('FOR ')) return 'ENDFOR';
-    if (action.startsWith('WALK ')) return 'ENDWALK';
-
-    return null;
+function getBlockEnder(stmt: StatementNode): string | null {
+    if (!stmt.action) return null;
+    const actionText = stmt.action.text.toUpperCase().replace(/\s+/g, '');
+    if (actionText === "INSERT") {
+        if (isInsertCollectionObject(stmt)) {
+            return "SET TARGET : ..";
+        }
+    }
+    return BLOCK_OPENERS[actionText] || null;
 }
 
 interface StmtDepthInfo {
@@ -32,17 +27,30 @@ function computeStatementDepths(
     currentDepth: number,
     baseDepth: number,
     depthMap: Map<StatementNode, StmtDepthInfo>,
-    rules: FormattingRules
-) {
+    rules: FormattingRules,
+    stmtOffset: number = 0
+): number {
+    let currentOffset = stmtOffset;
     for (const stmt of statements) {
-        depthMap.set(stmt, { depth: currentDepth, baseDepth });
+        if (isInsertCollectionObject(stmt)) {
+            depthMap.set(stmt, { depth: currentDepth + currentOffset, baseDepth });
+            currentOffset += 1;
+        } else if (getSetTargetDotsCount(stmt) > 0) {
+            const dots = getSetTargetDotsCount(stmt);
+            const popLevel = Math.max(0, dots - 1);
+            currentOffset = Math.max(0, currentOffset - popLevel);
+            depthMap.set(stmt, { depth: currentDepth + currentOffset, baseDepth });
+        } else {
+            depthMap.set(stmt, { depth: currentDepth + currentOffset, baseDepth });
+        }
 
-        let bodyDepth = currentDepth;
+        let bodyDepth = currentDepth + currentOffset;
         if (stmt instanceof BlockStatementNode) {
-            bodyDepth = rules.indentBlockStatementBody ? currentDepth + 1 : currentDepth;
-            computeStatementDepths(stmt.statements, bodyDepth, baseDepth, depthMap, rules);
+            bodyDepth = rules.indentBlockStatementBody ? (currentDepth + currentOffset) + 1 : (currentDepth + currentOffset);
+            let nestedOffset = 0;
+            nestedOffset = computeStatementDepths(stmt.statements, bodyDepth, baseDepth, depthMap, rules, nestedOffset);
             if (stmt.endStatement) {
-                depthMap.set(stmt.endStatement, { depth: currentDepth, baseDepth });
+                depthMap.set(stmt.endStatement, { depth: currentDepth + currentOffset, baseDepth });
             }
         }
 
@@ -51,21 +59,22 @@ function computeStatementDepths(
                 for (const elseSubStmt of stmt.elseStatements) {
                     const isElseKeyword = elseSubStmt.action && 
                         elseSubStmt.action.text.toUpperCase().replace(/\s+/g, '') === 'ELSE';
-                    const subDepth = isElseKeyword ? currentDepth : bodyDepth;
-                    computeStatementDepths([elseSubStmt], subDepth, baseDepth, depthMap, rules);
+                    const subDepth = isElseKeyword ? (currentDepth + currentOffset) : bodyDepth;
+                    computeStatementDepths([elseSubStmt], subDepth, baseDepth, depthMap, rules, 0);
                 }
             }
         }
 
         if (stmt instanceof SwitchNode) {
             for (const caseNode of stmt.cases) {
-                computeStatementDepths([caseNode], bodyDepth, baseDepth, depthMap, rules);
+                computeStatementDepths([caseNode], bodyDepth, baseDepth, depthMap, rules, 0);
             }
             if (stmt.defaultCase) {
-                computeStatementDepths([stmt.defaultCase], bodyDepth, baseDepth, depthMap, rules);
+                computeStatementDepths([stmt.defaultCase], bodyDepth, baseDepth, depthMap, rules, 0);
             }
         }
     }
+    return currentOffset;
 }
 
 export function provideOnTypeFormatting(
@@ -73,21 +82,25 @@ export function provideOnTypeFormatting(
     position: Position,
     ch: string,
     options: FormattingOptions,
-    rules: FormattingRules = DEFAULT_FORMATTING_RULES
+    rules: FormattingRules = DEFAULT_FORMATTING_RULES,
+    client?: ClientGateway
 ): TextEdit[] {
-    if (ch !== '\n' && ch !== '\r' && ch !== '\r\n') return [];
+    const triggerChars = ['\n', '\r', '\r\n', ':'];
+    if (!triggerChars.includes(ch)) return [];
 
     const edits: TextEdit[] = [];
     const text = document.getText();
     const lines = text.split(/\r?\n/);
 
-    if (position.line === 0) return [];
+    const isNewline = ch === '\n' || ch === '\r' || ch === '\r\n';
+    const targetLine = isNewline ? position.line - 1 : position.line;
+
+    if (targetLine < 0) return [];
 
     // Ad-hoc parse to get accurate offsets
     const parser = new Parser(text);
     const sourceFile = parser.parse();
 
-    const targetLine = position.line - 1;
     let targetDef: DefinitionNode | undefined;
 
     for (const def of sourceFile.definitions) {
@@ -145,11 +158,17 @@ export function provideOnTypeFormatting(
         const stmt = allStatements[i];
         const stmtStartLine = document.positionAt(stmt.start).line;
         const stmtEndLine = document.positionAt(stmt.end).line;
-        // console.log(`Stmt ${i}: startLine=${stmtStartLine}, endLine=${stmtEndLine}, label=${(stmt.label as any)?.text || (stmt.label as any)?.token?.Text}`);
         if (stmtStartLine === targetLine || stmtEndLine === targetLine) {
-            targetStmt = stmt;
-            targetStmtIdx = i;
-            break;
+            if (targetStmt) {
+                const prevStartLine = document.positionAt(targetStmt.start).line;
+                if (stmtStartLine === targetLine && prevStartLine !== targetLine) {
+                    targetStmt = stmt;
+                    targetStmtIdx = i;
+                }
+            } else {
+                targetStmt = stmt;
+                targetStmtIdx = i;
+            }
         }
     }
 
@@ -157,6 +176,34 @@ export function provideOnTypeFormatting(
         return [];
     }
     if (!targetStmt.label) {
+        return [];
+    }
+
+    // Compute nesting depths of statements
+    const depthMap = new Map<StatementNode, StmtDepthInfo>();
+    const defBodyDepth = rules.indentDefinitionBody ? 1 : 0;
+    computeStatementDepths(targetDef.statements, defBodyDepth, defBodyDepth, depthMap, rules);
+
+    const indentString = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
+
+    if (ch !== '\n' && ch !== '\r' && ch !== '\r\n') {
+        if (!targetStmt.action) return [];
+        
+        const actionText = targetStmt.action.text.toUpperCase().replace(/\s+/g, '');
+        const isBlockEnder = BLOCK_ENDERS.has(actionText);
+        if (!isBlockEnder) {
+            return [];
+        }
+
+        const targetInfo = depthMap.get(targetStmt);
+        if (targetInfo) {
+            const correctActionIndent = rules.indentBlockStatementBody ? indentString.repeat(Math.max(0, targetInfo.depth - targetInfo.baseDepth)) : '';
+            const replaceRange = Range.create(
+                document.positionAt(targetStmt.label.end),
+                document.positionAt(targetStmt.action.start)
+            );
+            return [TextEdit.replace(replaceRange, ` : ${correctActionIndent}`)];
+        }
         return [];
     }
 
@@ -177,7 +224,10 @@ export function provideOnTypeFormatting(
     
     let blockEnder = null;
     if (targetStmt.action) {
-        blockEnder = getBlockEnder(targetStmt.action.text);
+        const isAlreadyClosed = targetStmt instanceof BlockStatementNode && !!targetStmt.endStatement;
+        if (!isAlreadyClosed) {
+            blockEnder = getBlockEnder(targetStmt);
+        }
     }
 
     const currentLineRange = Range.create(
@@ -185,20 +235,13 @@ export function provideOnTypeFormatting(
         Position.create(position.line, position.character)
     );
 
-    // Compute nesting depths of statements
-    const depthMap = new Map<StatementNode, StmtDepthInfo>();
-    const defBodyDepth = rules.indentDefinitionBody ? 1 : 0;
-    computeStatementDepths(targetDef.statements, defBodyDepth, defBodyDepth, depthMap, rules);
-
     const targetInfo = depthMap.get(targetStmt) || { depth: defBodyDepth, baseDepth: defBodyDepth };
     const targetDepth = targetInfo.depth;
     const baseDepth = targetInfo.baseDepth;
 
-    const indentString = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
-
     let nextDepth = targetDepth;
     const actionText = targetStmt.action?.text?.toUpperCase()?.replace(/\s+/g, '') || '';
-    const isBlockOpener = !!blockEnder;
+    const isBlockOpener = targetStmt.action ? !!getBlockEnder(targetStmt) : false;
     const increasesIndent = isBlockOpener || ['ELSE', 'CASE', 'DEFAULT'].includes(actionText);
 
     if (increasesIndent && rules.indentBlockStatementBody) {
@@ -209,25 +252,41 @@ export function provideOnTypeFormatting(
     const enderActionIndent = rules.indentBlockStatementBody ? indentString.repeat(Math.max(0, targetDepth - baseDepth)) : '';
 
     if (blockEnder) {
-        edits.push(TextEdit.replace(currentLineRange, `${indent}${nextLabel} : ${nextActionIndent}`));
+        const bodyLineText = `${indent}${nextLabel} : ${nextActionIndent}`;
+        edits.push(TextEdit.replace(currentLineRange, bodyLineText));
         
-        edits.push(TextEdit.insert(
-            Position.create(position.line, position.character),
-            `\n${indent}${incrementLabel(nextLabel)} : ${enderActionIndent}${blockEnder}`
-        ));
-        
+        const enderText = `${indent}${incrementLabel(nextLabel)} : ${enderActionIndent}${blockEnder}\n`;
+        const totalLines = lines.length;
+        if (position.line + 1 < totalLines) {
+            edits.push(TextEdit.insert(Position.create(position.line + 1, 0), enderText));
+        } else {
+            edits.push(TextEdit.insert(Position.create(position.line, position.character), `\n${enderText.trimEnd()}`));
+        }
         nextLabel = incrementLabel(nextLabel);
+
+        if (client) {
+            client.notify('tdl/setCursorPosition', { line: position.line, character: bodyLineText.length });
+        }
     } else {
         edits.push(TextEdit.replace(currentLineRange, `${indent}${nextLabel} : ${nextActionIndent}`));
     }
 
+    const parentBlockEnders = new Set<StatementNode>();
+    let curr: Node | undefined = targetStmt.parent;
+    while (curr) {
+        if (curr instanceof BlockStatementNode && curr.endStatement) {
+            parentBlockEnders.add(curr.endStatement);
+        }
+        curr = curr.parent;
+    }
+
     // AST Cascade
     let currentCascadeLabel = nextLabel;
+    let cascadedAny = false;
     for (let i = targetStmtIdx + 1; i < allStatements.length; i++) {
         const sibling = allStatements[i];
         
-        const siblingInfo = depthMap.get(sibling);
-        if (siblingInfo && siblingInfo.depth < nextDepth) {
+        if (parentBlockEnders.has(sibling) && !cascadedAny) {
             break;
         }
         
@@ -251,6 +310,7 @@ export function provideOnTypeFormatting(
             );
             
             edits.push(TextEdit.replace(replaceRange, currentCascadeLabel));
+            cascadedAny = true;
         } else {
             // Sequence pattern broken
             break;

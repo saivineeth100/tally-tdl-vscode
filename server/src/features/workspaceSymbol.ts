@@ -41,12 +41,9 @@ export async function getWorkspaceSymbols(
     const MAX_RESULTS = 100;
     
     const matchedSymbols: any[] = [];
-    for (const [uri] of stateStore.getAllIndexedUris()) {
-        if (token?.isCancellationRequested) break;
-        const scopeMgr = stateStore.getScopeManager(uri);
-        if (scopeMgr) {
-            matchedSymbols.push(...scopeMgr.searchWorkspaceSymbols(query, typeFilter, MAX_RESULTS));
-        }
+    matchedSymbols.push(...stateStore.tdlScopeManager.searchWorkspaceSymbols(query, typeFilter, MAX_RESULTS));
+    if (matchedSymbols.length < MAX_RESULTS && !token?.isCancellationRequested) {
+        matchedSymbols.push(...stateStore.xmlScopeManager.searchWorkspaceSymbols(query, typeFilter, MAX_RESULTS - matchedSymbols.length));
     }
     const finalMatchedSymbols = matchedSymbols.slice(0, MAX_RESULTS);
 

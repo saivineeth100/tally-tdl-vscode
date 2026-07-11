@@ -59,11 +59,12 @@ export class DocumentContextResolver {
             return undefined;
         }
 
+        const doc = docState.document || openCtx.document;
         return {
             ...openCtx,
-            document: docState.document || openCtx.document,
+            document: doc,
             sourceFile: docState.sourceFile,
-            scopeManager: this.stateStore.getScopeManager(openCtx.uri),
+            scopeManager: this.stateStore.getScopeManager(openCtx.uri, doc.languageId),
             projectNodes: this.graphManager.getProjectNodes(openCtx.uri) || new Set<string>()
         };
     }

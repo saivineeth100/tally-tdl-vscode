@@ -31,7 +31,7 @@ export class CompletionService {
 
         const { document, sourceFile } = docContext;
         
-        const scopeManager = this.stateStore.getScopeManager(params.textDocument.uri);
+        const scopeManager = this.stateStore.getScopeManager(params.textDocument.uri, document.languageId);
         if (!scopeManager) {
             return { items, isIncomplete: false };
         }

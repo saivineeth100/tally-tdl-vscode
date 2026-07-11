@@ -1,6 +1,6 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { SourceFile, StatementNode, BlockStatementNode, SyntaxKind, IdentifierNode, LiteralNode } from "../core/ast/ast";
+import { SourceFile, StatementNode, BlockStatementNode, SyntaxKind, IdentifierNode, LiteralNode, IfNode, SwitchNode } from "../core/ast/ast";
 import { incrementLabel, matchesSequencePattern } from '../utils/labelUtils';
 import { DiagnosticRules, createDiagnostic, createDiagnosticWithData, LabelSequenceData } from '../diagnostics';
 
@@ -21,6 +21,19 @@ export function validateLabelSequences(sourceFile: SourceFile, doc: TextDocument
                     collectStatements(stmt.statements);
                     if (stmt.endStatement) {
                         allStatements.push(stmt.endStatement);
+                    }
+                }
+                if (stmt instanceof IfNode) {
+                    if (stmt.elseStatements) {
+                        collectStatements(stmt.elseStatements);
+                    }
+                }
+                if (stmt instanceof SwitchNode) {
+                    for (const caseNode of stmt.cases) {
+                        collectStatements([caseNode]);
+                    }
+                    if (stmt.defaultCase) {
+                        collectStatements([stmt.defaultCase]);
                     }
                 }
             }

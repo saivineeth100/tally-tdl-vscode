@@ -17,27 +17,32 @@ export class CustomRequestsService {
     ) {}
 
     public async getScopeTreeDebug(params: { uri: string }) {
-        const scopeMgr = this.stateStore.getScopeManager(params.uri);
+        const doc = this.docs.get(params.uri);
+        const scopeMgr = this.stateStore.getScopeManager(params.uri, doc?.languageId);
         return scopeMgr.viewer.serializeScopeTree(params.uri);
     }
 
     public async getScopeChildren(params: { uri: string, scopeId: string }) {
-        const scopeMgr = this.stateStore.getScopeManager(params.uri);
+        const doc = this.docs.get(params.uri);
+        const scopeMgr = this.stateStore.getScopeManager(params.uri, doc?.languageId);
         return scopeMgr.viewer.getScopeChildren(params.scopeId);
     }
 
     public async getScopeNode(params: { uri: string, scopeId: string }) {
-        const scopeMgr = this.stateStore.getScopeManager(params.uri);
+        const doc = this.docs.get(params.uri);
+        const scopeMgr = this.stateStore.getScopeManager(params.uri, doc?.languageId);
         return scopeMgr.viewer.getScopeNode(params.scopeId);
     }
 
     public async getScopeSymbols(params: { uri: string, scopeId: string, kind: string, page: number, limit: number, query?: string }) {
-        const scopeMgr = this.stateStore.getScopeManager(params.uri);
+        const doc = this.docs.get(params.uri);
+        const scopeMgr = this.stateStore.getScopeManager(params.uri, doc?.languageId);
         return scopeMgr.viewer.getSymbolsPaginated(params.scopeId, params.kind, params.page, params.limit, params.query);
     }
 
     public async resolveGlobalSymbol(params: { uri: string, name: string, expectedType: string }) {
-        const scopeMgr = this.stateStore.getScopeManager(params.uri);
+        const doc = this.docs.get(params.uri);
+        const scopeMgr = this.stateStore.getScopeManager(params.uri, doc?.languageId);
         const projectScope = this.graphManager.getProjectNodes(params.uri);
         return scopeMgr.resolveDefinition(params.name, params.expectedType, scopeMgr.globalScope, projectScope);
     }

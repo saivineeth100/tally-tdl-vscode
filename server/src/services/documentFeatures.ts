@@ -16,12 +16,14 @@ import { DocumentContextResolver, ParsedDocumentContext, PositionedDocumentConte
 import { DocumentLoader } from './documentLoader';
 import { DocumentLifecycleService } from './documentLifecycleService';
 import { getFormattingRules } from '../utils/settingsManager';
+import { ClientGateway } from '../ports/clientGateway';
 
 export function createDocumentFeatures(
     resolver: DocumentContextResolver, 
     documentLoader: DocumentLoader, 
     resolveIncludePath: (currentPath: string, includeName: string) => string | null,
-    documentLifecycle: DocumentLifecycleService
+    documentLifecycle: DocumentLifecycleService,
+    client: ClientGateway
 ) {
     const withParsed = <T, P extends { textDocument: { uri: string } }>(
         fallback: T,
@@ -86,7 +88,7 @@ export function createDocumentFeatures(
         }),
 
         formatOnType: withParsed([], (ctx, params: DocumentOnTypeFormattingParams) => {
-            return provideOnTypeFormatting(ctx.document, params.position, params.ch, params.options, getFormattingRules());
+            return provideOnTypeFormatting(ctx.document, params.position, params.ch, params.options, getFormattingRules(), client);
         }),
 
         documentHighlight: (params: DocumentHighlightParams) => {
