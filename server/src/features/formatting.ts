@@ -4,7 +4,7 @@ import { TokenKind } from '../core/lexer/tokenKind';
 import { Token } from '../core/lexer/token';
 import { FormattingRules } from './formatting/formattingRules';
 import { logger } from '../logger';
-import { isInsertCollectionObject, getSetTargetDotsCount } from '../utils/blockUtils';
+import { isInsertCollectionObject, getSetTargetDotsCount, isSetTarget } from '../utils/blockUtils';
 
 interface TokenContext {
     indentDepth: number;
@@ -20,6 +20,7 @@ interface TokenContext {
     blankLinesBefore: number;
     alignToColumn?: number;
     attributeKeyWidth?: number;
+    alignColonsStrategy?: "tabStop" | "longestKey" | "fixed";
 }
 
 const defaultContext: TokenContext = {
@@ -39,6 +40,7 @@ const defaultContext: TokenContext = {
 function isOperatorToken(token: Token): boolean {
     return [
         TokenKind.PlusToken,
+        TokenKind.LineContinuationToken,
         TokenKind.MinusToken,
         TokenKind.AsteriskToken,
         TokenKind.MultiplyToken,
@@ -88,6 +90,21 @@ function getSpacingString(spacing: "space" | "tab" | "none", indentString: strin
     return "";
 }
 
+function isWhitespaceToken(token: Token): boolean {
+    return token.Kind === TokenKind.SpaceToken ||
+           token.Kind === TokenKind.LineFeed ||
+           token.Kind === TokenKind.CarriageReturn ||
+           token.Kind === TokenKind.CarriageReturnLineFeed;
+}
+
+function getFormattedSegmentLength(text: string, startToken: Token, endToken: Token): number {
+    const startPos = startToken.Start + startToken.Text.length;
+    const endPos = endToken.Start;
+    if (startPos >= endPos) return 0;
+    const rawText = text.substring(startPos, endPos);
+    return rawText.trim().replace(/\s+/g, ' ').length;
+}
+
 function computeAlignColumn(maxKeyWidth: number, strategy: string, tabSize: number, fixedColumn: number): number {
     switch (strategy) {
         case "tabStop":
@@ -101,14 +118,24 @@ function computeAlignColumn(maxKeyWidth: number, strategy: string, tabSize: numb
     }
 }
 
-function generateAlignmentPadding(keyWidth: number, alignColumn: number, insertSpaces: boolean, tabSize: number): string {
+function generateAlignmentPadding(
+    keyWidth: number, 
+    alignColumn: number, 
+    insertSpaces: boolean, 
+    tabSize: number,
+    strategy: "tabStop" | "longestKey" | "fixed"
+): string {
     const spacesNeeded = alignColumn - keyWidth;
     if (spacesNeeded <= 0) return ' '; // At minimum 1 space
     if (insertSpaces) {
         return ' '.repeat(spacesNeeded);
     } else {
-        const tabsNeeded = Math.ceil(spacesNeeded / tabSize);
-        return '\t'.repeat(tabsNeeded);
+        if (strategy === "tabStop") {
+            const tabsNeeded = Math.ceil(spacesNeeded / tabSize);
+            return '\t'.repeat(tabsNeeded);
+        } else {
+            return ' '.repeat(spacesNeeded);
+        }
     }
 }
 
@@ -124,6 +151,8 @@ export function formatDocument(
     const indentString = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
 
     const originalLines = text.split(/\r?\n/);
+    const continuationLineStarts = new Map<number, number>();
+    const linePrefixMap = new Map<number, string>();
     function getOriginalLeadingWhitespace(lineNum: number): string {
         if (lineNum >= 0 && lineNum < originalLines.length) {
             const line = originalLines[lineNum];
@@ -163,7 +192,7 @@ export function formatDocument(
 
     const contextMap = new Map<Token, TokenContext>();
 
-    function traverseAST(node: Node, depth: number, baseDepth: number, alignColumn?: number, stmtAlignColumn?: number, stmtOffset: number = 0): number {
+    function traverseAST(node: Node, depth: number, baseDepth: number, alignColumns?: number[], stmtAlignColumn?: number, stmtOffset: number = 0): number {
         if (!node) return stmtOffset;
 
         if (node.kind === SyntaxKind.Definition) {
@@ -204,16 +233,41 @@ export function formatDocument(
                 lineIndents[j] = Math.max(currentNum, bodyDepth);
             }
 
-            let defAlignColumn = 0;
+            let defAlignColumns: number[] = [];
             if (rules.alignColons) {
-                let maxKeyWidth = 0;
-                for (const attr of def.attributes) {
-                    if (attr.name) {
-                        const keyWidth = attr.name.text.length;
-                        maxKeyWidth = Math.max(maxKeyWidth, keyWidth);
+                const attrsWithColons = def.attributes.map(attr => {
+                    const tokens = getTokensInRange(sourceFile.tokens, attr.start, attr.end);
+                    const colons = tokens.filter(t => t.Kind === TokenKind.ColonToken);
+                    return { attr, tokens, colons };
+                });
+                const maxColons = Math.max(...attrsWithColons.map(a => a.colons.length), 0);
+                if (maxColons > 0) {
+                    let maxKeyWidth = 0;
+                    for (const a of attrsWithColons) {
+                        if (a.attr.name) {
+                            maxKeyWidth = Math.max(maxKeyWidth, a.attr.name.text.length);
+                        }
+                    }
+                    const indentOffset = bodyDepth * options.tabSize;
+                    const firstAlignColumn = computeAlignColumn(indentOffset + maxKeyWidth, rules.alignColonsStrategy, options.tabSize, indentOffset + rules.alignColonsColumn);
+                    defAlignColumns.push(firstAlignColumn);
+
+                    if (rules.alignMultiColonChains) {
+                        for (let j = 1; j < maxColons; j++) {
+                            const prevAlign = defAlignColumns[j - 1];
+                            let maxSegWidth = 0;
+                            for (const a of attrsWithColons) {
+                                if (a.colons.length > j) {
+                                    const segLength = getFormattedSegmentLength(text, a.colons[j - 1], a.colons[j]);
+                                    maxSegWidth = Math.max(maxSegWidth, segLength);
+                                }
+                            }
+                            const minPos = prevAlign + 2 + maxSegWidth;
+                            const nextAlign = computeAlignColumn(minPos, 'tabStop', options.tabSize, minPos + 1);
+                            defAlignColumns.push(nextAlign);
+                        }
                     }
                 }
-                defAlignColumn = computeAlignColumn(maxKeyWidth, rules.alignColonsStrategy, options.tabSize, rules.alignColonsColumn);
             }
 
             let stmtAlignColumn = 0;
@@ -263,7 +317,7 @@ export function formatDocument(
                 }
 
                 if (maxLabelWidth > 0) {
-                    stmtAlignColumn = computeAlignColumn(maxLabelWidth, rules.alignColonsStrategy, options.tabSize, rules.alignColonsColumn);
+                    stmtAlignColumn = computeAlignColumn(maxLabelWidth, rules.alignLabelsStrategy, options.tabSize, rules.alignColonsColumn);
                 }
             }
 
@@ -275,8 +329,9 @@ export function formatDocument(
             ].sort((a, b) => a.start - b.start);
 
             let isFirstChild = true;
+            let currentStmtOffset = 0;
             for (const child of children) {
-                traverseAST(child, bodyDepth, bodyDepth, defAlignColumn, stmtAlignColumn);
+                currentStmtOffset = traverseAST(child, bodyDepth, bodyDepth, defAlignColumns, stmtAlignColumn, currentStmtOffset);
                 const childTokens = getTokensInRange(sourceFile.tokens, child.start, child.end);
                 if (childTokens.length > 0) {
                     const first = childTokens[0];
@@ -294,6 +349,7 @@ export function formatDocument(
         } else if (node.kind === SyntaxKind.Attribute) {
             const attr = node as AttributeNode;
             const attrTokens = getTokensInRange(sourceFile.tokens, attr.start, attr.end);
+            const colons = attrTokens.filter(t => t.Kind === TokenKind.ColonToken);
             for (const token of attrTokens) {
                 let casing: "attributeName" | "boolean" | "none" = "none";
                 if (attr.name && token.Start >= attr.name.start && token.Start < attr.name.end) {
@@ -302,24 +358,47 @@ export function formatDocument(
                     casing = "boolean";
                 }
 
-                const isAttrColon = attr.colon && token.Start === attr.colon.Start;
-
+                const isFirstAttrColon = attr.colon && token.Start === attr.colon.Start;
                 const isOperator = isOperatorToken(token);
                 const isComma = token.Kind === TokenKind.CommaToken;
+
+                let alignToColumn: number | undefined = undefined;
+                let attributeKeyWidth: number | undefined = undefined;
+                let alignColonsStrategy: "tabStop" | "longestKey" | "fixed" | undefined = undefined;
+                let isAnyAttributeColon = false;
+
+                if (token.Kind === TokenKind.ColonToken && alignColumns && alignColumns.length > 0) {
+                    const colonIdx = colons.findIndex(c => c.Start === token.Start);
+                    if (colonIdx >= 0 && colonIdx < alignColumns.length) {
+                        isAnyAttributeColon = true;
+                        alignToColumn = alignColumns[colonIdx];
+                        if (colonIdx === 0) {
+                            const indentOffset = depth * options.tabSize;
+                            attributeKeyWidth = indentOffset + (attr.name ? attr.name.text.length : 0);
+                            alignColonsStrategy = rules.alignColonsStrategy;
+                        } else {
+                            const prevAlign = alignColumns[colonIdx - 1];
+                            const segLength = getFormattedSegmentLength(text, colons[colonIdx - 1], colons[colonIdx]);
+                            attributeKeyWidth = prevAlign + 2 + segLength;
+                            alignColonsStrategy = 'tabStop';
+                        }
+                    }
+                }
 
                 contextMap.set(token, {
                     indentDepth: depth,
                     isDefinitionHeader: false,
                     casing,
                     isDefinitionColon: false,
-                    isAttributeColon: !!isAttrColon,
+                    isAttributeColon: !!isFirstAttrColon,
                     isStatementLabelColon: false,
                     actionIndentDepth: 0,
                     isOperator,
                     isComma,
                     blankLinesBefore: -1,
-                    alignToColumn: isAttrColon && alignColumn ? alignColumn : undefined,
-                    attributeKeyWidth: isAttrColon && alignColumn && attr.name ? attr.name.text.length : undefined
+                    alignToColumn,
+                    attributeKeyWidth,
+                    alignColonsStrategy
                 });
             }
 
@@ -328,7 +407,12 @@ export function formatDocument(
             if (startLine <= endLine) {
                 lineIndents[startLine] = Math.max((lineIndents[startLine] as number) || 0, depth);
                 for (let j = startLine + 1; j <= endLine; j++) {
-                    lineIndents[j] = getRelativeIndent(j, startLine, depth);
+                    const originalLineText = originalLines[j] ? originalLines[j].trimStart() : "";
+                    if (originalLineText.startsWith('+')) {
+                        continuationLineStarts.set(j, startLine);
+                    } else {
+                        lineIndents[j] = getRelativeIndent(j, startLine, depth);
+                    }
                 }
             }
         } else if (node.kind === SyntaxKind.ComplexObject) {
@@ -359,16 +443,41 @@ export function formatDocument(
 
             const bodyDepth = rules.indentComplexObjectBody ? depth + 1 : depth;
 
-            let objAlignColumn = 0;
+            let objAlignColumns: number[] = [];
             if (rules.alignColons) {
-                let maxKeyWidth = 0;
-                for (const attr of obj.attributes) {
-                    if (attr.name) {
-                        const keyWidth = attr.name.text.length;
-                        maxKeyWidth = Math.max(maxKeyWidth, keyWidth);
+                const attrsWithColons = obj.attributes.map(attr => {
+                    const tokens = getTokensInRange(sourceFile.tokens, attr.start, attr.end);
+                    const colons = tokens.filter(t => t.Kind === TokenKind.ColonToken);
+                    return { attr, tokens, colons };
+                });
+                const maxColons = Math.max(...attrsWithColons.map(a => a.colons.length), 0);
+                if (maxColons > 0) {
+                    let maxKeyWidth = 0;
+                    for (const a of attrsWithColons) {
+                        if (a.attr.name) {
+                            maxKeyWidth = Math.max(maxKeyWidth, a.attr.name.text.length);
+                        }
+                    }
+                    const indentOffset = bodyDepth * options.tabSize;
+                    const firstAlignColumn = computeAlignColumn(indentOffset + maxKeyWidth, rules.alignColonsStrategy, options.tabSize, indentOffset + rules.alignColonsColumn);
+                    objAlignColumns.push(firstAlignColumn);
+
+                    if (rules.alignMultiColonChains) {
+                        for (let j = 1; j < maxColons; j++) {
+                            const prevAlign = objAlignColumns[j - 1];
+                            let maxSegWidth = 0;
+                            for (const a of attrsWithColons) {
+                                if (a.colons.length > j) {
+                                    const segLength = getFormattedSegmentLength(text, a.colons[j - 1], a.colons[j]);
+                                    maxSegWidth = Math.max(maxSegWidth, segLength);
+                                }
+                            }
+                            const minPos = prevAlign + 2 + maxSegWidth;
+                            const nextAlign = computeAlignColumn(minPos, 'tabStop', options.tabSize, minPos + 1);
+                            objAlignColumns.push(nextAlign);
+                        }
                     }
                 }
-                objAlignColumn = computeAlignColumn(maxKeyWidth, rules.alignColonsStrategy, options.tabSize, rules.alignColonsColumn);
             }
 
             const children = [
@@ -377,7 +486,7 @@ export function formatDocument(
             ].sort((a, b) => a.start - b.start);
 
             for (const child of children) {
-                traverseAST(child, bodyDepth, baseDepth, objAlignColumn);
+                traverseAST(child, bodyDepth, baseDepth, objAlignColumns);
             }
         } else if (node instanceof StatementNode) {
             const stmt = node as StatementNode;
@@ -385,13 +494,17 @@ export function formatDocument(
 
             let currentOffset = stmtOffset;
             const isInsert = isInsertCollectionObject(stmt);
-            const dotsCount = getSetTargetDotsCount(stmt);
 
             if (isInsert) {
                 // Format this statement at currentOffset, then increment offset
-            } else if (dotsCount > 0) {
-                const popLevel = Math.max(0, dotsCount - 1);
-                currentOffset = Math.max(0, currentOffset - popLevel);
+            } else if (isSetTarget(stmt)) {
+                const dotsCount = getSetTargetDotsCount(stmt);
+                if (dotsCount > 0) {
+                    const popLevel = Math.max(0, dotsCount - 1);
+                    currentOffset = Math.max(0, currentOffset - popLevel);
+                } else {
+                    currentOffset = 0;
+                }
             }
 
             const stmtDepth = depth + currentOffset;
@@ -402,10 +515,10 @@ export function formatDocument(
                 const block = stmt as BlockStatementNode;
                 let nestedOffset = 0;
                 for (const subStmt of block.statements) {
-                    nestedOffset = traverseAST(subStmt, bodyDepth, baseDepth, alignColumn, stmtAlignColumn, nestedOffset);
+                    nestedOffset = traverseAST(subStmt, bodyDepth, baseDepth, alignColumns, stmtAlignColumn, nestedOffset);
                 }
                 if (block.endStatement) {
-                    traverseAST(block.endStatement, stmtDepth, baseDepth, alignColumn, stmtAlignColumn, nestedOffset);
+                    traverseAST(block.endStatement, stmtDepth, baseDepth, alignColumns, stmtAlignColumn, nestedOffset);
                 }
             }
 
@@ -416,7 +529,7 @@ export function formatDocument(
                         const isElseKeyword = elseSubStmt.action && 
                             elseSubStmt.action.text.toUpperCase().replace(/\s+/g, '') === 'ELSE';
                         const subDepth = isElseKeyword ? stmtDepth : bodyDepth;
-                        traverseAST(elseSubStmt, subDepth, baseDepth, alignColumn, stmtAlignColumn, 0);
+                        traverseAST(elseSubStmt, subDepth, baseDepth, alignColumns, stmtAlignColumn, 0);
                     }
                 }
             }
@@ -424,10 +537,10 @@ export function formatDocument(
             if (stmt instanceof SwitchNode) {
                 const switchNode = stmt as SwitchNode;
                 for (const caseNode of switchNode.cases) {
-                    traverseAST(caseNode, bodyDepth, baseDepth, alignColumn, stmtAlignColumn, 0);
+                    traverseAST(caseNode, bodyDepth, baseDepth, alignColumns, stmtAlignColumn, 0);
                 }
                 if (switchNode.defaultCase) {
-                    traverseAST(switchNode.defaultCase, bodyDepth, baseDepth, alignColumn, stmtAlignColumn, 0);
+                    traverseAST(switchNode.defaultCase, bodyDepth, baseDepth, alignColumns, stmtAlignColumn, 0);
                 }
             }
 
@@ -504,9 +617,14 @@ export function formatDocument(
                 const currentStartNum = typeof currentStart === 'number' ? currentStart : 0;
                 lineIndents[startLine] = Math.max(currentStartNum, (stmt.label && rules.indentBlockStatementBody) ? baseDepth : stmtDepth);
                 for (let j = startLine + 1; j <= endLine; j++) {
-                    const currentJ = lineIndents[j];
-                    const currentJNum = typeof currentJ === 'number' ? currentJ : 0;
-                    lineIndents[j] = Math.max(currentJNum, stmtDepth);
+                    const originalLineText = originalLines[j] ? originalLines[j].trimStart() : "";
+                    if (originalLineText.startsWith('+')) {
+                        continuationLineStarts.set(j, startLine);
+                    } else {
+                        const currentJ = lineIndents[j];
+                        const currentJNum = typeof currentJ === 'number' ? currentJ : 0;
+                        lineIndents[j] = Math.max(currentJNum, stmtDepth);
+                    }
                 }
             }
 
@@ -663,12 +781,34 @@ export function formatDocument(
                     consecutiveNewlines = neededNewlines;
                 }
             }
-            const indent = lineIndents[tokenLine];
-            if (typeof indent === 'string') {
-                formattedText += indent;
-            } else if (typeof indent === 'number' && indent > 0) {
-                formattedText += indentString.repeat(indent);
+            if (continuationLineStarts.has(tokenLine)) {
+                const parentLine = continuationLineStarts.get(tokenLine)!;
+                const parentPrefix = linePrefixMap.get(parentLine);
+                if (parentPrefix) {
+                    formattedText += parentPrefix.replace(/[^\s]/g, ' ');
+                } else {
+                    const indent = lineIndents[tokenLine];
+                    if (typeof indent === 'string') {
+                        formattedText += indent;
+                    } else if (typeof indent === 'number' && indent > 0) {
+                        formattedText += indentString.repeat(indent);
+                    }
+                }
+            } else {
+                const indent = lineIndents[tokenLine];
+                if (typeof indent === 'string') {
+                    formattedText += indent;
+                } else if (typeof indent === 'number' && indent > 0) {
+                    formattedText += indentString.repeat(indent);
+                }
             }
+            
+            const currentLineStart = Math.max(formattedText.lastIndexOf('\n'), formattedText.lastIndexOf('\r')) + 1;
+            const linePrefix = formattedText.substring(currentLineStart);
+            if (!linePrefixMap.has(tokenLine)) {
+                linePrefixMap.set(tokenLine, linePrefix);
+            }
+
             atLineStart = false;
             consecutiveNewlines = 0;
         }
@@ -690,7 +830,8 @@ export function formatDocument(
         // Custom spacing: spacing before colons
         if (token.Kind === TokenKind.ColonToken) {
             if (ctx.alignToColumn !== undefined && ctx.attributeKeyWidth !== undefined) {
-                const padding = generateAlignmentPadding(ctx.attributeKeyWidth, ctx.alignToColumn, options.insertSpaces, options.tabSize);
+                const strategy = ctx.isStatementLabelColon ? rules.alignLabelsStrategy : (ctx.alignColonsStrategy || rules.alignColonsStrategy);
+                const padding = generateAlignmentPadding(ctx.attributeKeyWidth, ctx.alignToColumn, options.insertSpaces, options.tabSize, strategy);
                 while (formattedText.endsWith(' ') || formattedText.endsWith('\t')) {
                     formattedText = formattedText.slice(0, -1);
                 }
@@ -703,6 +844,11 @@ export function formatDocument(
                 }
                 if (spaceAfter !== "") {
                     formattedText += spaceAfter;
+                }
+                if (ctx.isAttributeColon || ctx.isStatementLabelColon) {
+                    const currentLineStart = Math.max(formattedText.lastIndexOf('\n'), formattedText.lastIndexOf('\r')) + 1;
+                    const linePrefix = formattedText.substring(currentLineStart);
+                    linePrefixMap.set(tokenLine, linePrefix);
                 }
                 skipNextSpace = true;
                 processTrivia(token.Trailing, tokenLine);
@@ -749,6 +895,11 @@ export function formatDocument(
             if (spaceAfter !== "") {
                 formattedText += spaceAfter;
             }
+            if (ctx.isAttributeColon || ctx.isStatementLabelColon) {
+                const currentLineStart = Math.max(formattedText.lastIndexOf('\n'), formattedText.lastIndexOf('\r')) + 1;
+                const linePrefix = formattedText.substring(currentLineStart);
+                linePrefixMap.set(tokenLine, linePrefix);
+            }
             skipNextSpace = true; // Always tell next trivia to skip its first space to discard original spacing
             
             // D. Trailing Trivia
@@ -778,6 +929,9 @@ export function formatDocument(
             skipNextSpace = true;
         }
 
+        if (!(ctx.isOperator && rules.spaceAroundOperators) && !(ctx.isComma && rules.spaceAfterComma)) {
+            skipNextSpace = false;
+        }
         // D. Trailing Trivia
         processTrivia(token.Trailing, tokenLine);
     }

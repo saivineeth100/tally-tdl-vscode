@@ -1,6 +1,6 @@
 import { Position, TextDocument, TextEdit, FormattingOptions, Range } from 'vscode-languageserver';
 import { incrementLabel, matchesSequencePattern } from '../utils/labelUtils';
-import { BLOCK_OPENERS, BLOCK_ENDERS, isInsertCollectionObject, getSetTargetDotsCount } from '../utils/blockUtils';
+import { BLOCK_OPENERS, BLOCK_ENDERS, isInsertCollectionObject, getSetTargetDotsCount, isSetTarget } from '../utils/blockUtils';
 import { Parser } from '../core/parser/parser';
 import { Node, DefinitionNode, BlockStatementNode, StatementNode, IdentifierNode, LiteralNode, SyntaxKind, IfNode, SwitchNode } from '../core/ast/ast';
 import { FormattingRules, DEFAULT_FORMATTING_RULES } from './formatting/formattingRules';
@@ -9,12 +9,19 @@ import { ClientGateway } from '../ports/clientGateway';
 function getBlockEnder(stmt: StatementNode): string | null {
     if (!stmt.action) return null;
     const actionText = stmt.action.text.toUpperCase().replace(/\s+/g, '');
-    if (actionText === "INSERT") {
-        if (isInsertCollectionObject(stmt)) {
-            return "SET TARGET : ..";
-        }
+    if (actionText === "INSERTCOLLECTIONOBJECT") {
+        return "SET TARGET : ..";
     }
     return BLOCK_OPENERS[actionText] || null;
+}
+
+function isMatchingEnder(sibling: StatementNode, expectedEnder: string): boolean {
+    if (!sibling.action) return false;
+    const actionText = sibling.action.text.toUpperCase().replace(/\s+/g, '');
+    if (expectedEnder === "SET TARGET : ..") {
+        return isSetTarget(sibling) && getSetTargetDotsCount(sibling) === 2;
+    }
+    return actionText === expectedEnder.toUpperCase().replace(/\s+/g, '');
 }
 
 interface StmtDepthInfo {
@@ -35,10 +42,14 @@ function computeStatementDepths(
         if (isInsertCollectionObject(stmt)) {
             depthMap.set(stmt, { depth: currentDepth + currentOffset, baseDepth });
             currentOffset += 1;
-        } else if (getSetTargetDotsCount(stmt) > 0) {
+        } else if (isSetTarget(stmt)) {
             const dots = getSetTargetDotsCount(stmt);
-            const popLevel = Math.max(0, dots - 1);
-            currentOffset = Math.max(0, currentOffset - popLevel);
+            if (dots > 0) {
+                const popLevel = Math.max(0, dots - 1);
+                currentOffset = Math.max(0, currentOffset - popLevel);
+            } else {
+                currentOffset = 0;
+            }
             depthMap.set(stmt, { depth: currentDepth + currentOffset, baseDepth });
         } else {
             depthMap.set(stmt, { depth: currentDepth + currentOffset, baseDepth });
@@ -85,8 +96,8 @@ export function provideOnTypeFormatting(
     rules: FormattingRules = DEFAULT_FORMATTING_RULES,
     client?: ClientGateway
 ): TextEdit[] {
-    const triggerChars = ['\n', '\r', '\r\n', ':'];
-    if (!triggerChars.includes(ch)) return [];
+    const trigChars = ['\n', '\r', '\r\n', ':'];
+    if (!trigChars.includes(ch)) return [];
 
     const edits: TextEdit[] = [];
     const text = document.getText();
@@ -97,7 +108,6 @@ export function provideOnTypeFormatting(
 
     if (targetLine < 0) return [];
 
-    // Ad-hoc parse to get accurate offsets
     const parser = new Parser(text);
     const sourceFile = parser.parse();
 
@@ -106,7 +116,6 @@ export function provideOnTypeFormatting(
     for (const def of sourceFile.definitions) {
         const startLine = document.positionAt(def.start).line;
         const endLine = document.positionAt(def.end).line;
-        // Check if the targetLine (the line we just hit Enter on) is within this definition's bounds
         if (startLine <= targetLine && endLine >= targetLine) {
             targetDef = def;
             break;
@@ -115,12 +124,10 @@ export function provideOnTypeFormatting(
 
     if (!targetDef) return [];
 
-    // Guardrail: Only Function definitions have procedural capabilities
     if (!targetDef.type || targetDef.type.text.toUpperCase() !== 'FUNCTION') {
         return [];
     }
     
-    // Flatten statements in order of appearance
     const allStatements: StatementNode[] = [];
     function collectStatements(statements: StatementNode[]) {
         for (const stmt of statements) {
@@ -148,10 +155,8 @@ export function provideOnTypeFormatting(
     }
     collectStatements(targetDef.statements);
 
-    // Sort flattened statements by start offset just to be absolutely sure
     allStatements.sort((a, b) => a.start - b.start);
 
-    // Find the statement matching the previous line
     let targetStmt: StatementNode | undefined;
     let targetStmtIdx = -1;
     for (let i = 0; i < allStatements.length; i++) {
@@ -172,12 +177,8 @@ export function provideOnTypeFormatting(
         }
     }
 
-    if (!targetStmt) {
-        return [];
-    }
-    if (!targetStmt.label) {
-        return [];
-    }
+    if (!targetStmt) return [];
+    if (!targetStmt.label) return [];
 
     // Compute nesting depths of statements
     const depthMap = new Map<StatementNode, StmtDepthInfo>();
@@ -224,9 +225,43 @@ export function provideOnTypeFormatting(
     
     let blockEnder = null;
     if (targetStmt.action) {
-        const isAlreadyClosed = targetStmt instanceof BlockStatementNode && !!targetStmt.endStatement;
-        if (!isAlreadyClosed) {
-            blockEnder = getBlockEnder(targetStmt);
+        const ender = getBlockEnder(targetStmt);
+        if (ender) {
+            const targetIndent = document.positionAt(targetStmt.action.start).character;
+            
+            let isAlreadyClosed = false;
+            let openCount = 0;
+            const targetActionText = targetStmt.action ? targetStmt.action.text.toUpperCase().replace(/\s+/g, '') : '';
+            
+            for (let i = targetStmtIdx + 1; i < allStatements.length; i++) {
+                const sibling = allStatements[i];
+                if (!sibling.action) continue;
+                
+                const siblingActionText = sibling.action.text.toUpperCase().replace(/\s+/g, '');
+                
+                if (siblingActionText === targetActionText) {
+                    openCount++;
+                }
+                
+                if (isMatchingEnder(sibling, ender)) {
+                    const siblingIndent = document.positionAt(sibling.action.start).character;
+                    
+                    if (siblingIndent < targetIndent) {
+                        continue;
+                    }
+                    
+                    if (openCount > 0) {
+                        openCount--;
+                    } else {
+                        isAlreadyClosed = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!isAlreadyClosed) {
+                blockEnder = ender;
+            }
         }
     }
 

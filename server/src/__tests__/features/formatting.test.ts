@@ -26,15 +26,15 @@ describe('Document Formatting', () => {
     }
 
     function apply(
-        input: string, 
-        expected: string, 
+        input: string,
+        expected: string,
         rules: FormattingRules = testRules,
         customOptions: FormattingOptions = options
     ) {
         const parser = new Parser(input);
         const sourceFile = parser.parse();
         const edits = formatDocument(input, sourceFile, customOptions, rules);
-        
+
         const doc = TextDocument.create('test://test.tdl', 'tdl', 1, input);
         const result = TextDocument.applyEdits(doc, edits);
         expect(result).toBe(expected);
@@ -570,6 +570,124 @@ Returns : String
             apply(input, expected, rules);
         });
 
+        it('should respect alignLabelsStrategy settings', () => {
+            const input = `[Function: Set Value Enhanced]
+10 : SET FILE LOG ON
+2000 : log : dvvfd`;
+            const expectedLongestKey = `[Function: Set Value Enhanced]
+    10   : SET FILE LOG ON
+    2000 : log : dvvfd
+`;
+            const expectedTabStop = `[Function: Set Value Enhanced]
+    10      : SET FILE LOG ON
+    2000    : log : dvvfd
+`;
+            const rulesLongestKey = mergeTestRules({
+                alignColons: true,
+                alignLabelsStrategy: "longestKey"
+            });
+            const rulesTabStop = mergeTestRules({
+                alignColons: true,
+                alignLabelsStrategy: "tabStop"
+            });
+            apply(input, expectedLongestKey, rulesLongestKey);
+            apply(input, expectedTabStop, rulesTabStop);
+
+            // Test with insertSpaces: false
+            const expectedTabs = `[Function: Set Value Enhanced]
+\t10   : SET FILE LOG ON
+\t2000 : log : dvvfd
+`;
+            apply(input, expectedTabs, rulesLongestKey, { tabSize: 4, insertSpaces: false });
+        });
+
+        it('should align standalone block end statements correctly', () => {
+            const input = `[Function: Test]
+390	: 	CREATE TARGET
+4000	: END WALK`;
+            const expected = `[Function: Test]
+    390  : CREATE TARGET
+    4000 : END WALK
+`;
+            const rules = mergeTestRules({
+                alignColons: true,
+                alignLabelsStrategy: "longestKey"
+            });
+            apply(input, expected, rules);
+        });
+
+        it('should align block end statement labels properly inside a block', () => {
+            const input = `[Function: Test]
+20 : WALK COLLECTION : Vouchers
+390	: 	CREATE TARGET
+	4008 : END WALK`;
+            const expected = `[Function: Test]
+    20   : WALK COLLECTION : Vouchers
+    390  :     CREATE TARGET
+    4008 : END WALK
+`;
+            const rules = mergeTestRules({
+                alignColons: true
+            });
+            apply(input, expected, rules);
+        });
+
+        it('should align continuation lines starting with + with the value or action start', () => {
+            // 1. Attribute continuation under spaces
+            const inputAttrSpaces = `[Report: MyReport]
+Form : Simple
+Title : "[Collection: TSPL Stock Item Price List]"+
++ " Data Source : File JSON"+
++ " JSON Object Path: 'Stockitems'"`;
+            const expectedAttrSpaces = `[Report: MyReport]
+    Form  : Simple
+    Title : "[Collection: TSPL Stock Item Price List]" +
+            + " Data Source : File JSON" +
+            + " JSON Object Path: 'Stockitems'"
+`;
+            const rulesAttrSpaces = mergeTestRules({
+                alignColons: true,
+                alignColonsStrategy: "longestKey"
+            });
+            apply(inputAttrSpaces, expectedAttrSpaces, rulesAttrSpaces);
+
+            // 2. Attribute continuation under tabs
+            const inputAttrTabs = `[Report: MyReport]
+Form : Simple
+Title : "[Collection: TSPL Stock Item Price List]"+
++ " Data Source : File JSON"`;
+            const expectedAttrTabs = `[Report: MyReport]
+\tForm  : Simple
+\tTitle : "[Collection: TSPL Stock Item Price List]" +
+\t        + " Data Source : File JSON"
+`;
+            const customOptions = { tabSize: 4, insertSpaces: false };
+            apply(inputAttrTabs, expectedAttrTabs, rulesAttrSpaces, customOptions);
+
+            // 3. Statement continuation with sequence labels (spaces)
+            const inputStmtLabel = `[Function: MyFunc]
+10 : SET VALUE : MyVar : "My Value" +
++ " Extra String"`;
+            const expectedStmtLabel = `[Function: MyFunc]
+    10 : SET VALUE : MyVar : "My Value" +
+         + " Extra String"
+`;
+            const rulesStmtLabel = mergeTestRules({
+                alignColons: false
+            });
+            apply(inputStmtLabel, expectedStmtLabel, rulesStmtLabel);
+
+            // 4. Statement continuation without sequence labels
+            const inputStmtNoLabel = `[Function: MyFunc]
+SET VALUE : MyVar : "My Value" +
++ " Extra String"`;
+            const expectedStmtNoLabel = `[Function: MyFunc]
+    SET VALUE : MyVar : "My Value" +
+                + " Extra String"
+`;
+            apply(inputStmtNoLabel, expectedStmtNoLabel, rulesStmtLabel);
+        });
+
         it('should format Set Value Enhanced function block correctly', () => {
             const input = `[Function: Set Value Enhanced]
 
@@ -596,7 +714,7 @@ Returns : String
 180     : INSERT COLLECTION OBJECT : INVENTORYENTRIES
 190 :SET VALUE : StockItemName : "Item 1"
 200 : SET VALUE : IsDeemedPositive : No
-210   : SET VALUE : ActualQty : -10
+210   : SET VALUE : ActualQty : 10
 250      : INSERT COLLECTION OBJECT : BATCHALLOCATIONS
 260 : SET VALUE : GodownName : "Main Location"
 320 : SET TARGET : ..
@@ -607,19 +725,52 @@ Returns : String
     180 : INSERT COLLECTION OBJECT : INVENTORYENTRIES
     190 :     SET VALUE : StockItemName : "Item 1"
     200 :     SET VALUE : IsDeemedPositive : No
-    210 :     SET VALUE : ActualQty : -10
+    210 :     SET VALUE : ActualQty : 10
     250 :     INSERT COLLECTION OBJECT : BATCHALLOCATIONS
     260 :         SET VALUE : GodownName : "Main Location"
     320 :     SET TARGET : ..
-    330 :     SET TARGET : Group
+    330 : SET TARGET : Group
     340 : SET TARGET : ...
 `;
             apply(input, expected);
         });
 
+        it('should align multi-colon chains when alignMultiColonChains is true (spaces)', () => {
+            const input = `[Report: MyReport]
+PrintSet : Report Title : $$LocaleString : "Trial Balance"
+Set : IsLedgerWise : No`;
+            const expected = `[Report: MyReport]
+    PrintSet : Report Title : $$LocaleString    : "Trial Balance"
+    Set      : IsLedgerWise : No
+`;
+            const rules = mergeTestRules({
+                alignColons: true,
+                alignColonsStrategy: "longestKey",
+                alignMultiColonChains: true
+            });
+            apply(input, expected, rules);
+        });
+
+        it('should align multi-colon chains when alignMultiColonChains is true (tabs)', () => {
+            const input = `[Report: MyReport]
+PrintSet : Report Title : $$LocaleString : "Trial Balance"
+Set : IsLedgerWise : No`;
+            const expected = `[Report: MyReport]
+\tPrintSet\t: Report Title\t: $$LocaleString\t: "Trial Balance"
+\tSet\t\t\t: IsLedgerWise\t: No
+`;
+            const rules = mergeTestRules({
+                alignColons: true,
+                alignColonsStrategy: "tabStop",
+                alignMultiColonChains: true
+            });
+            const customOptions = { tabSize: 4, insertSpaces: false };
+            apply(input, expected, rules, customOptions);
+        });
+
         it('should align colons using ServerTestHarness to mimic editor configuration', async () => {
             const harness = new ServerTestHarness();
-            
+
             // 1. Send configuration update (mimic VS Code setting changed)
             await harness.runtime.workspaceLifecycle.onDidChangeConfiguration({
                 settings: {
@@ -666,7 +817,7 @@ Returns : String
 \tVariable\t\t: AutoCol TB Group, IsLedgerWise, SVPeriodicity
 `;
             expect(formattedResult).toBe(expected);
-            
+
             harness.dispose();
         });
     });

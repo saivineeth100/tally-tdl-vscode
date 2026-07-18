@@ -307,4 +307,34 @@ describe('onTypeFormatting', () => {
         expect(edits[0].newText).toBe('11 :     ');
         expect(edits[1].newText).toBe('12 : SET TARGET : ..\n');
     });
+
+    it('should not auto-close block if a matching ender is already present at same indent downstream', () => {
+        const doc = createMockDocument(
+            '[Function: Test]\n' +
+            '01 : IF ##Condition\n' +
+            '02 : ENDIF\n' +
+            ']\n'
+        );
+        const edits = provideOnTypeFormatting(doc, Position.create(2, 0), '\n', defaultOptions);
+
+        expect(edits.length).toBe(2);
+        expect(edits[0].newText).toBe('02 :     ');
+        expect(edits[1].newText).toBe('03');
+    });
+
+    it('should auto-close nested block even if a parent ender is present downstream at smaller indent', () => {
+        const doc = createMockDocument(
+            '[Function: Test]\n' +
+            '01 : IF ##Condition\n' +
+            '02 :     IF ##Inner\n' +
+            '03 : ENDIF\n' +
+            ']\n'
+        );
+        const edits = provideOnTypeFormatting(doc, Position.create(3, 0), '\n', defaultOptions);
+
+        expect(edits.length).toBe(3);
+        expect(edits[0].newText).toBe('03 :         ');
+        expect(edits[1].newText).toBe('04 :     ENDIF\n');
+        expect(edits[2].newText).toBe('05');
+    });
 });

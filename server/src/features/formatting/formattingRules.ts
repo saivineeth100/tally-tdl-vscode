@@ -55,6 +55,8 @@ export interface FormattingRules {
     alignColons: boolean;
     /** Strategy for colon alignment. Default: "tabStop" */
     alignColonsStrategy: "tabStop" | "longestKey" | "fixed";
+    /** Strategy for function sequence labels alignment. Default: "longestKey" */
+    alignLabelsStrategy: "tabStop" | "longestKey" | "fixed";
     /** Fixed column position for colon alignment. Default: 16 */
     alignColonsColumn: number;
     /** Whether to align multi-colon chains. Default: false */
@@ -82,6 +84,7 @@ export const DEFAULT_FORMATTING_RULES: Readonly<FormattingRules> = {
     spaceAfterComma: true,
     alignColons: true,
     alignColonsStrategy: "tabStop",
+    alignLabelsStrategy: "longestKey",
     alignColonsColumn: 16,
     alignMultiColonChains: false
 };
@@ -142,6 +145,9 @@ export function mergeFormattingRules(overrides: Partial<FormattingRules>): Forma
     const validStrategies = ["tabStop", "longestKey", "fixed"];
     if (overrides.alignColonsStrategy !== undefined && validStrategies.includes(overrides.alignColonsStrategy)) {
         rules.alignColonsStrategy = overrides.alignColonsStrategy;
+    }
+    if (overrides.alignLabelsStrategy !== undefined && validStrategies.includes(overrides.alignLabelsStrategy)) {
+        rules.alignLabelsStrategy = overrides.alignLabelsStrategy;
     }
     if (overrides.alignColonsColumn !== undefined && typeof overrides.alignColonsColumn === "number") {
         rules.alignColonsColumn = Math.max(1, overrides.alignColonsColumn);

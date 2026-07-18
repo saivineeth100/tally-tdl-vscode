@@ -352,6 +352,12 @@ export class StatementsParser extends ExpressionsParser {
         unclosed.node.start,
         unclosed.node.end,
       );
+      if (unclosed.node instanceof BlockStatementNode) {
+        const lastInBlock = unclosed.node.statements.length > 0
+          ? unclosed.node.statements[unclosed.node.statements.length - 1]
+          : unclosed.node;
+        unclosed.node.end = lastInBlock.end;
+      }
     }
 
     return result;

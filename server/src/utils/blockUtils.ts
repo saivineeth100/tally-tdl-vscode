@@ -57,3 +57,8 @@ export function getSetTargetDotsCount(stmt: StatementNode): number {
     }
     return 0;
 }
+
+export function isSetTarget(stmt: StatementNode): boolean {
+    const actionText = (stmt.action?.text || "").trim().toUpperCase().replace(/\s+/g, '');
+    return actionText === "SETTARGET";
+}

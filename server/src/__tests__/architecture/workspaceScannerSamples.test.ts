@@ -118,20 +118,34 @@ describe.runIf(hasSamples)('WorkspaceScanner - Real Samples Folder', () => {
         const defs = harness.runtime.services.documentStateStore.tdlScopeManager.getGlobalDefinitionsByType('report', true);
         expect(defs.length).toBeGreaterThan(0);
         
-        // 5. Verify getScopeAt at line 47, col 69 (which is line 46, character 68 0-indexed)
+        // 5. Verify getScopeAt
         const openDoc = harness.runtime.services.documentStateStore.getOpen(samplesTxtUri);
         expect(openDoc).toBeDefined();
         const docObj = openDoc?.document;
         expect(docObj).toBeDefined();
         
-        // Find the offset of "TallyPrime" reference on line 47 (line index 46) dynamically
-        const lineText = docObj!.getText().split(/\r?\n/)[46];
-        const charIndex = lineText.indexOf('TallyPrime', lineText.indexOf('Menu'));
-        console.log(`[DEBUG] lineText: "${lineText}"`);
+        // Find the offset of "TallyPrime" reference dynamically
+        const docLines = docObj!.getText().split(/\r?\n/);
+        let targetLineIndex = -1;
+        let charIndex = -1;
+        for (let i = 0; i < docLines.length; i++) {
+            const line = docLines[i];
+            if (line.includes('Key Item') && line.includes('TallyPrime') && line.includes('Menu')) {
+                const idx = line.indexOf('TallyPrime', line.indexOf('Menu'));
+                if (idx > 0) {
+                    targetLineIndex = i;
+                    charIndex = idx;
+                    break;
+                }
+            }
+        }
+        
+        console.log(`[DEBUG] targetLineIndex: ${targetLineIndex}`);
         console.log(`[DEBUG] charIndex: ${charIndex}`);
+        expect(targetLineIndex).toBeGreaterThan(0);
         expect(charIndex).toBeGreaterThan(0);
         
-        const position = { line: 46, character: charIndex + 2 }; // Place cursor inside "TallyPrime"
+        const position = { line: targetLineIndex, character: charIndex + 2 }; // Place cursor inside "TallyPrime"
         const offset = docObj!.offsetAt(position);
         const definitionParams = {
             textDocument: { uri: samplesTxtUri },
