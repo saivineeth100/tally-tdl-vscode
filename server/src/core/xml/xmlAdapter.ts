@@ -1,12 +1,78 @@
 import * as sax from 'sax';
 import { 
     SourceFile, DefinitionNode, AttributeNode, StatementNode, 
-    IdentifierNode, CommentNode, ComplexObjectNode
+    IdentifierNode, CommentNode, ComplexObjectNode, SyntaxKind
 } from '../ast/ast';
 import { Token } from '../lexer/token';
 import { TokenKind } from '../lexer/tokenKind';
 import { Parser } from '../parser/parser';
 import { ScopeManager } from '../../semantics/scopeManager/index';
+
+function astNodeToText(node: any): string {
+    if (!node) return '';
+    if (typeof node === 'string') return node;
+    if (typeof node === 'number') return String(node);
+
+    if (node.kind === SyntaxKind.BinaryExpression) {
+        const left = astNodeToText(node.left);
+        const op = node.operator?.Text || '';
+        const right = astNodeToText(node.right);
+        return `${left} ${op} ${right}`.trim();
+    }
+
+    if (node.kind === SyntaxKind.UnaryExpression) {
+        const op = node.operator?.Text || '';
+        const right = astNodeToText(node.right);
+        return `${op}${right}`.trim();
+    }
+
+    if (node.kind === SyntaxKind.MethodReference) {
+        const method = astNodeToText(node.methodName);
+        return method.startsWith('$') ? method : `$${method}`;
+    }
+
+    if (node.kind === SyntaxKind.FieldReference) {
+        const field = astNodeToText(node.fieldName);
+        return field.startsWith('#') ? field : `#${field}`;
+    }
+
+    if (node.kind === SyntaxKind.VariableReference) {
+        const v = astNodeToText(node.variableName);
+        return v.startsWith('##') ? v : `##${v}`;
+    }
+
+    if (node.kind === SyntaxKind.FormulaReference) {
+        const f = astNodeToText(node.formulaName);
+        return node.isGlobal ? `@${f}` : `@@${f}`;
+    }
+
+    if (node.kind === SyntaxKind.FunctionCall) {
+        const fn = astNodeToText(node.functionName);
+        const args = (node.arguments || []).map((a: any) => astNodeToText(a)).join(':');
+        const prefix = fn.startsWith('$$') ? fn : `$$${fn}`;
+        return args ? `${prefix}:${args}` : prefix;
+    }
+
+    if (node.tokens && Array.isArray(node.tokens) && node.tokens.length > 0) {
+        const fullTokensText = node.tokens.map((t: any) => t.Text || '').join('');
+        if (fullTokensText.length >= (node.text || '').length) {
+            return fullTokensText;
+        }
+    }
+
+    if (node.text !== undefined) return node.text;
+    if (node.name?.text !== undefined) return node.name.text;
+    if (node.value !== undefined) {
+        if (typeof node.value === 'string' || typeof node.value === 'number') {
+            return String(node.value);
+        }
+        if (Array.isArray(node.value)) {
+            return node.value.map((item: any) => astNodeToText(item)).join(', ');
+        }
+    }
+
+    return '';
+}
 
 interface TagState {
     name: string;
@@ -84,7 +150,17 @@ export function parseXmlToAst(xmlText: string, scopeManager?: ScopeManager): Sou
                 
                 activeDefinition = new DefinitionNode(startPos, startPos, openBracketToken, typeIdent, closeBracketToken);
                 
-                if (node.attributes['NAME'] !== undefined) {
+                const isSystemTag = node.name.toUpperCase() === 'SYSTEM';
+                const systemTypeVal = isSystemTag ? (node.attributes['TYPE'] as string) : undefined;
+                
+                if (isSystemTag && systemTypeVal) {
+                    const typeToken = new Token(TokenKind.IdentifierToken, startPos + 1, startPos + 1, systemTypeVal.length);
+                    typeToken.Text = systemTypeVal;
+                    activeDefinition.name = new IdentifierNode([typeToken], systemTypeVal);
+                    if (node.attributes['NAME'] !== undefined) {
+                        (activeDefinition as any).systemItemName = node.attributes['NAME'] as string;
+                    }
+                } else if (node.attributes['NAME'] !== undefined) {
                     const nameAttrVal = (node.attributes['NAME'] as string) || '';
                     const currentPos = parser.position;
                     const openingTagText = xmlText.substring(startPos, currentPos);
@@ -126,10 +202,12 @@ export function parseXmlToAst(xmlText: string, scopeManager?: ScopeManager): Sou
                     activeDefinition.modifier = mod;
                 }
                 
+                (activeDefinition as any).xmlAttributes = node.attributes;
+                
                 // Parse other attributes as TDL attributes
                 for (const attrKey of Object.keys(node.attributes)) {
                     const upperKey = attrKey.toUpperCase();
-                    if (upperKey === 'NAME' || upperKey === 'ACTION' || upperKey === 'ISMODIFY' || upperKey === 'ISOPTION' || upperKey === 'ISINITIALIZE' || upperKey === 'ISFIXED' || upperKey === 'ISINTERNAL') continue;
+                    if (upperKey === 'NAME' || upperKey === 'ACTION' || upperKey === 'ISMODIFY' || upperKey === 'ISOPTION' || upperKey === 'ISINITIALIZE' || upperKey === 'ISFIXED' || upperKey === 'ISINTERNAL' || (isSystemTag && upperKey === 'TYPE')) continue;
                     
                     const attrVal = node.attributes[attrKey] as string;
                     const attrText = `${attrKey} : ${attrVal}`;
@@ -304,10 +382,28 @@ export function parseXmlToAst(xmlText: string, scopeManager?: ScopeManager): Sou
                     activeDefinition.closeType = new IdentifierNode([typeToken], tagName);
                 }
                 
-                // If it has inner text and no complex objects (e.g. <SYSTEM> $ClosingBalance = 0 </SYSTEM>)
+                // If it has inner text and no complex objects (e.g. <SYSTEM TYPE="Formulae" NAME="TSPLSmpConfirmTextString"> "Save Ledger ?" </SYSTEM>)
                 if (activeDefinition.complexObjects.length === 0 && activeDefinition.attributes.length === 0 && activeDefinition.statements.length === 0) {
                     const rawInnerText = xmlText.substring(activeDefinitionStartTagEnd, closeStart);
-                    if (rawInnerText.trim()) {
+                    const sysItemName = (activeDefinition as any).systemItemName;
+                    if (sysItemName) {
+                        const trimmedVal = rawInnerText.trim();
+                        const attrText = `${sysItemName} : ${trimmedVal}`;
+                        const tempParser = new Parser(attrText);
+                        const attrs = tempParser.parseStandaloneAttributes();
+                        if (attrs.length > 0) {
+                            activeDefinition.attributes.push(attrs[0]);
+                        } else {
+                            const nameToken = new Token(TokenKind.IdentifierToken, 0, 0, sysItemName.length);
+                            nameToken.Text = sysItemName;
+                            const identNode = new IdentifierNode([nameToken], sysItemName);
+                            const valToken = new Token(TokenKind.StringLiteralToken, 0, 0, trimmedVal.length);
+                            valToken.Text = trimmedVal;
+                            const valNode = new IdentifierNode([valToken], trimmedVal);
+                            const attrNode = new AttributeNode(0, 0, identNode, undefined as any, [valNode]);
+                            activeDefinition.attributes.push(attrNode);
+                        }
+                    } else if (rawInnerText.trim()) {
                         const paddedInnerText = padEntities(rawInnerText);
                         const stmtText = paddedInnerText;
                         const tempParser = new Parser(stmtText);
@@ -456,8 +552,12 @@ export function parseXmlEnvelopeToPlaygroundState(xmlText: string, scopeManager?
         for (const def of sourceFile.definitions) {
             const defType = def.type?.text || 'Collection';
             const name = def.name?.text || '';
-            const isModify = def.modifier?.Text === '#' || def.modifier?.Text === '*';
-            const isOption = def.modifier?.Text === '!';
+            const rawXmlAttrs = (def as any).xmlAttributes || {};
+            const isModify = def.modifier?.Text === '#' || def.modifier?.Text === '*' || rawXmlAttrs['ISMODIFY'] === 'Yes';
+            const isFixed = rawXmlAttrs['ISFIXED'] === 'Yes';
+            const isInitialize = def.modifier?.Text === '*' || rawXmlAttrs['ISINITIALIZE'] === 'Yes';
+            const isOption = def.modifier?.Text === '!' || rawXmlAttrs['ISOPTION'] === 'Yes';
+            const isInternal = rawXmlAttrs['ISINTERNAL'] === 'Yes';
 
             const attributes: import('tally-tdl-shared').PlaygroundAttributeDTO[] = [];
             for (const attr of def.attributes) {
@@ -465,7 +565,7 @@ export function parseXmlEnvelopeToPlaygroundState(xmlText: string, scopeManager?
                 const vals: string[] = [];
                 if (attr.value && Array.isArray(attr.value)) {
                     for (const v of attr.value) {
-                        const t = (v as any).text || (v as any).name?.text || (v as any).value || '';
+                        const t = astNodeToText(v);
                         if (t) {
                             vals.push(t);
                         }
@@ -482,11 +582,142 @@ export function parseXmlEnvelopeToPlaygroundState(xmlText: string, scopeManager?
                 name,
                 attributes,
                 isModify,
-                isOption
+                isFixed,
+                isInitialize,
+                isOption,
+                isInternal
             });
         }
     }
 
+    // 3. Parse TallyMessage objects (for Import requests)
+    if (xmlText.toUpperCase().includes('<TALLYMESSAGE') || result.tallyRequest === 'Import') {
+        const tallyObjects = parseTallyMessageObjects(xmlText);
+        if (tallyObjects.length > 0) {
+            result.tallyObjects = tallyObjects;
+        }
+    }
+
     return result;
+}
+
+interface GenericXmlNode {
+    name: string;
+    attributes: Record<string, string>;
+    text: string;
+    children: GenericXmlNode[];
+}
+
+function parseTallyMessageObjects(xmlText: string): import('tally-tdl-shared').PlaygroundTallyObjectDTO[] {
+    const objects: import('tally-tdl-shared').PlaygroundTallyObjectDTO[] = [];
+    const saxParser = sax.parser(false, { position: true, lowercase: false });
+    
+    let inTallyMessage = false;
+    const nodeStack: GenericXmlNode[] = [];
+
+    saxParser.onopentag = (node) => {
+        const upper = node.name.toUpperCase();
+        if (upper === 'TALLYMESSAGE') {
+            inTallyMessage = true;
+            return;
+        }
+        if (inTallyMessage) {
+            const xmlNode: GenericXmlNode = {
+                name: node.name,
+                attributes: node.attributes as Record<string, string>,
+                text: '',
+                children: []
+            };
+            if (nodeStack.length > 0) {
+                nodeStack[nodeStack.length - 1].children.push(xmlNode);
+            }
+            nodeStack.push(xmlNode);
+        }
+    };
+
+    saxParser.ontext = (text) => {
+        if (inTallyMessage && nodeStack.length > 0) {
+            const trimmed = text.trim();
+            if (trimmed) {
+                nodeStack[nodeStack.length - 1].text += (nodeStack[nodeStack.length - 1].text ? ' ' : '') + trimmed;
+            }
+        }
+    };
+
+    saxParser.onclosetag = (tagName) => {
+        const upper = tagName.toUpperCase();
+        if (upper === 'TALLYMESSAGE') {
+            inTallyMessage = false;
+            return;
+        }
+        if (inTallyMessage && nodeStack.length > 0) {
+            const popped = nodeStack.pop();
+            // If top-level inside TALLYMESSAGE
+            if (nodeStack.length === 0 && popped) {
+                const attrs = popped.attributes || {};
+                const actionRaw = attrs['ACTION'] || attrs['Action'] || attrs['action'] || 'Create';
+                const action = (['Create', 'Alter', 'Delete'].find(
+                    a => a.toLowerCase() === actionRaw.toLowerCase()
+                ) || 'Create') as 'Create' | 'Alter' | 'Delete';
+
+                let name = attrs['NAME'] || attrs['Name'] || attrs['name'] || '';
+                if (!name) {
+                    const directNameNode = popped.children.find(c => c.name.toUpperCase() === 'NAME');
+                    if (directNameNode && directNameNode.text) {
+                        name = directNameNode.text;
+                    } else {
+                        const langNode = popped.children.find(c => c.name.toUpperCase() === 'LANGUAGENAME.LIST');
+                        const nameListNode = langNode?.children.find(c => c.name.toUpperCase() === 'NAME.LIST');
+                        const firstChildName = nameListNode?.children.find(c => c.name.toUpperCase() === 'NAME');
+                        if (firstChildName && firstChildName.text) {
+                            name = firstChildName.text;
+                        }
+                    }
+                }
+
+                const objView = attrs['OBJVIEW'] || attrs['ObjView'] || attrs['objview'] || '';
+                const vchType = attrs['VCHTYPE'] || attrs['VchType'] || attrs['vchtype'] || '';
+
+                const properties = convertXmlNodesToProperties(popped.children);
+
+                objects.push({
+                    objectType: popped.name,
+                    action,
+                    name: name || undefined,
+                    objView: objView || undefined,
+                    vchType: vchType || undefined,
+                    properties
+                });
+            }
+        }
+    };
+
+    try {
+        saxParser.write(xmlText).close();
+    } catch {
+        // Parse as much as possible
+    }
+
+    return objects;
+}
+
+function convertXmlNodesToProperties(nodes: GenericXmlNode[]): import('tally-tdl-shared').PlaygroundTallyPropertyDTO[] {
+    const props: import('tally-tdl-shared').PlaygroundTallyPropertyDTO[] = [];
+    for (const node of nodes) {
+        const isList = node.name.toUpperCase().endsWith('.LIST') || node.children.length > 0;
+        if (isList) {
+            props.push({
+                name: node.name,
+                isList: true,
+                children: convertXmlNodesToProperties(node.children)
+            });
+        } else {
+            props.push({
+                name: node.name,
+                value: node.text || ''
+            });
+        }
+    }
+    return props;
 }
 

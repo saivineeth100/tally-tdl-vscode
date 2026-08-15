@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 export interface ComboboxOption {
     value: string;
@@ -13,6 +13,7 @@ interface ComboboxProps {
     options: (string | ComboboxOption)[];
     placeholder?: string;
     onFocus?: () => void;
+    onSearch?: (query: string) => void;
     className?: string;
     autoFocus?: boolean;
 }
@@ -23,22 +24,32 @@ export const Combobox: React.FC<ComboboxProps> = ({
     options,
     placeholder = 'Type or select...',
     onFocus,
+    onSearch,
     className = '',
     autoFocus = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [openUpwards, setOpenUpwards] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
+    const searchDebounceRef = useRef<any>(null);
 
-    // Normalize options
-    const normalizedOptions: ComboboxOption[] = options.map(opt => {
-        if (typeof opt === 'string') {
-            return { value: opt, label: opt };
+    // Normalize and deduplicate options case-insensitively
+    const normalizedOptions: ComboboxOption[] = React.useMemo(() => {
+        const seen = new Set<string>();
+        const res: ComboboxOption[] = [];
+        for (const opt of options) {
+            const item: ComboboxOption = typeof opt === 'string' ? { value: opt, label: opt } : opt;
+            const key = (item.value || '').toLowerCase().trim();
+            if (key && !seen.has(key)) {
+                seen.add(key);
+                res.push(item);
+            }
         }
-        return opt;
-    });
+        return res;
+    }, [options]);
 
     // Filter and rank options based on input value
     const filteredOptions = React.useMemo(() => {
@@ -75,6 +86,26 @@ export const Combobox: React.FC<ComboboxProps> = ({
             return (a.label || a.value).localeCompare(b.label || b.value, undefined, { sensitivity: 'base' });
         });
     }, [normalizedOptions, value]);
+
+    // Check positioning direction (open upwards if not enough room below)
+    const updateDropdownPlacement = useCallback(() => {
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const spaceAbove = rect.top;
+            if (spaceBelow < 220 && spaceAbove > spaceBelow) {
+                setOpenUpwards(true);
+            } else {
+                setOpenUpwards(false);
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isOpen) {
+            updateDropdownPlacement();
+        }
+    }, [isOpen, filteredOptions.length, updateDropdownPlacement]);
 
     // Close on click outside
     useEffect(() => {
@@ -138,7 +169,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
     };
 
     return (
-        <div className={`combobox-root ${className}`} ref={containerRef}>
+        <div className={`combobox-root ${isOpen ? 'is-open' : ''} ${className}`} ref={containerRef}>
             <div className="combobox-input-wrapper">
                 <input
                     ref={inputRef}
@@ -151,11 +182,21 @@ export const Combobox: React.FC<ComboboxProps> = ({
                         setIsOpen(true);
                         setHighlightedIndex(-1);
                         if (onFocus) onFocus();
+                        if (onSearch && value) onSearch(value);
                     }}
                     onChange={e => {
-                        onChange(e.target.value);
+                        const newVal = e.target.value;
+                        onChange(newVal);
                         setIsOpen(true);
                         setHighlightedIndex(0);
+                        if (onSearch) {
+                            if (searchDebounceRef.current) {
+                                clearTimeout(searchDebounceRef.current);
+                            }
+                            searchDebounceRef.current = setTimeout(() => {
+                                onSearch(newVal);
+                            }, 150);
+                        }
                     }}
                     onKeyDown={handleKeyDown}
                     spellCheck={false}
@@ -177,7 +218,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
             </div>
 
             {isOpen && filteredOptions.length > 0 && (
-                <div className="combobox-dropdown" ref={listRef}>
+                <div className={`combobox-dropdown ${openUpwards ? 'open-upwards' : ''}`} ref={listRef}>
                     {filteredOptions.map((opt, idx) => (
                         <div
                             key={`${opt.value}-${idx}`}

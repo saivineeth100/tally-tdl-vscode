@@ -43,11 +43,13 @@ export const HeaderConfig: React.FC<HeaderConfigProps> = ({
         .map(d => d.name)
         .filter(Boolean);
 
-    const defaultSuggestions = type === 'Collection' 
-        ? ['Ledger', 'Group', 'Voucher', 'StockItem', 'Godown', 'Unit', 'CostCentre', 'Currency', ...collectionSuggestions]
-        : ['All Masters', 'Vouchers', 'Trial Balance', 'Balance Sheet', 'Profit and Loss', ...reportSuggestions];
+    const exportSuggestions = type === 'Collection'
+        ? collectionSuggestions
+        : reportSuggestions;
 
-    const allSuggestions = Array.from(new Set([...builderDefNames, ...defaultSuggestions]));
+    const allSuggestions = tallyRequest === 'Import'
+        ? ['All Masters', 'Vouchers']
+        : Array.from(new Set([...builderDefNames, ...exportSuggestions]));
 
     return (
         <div className="playground-card header-config-card">
@@ -105,7 +107,15 @@ export const HeaderConfig: React.FC<HeaderConfigProps> = ({
                         <button 
                             type="button"
                             className={`segment-btn ${tallyRequest === 'Import' ? 'active' : ''}`}
-                            onClick={() => onChangeTallyRequest('Import')}
+                            onClick={() => {
+                                onChangeTallyRequest('Import');
+                                if (type !== 'Data') {
+                                    onChangeType('Data');
+                                }
+                                if (!id) {
+                                    onChangeId('All Masters');
+                                }
+                            }}
                         >
                             <span className="codicon codicon-cloud-upload"></span> Import
                         </button>
@@ -118,6 +128,8 @@ export const HeaderConfig: React.FC<HeaderConfigProps> = ({
                         <button 
                             type="button"
                             className={`segment-btn ${type === 'Collection' ? 'active' : ''}`}
+                            disabled={tallyRequest === 'Import'}
+                            title={tallyRequest === 'Import' ? 'Import mode uses Data target type' : undefined}
                             onClick={() => {
                                 if (type !== 'Collection') {
                                     onChangeType('Collection');
@@ -144,14 +156,15 @@ export const HeaderConfig: React.FC<HeaderConfigProps> = ({
 
                 <div className="form-group">
                     <label className="form-label">
-                        {type === 'Collection' ? 'Collection Name / ID' : 'Report Name / ID'}
+                        {tallyRequest === 'Import' ? 'Import Target (ID)' : (type === 'Collection' ? 'Collection Name / ID' : 'Report Name / ID')}
                     </label>
                     <Combobox
                         value={id}
                         onChange={onChangeId}
                         options={allSuggestions}
                         onFocus={() => onRequestSuggestions && onRequestSuggestions(type === 'Collection' ? 'collection' : 'report', id)}
-                        placeholder={type === 'Collection' ? 'e.g. MyLedgers or Ledger' : 'e.g. MyReport or All Masters'}
+                        onSearch={query => onRequestSuggestions && onRequestSuggestions(type === 'Collection' ? 'collection' : 'report', query)}
+                        placeholder={tallyRequest === 'Import' ? 'e.g. All Masters or Vouchers' : (type === 'Collection' ? 'e.g. MyLedgers or Ledger' : 'e.g. MyReport or All Masters')}
                     />
                 </div>
             </div>

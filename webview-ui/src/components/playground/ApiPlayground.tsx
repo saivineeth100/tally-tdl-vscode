@@ -3,6 +3,7 @@ import { vscode } from '../../utils/vscode';
 import { HeaderConfig } from './HeaderConfig';
 import { StaticVarsPanel } from './StaticVarsPanel';
 import { TdlBuilder } from './TdlBuilder';
+import { TallyObjectBuilder } from './TallyObjectBuilder';
 import { XmlPreview, generateEnvelopeXml } from './XmlPreview';
 import { TemplatesPanel } from './TemplatesPanel';
 import { HistoryPanel } from './HistoryPanel';
@@ -12,7 +13,9 @@ import type {
     DefTypeAttributeDTO,
     PlaygroundTemplateDTO,
     PlaygroundHistoryEntryDTO,
-    PlaygroundStateDTO
+    PlaygroundStateDTO,
+    PlaygroundTallyObjectDTO,
+    SchemaPropertyDTO
 } from '../../types/playground';
 import type { WebviewMessage } from '../../types';
 
@@ -35,7 +38,7 @@ export const ApiPlayground: React.FC = () => {
         { name: 'SVCURRENTCOMPANY', value: '' }
     ]);
 
-    // TDL Definitions State
+    // TDL Definitions State (for Export requests)
     const [definitions, setDefinitions] = useState<PlaygroundDefinitionDTO[]>([
         {
             defType: 'Collection',
@@ -47,6 +50,23 @@ export const ApiPlayground: React.FC = () => {
         }
     ]);
 
+    // Tally Message Objects State (for Import requests)
+    const [tallyObjects, setTallyObjects] = useState<PlaygroundTallyObjectDTO[]>([
+        {
+            objectType: 'Ledger',
+            action: 'Create',
+            name: 'MyLedger',
+            properties: [
+                { name: 'NAME', value: 'MyLedger' },
+                { name: 'PARENT', value: 'Sundry Debtors' },
+                { name: 'OPENINGBALANCE', value: '0.00' }
+            ]
+        }
+    ]);
+
+    // Schema properties cache by schemaType (for Import mode autocompletions)
+    const [schemaPropertiesCache, setSchemaPropertiesCache] = useState<Record<string, SchemaPropertyDTO[]>>({});
+
     // Suggestions from LSP on-demand
     const [definitionTypes, setDefinitionTypes] = useState<string[]>([
         'Collection', 'Report', 'Form', 'Part', 'Line', 'Field', 'Menu', 'Button', 'Border', 'Style', 'Color', 'Object', 'Function', 'Variable'
@@ -56,6 +76,7 @@ export const ApiPlayground: React.FC = () => {
     ]);
     const [collectionSuggestions, setCollectionSuggestions] = useState<string[]>([]);
     const [reportSuggestions, setReportSuggestions] = useState<string[]>([]);
+    const [staticVarSuggestions, setStaticVarSuggestions] = useState<string[]>([]);
 
     // Attribute suggestions cache by defType
     const [attributesCache, setAttributesCache] = useState<Record<string, DefTypeAttributeDTO[]>>({});
@@ -74,6 +95,9 @@ export const ApiPlayground: React.FC = () => {
     // Sending state
     const [isSending, setIsSending] = useState<boolean>(false);
 
+    // Manual custom XML from XML editor tab
+    const [customXml, setCustomXml] = useState<string>('');
+
     // Notification / status banner
     const [statusBanner, setStatusBanner] = useState<{ message: string; type: 'info' | 'success' | 'error' } | null>(null);
 
@@ -83,7 +107,7 @@ export const ApiPlayground: React.FC = () => {
     };
 
     // Suggestions helpers
-    const requestSuggestions = useCallback((category: 'definitionType' | 'schemaType' | 'collection' | 'report', query?: string) => {
+    const requestSuggestions = useCallback((category: 'definitionType' | 'schemaType' | 'collection' | 'report' | 'staticVariable', query?: string) => {
         vscode.postMessage({
             command: 'getSuggestions',
             query: { category, query: query || '' }
@@ -93,11 +117,13 @@ export const ApiPlayground: React.FC = () => {
     const requestDefNameSuggestions = useCallback((defType: string, query?: string) => {
         if (!defType) return;
         vscode.postMessage({
-            command: 'getPlaygroundSuggestions',
-            category: 'definitionName',
-            defType,
-            query: query || '',
-            limit: 500
+            command: 'getSuggestions',
+            query: {
+                category: 'definitionName',
+                defType,
+                query: query || '',
+                limit: 500
+            }
         });
     }, []);
 
@@ -131,6 +157,17 @@ export const ApiPlayground: React.FC = () => {
         });
     }, []);
 
+    const requestSchemaProperties = useCallback((schemaType: string) => {
+        if (!schemaType) return;
+        const norm = schemaType.toLowerCase().trim();
+        if (!schemaPropertiesCache[norm]) {
+            vscode.postMessage({
+                command: 'getSchemaProperties',
+                schemaType
+            });
+        }
+    }, [schemaPropertiesCache]);
+
     // Apply parsed state (e.g. from file, template, or history)
     const applyParsedState = (state: PlaygroundStateDTO) => {
         if (state.tallyRequest) setTallyRequest(state.tallyRequest);
@@ -138,6 +175,7 @@ export const ApiPlayground: React.FC = () => {
         if (state.id !== undefined) setId(state.id);
         if (state.staticVariables) setStaticVariables(state.staticVariables);
         if (state.definitions) setDefinitions(state.definitions);
+        if (state.tallyObjects && state.tallyObjects.length > 0) setTallyObjects(state.tallyObjects);
         if (state.linkedFilePath) setLinkedFilePath(state.linkedFilePath);
         if (state.linkedFileName) setLinkedFileName(state.linkedFileName);
         setActiveTab('builder');
@@ -156,6 +194,7 @@ export const ApiPlayground: React.FC = () => {
                         else if (category === 'schemaType') setSchemaTypes(items);
                         else if (category === 'collection') setCollectionSuggestions(items);
                         else if (category === 'report') setReportSuggestions(items);
+                        else if (category === 'staticVariable') setStaticVarSuggestions(items);
                         else if (category === 'definitionName' && defType) {
                             const norm = defType.toLowerCase().trim();
                             setDefNameSuggestionsCache(prev => ({
@@ -185,6 +224,18 @@ export const ApiPlayground: React.FC = () => {
                         }));
                     }
                     break;
+
+                case 'schemaPropertiesResult': {
+                    const props = message.schemaProperties || (message as any).properties;
+                    if (message.schemaType && props) {
+                        const norm = message.schemaType.toLowerCase().trim();
+                        setSchemaPropertiesCache(prev => ({
+                            ...prev,
+                            [norm]: props || []
+                        }));
+                    }
+                    break;
+                }
 
                 case 'companiesList':
                     if (message.companies) {
@@ -242,6 +293,7 @@ export const ApiPlayground: React.FC = () => {
 
         // Initial requests to extension host
         vscode.postMessage({ command: 'getPlaygroundInit' });
+        requestSuggestions('staticVariable');
 
         return () => {
             window.removeEventListener('message', handleMessage);
@@ -292,6 +344,18 @@ export const ApiPlayground: React.FC = () => {
         setDefinitions(prev => prev.filter((_, i) => i !== index));
     };
 
+    const handleMoveDefinition = (fromIndex: number, toIndex: number) => {
+        setDefinitions(prev => {
+            if (fromIndex < 0 || fromIndex >= prev.length || toIndex < 0 || toIndex >= prev.length) {
+                return prev;
+            }
+            const next = [...prev];
+            const [item] = next.splice(fromIndex, 1);
+            next.splice(toIndex, 0, item);
+            return next;
+        });
+    };
+
     const handleAddDefinition = (defType: string, name?: string) => {
         requestAttributesForDefType(defType);
         const newDef: PlaygroundDefinitionDTO = {
@@ -304,9 +368,97 @@ export const ApiPlayground: React.FC = () => {
         setDefinitions(prev => [...prev, newDef]);
     };
 
+    // Tally Message Objects Handlers (for Import requests)
+    const handleUpdateTallyObject = (index: number, updated: PlaygroundTallyObjectDTO) => {
+        setTallyObjects(prev => {
+            const next = [...prev];
+            next[index] = updated;
+            return next;
+        });
+    };
+
+    const handleDeleteTallyObject = (index: number) => {
+        setTallyObjects(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleMoveTallyObject = (fromIndex: number, toIndex: number) => {
+        setTallyObjects(prev => {
+            if (fromIndex < 0 || fromIndex >= prev.length || toIndex < 0 || toIndex >= prev.length) {
+                return prev;
+            }
+            const next = [...prev];
+            const [item] = next.splice(fromIndex, 1);
+            next.splice(toIndex, 0, item);
+            return next;
+        });
+    };
+
+    const handleAddTallyObject = (schemaType: string, action: 'Create' | 'Alter' | 'Delete' = 'Create') => {
+        const norm = schemaType.toLowerCase().trim();
+        const defaultProps: import('../../types/playground').PlaygroundTallyPropertyDTO[] = [
+            { name: 'NAME', value: '' },
+            { name: 'PARENT', value: norm === 'ledger' ? 'Sundry Debtors' : 'Primary' }
+        ];
+        if (norm === 'voucher') {
+            defaultProps.length = 0;
+            defaultProps.push(
+                { name: 'DATE', value: '20240401' },
+                { name: 'VOUCHERTYPENAME', value: 'Sales' },
+                { name: 'PARTYLEDGERNAME', value: '' },
+                { name: 'PERSISTEDVIEW', value: 'Accounting Voucher View' },
+                {
+                    name: 'ALLLEDGERENTRIES.LIST',
+                    isList: true,
+                    children: [
+                        { name: 'LEDGERNAME', value: '' },
+                        { name: 'ISDEEMEDPOSITIVE', value: 'Yes' },
+                        { name: 'AMOUNT', value: '-1000.00' }
+                    ]
+                },
+                {
+                    name: 'ALLLEDGERENTRIES.LIST',
+                    isList: true,
+                    children: [
+                        { name: 'LEDGERNAME', value: 'Sales Account' },
+                        { name: 'ISDEEMEDPOSITIVE', value: 'No' },
+                        { name: 'AMOUNT', value: '1000.00' }
+                    ]
+                }
+            );
+        } else if (norm === 'stockitem') {
+            defaultProps.push({ name: 'BASEUNITS', value: 'Nos' });
+        }
+
+        setTallyObjects(prev => [
+            ...prev,
+            {
+                objectType: schemaType,
+                action,
+                name: '',
+                properties: defaultProps
+            }
+        ]);
+        requestSchemaProperties(schemaType);
+    };
+
+    const handleDuplicateTallyObject = (index: number) => {
+        setTallyObjects(prev => {
+            if (index < 0 || index >= prev.length) return prev;
+            const target = prev[index];
+            const cloned: PlaygroundTallyObjectDTO = JSON.parse(JSON.stringify(target));
+            if (cloned.name) {
+                cloned.name = `${cloned.name} (Copy)`;
+            }
+            const next = [...prev];
+            next.splice(index + 1, 0, cloned);
+            return next;
+        });
+        showBanner('Duplicated object in batch', 'success');
+    };
+
     // Actions
     const handleSendRequest = (xml?: string) => {
-        const currentXml = xml || generateEnvelopeXml(tallyRequest, type, id, staticVariables, definitions);
+        const currentXml = xml || generateEnvelopeXml(tallyRequest, type, id, staticVariables, definitions, tallyObjects);
         setIsSending(true);
         vscode.postMessage({
             command: 'sendRequest',
@@ -320,7 +472,7 @@ export const ApiPlayground: React.FC = () => {
     };
 
     const handleOpenInEditor = (xml?: string, filePath?: string) => {
-        const finalXml = xml || generateEnvelopeXml(tallyRequest, type, id, staticVariables, definitions);
+        const finalXml = xml || generateEnvelopeXml(tallyRequest, type, id, staticVariables, definitions, tallyObjects);
         vscode.postMessage({
             command: 'openInEditor',
             xml: finalXml,
@@ -379,7 +531,11 @@ export const ApiPlayground: React.FC = () => {
         showBanner('History cleared', 'info');
     };
 
-    const currentGeneratedXml = generateEnvelopeXml(tallyRequest, type, id, staticVariables, definitions);
+    const currentGeneratedXml = React.useMemo(() => {
+        return generateEnvelopeXml(tallyRequest, type, id, staticVariables, definitions, tallyObjects);
+    }, [tallyRequest, type, id, staticVariables, definitions, tallyObjects]);
+
+    const activeXml = (activeTab === 'xml' && customXml) ? customXml : currentGeneratedXml;
 
     return (
         <div className="playground-container">
@@ -394,7 +550,10 @@ export const ApiPlayground: React.FC = () => {
                     <button 
                         type="button"
                         className={`tab-btn ${activeTab === 'builder' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('builder')}
+                        onClick={() => {
+                            setActiveTab('builder');
+                            setCustomXml('');
+                        }}
                     >
                         <span className="codicon codicon-edit"></span> Visual Builder
                     </button>
@@ -408,14 +567,20 @@ export const ApiPlayground: React.FC = () => {
                     <button 
                         type="button"
                         className={`tab-btn ${activeTab === 'templates' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('templates')}
+                        onClick={() => {
+                            setActiveTab('templates');
+                            setCustomXml('');
+                        }}
                     >
                         <span className="codicon codicon-library"></span> Templates
                     </button>
                     <button 
                         type="button"
                         className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('history')}
+                        onClick={() => {
+                            setActiveTab('history');
+                            setCustomXml('');
+                        }}
                     >
                         <span className="codicon codicon-history"></span> History ({history.length})
                     </button>
@@ -440,7 +605,7 @@ export const ApiPlayground: React.FC = () => {
                         <button 
                             type="button"
                             className="btn-secondary btn-sm"
-                            onClick={() => handleOpenInEditor(currentGeneratedXml)}
+                            onClick={() => handleOpenInEditor(activeXml)}
                             title="Open generated XML in a new VS Code editor"
                         >
                             <span className="codicon codicon-new-file"></span> Open in Editor
@@ -449,7 +614,7 @@ export const ApiPlayground: React.FC = () => {
                     <button 
                         type="button"
                         className="btn-primary btn-sm btn-send"
-                        onClick={() => handleSendRequest(currentGeneratedXml)}
+                        onClick={() => handleSendRequest(activeXml)}
                         disabled={isSending}
                         title="Send XML Request directly to Tally"
                     >
@@ -492,10 +657,10 @@ export const ApiPlayground: React.FC = () => {
                         id={id}
                         staticVariables={staticVariables}
                         definitions={definitions}
+                        tallyObjects={tallyObjects}
                         linkedFilePath={linkedFilePath}
                         linkedFileName={linkedFileName}
-                        isSending={isSending}
-                        onSendRequest={handleSendRequest}
+                        onCustomXmlChange={setCustomXml}
                         onOpenInEditor={handleOpenInEditor}
                         onApplyXmlToUi={handleApplyXmlToUi}
                     />
@@ -512,7 +677,15 @@ export const ApiPlayground: React.FC = () => {
                             reportSuggestions={reportSuggestions}
                             linkedFilePath={linkedFilePath}
                             linkedFileName={linkedFileName}
-                            onChangeTallyRequest={setTallyRequest}
+                            onChangeTallyRequest={req => {
+                                setTallyRequest(req);
+                                if (req === 'Import') {
+                                    setType('Data');
+                                    if (!id || (id !== 'All Masters' && id !== 'Vouchers')) {
+                                        setId('All Masters');
+                                    }
+                                }
+                            }}
                             onChangeType={(newType) => {
                                 setType(newType);
                                 setId('');
@@ -527,26 +700,45 @@ export const ApiPlayground: React.FC = () => {
                         <StaticVarsPanel 
                             variables={staticVariables}
                             companies={companies}
+                            staticVarSuggestions={staticVarSuggestions}
+                            onRequestSuggestions={requestSuggestions}
                             onUpdateVariable={handleUpdateStaticVar}
                             onAddVariable={handleAddStaticVar}
                             onRemoveVariable={handleRemoveStaticVar}
                             onRefreshCompanies={handleRefreshCompanies}
                         />
 
-                        <TdlBuilder 
-                            definitions={definitions}
-                            definitionTypes={definitionTypes}
-                            schemaTypes={schemaTypes}
-                            attributesCache={attributesCache}
-                            attributeValueSuggestionsCache={attributeValueSuggestionsCache}
-                            defNameSuggestionsCache={defNameSuggestionsCache}
-                            onRequestAttributesForDefType={requestAttributesForDefType}
-                            onRequestAttributeValueSuggestions={requestAttributeValueSuggestions}
-                            onRequestDefNameSuggestions={requestDefNameSuggestions}
-                            onUpdateDefinition={handleUpdateDefinition}
-                            onDeleteDefinition={handleDeleteDefinition}
-                            onAddDefinition={handleAddDefinition}
-                        />
+                        {tallyRequest === 'Import' ? (
+                            <TallyObjectBuilder 
+                                objects={tallyObjects}
+                                schemaTypes={schemaTypes}
+                                schemaPropertiesCache={schemaPropertiesCache}
+                                onRequestSchemaProperties={requestSchemaProperties}
+                                onRequestSuggestions={requestSuggestions}
+                                onUpdateObject={handleUpdateTallyObject}
+                                onDeleteObject={handleDeleteTallyObject}
+                                onMoveObject={handleMoveTallyObject}
+                                onAddObject={handleAddTallyObject}
+                                onDuplicateObject={handleDuplicateTallyObject}
+                            />
+                        ) : (
+                            <TdlBuilder 
+                                definitions={definitions}
+                                definitionTypes={definitionTypes}
+                                schemaTypes={schemaTypes}
+                                attributesCache={attributesCache}
+                                attributeValueSuggestionsCache={attributeValueSuggestionsCache}
+                                defNameSuggestionsCache={defNameSuggestionsCache}
+                                onRequestAttributesForDefType={requestAttributesForDefType}
+                                onRequestAttributeValueSuggestions={requestAttributeValueSuggestions}
+                                onRequestDefNameSuggestions={requestDefNameSuggestions}
+                                onRequestSuggestions={requestSuggestions}
+                                onUpdateDefinition={handleUpdateDefinition}
+                                onDeleteDefinition={handleDeleteDefinition}
+                                onMoveDefinition={handleMoveDefinition}
+                                onAddDefinition={handleAddDefinition}
+                            />
+                        )}
                     </div>
                 )}
             </div>

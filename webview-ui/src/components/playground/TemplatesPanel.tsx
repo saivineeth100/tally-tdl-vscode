@@ -15,7 +15,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-    const categories = ['All', 'Export', 'Import', 'Report', 'Object'];
+    const categories = ['All', 'Export', 'Import', 'Report'];
 
     const filtered = templates.filter(t => {
         const matchesCat = selectedCategory === 'All' || t.category === selectedCategory;

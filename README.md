@@ -14,7 +14,12 @@ A Visual Studio Code extension providing rich language support for **Tally Defin
     - Intelligent, context-aware suggestions for primary Tally XML schema tags.
     - Smart auto-complete snippets that automatically structure simple repeating properties with `.LIST` wrappers.
     - Deep structural validation for nested schema objects and attributes.
-    - Strict data-type checking for logical values (`Yes`/`No`/`True`/`False`/`On`/`Off`) across both TDL and XML.
+-   **Tally XML API Playground & Visual Builder**:
+    - Interactive visual designer to build Export (Collections, Reports, System definitions) and Import (Ledgers, Groups, Stock Items, Vouchers) requests.
+    - Two-way live synchronization between visual cards and preformatted XML envelopes.
+    - Automatic `<LANGUAGENAME.LIST>` synchronization for master objects.
+    - Curated quick-start request template catalog across Export, Import, and Report categories.
+    - Direct request execution against Tally ODBC with live company detection, history tracking, and interactive tabular response viewer.
 -   **Copilot Chat Integration**: Injects an expert Tally TDL knowledge base directly into GitHub Copilot Chat via VS Code Chat Skills, giving the AI deep context on TDL syntax rules, definitions, functions, actions, and data schemas!
 
 ## Requirements
@@ -37,6 +42,7 @@ This extension contributes the following settings (which can be configured at th
 
 ## Documentation
 
+- **Tally XML API Playground:** [docs/playground.md](docs/playground.md)
 - **TDL Features Matrix:** [docs/tdl_feature_matrix.md](docs/tdl_feature_matrix.md)
 - **XML Features Matrix:** [docs/xml_feature_matrix.md](docs/xml_feature_matrix.md)
 

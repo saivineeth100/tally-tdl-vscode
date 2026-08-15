@@ -9,6 +9,7 @@ import type {
 
 interface DefinitionBlockProps {
     index: number;
+    totalCount?: number;
     definition: PlaygroundDefinitionDTO;
     allDefinitions: PlaygroundDefinitionDTO[];
     definitionTypes: string[];
@@ -21,10 +22,12 @@ interface DefinitionBlockProps {
     onRequestDefNameSuggestions?: (defType: string, query?: string) => void;
     onUpdateDefinition: (index: number, updated: PlaygroundDefinitionDTO) => void;
     onDeleteDefinition: (index: number) => void;
+    onMoveDefinition?: (fromIndex: number, toIndex: number) => void;
 }
 
 export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
     index,
+    totalCount,
     definition,
     allDefinitions,
     definitionTypes,
@@ -36,7 +39,8 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
     onRequestAttributeValueSuggestions,
     onRequestDefNameSuggestions,
     onUpdateDefinition,
-    onDeleteDefinition
+    onDeleteDefinition,
+    onMoveDefinition
 }) => {
     const [showXmlAttrs, setShowXmlAttrs] = useState(false);
     const [isTypePickerOpen, setIsTypePickerOpen] = useState(false);
@@ -161,8 +165,22 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
         });
     };
 
-    // Helper suggestions for attribute values based on cross-definition references
+    const isSystemType = (definition.defType || '').toLowerCase().trim() === 'system';
+    const sysSubtype = (definition.name || 'Formulae').toLowerCase().trim();
+
+    // Helper suggestions for attribute values based on cross-definition references & system types
     const getParamSuggestions = (attrName: string, paramIdx: number): string[] => {
+        if (isSystemType) {
+            if (sysSubtype.startsWith('var')) {
+                return ['String', 'Logical', 'Number', 'Date', 'Amount', 'Quantity', 'Logical : Yes', 'Logical : No', 'String : ""', 'Number : 0'];
+            }
+            if (sysSubtype.startsWith('udf')) {
+                return ['String : 1001', 'Amount : 1002', 'Number : 1003', 'Date : 1004', 'Logical : 1005', 'Quantity : 1006'];
+            }
+            if (sysSubtype.startsWith('event')) {
+                return ['Form Accept : Yes : Form Accept', 'Line Focus : Yes : Line Focus', 'Button Action : Yes : Call'];
+            }
+        }
         const normDef = definition.defType.toLowerCase().trim();
         const normAttr = attrName.toLowerCase().trim();
         const indexedKey = `${normDef}:${normAttr}:${paramIdx}`;
@@ -170,28 +188,34 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
         return attributeValueSuggestionsCache[indexedKey] || (paramIdx === 0 ? attributeValueSuggestionsCache[baseKey] : []) || [];
     };
 
-    // Quick helper attributes based on definition type
-    const getQuickAttributesForDefType = (defType: string): string[] => {
-        const t = defType.trim().toLowerCase();
-        if (t === 'collection') return ['Type', 'NativeMethod', 'Filter', 'Walk', 'Fetch', 'ChildOf'];
-        if (t === 'report') return ['Form', 'Title', 'Set'];
-        if (t === 'form') return ['Part', 'Background'];
-        if (t === 'part') return ['Line', 'Repeat', 'Scroll'];
-        if (t === 'line') return ['Field', 'Right Field', 'Left Field'];
-        if (t === 'field') return ['Set as', 'Type', 'Style', 'Format', 'Width'];
-        if (t === 'menu') return ['Item', 'Add'];
-        if (t === 'button') return ['Title', 'Key', 'Action'];
-        return ['Type', 'Set as', 'Use'];
+    const existingAttrNames = new Set(definition.attributes.map(a => a.name.trim().toLowerCase()));
+    
+    const getSystemQuickAttrs = (): string[] => {
+        if (!isSystemType) return [];
+        if (sysSubtype.startsWith('form')) return ['TotalAmount', 'IsNegative', 'PrintTerms', 'FormattedDate'];
+        if (sysSubtype.startsWith('var')) return ['MyVar', 'IsExportEnabled', 'LogFileName'];
+        if (sysSubtype.startsWith('event')) return ['On'];
+        if (sysSubtype.startsWith('udf')) return ['GSTNo', 'EWayBillNo', 'VehicleNo'];
+        return [];
     };
 
-    const quickAttrs = getQuickAttributesForDefType(definition.defType);
-    const existingAttrNames = new Set(definition.attributes.map(a => a.name.trim().toLowerCase()));
-    const availableQuickAttrs = quickAttrs.filter(a => !existingAttrNames.has(a.toLowerCase()));
+    const systemQuickAttrs = getSystemQuickAttrs().filter(name => !existingAttrNames.has(name.toLowerCase()));
+    const availableQuickAttrs = isSystemType 
+        ? systemQuickAttrs 
+        : attributesForDefType
+            .filter(a => !existingAttrNames.has(a.name.trim().toLowerCase()))
+            .slice(0, 6)
+            .map(a => a.name);
 
     const handleAddQuickAttr = (attrName: string) => {
-        const defaultVal = (definition.defType.toLowerCase() === 'collection' && attrName.toLowerCase() === 'type')
-            ? 'Ledger'
-            : '';
+        let defaultVal = '';
+        if (isSystemType) {
+            if (sysSubtype.startsWith('var')) defaultVal = 'String';
+            else if (sysSubtype.startsWith('udf')) defaultVal = 'String : 1001';
+            else if (sysSubtype.startsWith('event')) defaultVal = 'Form Accept : Yes : Form Accept';
+        } else if (definition.defType.toLowerCase() === 'collection' && attrName.toLowerCase() === 'type') {
+            defaultVal = 'Ledger';
+        }
         const newAttrs = [...definition.attributes, { name: attrName, values: [defaultVal] }];
         onUpdateDefinition(index, {
             ...definition,
@@ -205,17 +229,23 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
         definition.isFixed
     );
 
+    const showComboboxForName = hasModifiers || isSystemType;
+
     useEffect(() => {
-        if (hasModifiers && definition.defType && onRequestDefNameSuggestions) {
+        if (showComboboxForName && definition.defType && onRequestDefNameSuggestions) {
             onRequestDefNameSuggestions(definition.defType, '');
         }
-    }, [hasModifiers, definition.defType]);
+    }, [showComboboxForName, definition.defType]);
 
     const normDefType = (definition.defType || 'collection').toLowerCase().trim();
     const defNameOptions = (defNameSuggestionsCache[normDefType] || []).map(name => ({
         value: name,
         label: name
     }));
+
+    const namePlaceholder = isSystemType 
+        ? 'System Subtype (e.g. Formula, Variable, Events, UDF)' 
+        : (hasModifiers ? `Existing ${definition.defType || 'Definition'} to modify...` : `Definition Name (e.g. My${definition.defType || 'Collection'})`);
 
     return (
         <div className="definition-card">
@@ -236,7 +266,7 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                     <span className="def-colon">:</span>
 
                     <div className="def-name-col">
-                        {hasModifiers ? (
+                        {showComboboxForName ? (
                             <Combobox 
                                 value={definition.name}
                                 onChange={handleNameChange}
@@ -244,7 +274,10 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                                 onFocus={() => {
                                     onRequestDefNameSuggestions?.(definition.defType, definition.name);
                                 }}
-                                placeholder={`Existing ${definition.defType || 'Definition'} to modify...`}
+                                onSearch={query => {
+                                    onRequestDefNameSuggestions?.(definition.defType, query);
+                                }}
+                                placeholder={namePlaceholder}
                             />
                         ) : (
                             <input 
@@ -252,13 +285,35 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                                 className="form-input def-name-input"
                                 value={definition.name}
                                 onChange={e => handleNameChange(e.target.value)}
-                                placeholder={`Definition Name (e.g. My${definition.defType || 'Collection'})`}
+                                placeholder={namePlaceholder}
                             />
                         )}
                     </div>
                 </div>
 
                 <div className="def-card-actions">
+                    {onMoveDefinition && (
+                        <div className="card-order-controls">
+                            <button
+                                type="button"
+                                className="btn-icon"
+                                onClick={() => onMoveDefinition(index, index - 1)}
+                                disabled={index === 0}
+                                title="Move definition up"
+                            >
+                                <span className="codicon codicon-arrow-up"></span>
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-icon"
+                                onClick={() => onMoveDefinition(index, index + 1)}
+                                disabled={index === (totalCount !== undefined ? totalCount - 1 : index)}
+                                title="Move definition down"
+                            >
+                                <span className="codicon codicon-arrow-down"></span>
+                            </button>
+                        </div>
+                    )}
                     <button 
                         type="button" 
                         className={`btn-tag ${showXmlAttrs ? 'active' : ''}`}
@@ -343,26 +398,52 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                     const metaType = attrMeta?.type?.toLowerCase() || 'single';
                     const metaParams = attrMeta?.parameters || [];
 
+                    const normName = attr.name.toLowerCase().trim();
+
+                    const isExplicitMultiParam = [
+                        'compute', 'computemethod', 'aggrcompute', 'aggrcomputemethod', 'aggrmethod', 
+                        'option', 'variable', 'set', 'setas', 'local', 'modify', 'add', 'delete', 'replace',
+                        'keyitem', 'item', 'action'
+                    ].includes(normName);
+
+                    const isExplicitList = [
+                        'fetch', 'nativemethod', 'filters', 'filter', 'childof', 'parts', 'lines', 
+                        'fields', 'items', 'tables', 'walk', 'belongsto', 'family'
+                    ].includes(normName);
+
                     // 1. Determine if this attribute is a LIST attribute (single sub-attribute accepting multiple values)
-                    const isList = (
+                    const isList = !isExplicitMultiParam && (
+                        isExplicitList ||
                         metaType.includes('list') || 
-                        metaParams.some(p => p.IsList === true || (p.IsList as any) === 'Yes' || p.IsVariableArgument) || 
-                        ['fetch', 'computes', 'compute', 'nativemethod', 'filters', 'filter', 'childof', 'parts', 'lines', 'fields', 'items', 'tables', 'walk'].includes(attr.name.toLowerCase().trim())
+                        metaParams.some(p => p.IsList === true || (p.IsList as any) === 'Yes' || p.IsVariableArgument)
                     );
 
                     // 2. Determine if this attribute has MULTIPLE POSITIONAL SUB-ATTRIBUTES/PARAMETERS (separated by :)
-                    const isMultiParam = !isList && (
-                        metaParams.length > 1 || 
-                        metaType === 'dual' || 
-                        metaType === 'triple' || 
-                        metaType.includes('menu item') || 
-                        metaType.includes('action')
+                    const isMultiParam = isExplicitMultiParam || (
+                        !isList && (
+                            metaParams.length > 1 || 
+                            metaType === 'dual' || 
+                            metaType === 'triple' || 
+                            metaType.includes('menu item') || 
+                            metaType.includes('action') ||
+                            (attr.values && attr.values.length > 1)
+                        )
                     );
 
+                    let explicitRequiredCount = 1;
+                    if (['compute', 'computemethod', 'aggrcompute', 'aggrcomputemethod', 'aggrmethod'].includes(normName)) {
+                        explicitRequiredCount = 3;
+                    } else if (['option', 'variable', 'set', 'setas'].includes(normName)) {
+                        explicitRequiredCount = 2;
+                    }
+
                     // Count mandatory parameters for multi-param attributes
-                    const mandatoryParamsCount = metaParams.filter(
-                        p => p.IsMandatory === true || (p.IsMandatory as any) === 'Yes'
-                    ).length;
+                    const mandatoryParamsCount = Math.max(
+                        metaParams.filter(
+                            p => p.IsMandatory === true || (p.IsMandatory as any) === 'Yes'
+                        ).length,
+                        explicitRequiredCount
+                    );
 
                     const defaultRequiredCount = Math.max(mandatoryParamsCount, 1);
                     const currentValuesCount = (attr.values || []).length;
@@ -377,6 +458,32 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                     }));
 
                     const getParamPlaceholder = (paramIdx: number): string => {
+                        if (isSystemType) {
+                            if (sysSubtype.startsWith('form')) return 'Formula Expression (e.g. $Amount * 0.18, $$SysInfo:SystemDate)';
+                            if (sysSubtype.startsWith('var')) return 'Data Type / Value (e.g. String, Logical : No)';
+                            if (sysSubtype.startsWith('event')) return 'EventName : Condition : Action (e.g. Form Accept : Yes : Form Accept)';
+                            if (sysSubtype.startsWith('udf')) return 'Data Type : Index (e.g. String : 1001, Amount : 1002)';
+                            return 'Value';
+                        }
+                        if (normName === 'compute' || normName === 'computemethod') {
+                            if (paramIdx === 0) return 'Method Name (e.g. FormattedBalance)';
+                            if (paramIdx === 1) return 'Data Type (e.g. String, Amount, Number)';
+                            if (paramIdx === 2) return 'Formula / Expression (e.g. $$InWords:$ClosingBalance)';
+                        }
+                        if (normName === 'aggrcompute' || normName === 'aggrcomputemethod' || normName === 'aggrmethod') {
+                            if (paramIdx === 0) return 'Method Name (e.g. TotalQty)';
+                            if (paramIdx === 1) return 'Aggregate Type (e.g. Total, Max, Min, Count)';
+                            if (paramIdx === 2) return 'Method / Expression (e.g. $BilledQty)';
+                        }
+                        if (normName === 'option') {
+                            if (paramIdx === 0) return 'Option Definition Name';
+                            if (paramIdx === 1) return 'Condition (e.g. $$IsEmpty:$$Value)';
+                        }
+                        if (normName === 'variable') {
+                            if (paramIdx === 0) return 'Variable Name';
+                            if (paramIdx === 1) return 'Data Type (e.g. String)';
+                            if (paramIdx === 2) return 'Default Value';
+                        }
                         if (metaParams && metaParams[paramIdx]) {
                             const p = metaParams[paramIdx];
                             if (p.Description) return p.Description;
@@ -388,16 +495,30 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                         return `Parameter ${paramIdx + 1}`;
                     };
 
+                    const attrNamePlaceholder = isSystemType
+                        ? (sysSubtype.startsWith('form') ? 'Formula Name (e.g. TotalAmount)' : (sysSubtype.startsWith('var') ? 'Variable Name (e.g. MyVar)' : (sysSubtype.startsWith('event') ? 'Event Hook (e.g. On)' : (sysSubtype.startsWith('udf') ? 'UDF Field Name (e.g. GSTNo)' : 'Item Name'))))
+                        : 'Attribute (e.g. Type, Fetch)';
+
                     return (
                         <div key={`attr-${attrIdx}`} className="attr-row">
                             <div className="attr-name-col">
-                                <Combobox
-                                    value={attr.name}
-                                    onChange={newName => handleUpdateAttributeName(attrIdx, newName)}
-                                    options={attrNameOptions}
-                                    onFocus={() => onRequestAttributesForDefType(definition.defType)}
-                                    placeholder="Attribute (e.g. Type, Fetch)"
-                                />
+                                {isSystemType ? (
+                                    <input 
+                                        type="text"
+                                        className="form-input"
+                                        value={attr.name}
+                                        onChange={e => handleUpdateAttributeName(attrIdx, e.target.value)}
+                                        placeholder={attrNamePlaceholder}
+                                    />
+                                ) : (
+                                    <Combobox
+                                        value={attr.name}
+                                        onChange={newName => handleUpdateAttributeName(attrIdx, newName)}
+                                        options={attrNameOptions}
+                                        onFocus={() => onRequestAttributesForDefType(definition.defType)}
+                                        placeholder={attrNamePlaceholder}
+                                    />
+                                )}
                             </div>
 
                             <span className="attr-colon">:</span>
@@ -426,6 +547,11 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                                                         onFocus={() => {
                                                             if (attr.name && onRequestAttributeValueSuggestions) {
                                                                 onRequestAttributeValueSuggestions(definition.defType, attr.name, pIdx, definition, paramVal);
+                                                            }
+                                                        }}
+                                                        onSearch={query => {
+                                                            if (attr.name && onRequestAttributeValueSuggestions) {
+                                                                onRequestAttributeValueSuggestions(definition.defType, attr.name, pIdx, definition, query);
                                                             }
                                                         }}
                                                         placeholder={placeholder}
@@ -457,7 +583,7 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                                 ) : isList ? (
                                     <div className="attr-list-values">
                                         {(attr.values && attr.values.length > 0 ? attr.values : ['']).map((valItem, valIdx) => {
-                                            const paramSuggs = getParamSuggestions(attr.name, 0);
+                                             const paramSuggs = getParamSuggestions(attr.name, 0);
 
                                             return (
                                                 <div key={`val-${valIdx}`} className="attr-list-item-row">
@@ -473,6 +599,11 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                                                         onFocus={() => {
                                                             if (attr.name && onRequestAttributeValueSuggestions) {
                                                                 onRequestAttributeValueSuggestions(definition.defType, attr.name, 0, definition, valItem);
+                                                            }
+                                                        }}
+                                                        onSearch={query => {
+                                                            if (attr.name && onRequestAttributeValueSuggestions) {
+                                                                onRequestAttributeValueSuggestions(definition.defType, attr.name, 0, definition, query);
                                                             }
                                                         }}
                                                         placeholder={`Item ${valIdx + 1} (e.g. Name, ClosingBalance)`}
@@ -516,6 +647,11 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                                                 onRequestAttributeValueSuggestions(definition.defType, attr.name, 0, definition, attr.values[0] || '');
                                             }
                                         }}
+                                        onSearch={query => {
+                                            if (attr.name && onRequestAttributeValueSuggestions) {
+                                                onRequestAttributeValueSuggestions(definition.defType, attr.name, 0, definition, query);
+                                            }
+                                        }}
                                         placeholder={getParamPlaceholder(0)}
                                     />
                                 )}
@@ -541,7 +677,7 @@ export const DefinitionBlock: React.FC<DefinitionBlockProps> = ({
                         className="btn-secondary btn-xs"
                         onClick={handleAddAttribute}
                     >
-                        <span className="codicon codicon-add"></span> Add Attribute
+                        <span className="codicon codicon-add"></span> {isSystemType ? (sysSubtype.startsWith('form') ? 'Add Formula' : (sysSubtype.startsWith('var') ? 'Add Variable' : (sysSubtype.startsWith('event') ? 'Add Event' : (sysSubtype.startsWith('udf') ? 'Add UDF' : 'Add Item')))) : 'Add Attribute'}
                     </button>
 
                     {availableQuickAttrs.length > 0 && (

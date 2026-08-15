@@ -1,20 +1,45 @@
 :root {
-    /* Base theme variables from VS Code, but enriched for premium feel */
-    --bg-color: var(--vscode-editor-background);
-    --text-color: var(--vscode-editor-foreground);
-    --border-color: var(--vscode-widget-border, rgba(255, 255, 255, 0.1));
-    --sidebar-bg: var(--vscode-sideBar-background);
-    --highlight-bg: var(--vscode-list-activeSelectionBackground);
-    --highlight-fg: var(--vscode-list-activeSelectionForeground);
-    --hover-bg: rgba(255, 255, 255, 0.05); /* Softer hover */
-    --muted-text: var(--vscode-descriptionForeground);
+    /* Base theme variables from VS Code */
+    --bg-color: var(--vscode-editor-background, #1e1e1e);
+    --text-color: var(--vscode-editor-foreground, #cccccc);
+    --border-color: var(--vscode-panel-border, var(--vscode-editorGroup-border, rgba(128, 128, 128, 0.2)));
+    --sidebar-bg: var(--vscode-sideBar-background, #252526);
+    --highlight-bg: var(--vscode-list-activeSelectionBackground, #04395e);
+    --highlight-fg: var(--vscode-list-activeSelectionForeground, #ffffff);
+    --hover-bg: var(--vscode-list-hoverBackground, rgba(128, 128, 128, 0.08));
+    --muted-text: var(--vscode-descriptionForeground, #888888);
     --badge-bg: var(--vscode-badge-background, #4d4d4d);
     --badge-fg: var(--vscode-badge-foreground, #ffffff);
     --link-color: var(--vscode-textLink-foreground, #3794ff);
+
+    /* Playground Design Tokens - Default (Dark-leaning fallback) */
+    --surface-card: var(--vscode-editorWidget-background, rgba(255, 255, 255, 0.03));
+    --surface-card-border: var(--vscode-editorWidget-border, var(--vscode-panel-border, rgba(255, 255, 255, 0.08)));
+    --surface-card-shadow: none;
+    --surface-topbar: var(--vscode-sideBar-background, rgba(0, 0, 0, 0.2));
+    --surface-nested: rgba(128, 128, 128, 0.06);
+    --surface-row: rgba(128, 128, 128, 0.04);
     
-    /* Glassmorphism specifically */
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --field-bg: var(--vscode-input-background, rgba(0, 0, 0, 0.25));
+    --field-fg: var(--vscode-input-foreground, #cccccc);
+    --field-border: var(--vscode-input-border, rgba(128, 128, 128, 0.25));
+    --field-placeholder: var(--vscode-input-placeholderForeground, rgba(128, 128, 128, 0.6));
+    
+    --btn-sec-bg: var(--vscode-button-secondaryBackground, rgba(128, 128, 128, 0.12));
+    --btn-sec-fg: var(--vscode-button-secondaryForeground, #cccccc);
+    --btn-sec-border: var(--vscode-button-border, rgba(128, 128, 128, 0.2));
+
+    --chip-bg: rgba(128, 128, 128, 0.1);
+    --chip-border: rgba(128, 128, 128, 0.2);
+    --chip-fg: var(--text-color);
+
+    --danger-fg: #f48771;
+    --danger-bg: rgba(244, 135, 113, 0.12);
+    --danger-border: rgba(244, 135, 113, 0.3);
+
+    /* Glassmorphism */
+    --glass-bg: var(--surface-card);
+    --glass-border: var(--surface-card-border);
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
     --glass-blur: blur(12px);
 
@@ -23,21 +48,83 @@
     --font-mono: 'JetBrains Mono', var(--vscode-editor-font-family, Consolas, "Courier New", monospace);
 }
 
+/* Light Theme Overrides (VS Code sets .vscode-light on body) */
+body.vscode-light {
+    --bg-color: var(--vscode-editor-background, #ffffff);
+    --text-color: var(--vscode-editor-foreground, #24292f);
+    --border-color: var(--vscode-panel-border, #e1e4e8);
+    --sidebar-bg: var(--vscode-sideBar-background, #f6f8fa);
+    --highlight-bg: var(--vscode-list-activeSelectionBackground, #0969da);
+    --highlight-fg: var(--vscode-list-activeSelectionForeground, #ffffff);
+    --hover-bg: rgba(0, 0, 0, 0.04);
+    --muted-text: var(--vscode-descriptionForeground, #57606a);
+    --badge-bg: var(--vscode-badge-background, #e1e4e8);
+    --badge-fg: var(--vscode-badge-foreground, #24292f);
+    --link-color: var(--vscode-textLink-foreground, #0969da);
+
+    --surface-card: #ffffff;
+    --surface-card-border: #d0d7de;
+    --surface-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --surface-topbar: #f6f8fa;
+    --surface-nested: #f6f8fa;
+    --surface-row: #ffffff;
+
+    --field-bg: #ffffff;
+    --field-fg: #24292f;
+    --field-border: #d0d7de;
+    --field-placeholder: #8c959f;
+
+    --btn-sec-bg: #f6f8fa;
+    --btn-sec-fg: #24292f;
+    --btn-sec-border: #d0d7de;
+
+    --chip-bg: #f6f8fa;
+    --chip-border: #d0d7de;
+    --chip-fg: #24292f;
+
+    --danger-fg: #cf222e;
+    --danger-bg: rgba(207, 34, 46, 0.08);
+    --danger-border: rgba(207, 34, 46, 0.25);
+}
+
+/* Dark Theme Overrides (VS Code sets .vscode-dark on body) */
+body.vscode-dark {
+    --surface-card: rgba(255, 255, 255, 0.03);
+    --surface-card-border: rgba(255, 255, 255, 0.08);
+    --surface-card-shadow: none;
+    --surface-topbar: rgba(0, 0, 0, 0.2);
+    --surface-nested: rgba(0, 0, 0, 0.15);
+    --surface-row: rgba(0, 0, 0, 0.2);
+
+    --field-bg: var(--vscode-input-background, rgba(0, 0, 0, 0.25));
+    --field-fg: var(--vscode-input-foreground, #cccccc);
+    --field-border: var(--vscode-input-border, rgba(255, 255, 255, 0.12));
+    --field-placeholder: var(--vscode-input-placeholderForeground, rgba(255, 255, 255, 0.35));
+
+    --btn-sec-bg: var(--vscode-button-secondaryBackground, rgba(255, 255, 255, 0.08));
+    --btn-sec-fg: var(--vscode-button-secondaryForeground, #cccccc);
+    --btn-sec-border: var(--vscode-button-border, rgba(255, 255, 255, 0.1));
+
+    --chip-bg: rgba(255, 255, 255, 0.05);
+    --chip-border: rgba(255, 255, 255, 0.1);
+    --chip-fg: #cccccc;
+
+    --danger-fg: #f48771;
+    --danger-bg: rgba(244, 135, 113, 0.14);
+    --danger-border: rgba(244, 135, 113, 0.35);
+}
+
 body {
     font-family: var(--font-heading);
     color: var(--text-color);
     margin: 0;
     padding: 0;
     background-color: var(--bg-color);
-    /* Subtle background gradient to make glass pop */
-    background-image: radial-gradient(circle at top right, rgba(197, 134, 192, 0.05), transparent 40%),
-                      radial-gradient(circle at bottom left, rgba(55, 148, 255, 0.05), transparent 40%);
-    background-attachment: fixed;
     height: 100vh;
     overflow: hidden;
 }
 
-/* Scrollbar styling for a cleaner look */
+/* Scrollbar styling */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -56,31 +143,60 @@ body {
 /* Form element theme consistency */
 input, select, textarea, button {
     font-family: inherit;
-    color: var(--vscode-input-foreground, var(--text-color));
+    color: var(--field-fg);
 }
 
 select {
-    background-color: var(--vscode-dropdown-background, #252526);
-    color: var(--vscode-dropdown-foreground, var(--text-color));
-    border: 1px solid var(--vscode-dropdown-border, var(--border-color));
+    background-color: var(--field-bg);
+    color: var(--field-fg);
+    border: 1px solid var(--field-border);
 }
 
 select option, select optgroup {
-    background-color: var(--vscode-dropdown-background, #252526);
+    background-color: var(--vscode-dropdown-background, var(--surface-card));
     color: var(--vscode-dropdown-foreground, var(--text-color));
 }
 
 input, textarea {
-    background-color: var(--vscode-input-background, rgba(0, 0, 0, 0.25));
-    color: var(--vscode-input-foreground, var(--text-color));
-    border: 1px solid var(--vscode-input-border, var(--border-color));
+    background-color: var(--field-bg);
+    color: var(--field-fg);
+    border: 1px solid var(--field-border);
 }
 
 input::placeholder, textarea::placeholder {
-    color: var(--vscode-input-placeholderForeground, rgba(255, 255, 255, 0.35));
+    color: var(--field-placeholder);
 }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.view-loading-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    gap: 12px;
+    background-color: var(--bg-color);
+}
+
+.view-loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--link-color);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.view-loading-text {
+    font-size: 12px;
+    color: var(--muted-text);
 }

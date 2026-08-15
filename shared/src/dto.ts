@@ -108,6 +108,24 @@ export interface PlaygroundAttributeDTO {
     values: string[];
 }
 
+/** Property in a Tally XML Message Object */
+export interface PlaygroundTallyPropertyDTO {
+    name: string;
+    value?: string;
+    children?: PlaygroundTallyPropertyDTO[]; // For nested lists like ALLLEDGERENTRIES.LIST
+    isList?: boolean;
+}
+
+/** Tally Message Object (e.g. LEDGER, VOUCHER, STOCKITEM) */
+export interface PlaygroundTallyObjectDTO {
+    objectType: string;                      // e.g. 'LEDGER', 'VOUCHER', 'STOCKITEM'
+    action: 'Create' | 'Alter' | 'Delete';
+    name?: string;                           // Optional NAME attribute
+    objView?: string;                        // Optional OBJVIEW attribute (e.g. "Accounting Voucher View")
+    vchType?: string;                        // Optional VCHTYPE attribute (for vouchers)
+    properties: PlaygroundTallyPropertyDTO[];
+}
+
 /** Static variable representation */
 export interface PlaygroundStaticVariableDTO {
     name: string;
@@ -121,13 +139,14 @@ export interface PlaygroundStateDTO {
     id: string;
     staticVariables: PlaygroundStaticVariableDTO[];
     definitions: PlaygroundDefinitionDTO[];
+    tallyObjects?: PlaygroundTallyObjectDTO[];
     linkedFilePath?: string;
     linkedFileName?: string;
 }
 
 /** Query for on-demand suggestions */
 export interface PlaygroundSuggestionQueryDTO {
-    category: 'definitionType' | 'schemaType' | 'collection' | 'report' | 'definitionName' | 'attributeValue';
+    category: 'definitionType' | 'schemaType' | 'collection' | 'report' | 'definitionName' | 'attributeValue' | 'staticVariable';
     query?: string;
     limit?: number;
     defType?: string;
@@ -138,7 +157,7 @@ export interface PlaygroundSuggestionQueryDTO {
 
 /** Response for on-demand suggestions */
 export interface PlaygroundSuggestionsDTO {
-    category: 'definitionType' | 'schemaType' | 'collection' | 'report' | 'definitionName' | 'attributeValue';
+    category: 'definitionType' | 'schemaType' | 'collection' | 'report' | 'definitionName' | 'attributeValue' | 'staticVariable';
     items: string[];
     defType?: string;
     attributeName?: string;
@@ -183,5 +202,5 @@ export interface PlaygroundTemplateDTO {
     description: string;
     prefix: string;
     xml: string;
-    category: 'Export' | 'Import' | 'Report' | 'Object';
+    category: 'Export' | 'Import' | 'Report';
 }

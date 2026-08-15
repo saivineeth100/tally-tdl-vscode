@@ -216,4 +216,223 @@ describe('API Playground LSP Services', () => {
         const hasNestedStar = result.items.some(i => i.endsWith('.*'));
         expect(hasNestedStar).toBe(true);
     });
+
+    it('should parse Import envelope with multiple objects and nested lists into playground state', async () => {
+        const { parseXmlEnvelopeToPlaygroundState } = await import('../../../core/xml/xmlAdapter');
+
+        const xml = `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Import</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>All Masters</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVMSTIMPORTFORMAT>XML</SVMSTIMPORTFORMAT>
+                <SVCURRENTCOMPANY>Acme Corp</SVCURRENTCOMPANY>
+            </STATICVARIABLES>
+            <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                <LEDGER NAME="Customer A" Action="Create">
+                    <NAME>Customer A</NAME>
+                    <PARENT>Sundry Debtors</PARENT>
+                    <OPENINGBALANCE>1500.00</OPENINGBALANCE>
+                    <ADDRESS.LIST>
+                        <ADDRESS>123 Main Street</ADDRESS>
+                        <ADDRESS>Sector 5, Industrial Area</ADDRESS>
+                    </ADDRESS.LIST>
+                </LEDGER>
+                <LEDGER NAME="Customer B" Action="Create">
+                    <NAME>Customer B</NAME>
+                    <PARENT>Sundry Debtors</PARENT>
+                    <OPENINGBALANCE>2500.00</OPENINGBALANCE>
+                </LEDGER>
+                <GROUP NAME="North Debtors" Action="Alter">
+                    <NAME>North Debtors</NAME>
+                    <PARENT>Sundry Debtors</PARENT>
+                </GROUP>
+                <VOUCHER VCHTYPE="Sales" Action="Create" OBJVIEW="Accounting Voucher View">
+                    <DATE>20240401</DATE>
+                    <VOUCHERTYPENAME>Sales</VOUCHERTYPENAME>
+                    <PARTYLEDGERNAME>Customer A</PARTYLEDGERNAME>
+                    <ALLLEDGERENTRIES.LIST>
+                        <LEDGERNAME>Customer A</LEDGERNAME>
+                        <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+                        <AMOUNT>-1500.00</AMOUNT>
+                    </ALLLEDGERENTRIES.LIST>
+                    <ALLLEDGERENTRIES.LIST>
+                        <LEDGERNAME>Sales Account</LEDGERNAME>
+                        <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+                        <AMOUNT>1500.00</AMOUNT>
+                    </ALLLEDGERENTRIES.LIST>
+                </VOUCHER>
+            </TALLYMESSAGE>
+        </DESC>
+    </BODY>
+</ENVELOPE>`;
+
+        const state = parseXmlEnvelopeToPlaygroundState(xml);
+        expect(state.tallyRequest).toBe('Import');
+        expect(state.type).toBe('Data');
+        expect(state.id).toBe('All Masters');
+        expect(state.staticVariables).toHaveLength(2);
+        expect(state.staticVariables[0].name).toBe('SVMSTIMPORTFORMAT');
+        expect(state.staticVariables[0].value).toBe('XML');
+
+        expect(state.tallyObjects).toBeDefined();
+        expect(state.tallyObjects).toHaveLength(4);
+
+        // Object 1: Ledger Customer A with primitive repeated ADDRESS.LIST
+        const obj0 = state.tallyObjects![0];
+        expect(obj0.objectType.toUpperCase()).toBe('LEDGER');
+        expect(obj0.action).toBe('Create');
+        expect(obj0.name).toBe('Customer A');
+        expect(obj0.properties).toHaveLength(4);
+        expect(obj0.properties[0].name).toBe('NAME');
+        expect(obj0.properties[0].value).toBe('Customer A');
+        expect(obj0.properties[1].name).toBe('PARENT');
+        expect(obj0.properties[1].value).toBe('Sundry Debtors');
+        expect(obj0.properties[2].name).toBe('OPENINGBALANCE');
+        expect(obj0.properties[2].value).toBe('1500.00');
+
+        const addrList = obj0.properties.find(p => p.name === 'ADDRESS.LIST');
+        expect(addrList).toBeDefined();
+        expect(addrList?.isList).toBe(true);
+        expect(addrList?.children).toHaveLength(2);
+        expect(addrList?.children![0].name).toBe('ADDRESS');
+        expect(addrList?.children![0].value).toBe('123 Main Street');
+        expect(addrList?.children![1].name).toBe('ADDRESS');
+        expect(addrList?.children![1].value).toBe('Sector 5, Industrial Area');
+
+        // Object 2: Ledger Customer B
+        const obj1 = state.tallyObjects![1];
+        expect(obj1.objectType.toUpperCase()).toBe('LEDGER');
+        expect(obj1.action).toBe('Create');
+        expect(obj1.name).toBe('Customer B');
+
+        // Object 3: Group North Debtors (Alter action)
+        const obj2 = state.tallyObjects![2];
+        expect(obj2.objectType.toUpperCase()).toBe('GROUP');
+        expect(obj2.action).toBe('Alter');
+        expect(obj2.name).toBe('North Debtors');
+
+        // Object 4: Voucher with nested ALLLEDGERENTRIES.LIST
+        const obj3 = state.tallyObjects![3];
+        expect(obj3.objectType.toUpperCase()).toBe('VOUCHER');
+        expect(obj3.action).toBe('Create');
+        expect(obj3.vchType).toBe('Sales');
+        expect(obj3.objView).toBe('Accounting Voucher View');
+
+        const lists = obj3.properties.filter(p => p.isList);
+        expect(lists).toHaveLength(2);
+        expect(lists[0].name).toBe('ALLLEDGERENTRIES.LIST');
+        expect(lists[0].children).toBeDefined();
+        expect(lists[0].children).toHaveLength(3);
+        expect(lists[0].children![0].name).toBe('LEDGERNAME');
+        expect(lists[0].children![0].value).toBe('Customer A');
+        expect(lists[0].children![2].name).toBe('AMOUNT');
+        expect(lists[0].children![2].value).toBe('-1500.00');
+    });
+
+    it('should parse deeply nested repeated lists within complex lists', async () => {
+        const { parseXmlEnvelopeToPlaygroundState } = await import('../../../core/xml/xmlAdapter');
+
+        const xml = `<ENVELOPE>
+    <HEADER>
+        <TALLYREQUEST>Import</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>All Masters</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                <VOUCHER VCHTYPE="Sales" Action="Create">
+                    <ALLINVENTORYENTRIES.LIST>
+                        <STOCKITEMNAME>Widget A</STOCKITEMNAME>
+                        <BASICUSERDESCRIPTION.LIST>
+                            <BASICUSERDESCRIPTION>Line 1 description</BASICUSERDESCRIPTION>
+                            <BASICUSERDESCRIPTION>Line 2 description</BASICUSERDESCRIPTION>
+                        </BASICUSERDESCRIPTION.LIST>
+                        <RATE>150.00</RATE>
+                        <AMOUNT>1500.00</AMOUNT>
+                    </ALLINVENTORYENTRIES.LIST>
+                </VOUCHER>
+            </TALLYMESSAGE>
+        </DESC>
+    </BODY>
+</ENVELOPE>`;
+
+        const state = parseXmlEnvelopeToPlaygroundState(xml);
+        expect(state.tallyObjects).toHaveLength(1);
+        const voucher = state.tallyObjects![0];
+        expect(voucher.properties).toHaveLength(1);
+
+        const invList = voucher.properties[0];
+        expect(invList.name).toBe('ALLINVENTORYENTRIES.LIST');
+        expect(invList.isList).toBe(true);
+        expect(invList.children).toBeDefined();
+        expect(invList.children).toHaveLength(4);
+
+        expect(invList.children![0].name).toBe('STOCKITEMNAME');
+        expect(invList.children![0].value).toBe('Widget A');
+
+        const descList = invList.children![1];
+        expect(descList.name).toBe('BASICUSERDESCRIPTION.LIST');
+        expect(descList.isList).toBe(true);
+        expect(descList.children).toHaveLength(2);
+        expect(descList.children![0].name).toBe('BASICUSERDESCRIPTION');
+        expect(descList.children![0].value).toBe('Line 1 description');
+        expect(descList.children![1].name).toBe('BASICUSERDESCRIPTION');
+        expect(descList.children![1].value).toBe('Line 2 description');
+    });
+
+    test('should correctly parse SYSTEM Formulae and FETCH with wildcards', async () => {
+        const { parseXmlEnvelopeToPlaygroundState } = await import('../../../core/xml/xmlAdapter');
+        const xml = `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Collection</TYPE>
+        <ID>SalesVoucherCollection</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+            </STATICVARIABLES>
+            <TDL>
+                <TDLMESSAGE>
+                    <COLLECTION NAME="SalesVoucherCollection">
+                        <TYPE>Voucher</TYPE>
+                        <FETCH>Date, VoucherTypeName, VoucherNumber, PartyLedgerName, Amount, AllLedgerEntries.List.*, AllInventoryEntries.List.*</FETCH>
+                        <FILTER>SalesTypeFilter</FILTER>
+                    </COLLECTION>
+                    <SYSTEM TYPE="Formulae" NAME="SalesTypeFilter">$VoucherTypeName = "Sales"</SYSTEM>
+                </TDLMESSAGE>
+            </TDL>
+        </DESC>
+    </BODY>
+</ENVELOPE>`;
+
+        const state = parseXmlEnvelopeToPlaygroundState(xml);
+        expect(state.definitions).toHaveLength(2);
+
+        // Definition 1: Collection
+        const colDef = state.definitions[0];
+        expect(colDef.defType.toUpperCase()).toBe('COLLECTION');
+        expect(colDef.name).toBe('SalesVoucherCollection');
+        const fetchAttr = colDef.attributes.find(a => a.name.toUpperCase() === 'FETCH');
+        expect(fetchAttr).toBeDefined();
+        expect(fetchAttr!.values).toContain('AllLedgerEntries.List.*');
+        expect(fetchAttr!.values).toContain('AllInventoryEntries.List.*');
+
+        // Definition 2: System Formulae
+        const sysDef = state.definitions[1];
+        expect(sysDef.defType.toUpperCase()).toBe('SYSTEM');
+        expect(sysDef.name).toBe('Formulae');
+        expect(sysDef.attributes).toHaveLength(1);
+        expect(sysDef.attributes[0].name).toBe('SalesTypeFilter');
+        expect(sysDef.attributes[0].values[0]).toBe('$VoucherTypeName = "Sales"');
+    });
 });

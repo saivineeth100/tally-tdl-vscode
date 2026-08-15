@@ -9,12 +9,15 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { buildFolderTree } from './utils/treeUtils';
 
 const App = () => {
-  const [currentView, setCurrentView] = useState<'scopeExplorer' | 'apiPlayground'>(() => {
+  const [currentView, setCurrentView] = useState<'scopeExplorer' | 'apiPlayground' | null>(() => {
+    if (typeof (window as any).__INITIAL_VIEW__ === 'string') {
+      return (window as any).__INITIAL_VIEW__;
+    }
     const urlParams = new URLSearchParams(window.location.search);
     const viewParam = urlParams.get('view');
-    if (viewParam === 'apiPlayground') return 'apiPlayground';
+    if (viewParam === 'apiPlayground' || viewParam === 'scopeExplorer') return viewParam;
     const state = vscode.getState() as { view?: 'scopeExplorer' | 'apiPlayground' } | undefined;
-    return state?.view || 'scopeExplorer';
+    return state?.view || null;
   });
 
   const [treeData, setTreeData] = useState<ScopeNode[] | null>(null);
@@ -150,6 +153,15 @@ const App = () => {
     setSelectedNode(node);
     setBreadcrumbs(path);
   };
+
+  if (!currentView) {
+    return (
+      <div className="view-loading-wrapper">
+        <div className="view-loading-spinner"></div>
+        <div className="view-loading-text">Loading...</div>
+      </div>
+    );
+  }
 
   if (currentView === 'apiPlayground') {
     return (

@@ -16,8 +16,10 @@ interface TdlBuilderProps {
     onRequestAttributesForDefType: (defType: string) => void;
     onRequestAttributeValueSuggestions?: (defType: string, attributeName: string, paramIndex: number, currentDefinition: PlaygroundDefinitionDTO, query?: string) => void;
     onRequestDefNameSuggestions?: (defType: string, query?: string) => void;
+    onRequestSuggestions?: (category: 'definitionType', query?: string) => void;
     onUpdateDefinition: (index: number, updated: PlaygroundDefinitionDTO) => void;
     onDeleteDefinition: (index: number) => void;
+    onMoveDefinition?: (fromIndex: number, toIndex: number) => void;
     onAddDefinition: (defType: string, name?: string) => void;
 }
 
@@ -31,8 +33,10 @@ export const TdlBuilder: React.FC<TdlBuilderProps> = ({
     onRequestAttributesForDefType,
     onRequestAttributeValueSuggestions,
     onRequestDefNameSuggestions,
+    onRequestSuggestions,
     onUpdateDefinition,
     onDeleteDefinition,
+    onMoveDefinition,
     onAddDefinition
 }) => {
     const [isPickerOpen, setIsPickerOpen] = useState(false);
@@ -72,6 +76,7 @@ export const TdlBuilder: React.FC<TdlBuilderProps> = ({
                         <DefinitionBlock 
                             key={`def-${idx}`}
                             index={idx}
+                            totalCount={definitions.length}
                             definition={def}
                             allDefinitions={definitions}
                             definitionTypes={definitionTypes}
@@ -84,6 +89,7 @@ export const TdlBuilder: React.FC<TdlBuilderProps> = ({
                             onRequestDefNameSuggestions={onRequestDefNameSuggestions}
                             onUpdateDefinition={onUpdateDefinition}
                             onDeleteDefinition={onDeleteDefinition}
+                            onMoveDefinition={onMoveDefinition}
                         />
                     );
                 })}
@@ -113,6 +119,7 @@ export const TdlBuilder: React.FC<TdlBuilderProps> = ({
                 availableDefTypes={definitionTypes}
                 onSelect={handleSelectDefType}
                 onClose={() => setIsPickerOpen(false)}
+                onSearch={query => onRequestSuggestions?.('definitionType', query)}
             />
         </div>
     );

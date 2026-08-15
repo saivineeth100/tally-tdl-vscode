@@ -8,7 +8,9 @@ import type {
     DefTypeAttributeDTO,
     SchemaPropertyDTO,
     PlaygroundHistoryEntryDTO,
-    PlaygroundTemplateDTO
+    PlaygroundTemplateDTO,
+    PlaygroundTallyPropertyDTO,
+    PlaygroundTallyObjectDTO
 } from 'tally-tdl-shared';
 
 export type {
@@ -21,7 +23,9 @@ export type {
     DefTypeAttributeDTO,
     SchemaPropertyDTO,
     PlaygroundHistoryEntryDTO,
-    PlaygroundTemplateDTO
+    PlaygroundTemplateDTO,
+    PlaygroundTallyPropertyDTO,
+    PlaygroundTallyObjectDTO
 };
 
 export interface PlaygroundUIState {
@@ -30,6 +34,7 @@ export interface PlaygroundUIState {
     id: string;
     staticVariables: PlaygroundStaticVariableDTO[];
     definitions: PlaygroundDefinitionDTO[];
+    tallyObjects?: PlaygroundTallyObjectDTO[];
     activeTab: 'builder' | 'xml' | 'templates' | 'history';
     linkedFilePath?: string;
     linkedFileName?: string;

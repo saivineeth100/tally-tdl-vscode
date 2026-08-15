@@ -10,7 +10,9 @@ import type {
     PlaygroundAttributeDTO,
     PlaygroundStaticVariableDTO,
     PlaygroundTemplateDTO,
-    PlaygroundHistoryEntryDTO
+    PlaygroundHistoryEntryDTO,
+    PlaygroundTallyObjectDTO,
+    PlaygroundTallyPropertyDTO
 } from 'tally-tdl-shared';
 
 function getNonce() {
@@ -20,6 +22,33 @@ function getNonce() {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
+}
+
+function parseTallyPropertiesFromXml(xml: string): PlaygroundTallyPropertyDTO[] {
+    const props: PlaygroundTallyPropertyDTO[] = [];
+    const tagRegex = /<([a-zA-Z0-9_.]+)(?:\s+[^>]*)?>(?:([\s\S]*?)<\/\1>|\/>)/gi;
+    let match: RegExpExecArray | null;
+
+    while ((match = tagRegex.exec(xml)) !== null) {
+        const tagName = match[1];
+        const inner = (match[2] || '').trim();
+        const isList = tagName.toUpperCase().endsWith('.LIST') || /<[a-zA-Z0-9_.]+>/i.test(inner);
+
+        if (isList && /<[a-zA-Z0-9_.]+>/i.test(inner)) {
+            props.push({
+                name: tagName,
+                isList: true,
+                children: parseTallyPropertiesFromXml(inner)
+            });
+        } else {
+            props.push({
+                name: tagName,
+                value: inner
+            });
+        }
+    }
+
+    return props;
 }
 
 /**
@@ -132,6 +161,50 @@ export function parseEnvelopeXml(xmlText: string): PlaygroundStateDTO {
         }
     }
 
+    // 4. Extract Tally Message Objects inside <TALLYMESSAGE> (for Import requests)
+    const tallyMsgMatch = xmlText.match(/<TALLYMESSAGE[^>]*>([\s\S]*?)<\/TALLYMESSAGE>/i);
+    if (tallyMsgMatch || result.tallyRequest === 'Import') {
+        const content = tallyMsgMatch ? tallyMsgMatch[1] : xmlText;
+        const objTagRegex = /<([a-zA-Z0-9_]+)\s+([^>]*?)(\/>|>([\s\S]*?)<\/\1>)/gi;
+        let objMatch: RegExpExecArray | null;
+        const tallyObjects: PlaygroundTallyObjectDTO[] = [];
+
+        while ((objMatch = objTagRegex.exec(content)) !== null) {
+            const objectType = objMatch[1];
+            if (['STATICVARIABLES', 'DESC', 'BODY', 'HEADER', 'ENVELOPE', 'TDL', 'TDLMESSAGE'].includes(objectType.toUpperCase())) {
+                continue;
+            }
+
+            const rawAttrs = objMatch[2];
+            const innerBody = objMatch[4] || '';
+
+            const nameMatch = rawAttrs.match(/\bNAME\s*=\s*["']([^"']*)["']/i);
+            const actionMatch = rawAttrs.match(/\bAction\s*=\s*["']([^"']*)["']/i);
+            const vchTypeMatch = rawAttrs.match(/\bVCHTYPE\s*=\s*["']([^"']*)["']/i);
+            const objViewMatch = rawAttrs.match(/\bOBJVIEW\s*=\s*["']([^"']*)["']/i);
+
+            const actionRaw = actionMatch ? actionMatch[1] : 'Create';
+            const action = (['Create', 'Alter', 'Delete'].find(
+                a => a.toLowerCase() === actionRaw.toLowerCase()
+            ) || 'Create') as 'Create' | 'Alter' | 'Delete';
+
+            const properties: PlaygroundTallyPropertyDTO[] = parseTallyPropertiesFromXml(innerBody);
+
+            tallyObjects.push({
+                objectType,
+                action,
+                name: nameMatch ? nameMatch[1] : undefined,
+                vchType: vchTypeMatch ? vchTypeMatch[1] : undefined,
+                objView: objViewMatch ? objViewMatch[1] : undefined,
+                properties
+            });
+        }
+
+        if (tallyObjects.length > 0) {
+            result.tallyObjects = tallyObjects;
+        }
+    }
+
     return result;
 }
 
@@ -222,8 +295,12 @@ export class ApiPlaygroundPanel {
                     view: 'apiPlayground'
                 });
 
-                // Fetch initial definition types on-demand
+                // Fetch initial suggestions on-demand from LSP
                 this._fetchAndSendSuggestions({ category: 'definitionType' });
+                this._fetchAndSendSuggestions({ category: 'schemaType' });
+                this._fetchAndSendSuggestions({ category: 'collection' });
+                this._fetchAndSendSuggestions({ category: 'report' });
+                this._fetchAndSendSuggestions({ category: 'staticVariable' });
 
                 // 2. Fetch Active Companies
                 this._fetchAndSendCompanies();
@@ -246,15 +323,17 @@ export class ApiPlaygroundPanel {
 
             case 'getPlaygroundSuggestions':
             case 'getSuggestions': {
-                const queryPayload = message.query || {
-                    category: message.category,
-                    query: message.search || message.queryText || message.query,
-                    limit: message.limit,
-                    defType: message.defType,
-                    attributeName: message.attributeName,
-                    paramIndex: message.paramIndex,
-                    currentDefinition: message.currentDefinition
-                };
+                const queryPayload = (typeof message.query === 'object' && message.query !== null)
+                    ? message.query
+                    : {
+                        category: message.category || 'definitionType',
+                        query: typeof message.query === 'string' ? message.query : (message.search || message.queryText || ''),
+                        limit: message.limit || 500,
+                        defType: message.defType,
+                        attributeName: message.attributeName,
+                        paramIndex: message.paramIndex,
+                        currentDefinition: message.currentDefinition
+                    };
                 await this._fetchAndSendSuggestions(queryPayload);
                 return;
             }
@@ -521,45 +600,575 @@ export class ApiPlaygroundPanel {
     }
 
     private _loadAndSendTemplates() {
-        const snippetsPath = path.join(this._extensionPath, 'snippets', 'tdlxml.snippets.json');
-        const templates: PlaygroundTemplateDTO[] = [];
+        const templates: PlaygroundTemplateDTO[] = [
+            // Export Collection Templates
+            {
+                name: 'Export All Ledgers (with Balances & GSTIN)',
+                description: 'Export all accounting ledgers with parent group, opening balance, closing balance, and Party GSTIN.',
+                prefix: 'exp-ledgers',
+                category: 'Export',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Collection</TYPE>
+        <ID>AllLedgersCollection</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+            </STATICVARIABLES>
+            <TDL>
+                <TDLMESSAGE>
+                    <COLLECTION NAME="AllLedgersCollection">
+                        <TYPE>Ledger</TYPE>
+                        <NATIVEMETHOD>Name, Parent, OpeningBalance, ClosingBalance, PartyGSTIN</NATIVEMETHOD>
+                    </COLLECTION>
+                </TDLMESSAGE>
+            </TDL>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Export Trial Balance (Non-Zero Balances)',
+                description: 'Export ledgers with debit/credit breakdown and a filter excluding zero closing balance.',
+                prefix: 'exp-trialbalance',
+                category: 'Export',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Collection</TYPE>
+        <ID>TrialBalanceCollection</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+            </STATICVARIABLES>
+            <TDL>
+                <TDLMESSAGE>
+                    <COLLECTION NAME="TrialBalanceCollection">
+                        <TYPE>Ledger</TYPE>
+                        <NATIVEMETHOD>Name, Parent, OpeningBalance, ClosingBalance, DebitAmt, CreditAmt</NATIVEMETHOD>
+                        <FILTER>NonZeroBalanceFilter</FILTER>
+                    </COLLECTION>
+                    <SYSTEM TYPE="Formulae" NAME="NonZeroBalanceFilter">$ClosingBalance != 0</SYSTEM>
+                </TDLMESSAGE>
+            </TDL>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Export Sales Vouchers (with Line Items)',
+                description: 'Export Sales transactions for a given date range with ledger and inventory allocations.',
+                prefix: 'exp-sales-vch',
+                category: 'Export',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Collection</TYPE>
+        <ID>SalesVoucherCollection</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+                <SVFROMDATE>20240401</SVFROMDATE>
+                <SVTODATE>20240430</SVTODATE>
+            </STATICVARIABLES>
+            <TDL>
+                <TDLMESSAGE>
+                    <COLLECTION NAME="SalesVoucherCollection">
+                        <TYPE>Voucher</TYPE>
+                        <FETCH>Date, VoucherTypeName, VoucherNumber, PartyLedgerName, Amount, AllLedgerEntries.List.*, AllInventoryEntries.List.*</FETCH>
+                        <FILTER>SalesTypeFilter</FILTER>
+                    </COLLECTION>
+                    <SYSTEM TYPE="Formulae" NAME="SalesTypeFilter">$VoucherTypeName = "Sales"</SYSTEM>
+                </TDLMESSAGE>
+            </TDL>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Export Stock Items (Closing Stock & Rate)',
+                description: 'Export all inventory stock items with category, units, closing balance, closing rate, and valuation.',
+                prefix: 'exp-stockitems',
+                category: 'Export',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Collection</TYPE>
+        <ID>StockItemCollection</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+            </STATICVARIABLES>
+            <TDL>
+                <TDLMESSAGE>
+                    <COLLECTION NAME="StockItemCollection">
+                        <TYPE>StockItem</TYPE>
+                        <NATIVEMETHOD>Name, Parent, BaseUnits, OpeningBalance, ClosingBalance, ClosingRate, ClosingValue</NATIVEMETHOD>
+                    </COLLECTION>
+                </TDLMESSAGE>
+            </TDL>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Export Outstanding Bills Receivable',
+                description: 'Export outstanding bill-by-bill receivables for Sundry Debtors.',
+                prefix: 'exp-bills-receivable',
+                category: 'Export',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Collection</TYPE>
+        <ID>BillsReceivableCollection</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+            </STATICVARIABLES>
+            <TDL>
+                <TDLMESSAGE>
+                    <COLLECTION NAME="BillsReceivableCollection">
+                        <TYPE>Bills</TYPE>
+                        <CHILDOF>$$GroupSundryDebtors</CHILDOF>
+                        <NATIVEMETHOD>Name, BillDate, BillCreditPeriod, BillClosingBalance, BillDue</NATIVEMETHOD>
+                    </COLLECTION>
+                </TDLMESSAGE>
+            </TDL>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Export DayBook Vouchers',
+                description: 'Export all vouchers recorded on the current system date.',
+                prefix: 'exp-daybook',
+                category: 'Export',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Collection</TYPE>
+        <ID>DayBookCollection</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+                <SVFROMDATE>$$SysInfo:SystemDate</SVFROMDATE>
+                <SVTODATE>$$SysInfo:SystemDate</SVTODATE>
+            </STATICVARIABLES>
+            <TDL>
+                <TDLMESSAGE>
+                    <COLLECTION NAME="DayBookCollection">
+                        <TYPE>Voucher</TYPE>
+                        <FETCH>Date, VoucherTypeName, VoucherNumber, PartyLedgerName, Amount</FETCH>
+                    </COLLECTION>
+                </TDLMESSAGE>
+            </TDL>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Export List of Companies',
+                description: 'Export all companies currently open and active in Tally.',
+                prefix: 'exp-companies',
+                category: 'Export',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Collection</TYPE>
+        <ID>List of Companies</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+            </STATICVARIABLES>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
 
-        try {
-            if (fs.existsSync(snippetsPath)) {
-                const raw = fs.readFileSync(snippetsPath, 'utf-8');
-                const snippets = JSON.parse(raw);
+            // Export Report Templates
+            {
+                name: 'Export Balance Sheet Report',
+                description: 'Export standard Tally Balance Sheet financial report data.',
+                prefix: 'rep-balancesheet',
+                category: 'Report',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>Balance Sheet</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+            </STATICVARIABLES>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Export Profit and Loss Report',
+                description: 'Export standard Tally Profit and Loss Statement report data.',
+                prefix: 'rep-pnl',
+                category: 'Report',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>Profit and Loss</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+            </STATICVARIABLES>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Export Stock Summary Report',
+                description: 'Export formatted Stock Summary report with item valuations.',
+                prefix: 'rep-stocksummary',
+                category: 'Report',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>Stock Summary</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+            </STATICVARIABLES>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
 
-                for (const [key, val] of Object.entries<any>(snippets)) {
-                    const body = Array.isArray(val.body) ? val.body.join('\n') : (val.body || '');
-                    // Clean snippet placeholders ${1:value} -> value, ${1|opt1,opt2|} -> opt1, \$ -> $
-                    const cleanedXml = body
-                        .replace(/\$\{\d+\|([^,|]*)[^}]*\|\}/g, '$1')
-                        .replace(/\$\{\d+:?([^}]*)\}/g, '$1')
-                        .replace(/\\(\$)/g, '$1')
-                        .replace(/\$\d+/g, '');
-
-                    let category: PlaygroundTemplateDTO['category'] = 'Export';
-                    const lowerKey = key.toLowerCase();
-                    if (lowerKey.includes('import')) {
-                        category = 'Import';
-                    } else if (lowerKey.includes('report')) {
-                        category = 'Report';
-                    } else if (['ledger', 'group', 'voucher', 'stock', 'unit', 'godown'].some(k => lowerKey.includes(k))) {
-                        category = 'Object';
-                    }
-
-                    templates.push({
-                        name: key,
-                        description: val.description || '',
-                        prefix: val.prefix || '',
-                        xml: cleanedXml,
-                        category
-                    });
-                }
+            // Import Templates (Full Envelopes for Business Objects)
+            {
+                name: 'Import Ledger with GST & Address',
+                description: 'Create a new Ledger master with parent group, opening balance, address, state, PIN, and GSTIN.',
+                prefix: 'imp-ledger',
+                category: 'Import',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Import</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>All Masters</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVCURRENTCOMPANY></SVCURRENTCOMPANY>
+            </STATICVARIABLES>
+            <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                <LEDGER NAME="ABC Enterprises" Action="Create">
+                    <NAME>ABC Enterprises</NAME>
+                    <PARENT>Sundry Debtors</PARENT>
+                    <OPENINGBALANCE>-5000.00</OPENINGBALANCE>
+                    <ISBILLWISEON>Yes</ISBILLWISEON>
+                    <AFFECTSSTOCK>No</AFFECTSSTOCK>
+                    <LANGUAGENAME.LIST>
+                        <NAME.LIST>
+                            <NAME>ABC Enterprises</NAME>
+                            <NAME>ABC Ent</NAME>
+                        </NAME.LIST>
+                        <LANGUAGEID> 1033</LANGUAGEID>
+                    </LANGUAGENAME.LIST>
+                    <ADDRESS.LIST>
+                        <ADDRESS>123 Industrial Area, Phase 2</ADDRESS>
+                        <ADDRESS>New Delhi</ADDRESS>
+                    </ADDRESS.LIST>
+                    <COUNTRYNAME>India</COUNTRYNAME>
+                    <LEDSTATENAME>Delhi</LEDSTATENAME>
+                    <PINCODE>110020</PINCODE>
+                    <PARTYGSTIN>07AAAAA0000A1Z5</PARTYGSTIN>
+                </LEDGER>
+            </TALLYMESSAGE>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Import Group Master',
+                description: 'Create a new Accounting Group master with parent group.',
+                prefix: 'imp-group',
+                category: 'Import',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Import</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>All Masters</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVCURRENTCOMPANY></SVCURRENTCOMPANY>
+            </STATICVARIABLES>
+            <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                <GROUP NAME="North Zone Debtors" Action="Create">
+                    <NAME>North Zone Debtors</NAME>
+                    <PARENT>Sundry Debtors</PARENT>
+                    <ISSUBLEDGER>No</ISSUBLEDGER>
+                    <LANGUAGENAME.LIST>
+                        <NAME.LIST>
+                            <NAME>North Zone Debtors</NAME>
+                        </NAME.LIST>
+                        <LANGUAGEID> 1033</LANGUAGEID>
+                    </LANGUAGENAME.LIST>
+                </GROUP>
+            </TALLYMESSAGE>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Import Stock Item with GST & Units',
+                description: 'Create a new Inventory Stock Item master with unit, opening quantity/rate, and GST details.',
+                prefix: 'imp-stockitem',
+                category: 'Import',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Import</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>All Masters</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVCURRENTCOMPANY></SVCURRENTCOMPANY>
+            </STATICVARIABLES>
+            <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                <STOCKITEM NAME="Widget Pro 100" Action="Create">
+                    <NAME>Widget Pro 100</NAME>
+                    <PARENT>&#4; Primary</PARENT>
+                    <BASEUNITS>Nos</BASEUNITS>
+                    <OPENINGBALANCE>100 Nos</OPENINGBALANCE>
+                    <OPENINGRATE>150.00 / Nos</OPENINGRATE>
+                    <OPENINGVALUE>-15000.00</OPENINGVALUE>
+                    <LANGUAGENAME.LIST>
+                        <NAME.LIST>
+                            <NAME>Widget Pro 100</NAME>
+                        </NAME.LIST>
+                        <LANGUAGEID> 1033</LANGUAGEID>
+                    </LANGUAGENAME.LIST>
+                    <GSTAPPLICABLE>&#4; Applicable</GSTAPPLICABLE>
+                    <GSTTYPEOFSUPPLY>Goods</GSTTYPEOFSUPPLY>
+                </STOCKITEM>
+            </TALLYMESSAGE>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Import Unit of Measure (UOM)',
+                description: 'Create a Unit of Measure master (e.g. Nos, Kgs, Box).',
+                prefix: 'imp-unit',
+                category: 'Import',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Import</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>All Masters</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVCURRENTCOMPANY></SVCURRENTCOMPANY>
+            </STATICVARIABLES>
+            <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                <UNIT NAME="Nos" Action="Create">
+                    <NAME>Nos</NAME>
+                    <ORIGINALNAME>Numbers</ORIGINALNAME>
+                    <DECIMALPLACES>0</DECIMALPLACES>
+                </UNIT>
+            </TALLYMESSAGE>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Import Sales Accounting Voucher (with GST)',
+                description: 'Create a complete Sales Voucher transaction with buyer ledger, sales account, GST ledger entries, and bill allocations.',
+                prefix: 'imp-sales-vch',
+                category: 'Import',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Import</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>Vouchers</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVCURRENTCOMPANY></SVCURRENTCOMPANY>
+            </STATICVARIABLES>
+            <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                <VOUCHER Action="Create" VCHTYPE="Sales">
+                    <DATE>20240401</DATE>
+                    <VOUCHERTYPENAME>Sales</VOUCHERTYPENAME>
+                    <VOUCHERNUMBER>INV-001</VOUCHERNUMBER>
+                    <PARTYLEDGERNAME>ABC Enterprises</PARTYLEDGERNAME>
+                    <PERSISTEDVIEW>Accounting Voucher View</PERSISTEDVIEW>
+                    <ALLLEDGERENTRIES.LIST>
+                        <LEDGERNAME>ABC Enterprises</LEDGERNAME>
+                        <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+                        <AMOUNT>-1180.00</AMOUNT>
+                        <BILLALLOCATIONS.LIST>
+                            <NAME>INV-001</NAME>
+                            <BILLTYPE>New Ref</BILLTYPE>
+                            <AMOUNT>-1180.00</AMOUNT>
+                        </BILLALLOCATIONS.LIST>
+                    </ALLLEDGERENTRIES.LIST>
+                    <ALLLEDGERENTRIES.LIST>
+                        <LEDGERNAME>Sales Account</LEDGERNAME>
+                        <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+                        <AMOUNT>1000.00</AMOUNT>
+                    </ALLLEDGERENTRIES.LIST>
+                    <ALLLEDGERENTRIES.LIST>
+                        <LEDGERNAME>CGST</LEDGERNAME>
+                        <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+                        <AMOUNT>90.00</AMOUNT>
+                    </ALLLEDGERENTRIES.LIST>
+                    <ALLLEDGERENTRIES.LIST>
+                        <LEDGERNAME>SGST</LEDGERNAME>
+                        <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+                        <AMOUNT>90.00</AMOUNT>
+                    </ALLLEDGERENTRIES.LIST>
+                </VOUCHER>
+            </TALLYMESSAGE>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Import Receipt Voucher',
+                description: 'Create a bank receipt voucher linking customer payment to bank account.',
+                prefix: 'imp-receipt-vch',
+                category: 'Import',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Import</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>Vouchers</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVCURRENTCOMPANY></SVCURRENTCOMPANY>
+            </STATICVARIABLES>
+            <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                <VOUCHER Action="Create" VCHTYPE="Receipt">
+                    <DATE>20240401</DATE>
+                    <VOUCHERTYPENAME>Receipt</VOUCHERTYPENAME>
+                    <PARTYLEDGERNAME>ABC Enterprises</PARTYLEDGERNAME>
+                    <PERSISTEDVIEW>Accounting Voucher View</PERSISTEDVIEW>
+                    <ALLLEDGERENTRIES.LIST>
+                        <LEDGERNAME>HDFC Bank</LEDGERNAME>
+                        <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+                        <AMOUNT>-1000.00</AMOUNT>
+                    </ALLLEDGERENTRIES.LIST>
+                    <ALLLEDGERENTRIES.LIST>
+                        <LEDGERNAME>ABC Enterprises</LEDGERNAME>
+                        <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+                        <AMOUNT>1000.00</AMOUNT>
+                    </ALLLEDGERENTRIES.LIST>
+                </VOUCHER>
+            </TALLYMESSAGE>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
+            },
+            {
+                name: 'Import Batch Masters (Group + Ledger + Item)',
+                description: 'Import multiple business objects in a single batch message.',
+                prefix: 'imp-batch-masters',
+                category: 'Import',
+                xml: `<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Import</TALLYREQUEST>
+        <TYPE>Data</TYPE>
+        <ID>All Masters</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            <STATICVARIABLES>
+                <SVCURRENTCOMPANY></SVCURRENTCOMPANY>
+            </STATICVARIABLES>
+            <TALLYMESSAGE xmlns:UDF="TallyUDF">
+                <GROUP NAME="Wholesale Customers" Action="Create">
+                    <NAME>Wholesale Customers</NAME>
+                    <PARENT>Sundry Debtors</PARENT>
+                    <LANGUAGENAME.LIST>
+                        <NAME.LIST>
+                            <NAME>Wholesale Customers</NAME>
+                        </NAME.LIST>
+                        <LANGUAGEID> 1033</LANGUAGEID>
+                    </LANGUAGENAME.LIST>
+                </GROUP>
+                <LEDGER NAME="Metro Traders" Action="Create">
+                    <NAME>Metro Traders</NAME>
+                    <PARENT>Wholesale Customers</PARENT>
+                    <OPENINGBALANCE>0.00</OPENINGBALANCE>
+                    <LANGUAGENAME.LIST>
+                        <NAME.LIST>
+                            <NAME>Metro Traders</NAME>
+                        </NAME.LIST>
+                        <LANGUAGEID> 1033</LANGUAGEID>
+                    </LANGUAGENAME.LIST>
+                </LEDGER>
+                <STOCKITEM NAME="Industrial Paint 20L" Action="Create">
+                    <NAME>Industrial Paint 20L</NAME>
+                    <PARENT>&#4; Primary</PARENT>
+                    <BASEUNITS>Nos</BASEUNITS>
+                    <LANGUAGENAME.LIST>
+                        <NAME.LIST>
+                            <NAME>Industrial Paint 20L</NAME>
+                        </NAME.LIST>
+                        <LANGUAGEID> 1033</LANGUAGEID>
+                    </LANGUAGENAME.LIST>
+                </STOCKITEM>
+            </TALLYMESSAGE>
+        </DESC>
+    </BODY>
+</ENVELOPE>`
             }
-        } catch (e) {
-            console.error('Error loading snippet templates:', e);
-        }
+        ];
 
         this._panel.webview.postMessage({
             command: 'templatesData',
@@ -617,6 +1226,9 @@ export class ApiPlaygroundPanel {
             </head>
             <body>
                 <div id="root"></div>
+                <script nonce="${nonce}">
+                    window.__INITIAL_VIEW__ = 'apiPlayground';
+                </script>
                 <script nonce="${nonce}" src="${scriptUri}"></script>
             </body>
             </html>`;

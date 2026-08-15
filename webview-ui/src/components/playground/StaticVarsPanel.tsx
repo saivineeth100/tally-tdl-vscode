@@ -5,25 +5,13 @@ import type { PlaygroundStaticVariableDTO } from '../../types/playground';
 interface StaticVarsPanelProps {
     variables: PlaygroundStaticVariableDTO[];
     companies: string[];
+    staticVarSuggestions?: string[];
+    onRequestSuggestions?: (category: 'staticVariable', query?: string) => void;
     onUpdateVariable: (index: number, name: string, value: string) => void;
     onAddVariable: () => void;
     onRemoveVariable: (index: number) => void;
     onRefreshCompanies: () => void;
 }
-
-const STATIC_VAR_NAME_SUGGESTIONS = [
-    { value: 'SVCURRENTCOMPANY', label: 'SVCURRENTCOMPANY', description: 'Active company in Tally' },
-    { value: 'SVEXPORTFORMAT', label: 'SVEXPORTFORMAT', description: 'Output format ($$SysName:XML, JSON)' },
-    { value: 'SVFROMDATE', label: 'SVFROMDATE', description: 'Start date for reports / period' },
-    { value: 'SVTODATE', label: 'SVTODATE', description: 'End date for reports / period' },
-    { value: 'EXPLODEFLAG', label: 'EXPLODEFLAG', description: 'Explode collections (Yes / No)' },
-    { value: 'SVINVENTORY', label: 'SVINVENTORY', description: 'Include inventory data (Yes / No)' },
-    { value: 'SVACCOUNTS', label: 'SVACCOUNTS', description: 'Include accounting data (Yes / No)' },
-    { value: 'SVCOMPANY', label: 'SVCOMPANY', description: 'Target company name' },
-    { value: 'SVVOUCHERTYPE', label: 'SVVOUCHERTYPE', description: 'Filter by voucher type' },
-    { value: 'SVCOSTCENTRE', label: 'SVCOSTCENTRE', description: 'Filter by cost centre' },
-    { value: 'SVGODOWN', label: 'SVGODOWN', description: 'Filter by godown / warehouse' }
-];
 
 const FORMAT_SUGGESTIONS = [
     { value: '$$SysName:XML', label: '$$SysName:XML', description: 'Tally XML Format (Recommended)' },
@@ -38,16 +26,6 @@ const FORMAT_SUGGESTIONS = [
 const BOOLEAN_SUGGESTIONS = [
     { value: 'Yes', label: 'Yes' },
     { value: 'No', label: 'No' }
-];
-
-const DATE_SUGGESTIONS = [
-    { value: '$$MonthStart:##SVCurrentDate', label: '$$MonthStart:##SVCurrentDate', description: 'Start of current month' },
-    { value: '$$YearStart:##SVCurrentDate', label: '$$YearStart:##SVCurrentDate', description: 'Start of financial year' },
-    { value: '$$MonthEnd:##SVCurrentDate', label: '$$MonthEnd:##SVCurrentDate', description: 'End of current month' },
-    { value: '$$YearEnd:##SVCurrentDate', label: '$$YearEnd:##SVCurrentDate', description: 'End of financial year' },
-    { value: '$$CurrentDate', label: '$$CurrentDate', description: 'Current date' },
-    { value: '20240401', label: '20240401', description: '1-Apr-2024 (YYYYMMDD)' },
-    { value: '20250331', label: '20250331', description: '31-Mar-2025 (YYYYMMDD)' }
 ];
 
 const isDateVariable = (varName: string): boolean => {
@@ -70,24 +48,28 @@ const formatToIsoDate = (val: string): string => {
 export const StaticVarsPanel: React.FC<StaticVarsPanelProps> = ({
     variables,
     companies,
+    staticVarSuggestions = [],
+    onRequestSuggestions,
     onUpdateVariable,
     onAddVariable,
     onRemoveVariable,
     onRefreshCompanies
 }) => {
+    const varNameOptions = staticVarSuggestions.map(s => ({
+        value: s,
+        label: s
+    }));
+
     const getValueOptions = (varName: string) => {
         const norm = varName.toUpperCase().trim();
         if (norm === 'SVCURRENTCOMPANY' || norm === 'SVCOMPANY') {
             return companies.map(c => ({ value: c, label: c, description: 'Open Company' }));
         }
-        if (norm === 'SVEXPORTFORMAT') {
+        if (norm === 'SVEXPORTFORMAT' || norm === 'SVMSTIMPORTFORMAT') {
             return FORMAT_SUGGESTIONS;
         }
         if (norm === 'EXPLODEFLAG' || norm === 'SVINVENTORY' || norm === 'SVACCOUNTS') {
             return BOOLEAN_SUGGESTIONS;
-        }
-        if (isDateVariable(varName)) {
-            return DATE_SUGGESTIONS;
         }
         return [];
     };
@@ -122,8 +104,8 @@ export const StaticVarsPanel: React.FC<StaticVarsPanelProps> = ({
 
             <div className="variables-list">
                 {variables.map((v, index) => {
-                    const valueOptions = getValueOptions(v.name);
                     const isDate = isDateVariable(v.name);
+                    const valueOptions = getValueOptions(v.name);
 
                     return (
                         <div key={`var-${index}`} className="var-row">
@@ -131,33 +113,29 @@ export const StaticVarsPanel: React.FC<StaticVarsPanelProps> = ({
                                 <Combobox
                                     value={v.name}
                                     onChange={newName => onUpdateVariable(index, newName, v.value)}
-                                    options={STATIC_VAR_NAME_SUGGESTIONS}
+                                    options={varNameOptions}
+                                    onFocus={() => onRequestSuggestions && onRequestSuggestions('staticVariable', v.name)}
+                                    onSearch={query => onRequestSuggestions && onRequestSuggestions('staticVariable', query)}
                                     placeholder="Variable Name (e.g. SVFROMDATE)"
                                 />
                             </div>
                             <div className="var-value-col">
                                 {isDate ? (
-                                    <div className="date-combobox-group">
-                                        <Combobox
-                                            value={v.value}
-                                            onChange={newVal => onUpdateVariable(index, v.name, newVal)}
-                                            options={valueOptions}
-                                            placeholder="e.g. 20240401 or $$MonthStart:##SVCurrentDate"
-                                        />
-                                        <input 
-                                            type="date"
-                                            className="date-picker-input"
-                                            value={formatToIsoDate(v.value)}
-                                            onChange={e => {
-                                                const raw = e.target.value;
-                                                if (raw) {
-                                                    const formatted = raw.replace(/-/g, '');
-                                                    onUpdateVariable(index, v.name, formatted);
-                                                }
-                                            }}
-                                            title="Pick date from calendar"
-                                        />
-                                    </div>
+                                    <input 
+                                        type="date"
+                                        className="form-input date-input-field"
+                                        value={formatToIsoDate(v.value)}
+                                        onChange={e => {
+                                            const raw = e.target.value;
+                                            if (raw) {
+                                                const formatted = raw.replace(/-/g, '');
+                                                onUpdateVariable(index, v.name, formatted);
+                                            } else {
+                                                onUpdateVariable(index, v.name, '');
+                                            }
+                                        }}
+                                        title="Select date (YYYYMMDD)"
+                                    />
                                 ) : (
                                     <Combobox
                                         value={v.value}
@@ -169,7 +147,7 @@ export const StaticVarsPanel: React.FC<StaticVarsPanelProps> = ({
                             </div>
                             <div className="var-action-col">
                                 <button 
-                                    type="button"
+                                    type="button" 
                                     className="btn-icon btn-danger"
                                     onClick={() => onRemoveVariable(index)}
                                     title="Remove variable"
@@ -182,7 +160,9 @@ export const StaticVarsPanel: React.FC<StaticVarsPanelProps> = ({
                 })}
 
                 {variables.length === 0 && (
-                    <div className="empty-subtext">No static variables added.</div>
+                    <div className="empty-vars-hint">
+                        No static variables configured. Click <strong>+ Add Variable</strong> above.
+                    </div>
                 )}
             </div>
         </div>

@@ -800,6 +800,7 @@ export class ExpressionsParser extends ParserState {
       if (
         this.IsIdentifierToken((this.CurrentToken.Kind as TokenKind)) ||
         (allowDots && (this.CurrentToken.Kind as TokenKind) === TokenKind.DotToken) ||
+        (allowDots && (this.CurrentToken.Kind as TokenKind) === TokenKind.AsteriskToken && this.PreviousToken.Kind === TokenKind.DotToken) ||
         (allowKeywords && this.IsKeywordToken(this.CurrentToken.Kind))
       ) {
         if (identifierTokens.length > 0) {

@@ -172,6 +172,9 @@ export class ScopeExplorer {
             </head>
             <body>
                 <div id="root"></div>
+                <script nonce="${nonce}">
+                    window.__INITIAL_VIEW__ = 'scopeExplorer';
+                </script>
                 <script nonce="${nonce}" src="${scriptUri}"></script>
             </body>
             </html>`;
