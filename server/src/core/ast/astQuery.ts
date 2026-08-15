@@ -118,6 +118,13 @@ export function findNodeAtOffset(nodes: Node[], offset: number): Node | undefine
                     }
                 }
             }
+            if (m.objectName && offset >= m.objectName.start && offset <= m.objectName.end) {
+                return m.objectName;
+            }
+            if (m.formula) {
+                const deeper = findNodeAtOffset([m.formula], offset);
+                if (deeper) return deeper;
+            }
             if (m.methodName && offset >= m.methodName.start && offset <= m.methodName.end) {
                 return m.methodName;
             }
@@ -203,6 +210,8 @@ export function walkAST(
                     if (spec.condition) walkNode(spec.condition, n, def);
                 }
             }
+            if (m.objectName) walkNode(m.objectName, n, def);
+            if (m.formula) walkNode(m.formula, n, def);
         } else if (n.kind === SyntaxKind.FormulaReference) {
             const f = n as any;
             if (f.formulaName) walkNode(f.formulaName, n, def);

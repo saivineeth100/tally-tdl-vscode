@@ -44,20 +44,37 @@ export const TDL_DATATYPES: Record<string, DataTypeSpec> = {
     },
     'date': {
         name: 'Date',
-        formats: ['Short Date', 'Long Date', 'Universal Date', 'Month Beginning', 'Month Ending']
+        formats: ['Universal Date', 'Short Date', 'Long Date', 'Month Beginning', 'Month Ending', 'Separator', 'No Zero']
     },
     'datetime': {
         name: 'DateTime',
         subTypes: ['Date', 'Time'],
-        formats: ['Short Date', 'Long Date', 'Universal Date', 'Month Beginning', 'Month Ending', 'Date Only', 'Time Only']
+        formats: [
+            'Universal Date', 'Short Date', 'Long Date', 'Month Beginning', 'Month Ending',
+            'Date Only', 'Time Only',
+            '12 Hour', '24 Hour', 'With Seconds', 'With Secs', 'Seconds', 'With MilliSeconds', 'With Millisecs', 'MilliSeconds', 'Prefix AMPM',
+            'Separator', 'No Zero'
+        ]
     },
     'time': {
         name: 'Time',
-        formats: ['12 Hour', '24 Hour']
+        formats: [
+            '12 Hour', '24 Hour', 'With Seconds', 'With Secs', 'Seconds', 'With MilliSeconds', 'With Millisecs', 'MilliSeconds', 'Prefix AMPM',
+            'Separator', 'No Zero'
+        ]
     },
     'duration': {
         name: 'Duration',
-        formats: ['Years', 'Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds']
+        formats: [
+            'Year', 'Years', 'Yr', 'Yrs',
+            'Month', 'Months',
+            'Day', 'Days', 'Dys',
+            'Week', 'Weeks', 'Weak', 'Wks',
+            'Hour', 'Hours', 'Hr', 'Hrs',
+            'Minutes', 'Mins', 'Min', 'Minute',
+            'Second', 'Seconds', 'Sec', 'Secs',
+            'YMD', 'HMS', 'No Zero'
+        ]
     },
     'logical': {
         name: 'Logical',
@@ -65,6 +82,10 @@ export const TDL_DATATYPES: Record<string, DataTypeSpec> = {
     },
     'string': {
         name: 'String',
+        formats: []
+    },
+    'normal': {
+        name: 'Normal',
         formats: []
     }
 };
@@ -89,14 +110,21 @@ export function isValidFormat(dataType: string, format: string): boolean {
     const spec = getDataTypeSpec(dataType);
     if (!spec || !spec.formats) return false;
     
+    // If format contains a parameter with colon (e.g. 'Decimal: 2', 'Separator: "/"', 'Tail Units: Pcs')
+    const baseFormat = format.includes(':') ? format.split(':')[0].trim() : format;
+    const normFormat = normalizeTypeName(baseFormat);
+
     // Support "Tail Units:..." dynamic format checking for Quantity and Rate
-    const normFormat = normalizeTypeName(format);
     if (normFormat.startsWith('tailunits')) {
         return spec.formats.some(f => normalizeTypeName(f) === 'tailunits');
     }
     // Support "Decimal:..." format
     if (normFormat.startsWith('decimal')) {
         return spec.formats.some(f => normalizeTypeName(f) === 'decimal');
+    }
+    // Support "Separator:..." format
+    if (normFormat.startsWith('separator')) {
+        return spec.formats.some(f => normalizeTypeName(f) === 'separator');
     }
     
     return spec.formats.some(f => normalizeTypeName(f) === normFormat);

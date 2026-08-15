@@ -432,7 +432,7 @@ export function findReferenceAtOffset(
             } else if (deepestNode.kind === SyntaxKind.FieldReference) {
                 name = '#' + (deepestNode as any).fieldName.text;
             } else if (deepestNode.kind === SyntaxKind.MethodReference) {
-                name = '$' + (deepestNode as any).methodName.text;
+                name = '$' + ((deepestNode as any).methodName?.text ?? '');
             } else if (deepestNode.kind === SyntaxKind.FormulaReference) {
                 const node = deepestNode as any;
                 name = (node.isGlobal ? '@@' : '@') + node.formulaName.text;

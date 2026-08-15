@@ -196,4 +196,39 @@ describe('Semantic Tokens', () => {
         expect(doubleHashToken).toBeDefined();
         expect(singleHashToken).toBeDefined();
     });
+
+    it('should tokenize all items in multi-item list attributes as class references', () => {
+        const tdl = `[Field: TSPL Smp CFBK Rep Party]
+            Fields: TSPL Smp CFBK Rep Party Qty, TSPL Smp CFBK Rep Party Amt
+        `;
+        const tokens = parseAndGetTokens(tdl);
+
+        const qtyToken = tokens.find((t: any) => t.text === 'TSPL Smp CFBK Rep Party Qty');
+        expect(qtyToken).toBeDefined();
+        expect(qtyToken!.type).toBe(SemanticTokenTypes.class);
+
+        const amtToken = tokens.find((t: any) => t.text === 'TSPL Smp CFBK Rep Party Amt');
+        expect(amtToken).toBeDefined();
+        expect(amtToken!.type).toBe(SemanticTokenTypes.class);
+    });
+
+    it('should tokenize multiple buttons in Add: Button modifier as class references', () => {
+        const tdl = `[Form: TSPL Due Sales Order Notification]
+            Add: Button: Blank Button 1, Blank Button 2, TSPL Pending SO Button
+        `;
+        const tokens = parseAndGetTokens(tdl);
+
+        const btn1Token = tokens.find((t: any) => t.text === 'Blank Button 1');
+        expect(btn1Token).toBeDefined();
+        expect(btn1Token!.type).toBe(SemanticTokenTypes.class);
+
+        const btn2Token = tokens.find((t: any) => t.text === 'Blank Button 2');
+        expect(btn2Token).toBeDefined();
+        expect(btn2Token!.type).toBe(SemanticTokenTypes.class);
+
+        const customBtnToken = tokens.find((t: any) => t.text === 'TSPL Pending SO Button');
+        expect(customBtnToken).toBeDefined();
+        expect(customBtnToken!.type).toBe(SemanticTokenTypes.class);
+    });
 });
+

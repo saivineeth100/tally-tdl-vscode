@@ -4,7 +4,7 @@ import { DefinitionNode, SourceFile } from '../../core/ast/ast';
  * Context for completion
  */
 export interface CompletionContext {
-    type: 'schema_type' | 'definition_type' | 'definition_name' | 'attribute' | 'attribute_value' | 'function' | 'variable' | 'formula' | 'local_formula' | 'global_formula' | 'field' | 'field_reference' | 'function_action' | 'function_action_parameter' | 'modifier_value' | 'xml_schema_attribute' | 'directive_file_level' | 'directive_def_level' | 'unknown';
+    type: 'schema_type' | 'definition_type' | 'definition_name' | 'attribute' | 'attribute_value' | 'function' | 'variable' | 'formula' | 'local_formula' | 'global_formula' | 'field' | 'field_reference' | 'function_action' | 'function_action_parameter' | 'modifier_value' | 'xml_schema_attribute' | 'directive_file_level' | 'directive_def_level' | 'method_schema' | 'method_property' | 'unknown';
     partial: string;
     hasModifier: boolean;
     modifier?: string;
@@ -144,6 +144,51 @@ export function detectCompletionContext(
         const afterDollar = trimmed.slice(dollarIdx + 2);
         if (!afterDollar.includes(':')) {
             return { type: 'function', partial: afterDollar.trim(), hasModifier: false };
+        }
+    }
+
+    // 1.5. Check for $ (method reference or reference access)
+    const singleDollarIdx = trimmed.lastIndexOf('$');
+    if (singleDollarIdx !== -1 && (dollarIdx === -1 || singleDollarIdx > dollarIdx + 1)) {
+        // Ensure it's not part of $$
+        if (singleDollarIdx === 0 || trimmed[singleDollarIdx - 1] !== '$') {
+            const afterDollar = trimmed.slice(singleDollarIdx + 1);
+            
+            if (afterDollar.startsWith('(')) {
+                // Complex method: $(Schema, ...).path
+                const content = afterDollar.slice(1);
+                const closeParen = content.indexOf(')');
+                if (closeParen === -1) {
+                    // Typing schema inside $(...
+                    const parts = content.split(',');
+                    if (parts.length === 1) {
+                        return { type: 'method_schema', partial: parts[0].trim(), hasModifier: false };
+                    }
+                } else {
+                    // Typing properties after $(...).
+                    const afterParens = content.slice(closeParen + 1);
+                    if (afterParens.startsWith('.')) {
+                        return { type: 'method_property', partial: trimmed.slice(singleDollarIdx), hasModifier: false };
+                    }
+                }
+            } else {
+                // Dotted path or Reference Access: $Method.path or $Method:Schema:Formula
+                const colons = afterDollar.split(':');
+                if (colons.length === 2) {
+                    // $Method : Schema
+                    return { type: 'method_schema', partial: colons[1].trim(), hasModifier: false };
+                } else if (colons.length > 2) {
+                    // $Method : Schema : Formula
+                    // We let this fall through to formula/variable logic by acting as if it's normal text,
+                    // but wait, formula/variable logic searches backward for ## or @. It will find it.
+                    // But if they are just typing a field reference (no prefix), we should fall back to field_reference?
+                    // Let's just return formula context to trigger variable/field suggestions.
+                    return { type: 'formula', partial: colons[2].trim(), hasModifier: false };
+                } else if (afterDollar.includes('.')) {
+                    // $Method.path
+                    return { type: 'method_property', partial: trimmed.slice(singleDollarIdx), hasModifier: false };
+                }
+            }
         }
     }
 

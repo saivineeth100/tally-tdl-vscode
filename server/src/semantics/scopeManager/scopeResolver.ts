@@ -705,11 +705,14 @@ export function resolveDefinition(
     if (wsSyms && wsSyms.length > 0) return wsSyms;
 
     // 2. Metadata fallback for system definitions
-    const typeSet = state.globalScope.definitions.get(canonicalType);
-    if (typeSet && typeSet.has(normalizedName)) {
-        return [typeSet.get(normalizedName) as DefinitionSymbol];
+    const targetTypes = state.globalScope.interchangeableTypesAliasesMap?.get(canonicalType) || [canonicalType];
+    for (const type of targetTypes) {
+        const typeSet = state.globalScope.definitions.get(type);
+        if (typeSet && typeSet.has(normalizedName)) {
+            return [typeSet.get(normalizedName) as DefinitionSymbol];
+        }
     }
-    
+
     // Functions/Actions/Formulas fallbacks
     if (canonicalType === state.getCanonicalTypeName('function')) {
         if (state.globalScope.functions?.has(normalizedName)) {

@@ -1,6 +1,6 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { FunctionCallNode, BinaryExpressionNode, Node, SyntaxKind } from '../core/ast/ast';
+import { FunctionCallNode, BinaryExpressionNode, Node, SyntaxKind, MethodReferenceNode, ComplexMethodReferenceNode } from '../core/ast/ast';
 import { normalizeTypeName } from '../utils/normalizeUtils';
 import { areTypesCompatible, inferExpressionType } from "./validationUtils";
 import { DiagnosticRules, createDiagnostic } from '../diagnostics';
@@ -33,6 +33,8 @@ export function walkAndValidateExpression(
         validateFieldReference(node as import('../core/ast/ast').FieldReferenceNode, doc, scopeManager, diagnostics, currentDefinitionScopeId);
     } else if (node.kind === SyntaxKind.VariableReference) {
         // Can add variable validation here in the future
+    } else if (node.kind === SyntaxKind.MethodReference) {
+        validateMethodReference(node as MethodReferenceNode | ComplexMethodReferenceNode, doc, scopeManager, diagnostics, currentDefinitionScopeId, projectScope);
     }
 
     if ('operator' in node && 'left' in node && 'right' in node) {
@@ -186,5 +188,130 @@ export function validateFieldReference(
         );
         diag.message = `Field '${fieldName}' is not in scope for the current definition.`;
         diagnostics.push(diag);
+    }
+}
+
+export function validateMethodReference(
+    node: MethodReferenceNode | ComplexMethodReferenceNode,
+    doc: TextDocument,
+    scopeManager: ScopeManager,
+    diagnostics: Diagnostic[],
+    currentDefinitionScopeId: string,
+    projectScope?: Set<string>
+) {
+    let currentSchemaName: string | undefined;
+
+    if ('primaryObject' in node) {
+        // ComplexMethodReferenceNode
+        currentSchemaName = node.primaryObject.type?.text;
+        
+        // Also validate the identifier expression
+        if (node.primaryObject.identifier) {
+            walkAndValidateExpression(node.primaryObject.identifier, doc, scopeManager, diagnostics, currentDefinitionScopeId, projectScope);
+        }
+    } else if (node.objectName) {
+        // Reference access
+        currentSchemaName = node.objectName.text;
+    }
+
+    if (currentSchemaName) {
+        let currentSchema = scopeManager.globalScope.schemas?.get(normalizeTypeName(currentSchemaName));
+        
+        if (!currentSchema) {
+            diagnostics.push(createDiagnostic(
+                DiagnosticRules.UnknownSchemaWarning,
+                { start: doc.positionAt('primaryObject' in node ? node.primaryObject.type.start : node.objectName!.start), end: doc.positionAt('primaryObject' in node ? node.primaryObject.type.end : node.objectName!.end) },
+                currentSchemaName
+            ));
+            return;
+        }
+
+        if (node.pathSpecs) {
+            for (const spec of node.pathSpecs) {
+                const collectionNameText = spec.collectionName.text;
+                
+                // Validate index access
+                let isRepeated = false;
+                let prop: any = undefined;
+                if (currentSchema.properties) {
+                    for (const p of currentSchema.properties.values()) {
+                        if (normalizeTypeName(p.Name || (p as any).name) === normalizeTypeName(collectionNameText)) {
+                            prop = p;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!prop) {
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.UnknownPropertyWarning,
+                        { start: doc.positionAt(spec.collectionName.start), end: doc.positionAt(spec.collectionName.end) },
+                        collectionNameText,
+                        currentSchema.name
+                    ));
+                    return; // Stop validating path if broken
+                }
+                
+                isRepeated = !!(prop.IsRepeated || prop.isRepeated);
+
+                if (spec.index && !isRepeated) {
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.IndexOnNonRepeatedWarning,
+                        { start: doc.positionAt(spec.collectionName.start), end: doc.positionAt(spec.collectionName.end) },
+                        collectionNameText
+                    ));
+                }
+
+                if (spec.index) {
+                    walkAndValidateExpression(spec.index, doc, scopeManager, diagnostics, currentDefinitionScopeId, projectScope);
+                }
+                if (spec.condition) {
+                    walkAndValidateExpression(spec.condition, doc, scopeManager, diagnostics, currentDefinitionScopeId, projectScope);
+                }
+
+                let nestedSchemaName: string | undefined = undefined;
+                if (currentSchema.complexProperties) {
+                    for (const [key, val] of currentSchema.complexProperties.entries()) {
+                        if (normalizeTypeName(key) === normalizeTypeName(collectionNameText) || 
+                            normalizeTypeName(key) === normalizeTypeName(collectionNameText + 'list')) {
+                            nestedSchemaName = val;
+                            break;
+                        }
+                    }
+                }
+                
+                if (nestedSchemaName) {
+                    currentSchema = scopeManager.globalScope.schemas?.get(normalizeTypeName(nestedSchemaName));
+                    if (!currentSchema) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (node.methodName && currentSchema) {
+            const methodText = node.methodName.text;
+            let prop: any = undefined;
+            if (currentSchema.properties) {
+                for (const p of currentSchema.properties.values()) {
+                    if (normalizeTypeName(p.Name || (p as any).name) === normalizeTypeName(methodText)) {
+                        prop = p;
+                        break;
+                    }
+                }
+            }
+            if (!prop) {
+                diagnostics.push(createDiagnostic(
+                    DiagnosticRules.UnknownPropertyWarning,
+                    { start: doc.positionAt(node.methodName.start), end: doc.positionAt(node.methodName.end) },
+                    methodText,
+                    currentSchema.name
+                ));
+            }
+        }
+    }
+
+    if (('formula' in node) && node.formula) {
+        walkAndValidateExpression(node.formula, doc, scopeManager, diagnostics, currentDefinitionScopeId, projectScope);
     }
 }

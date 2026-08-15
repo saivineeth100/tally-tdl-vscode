@@ -82,6 +82,7 @@ export async function loadMetadata(basePath: string, version: string, manager: S
                 }
             }
 
+            ensureHardcodedActions(manager);
             logger.info(`[Cache] Cache data loaded successfully.`);
             return;
         } catch (error) {
@@ -101,6 +102,7 @@ export async function loadMetadata(basePath: string, version: string, manager: S
     await loadDefinitionAttributes(versionPath, manager);
     await loadSchemas(versionPath, manager);
     await loadExistingDefinitions(versionPath, manager);
+    ensureHardcodedActions(manager);
 }
 
 export async function loadExternalLibraries(libraryPaths: string[], manager: ScopeManager) {
@@ -421,6 +423,62 @@ async function loadActions(versionPath: string, manager: ScopeManager) {
                 }
             }
         }
+    }
+
+    ensureHardcodedActions(manager);
+}
+
+function ensureHardcodedActions(manager: ScopeManager) {
+    if (!manager.globalScope.actions) {
+        manager.globalScope.actions = new Map();
+    }
+
+    // 1. Restart Application
+    if (!manager.globalScope.actions.has('restartapplication')) {
+        const restartAppAction: ActionSymbol = {
+            name: 'Restart Application',
+            kind: SymbolKind.Function,
+            uri: 'global:metadata',
+            start: 0, end: 0,
+            definitionType: 'Action',
+            description: 'Restarts the Tally application.',
+            parameters: [],
+            totalParameters: 0,
+            totalMandatoryParameters: 0,
+            category: 'System',
+            mode: 'Both'
+        };
+        manager.globalScope.actions.set(normalizeTypeName(restartAppAction.name), restartAppAction);
+    }
+
+    // 2. Toggle Select
+    if (!manager.globalScope.actions.has('toggleselect')) {
+        const toggleSelection = manager.globalScope.actions.get('toggleselection');
+        if (toggleSelection) {
+            manager.globalScope.actions.set('toggleselect', toggleSelection);
+        } else {
+            const toggleSelectAction: ActionSymbol = {
+                name: 'Toggle Select',
+                kind: SymbolKind.Function,
+                uri: 'global:metadata',
+                start: 0, end: 0,
+                definitionType: 'Action',
+                description: 'This action is used to select or deselect a line.',
+                parameters: [],
+                totalParameters: 0,
+                totalMandatoryParameters: 0,
+                category: 'User Interface',
+                mode: 'Display',
+                aliases: 'Toggle Selection'
+            };
+            manager.globalScope.actions.set(normalizeTypeName(toggleSelectAction.name), toggleSelectAction);
+        }
+    }
+
+    // 3. Modify Variable as alias of Modify Variables
+    const modifyVariables = manager.globalScope.actions.get('modifyvariables');
+    if (modifyVariables && !manager.globalScope.actions.has('modifyvariable')) {
+        manager.globalScope.actions.set('modifyvariable', modifyVariables);
     }
 }
 

@@ -148,6 +148,21 @@ export class CompletionService {
                 items.push(...provideFormulaCompletions(this.stateStore, params.textDocument.uri, offset, context.partial, false));
                 break;
 
+            case 'method_schema':
+                items.push(...provideSchemaTypeCompletions(scopeManager, context.partial));
+                break;
+
+            case 'method_property':
+                // For properties, we need to extract the schema name.
+                // It might be a full string like `Ledger, "Cash"` inside the complex reference,
+                // or just `Ledger` if simple dotted format. 
+                // We'll rely on the schema name being passed via defType or try to guess.
+                // However, without a full AST-based completion we can't reliably know the type.
+                // As a fallback, if we don't have the type, we could provide all properties,
+                // but TDL scope manager doesn't index all properties flat.
+                // Just let it fall back or provide a generic snippet.
+                break;
+
             case 'attribute':
                 if (currentDef && currentDef.type) {
                     items.push(...provideAttributeCompletions(scopeManager, currentDef.type.text, context.partial, isXml, context.hasTrailingColon));

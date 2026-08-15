@@ -238,6 +238,39 @@ export class ExpressionsParser extends ParserState {
     return left;
   }
 
+  protected ParseReferenceFormula(): any | undefined {
+    const expr =
+      this.ParseExpression() ||
+      this.ParseLiteral() ||
+      this.ParseExpressionIdentifier();
+    
+    if (!expr) return undefined;
+
+    if ((this.CurrentToken.Kind as TokenKind) === TokenKind.ColonToken) {
+      const savedIndex = this._currentTokenIndex;
+      this.EatToken(); // Eat :
+
+      const chainedObjectName = this.ParseIdentifierWithSpaces();
+      if (chainedObjectName) {
+        const chainedNode = new MethodReferenceNode(expr.start, chainedObjectName.end, expr as any);
+        chainedNode.objectName = chainedObjectName;
+
+        if ((this.CurrentToken.Kind as TokenKind) === TokenKind.ColonToken) {
+          this.EatToken(); // Eat :
+          chainedNode.formula = this.ParseReferenceFormula();
+          if (chainedNode.formula) {
+            chainedNode.end = chainedNode.formula.end;
+          }
+        }
+        return chainedNode;
+      } else {
+        this._currentTokenIndex = savedIndex;
+      }
+    }
+
+    return expr;
+  }
+
   protected ParsePrimaryExpression(): any | undefined {
     const start = this.CurrentToken.Start;
     const currentToken = this.CurrentToken;
@@ -463,6 +496,7 @@ export class ExpressionsParser extends ParserState {
       // Method $
       case TokenKind.DollarToken: {
         const next = this.PeekNextToken();
+        let parsedNode: MethodReferenceNode | ComplexMethodReferenceNode | undefined;
 
         if (next && next.Kind === TokenKind.OpenParenToken) {
           // Complex method: $(Type, Id).Collection[index].Method
@@ -480,7 +514,9 @@ export class ExpressionsParser extends ParserState {
               this.ParseExpressionIdentifier();
           }
 
+          let closeParenEnd = start;
           if ((this.CurrentToken.Kind as TokenKind) === TokenKind.CloseParenToken) {
+            closeParenEnd = this.CurrentToken.Start + 1;
             this.EatToken(); // Eat )
           }
 
@@ -488,12 +524,22 @@ export class ExpressionsParser extends ParserState {
           let methodName: IdentifierNode | undefined;
 
           while (!this.isAtEnd()) {
+            const prevEnd = this.PreviousToken.Start + this.PreviousToken.Length;
+
             if ((this.CurrentToken.Kind as TokenKind) === TokenKind.DotToken) {
+              if (prevEnd !== this.CurrentToken.Start) break;
+
               this.EatToken(); // Eat .
-              const ident = this.ParseIdentifierWithSpaces();
+              const ident = this.ParseIdentifierWithSpaces(false, false, false);
               if (!ident) break;
 
               if ((this.CurrentToken.Kind as TokenKind) === TokenKind.OpenSquareBracketToken) {
+                // Don't swallow unrelated brackets (e.g., next definition)
+                if (ident.end !== this.CurrentToken.Start) {
+                  methodName = ident;
+                  break;
+                }
+
                 // Collection with index
                 this.EatToken(); // Eat [
 
@@ -540,21 +586,102 @@ export class ExpressionsParser extends ParserState {
             }
           }
 
-          if (typeNode && methodName) {
-            const node = new ComplexMethodReferenceNode(
+          if (typeNode) {
+            const endPos = this.PreviousToken.Start + this.PreviousToken.Length;
+            parsedNode = new ComplexMethodReferenceNode(
               start,
-              methodName.end,
+              endPos,
               { type: typeNode, identifier: idNode },
               methodName,
             );
-            node.pathSpecs = pathSpecs;
-            return node;
+            parsedNode.pathSpecs = pathSpecs;
           }
         } else if (next && (this.IsIdentifierToken(next.Kind) || next.Kind === TokenKind.DotToken)) {
-          this.EatToken();
-          const methodName = this.ParseIdentifierWithSpaces(true);
-          if (methodName) return new MethodReferenceNode(start, methodName.end, methodName);
+          this.EatToken(); // Eat $
+          let methodName = this.ParseIdentifierWithSpaces(false, false, false);
+          
+          if (methodName) {
+            const pathSpecs: PathSpec[] = [];
+
+            while (!this.isAtEnd()) {
+              const prevEnd = this.PreviousToken.Start + this.PreviousToken.Length;
+
+              if ((this.CurrentToken.Kind as TokenKind) === TokenKind.OpenSquareBracketToken) {
+                if (prevEnd !== this.CurrentToken.Start) break;
+
+                this.EatToken(); // Eat [
+
+                let indexExpr = undefined;
+                let conditionExpr = undefined;
+
+                if ((this.CurrentToken.Kind as TokenKind) !== TokenKind.CommaToken && (this.CurrentToken.Kind as TokenKind) !== TokenKind.CloseSquareBracketToken) {
+                  indexExpr = this.ParseExpression() || this.ParseLiteral() || this.ParseExpressionIdentifier();
+                }
+
+                if ((this.CurrentToken.Kind as TokenKind) === TokenKind.CommaToken) {
+                  this.EatToken(); // Eat ,
+                  conditionExpr = this.ParseExpression() || this.ParseLiteral() || this.ParseExpressionIdentifier();
+                }
+
+                if ((this.CurrentToken.Kind as TokenKind) === TokenKind.CloseSquareBracketToken) {
+                  this.EatToken(); // Eat ]
+                }
+
+                if (methodName) {
+                  pathSpecs.push({
+                    collectionName: methodName,
+                    index: indexExpr,
+                    condition: conditionExpr
+                  });
+                }
+                methodName = undefined;
+              } else if ((this.CurrentToken.Kind as TokenKind) === TokenKind.DotToken) {
+                if (prevEnd !== this.CurrentToken.Start) break;
+
+                this.EatToken(); // Eat .
+                const ident = this.ParseIdentifierWithSpaces(false, false, false);
+                if (!ident) break;
+
+                if (methodName) {
+                  pathSpecs.push({ collectionName: methodName });
+                }
+                
+                methodName = ident;
+              } else {
+                break;
+              }
+            }
+
+            if (!methodName) methodName = this.createMissingIdentifier();
+            parsedNode = new MethodReferenceNode(start, methodName.end, methodName);
+            if (pathSpecs.length > 0) parsedNode.pathSpecs = pathSpecs;
+          }
         }
+
+        if (parsedNode) {
+          if ((this.CurrentToken.Kind as TokenKind) === TokenKind.ColonToken) {
+            const savedIndex = this._currentTokenIndex;
+            this.EatToken(); // Eat :
+
+            const objectName = this.ParseIdentifierWithSpaces(false, false, false);
+            if (objectName) {
+              (parsedNode as any).objectName = objectName;
+              parsedNode.end = objectName.end;
+
+              if ((this.CurrentToken.Kind as TokenKind) === TokenKind.ColonToken) {
+                this.EatToken(); // Eat :
+                (parsedNode as any).formula = this.ParseReferenceFormula();
+                if ((parsedNode as any).formula) {
+                  parsedNode.end = (parsedNode as any).formula.end;
+                }
+              }
+            } else {
+              this._currentTokenIndex = savedIndex;
+            }
+          }
+          return parsedNode;
+        }
+
         break;
       }
 
@@ -608,7 +735,7 @@ export class ExpressionsParser extends ParserState {
     return this.createMissingIdentifier();
   }
 
-  protected ParseIdentifierWithSpaces(allowBrackets: boolean = false, allowKeywords: boolean = false): IdentifierNode | undefined {
+  protected ParseIdentifierWithSpaces(allowBrackets: boolean = false, allowKeywords: boolean = false, allowDots: boolean = true): IdentifierNode | undefined {
     const identifierTokens: Token[] = [];
     let text = "";
     let bracketDepth = 0;
@@ -672,7 +799,7 @@ export class ExpressionsParser extends ParserState {
 
       if (
         this.IsIdentifierToken((this.CurrentToken.Kind as TokenKind)) ||
-        (this.CurrentToken.Kind as TokenKind) === TokenKind.DotToken ||
+        (allowDots && (this.CurrentToken.Kind as TokenKind) === TokenKind.DotToken) ||
         (allowKeywords && this.IsKeywordToken(this.CurrentToken.Kind))
       ) {
         if (identifierTokens.length > 0) {

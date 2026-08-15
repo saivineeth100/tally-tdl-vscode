@@ -1,6 +1,6 @@
-import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver";
+import { Diagnostic, DiagnosticSeverity, Position } from "vscode-languageserver";
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNode } from '../core/ast/ast';
+import { DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, FunctionCallNode, ListNode } from '../core/ast/ast';
 
 import { normalizeTypeName } from '../utils/normalizeUtils';
 import { normalizeUri } from '../utils/uri';
@@ -39,6 +39,11 @@ export function validateDefinitionAttributes(
             declaredDataType = (firstVal as IdentifierNode).text;
         } else if (firstVal.kind === SyntaxKind.Literal) {
             declaredDataType = (firstVal as LiteralNode).value.toString();
+        } else if (firstVal.kind === SyntaxKind.List) {
+            declaredDataType = doc.getText({ start: doc.positionAt(firstVal.start), end: doc.positionAt(firstVal.end) });
+        }
+        if (declaredDataType) {
+            declaredDataType = declaredDataType.replace(/^["']|["']$/g, '').trim();
         }
     }
 
@@ -61,16 +66,19 @@ export function validateDefinitionAttributes(
                             cleanVal
                         ));
                     }
-                } else if (attr.value.length > 1) {
-                    const subVal = attr.value[1];
-                    const cleanSub = doc.getText({ start: doc.positionAt(subVal.start), end: doc.positionAt(subVal.end) }).replace(/^["']|["']$/g, '').trim();
-                    if (subVal.kind !== SyntaxKind.Empty && !cleanSub.startsWith('##') && !cleanSub.startsWith('$') && !cleanSub.startsWith('@')) {
-                        if (!isValidSubType(cleanVal, cleanSub)) {
-                            diagnostics.push(createDiagnostic(
-                                DiagnosticRules.InvalidSubType,
-                                { start: doc.positionAt(subVal.start), end: doc.positionAt(subVal.end) },
-                                cleanSub, cleanVal
-                            ));
+                } else {
+                    declaredDataType = cleanVal;
+                    if (attr.value.length > 1) {
+                        const subVal = attr.value[1];
+                        const cleanSub = doc.getText({ start: doc.positionAt(subVal.start), end: doc.positionAt(subVal.end) }).replace(/^["']|["']$/g, '').trim();
+                        if (subVal.kind !== SyntaxKind.Empty && !cleanSub.startsWith('##') && !cleanSub.startsWith('$') && !cleanSub.startsWith('@')) {
+                            if (!isValidSubType(cleanVal, cleanSub)) {
+                                diagnostics.push(createDiagnostic(
+                                    DiagnosticRules.InvalidSubType,
+                                    { start: doc.positionAt(subVal.start), end: doc.positionAt(subVal.end) },
+                                    cleanSub, cleanVal
+                                ));
+                            }
                         }
                     }
                 }
@@ -79,6 +87,24 @@ export function validateDefinitionAttributes(
 
         // Validate Format keywords against the declared field type
         if (attrNameLower === 'format' && declaredDataType && isValidDataType(declaredDataType)) {
+            const validateSingleFormat = (formatToken: string, startPos: Position, endPos: Position) => {
+                const cleanToken = formatToken.trim();
+                if (!cleanToken || cleanToken.startsWith('##') || cleanToken.startsWith('$') || cleanToken.startsWith('@')) {
+                    return;
+                }
+                const baseKeyword = cleanToken.includes(':') ? cleanToken.split(':')[0].trim() : cleanToken;
+                if (!baseKeyword || baseKeyword.startsWith('##') || baseKeyword.startsWith('$') || baseKeyword.startsWith('@')) {
+                    return;
+                }
+                if (!isValidFormat(declaredDataType!, baseKeyword)) {
+                    diagnostics.push(createDiagnostic(
+                        DiagnosticRules.InvalidFormat,
+                        { start: startPos, end: endPos },
+                        baseKeyword, declaredDataType!
+                    ));
+                }
+            };
+
             for (let i = 0; i < attr.value.length; i++) {
                 const valNode = attr.value[i];
                 if (i > 0) {
@@ -87,27 +113,37 @@ export function validateDefinitionAttributes(
                     const valPos = doc.positionAt(valNode.start);
                     const textBetween = doc.getText({ start: prevPos, end: valPos });
                     if (textBetween.includes(':')) {
-                        // This value is a parameter of the preceding format keyword (e.g. 'Decimal: 2'), so skip it
+                        // This value is a parameter of the preceding format keyword (e.g. 'Decimal: 2' or 'Separator: "/"'), so skip it
                         continue;
                     }
                 }
-                if (valNode.kind === SyntaxKind.Identifier || valNode.kind === SyntaxKind.Literal) {
-                    let formatVal = '';
-                    if (valNode.kind === SyntaxKind.Identifier) {
-                        formatVal = (valNode as IdentifierNode).text;
-                    } else if (valNode.kind === SyntaxKind.Literal) {
-                        formatVal = (valNode as LiteralNode).value.toString();
-                    }
-                    formatVal = formatVal.replace(/^["']|["']$/g, '').trim();
-                    if (formatVal && !formatVal.startsWith('##') && !formatVal.startsWith('$') && !formatVal.startsWith('@')) {
-                        if (!isValidFormat(declaredDataType, formatVal)) {
-                            diagnostics.push(createDiagnostic(
-                                DiagnosticRules.InvalidFormat,
-                                { start: doc.positionAt(valNode.start), end: doc.positionAt(valNode.end) },
-                                formatVal, declaredDataType
-                            ));
+                if (valNode.kind === SyntaxKind.Literal) {
+                    const rawText = doc.getText({ start: doc.positionAt(valNode.start), end: doc.positionAt(valNode.end) });
+                    const isQuoted = (rawText.startsWith('"') && rawText.endsWith('"')) || (rawText.startsWith("'") && rawText.endsWith("'"));
+                    const unquotedText = isQuoted ? rawText.slice(1, -1) : rawText;
+
+                    if (unquotedText.includes(',')) {
+                        let currentOffset = isQuoted ? 1 : 0;
+                        const parts = unquotedText.split(',');
+                        for (const part of parts) {
+                            const leadingSpaces = part.length - part.trimStart().length;
+                            const trimmed = part.trim();
+                            const partStart = valNode.start + currentOffset + leadingSpaces;
+                            const partEnd = partStart + trimmed.length;
+                            if (trimmed) {
+                                validateSingleFormat(trimmed, doc.positionAt(partStart), doc.positionAt(partEnd));
+                            }
+                            currentOffset += part.length + 1; // +1 for comma
                         }
+                    } else {
+                        validateSingleFormat(unquotedText, doc.positionAt(valNode.start), doc.positionAt(valNode.end));
                     }
+                } else if (valNode.kind === SyntaxKind.Identifier) {
+                    const formatVal = (valNode as IdentifierNode).text;
+                    validateSingleFormat(formatVal, doc.positionAt(valNode.start), doc.positionAt(valNode.end));
+                } else if (valNode.kind === SyntaxKind.List) {
+                    const formatVal = doc.getText({ start: doc.positionAt(valNode.start), end: doc.positionAt(valNode.end) }).trim();
+                    validateSingleFormat(formatVal, doc.positionAt(valNode.start), doc.positionAt(valNode.end));
                 }
             }
         }
@@ -439,12 +475,24 @@ export function validateAttributeParameters(
         }
     }
 
+    let currentParamIndex = 0;
     for (let i = 0; i < attr.value.length; i++) {
-        if (!isMenuItemList && i >= attrDef.parameters!.length) break;
+        if (i > 0) {
+            const prevNode = attr.value[i - 1];
+            const currNode = attr.value[i];
+            const prevPos = doc.positionAt(prevNode.end);
+            const currPos = doc.positionAt(currNode.start);
+            const textBetween = doc.getText({ start: prevPos, end: currPos });
+            if (textBetween.includes(':')) {
+                currentParamIndex++;
+            }
+        }
+
+        if (!isMenuItemList && currentParamIndex >= attrDef.parameters!.length) break;
 
         let paramDef: import('tally-tdl-shared').TDLParameter | undefined = undefined;
         if (isMenuItemList) {
-            const expectedTypeStr = getExpectedTypeForMenuItem(attr.name.text, i, actionName, scopeManager);
+            const expectedTypeStr = getExpectedTypeForMenuItem(attr.name.text, currentParamIndex, actionName, scopeManager);
             if (expectedTypeStr) {
                 paramDef = {
                     IsMandatory: false,
@@ -458,7 +506,7 @@ export function validateAttributeParameters(
                 };
             }
         } else {
-            paramDef = attrDef.parameters![i];
+            paramDef = attrDef.parameters![currentParamIndex];
         }
 
         if (!paramDef) continue;
@@ -532,10 +580,10 @@ export function validateAttributeParameters(
             }
             else {
 
-                let isValidKeyword = paramDef.Keywords?.some((k: string) => k.toLowerCase() === cleanValue.toLowerCase());
+                let isValidKeyword = paramDef.Keywords?.some((k: string) => normalizeTypeName(k) === normalizeTypeName(cleanValue));
                 if (!isValidKeyword) {
                     const cachedKeywords = scopeManager.keywordSets.get(normalizeTypeName(paramDef.KeywordSet || ''));
-                    isValidKeyword = cachedKeywords?.some((k: string) => k.toLowerCase() === cleanValue.toLowerCase());
+                    isValidKeyword = cachedKeywords?.some((k: string) => normalizeTypeName(k) === normalizeTypeName(cleanValue));
                 }
                 if (!isValidKeyword) {
                     const startPos = doc.positionAt(paramNode.start);

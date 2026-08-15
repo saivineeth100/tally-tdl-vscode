@@ -1,4 +1,3 @@
-
 // Polyfill for Symbol.dispose and Symbol.asyncDispose
 // Required for 'using' keyword support in environments that don't have these symbols globally defined.
 

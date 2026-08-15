@@ -932,6 +932,7 @@ exports[`Parser - Sample Files > should parse Collection with Filter attribute 1
               "kind": 16,
               "left": {
                 "end": 250,
+                "formula": undefined,
                 "kind": 10,
                 "methodName": {
                   "end": 250,
@@ -963,6 +964,8 @@ exports[`Parser - Sample Files > should parse Collection with Filter attribute 1
                     },
                   ],
                 },
+                "objectName": undefined,
+                "pathSpecs": undefined,
                 "start": 245,
               },
               "operator": {

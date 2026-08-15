@@ -1,5 +1,5 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver/node';
-import { DefinitionNode } from '../../../core/ast/ast';
+import { DefinitionNode, SyntaxKind, IdentifierNode, LiteralNode, ListNode } from '../../../core/ast/ast';
 import { ScopeManager } from '../../../semantics/scopeManager/index';
 import { normalizeTypeName, normalizeXMLTypeName } from '../../../utils/normalizeUtils';
 import { getFunctionSuggestions } from './functionProvider';
@@ -278,10 +278,15 @@ export function provideAttributeValueCompletions(
             const typeAttr = defNode.attributes?.find((a: any) => normalizeTypeName(a.name.text) === 'type');
             if (typeAttr && typeAttr.value.length > 0) {
                 const firstVal = typeAttr.value[0];
-                if (firstVal.kind === 3) { // SyntaxKind.Identifier
-                    declaredDataType = (firstVal as any).text;
-                } else if (firstVal.kind === 4) { // SyntaxKind.Literal
-                    declaredDataType = (firstVal as any).value.toString();
+                if (firstVal.kind === SyntaxKind.Identifier) {
+                    declaredDataType = (firstVal as IdentifierNode).text;
+                } else if (firstVal.kind === SyntaxKind.Literal) {
+                    declaredDataType = (firstVal as LiteralNode).value.toString();
+                } else if (firstVal.kind === SyntaxKind.List) {
+                    declaredDataType = (firstVal as ListNode).values?.map((v: any) => v.text || v.value || '').join(' ');
+                }
+                if (declaredDataType) {
+                    declaredDataType = declaredDataType.replace(/^["']|["']$/g, '').trim();
                 }
             }
         }

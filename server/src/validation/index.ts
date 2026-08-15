@@ -64,7 +64,16 @@ export async function validateSourceFile(
         if (def.type) {
             const normalizedType = normalizeTypeName(def.type.text);
             
-            if (scopeManager.globalScope.schemas.has(normalizedType)) {
+            const isTdlDefinition = 
+                definitionTypeToSymbolKind(normalizedType, scopeManager) !== SymbolKind.Unknown ||
+                normalizedType === 'include' ||
+                normalizedType === 'import' ||
+                normalizedType === 'system' ||
+                scopeManager.globalScope.definitions.has(normalizedType) ||
+                scopeManager.globalScope.attributes.has(normalizedType) ||
+                scopeManager.definitionTypeLabels.has(normalizedType);
+
+            if (!isTdlDefinition && scopeManager.globalScope.schemas.has(normalizedType)) {
                 validateSchemaObject(def, def.type.text, doc, scopeManager, diagnostics);
                 continue;
             }
@@ -86,16 +95,10 @@ export async function validateSourceFile(
             const isImplicitDeftype = hasDeftypeDirective && !def.colon;
 
             if (!isImplicitDeftype) {
-                const kind = definitionTypeToSymbolKind(normalizedType, scopeManager);
                 const isKnownType = 
-                    kind !== SymbolKind.Unknown ||
-                    normalizedType === 'include' ||
-                    normalizedType === 'import' ||
-                    normalizedType === 'system' ||
-                    scopeManager.globalScope.definitions.has(normalizedType) ||
+                    isTdlDefinition ||
                     scopeManager.globalScope.schemas.has(normalizedType) ||
-                    scopeManager.scopeIndex.has(normalizedType) ||
-                    scopeManager.definitionTypeLabels.has(normalizedType);
+                    scopeManager.scopeIndex.has(normalizedType);
 
                 if (!isKnownType) {
                     diagnostics.push(createDiagnostic(

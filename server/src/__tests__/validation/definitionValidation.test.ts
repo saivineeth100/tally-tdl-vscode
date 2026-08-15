@@ -150,5 +150,31 @@ describe('Definition Validation (Mocked)', () => {
         expect(warnings[1].message).toContain('MixinReport');
     });
 
+    it('should validate Notification definition attributes without treating as schema object', async () => {
+        const notifAttrs = new Map<string, any>();
+        notifAttrs.set('activityname', { name: 'Activity Name', parameters: [{ ParameterType: 'Value' }] });
+        notifAttrs.set('activityid', { name: 'ActivityID', parameters: [{ ParameterType: 'Value' }] });
+        mockScopeManager.globalScope.attributes.set('notification', notifAttrs);
+        mockScopeManager.definitionTypeLabels.set('notification', 'Notification');
+
+        // Also add a schema named 'notification' to simulate overlapping schema
+        mockScopeManager.globalScope.schemas.set('notification', {
+            name: 'Notification',
+            kind: SymbolKind.Object,
+            properties: new Map(),
+            complexProperties: new Map()
+        });
+
+        const tdl = `[Notification: DueSalesOrderNotification]
+            Activity Name: "Due Sales Order"
+            Activity ID: 100
+        `;
+        const parser = new Parser(tdl);
+        const sourceFile = parser.parse();
+        const doc = TextDocument.create('test.tdl', 'tally', 1, tdl);
+
+        const diagnostics = await validateSourceFile(sourceFile, doc, undefined, mockScopeManager);
+        expect(diagnostics).toEqual([]);
+    });
 
 });

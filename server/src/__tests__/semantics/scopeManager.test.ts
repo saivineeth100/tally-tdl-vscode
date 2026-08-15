@@ -536,10 +536,24 @@ describe('ScopeManager', () => {
             
             // 3. Lookup via getProjectDefinition with "button" type (the alias)
             const resolved = manager.getProjectDefinition('button', 'MyKey');
-            expect(resolved).toBeDefined();
             expect(resolved.length).toBe(1);
             expect(resolved[0].name).toBe('MyKey');
             expect(resolved[0].definitionType).toBe('Key');
+        });
+
+        it('resolves hardcoded actions and aliases: Restart Application, Toggle Select, Modify Variable', () => {
+            const manager = createTestScopeManager();
+            
+            const restartApp = manager.resolveAction('Restart Application', manager.projectScope);
+            expect(restartApp).toBeDefined();
+            expect(restartApp?.name).toBe('Restart Application');
+
+            const toggleSelect = manager.resolveAction('Toggle Select', manager.projectScope);
+            expect(toggleSelect).toBeDefined();
+
+            const modifyVar = manager.resolveAction('Modify Variable', manager.projectScope);
+            expect(modifyVar).toBeDefined();
+            expect(modifyVar?.name).toBe('Modify Variables');
         });
     });
 

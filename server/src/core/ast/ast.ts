@@ -359,6 +359,10 @@ export class MethodReferenceNode implements ExpressionNode {
     end: number;
     methodName: IdentifierNode;
 
+    pathSpecs?: PathSpec[];
+    objectName?: IdentifierNode;
+    formula?: ExpressionNode | LiteralNode | IdentifierNode;
+
     constructor(start: number, end: number, methodName: IdentifierNode) {
         this.start = start;
         this.end = end;
@@ -471,9 +475,9 @@ export class ComplexMethodReferenceNode implements ExpressionNode {
     end: number;
     primaryObject: { type: IdentifierNode, identifier: ExpressionNode | LiteralNode | IdentifierNode };
     pathSpecs: PathSpec[] = [];
-    methodName: IdentifierNode;
+    methodName?: IdentifierNode;
 
-    constructor(start: number, end: number, primaryObject: { type: IdentifierNode, identifier: ExpressionNode | LiteralNode | IdentifierNode }, methodName: IdentifierNode) {
+    constructor(start: number, end: number, primaryObject: { type: IdentifierNode, identifier: ExpressionNode | LiteralNode | IdentifierNode }, methodName?: IdentifierNode) {
         this.start = start;
         this.end = end;
         this.primaryObject = primaryObject;

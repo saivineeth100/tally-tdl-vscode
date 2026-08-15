@@ -9,7 +9,7 @@ import {
 import { DiagnosticRules } from '../../diagnostics';
 import { normalizeTypeName } from '../../utils/normalizeUtils';
 
-import { testScopeManager } from '../../__tests__/test-setup';
+import { testScopeManager, ensureBaseTdlLoaded } from '../../__tests__/test-setup';
 
 describe('Attribute Validation', () => {
 
@@ -740,6 +740,50 @@ describe('Attribute Validation', () => {
             const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
             const logicalDiag = diagnostics.find(d => d.code === DiagnosticRules.InvalidLogicalValue.code);
             expect(logicalDiag).toBeDefined();
+        });
+    });
+
+    describe('List and Modifier Attribute Parameter Validation', () => {
+        it('should not emit InvalidLogicalValue on second field of comma-separated Fields attribute', async () => {
+            const tdl = `[Field: TSPL Smp CFBK Rep Party]
+                Fields: TSPL Smp CFBK Rep Party Qty, TSPL Smp CFBK Rep Party Amt
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('file:///test_fields.tdl', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const logicalDiag = diagnostics.find(d => d.code === DiagnosticRules.InvalidLogicalValue.code);
+            expect(logicalDiag).toBeUndefined();
+        });
+
+        it('should resolve built-in Blank Buttons in Add: Button modifier without MissingDefinition error', async () => {
+            let buttonMap = testScopeManager!.globalScope.definitions.get('button');
+            if (!buttonMap) {
+                buttonMap = new Map();
+                testScopeManager!.globalScope.definitions.set('button', buttonMap);
+            }
+            for (let i = 1; i <= 7; i++) {
+                buttonMap.set(`blankbutton${i}`, {
+                    name: `BlankButton${i}`,
+                    kind: SymbolKind.Button,
+                    uri: 'basetdl://base/7.0/tdl.template/src/keys/keys.tdl',
+                    start: 0,
+                    end: 0,
+                    definitionType: 'Button'
+                });
+            }
+
+            const tdl = `[Form: TSPL Due Sales Order Notification]
+                Add: Button: Blank Button 1, Blank Button 2, Blank Button 3, Blank Button 4, Blank Button 5, Blank Button 6, Blank Button 7
+            `;
+            const docReal = require('vscode-languageserver-textdocument').TextDocument.create('file:///test_buttons.tdl', 'tdl', 1, tdl);
+            const parser = new Parser(tdl);
+            const sourceFile = parser.parse();
+
+            const diagnostics = validateDefinitionAttributes(sourceFile.definitions[0], docReal, testScopeManager!);
+            const missingDefDiag = diagnostics.find(d => d.code === DiagnosticRules.MissingDefinition.code);
+            expect(missingDefDiag).toBeUndefined();
         });
     });
 });

@@ -350,7 +350,7 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
         const defTypeName = normalizeTypeName(def.type?.text || '');
 
         if (def.attributes) {
-            traverseAttributes(def.attributes, tokens, defTypeName, defNameText, scopeManager, uri);
+            traverseAttributes(def.attributes, tokens, defTypeName, defNameText, scopeManager, uri, sourceFile);
         }
 
         for (const dir of def.directives) {
@@ -358,7 +358,7 @@ export function getSemanticTokens(sourceFile: SourceFile, scopeManager?: ScopeMa
         }
 
         if (def.complexObjects) {
-            traverseComplexObjects(def.complexObjects, tokens, defNameText, scopeManager, uri);
+            traverseComplexObjects(def.complexObjects, tokens, defNameText, scopeManager, uri, sourceFile);
         }
 
         if (def.statements) {
@@ -388,15 +388,11 @@ function tokenizeDirective(dir: any, tokens: SemanticToken[]) {
         }
     }
 
+    // Directives like #Include, #DefType, etc.
     if (dir.name) {
-        let nameOffset = 0;
-        if (dir.rawContent) {
-            nameOffset = dir.rawContent.indexOf(dir.name);
-            if (nameOffset === -1) nameOffset = 0;
-        }
         tokens.push({
             line: 0,
-            startChar: nameStart + nameOffset,
+            startChar: nameStart,
             length: dir.name.length,
             type: SemanticTokenTypes.macro,
             text: dir.name
@@ -455,7 +451,7 @@ function tokenizeDirective(dir: any, tokens: SemanticToken[]) {
         }
     }
 }
-function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[], defTypeName: string, defName: string, scopeManager?: ScopeManager, uri?: string) {
+function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[], defTypeName: string, defName: string, scopeManager?: ScopeManager, uri?: string, sourceFile?: SourceFile) {
 
     for (const attr of attributes) {
         let expectedType: string | undefined;
@@ -498,6 +494,7 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
         if (attr.value) {
             const attrNameLower = attr.name?.text?.toLowerCase();
             if (attrNameLower && ['local', 'add', 'replace', 'delete'].includes(attrNameLower) && scopeManager) {
+                let currentValParamIdx = 0;
                 for (let i = 0; i < attr.value.length; i++) {
                     const paramNode = attr.value[i];
                     const offset = paramNode.start + 1;
@@ -552,11 +549,21 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
                                 });
                                 break;
                             case 'value':
+                                if (i > resolved.valuesStartIndex && sourceFile) {
+                                    const prevNode = attr.value[i - 1];
+                                    const textBetween = sourceFile.text.substring(prevNode.end, paramNode.start);
+                                    if (textBetween.includes(':')) {
+                                        currentValParamIdx++;
+                                    }
+                                } else {
+                                    currentValParamIdx = 0;
+                                }
+
                                 let expectedType: string | undefined;
-                                if (resolved.targetAttributeMeta && resolved.targetAttributeMeta.parameters && resolved.cursorIndexInValues !== undefined) {
-                                    const paramMeta = resolved.targetAttributeMeta.parameters[resolved.cursorIndexInValues] || resolved.targetAttributeMeta.parameters[resolved.targetAttributeMeta.parameters.length - 1];
-                                    if (paramMeta && paramMeta.RefersTo) {
-                                        expectedType = paramMeta.RefersTo;
+                                if (resolved.targetAttributeMeta && resolved.targetAttributeMeta.parameters) {
+                                    const paramMeta = resolved.targetAttributeMeta.parameters[currentValParamIdx] || resolved.targetAttributeMeta.parameters[resolved.targetAttributeMeta.parameters.length - 1];
+                                    if (paramMeta) {
+                                        expectedType = mapMetaTypeToToken(paramMeta.RefersTo, paramMeta.DataType, scopeManager);
                                     }
                                 }
                                 traverseNode(paramNode, tokens, scopeManager, uri, expectedType);
@@ -569,7 +576,17 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
                 continue;
             }
 
+            let currentParamIdx = 0;
             for (let i = 0; i < attr.value.length; i++) {
+                if (i > 0 && sourceFile) {
+                    const prevNode = attr.value[i - 1];
+                    const currNode = attr.value[i];
+                    const textBetween = sourceFile.text.substring(prevNode.end, currNode.start);
+                    if (textBetween.includes(':')) {
+                        currentParamIdx++;
+                    }
+                }
+
                 let argExpectedType = expectedType;
                 if (defMeta && defMeta.type?.toLowerCase() === 'menu item list' && normalizeTypeName(attr.name.text) !== 'indent') {
                     const isKeyItem = normalizeTypeName(attr.name.text) === 'keyitem';
@@ -581,7 +598,7 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
                             actionName = normalizeTypeName((actionNode as any).text);
                         }
                     }
-                    const menuItemExpected = getExpectedTypeForMenuItem(attr.name.text, i, actionName, scopeManager);
+                    const menuItemExpected = getExpectedTypeForMenuItem(attr.name.text, currentParamIdx, actionName, scopeManager);
                     if (menuItemExpected) {
                         argExpectedType = mapMetaTypeToToken(menuItemExpected, undefined, scopeManager);
                         if (!argExpectedType) {
@@ -590,8 +607,8 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
                         }
                     }
                 } else if (defMeta && defMeta.parameters) {
-                    if (i < defMeta.parameters.length) {
-                        const p = defMeta.parameters[i];
+                    if (currentParamIdx < defMeta.parameters.length) {
+                        const p = defMeta.parameters[currentParamIdx];
                         argExpectedType = mapMetaTypeToToken(p.RefersTo, p.DataType, scopeManager);
                     } else if (defMeta.parameters.length > 0 && defMeta.parameters[defMeta.parameters.length - 1].IsList) {
                         const p = defMeta.parameters[defMeta.parameters.length - 1];
@@ -605,7 +622,7 @@ function traverseAttributes(attributes: AttributeNode[], tokens: SemanticToken[]
     }
 }
 
-function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], defTypeName: string, scopeManager?: ScopeManager, uri?: string) {
+function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], defTypeName: string, scopeManager?: ScopeManager, uri?: string, sourceFile?: SourceFile) {
     if (!complexObjects) return;
     for (const obj of complexObjects) {
         if (obj.name) {
@@ -628,11 +645,11 @@ function traverseComplexObjects(complexObjects: any[], tokens: SemanticToken[], 
         }
 
         if (obj.attributes) {
-            traverseAttributes(obj.attributes, tokens, normalizeTypeName(obj.name?.text || ''), '', scopeManager, uri);
+            traverseAttributes(obj.attributes, tokens, normalizeTypeName(obj.name?.text || ''), '', scopeManager, uri, sourceFile);
         }
 
         if (obj.complexObjects) {
-            traverseComplexObjects(obj.complexObjects, tokens, normalizeTypeName(obj.name?.text || ''), scopeManager, uri);
+            traverseComplexObjects(obj.complexObjects, tokens, normalizeTypeName(obj.name?.text || ''), scopeManager, uri, sourceFile);
         }
     }
 }
@@ -845,6 +862,37 @@ function traverseNode(node: any, tokens: SemanticToken[], scopeManager?: ScopeMa
                 length: methodNode.methodName.end - methodNode.methodName.start,
                 type: SemanticTokenTypes.function,
                 text: methodNode.methodName?.text
+            });
+        }
+        if (methodNode.primaryObject?.type) {
+            tokens.push({
+                line: 0,
+                startChar: methodNode.primaryObject.type.start,
+                length: methodNode.primaryObject.type.end - methodNode.primaryObject.type.start,
+                type: SemanticTokenTypes.type,
+                text: methodNode.primaryObject.type.text
+            });
+        }
+        if (methodNode.pathSpecs) {
+            for (const spec of methodNode.pathSpecs) {
+                if (spec.collectionName) {
+                    tokens.push({
+                        line: 0,
+                        startChar: spec.collectionName.start,
+                        length: spec.collectionName.end - spec.collectionName.start,
+                        type: SemanticTokenTypes.property,
+                        text: spec.collectionName.text
+                    });
+                }
+            }
+        }
+        if (methodNode.objectName) {
+            tokens.push({
+                line: 0,
+                startChar: methodNode.objectName.start,
+                length: methodNode.objectName.end - methodNode.objectName.start,
+                type: SemanticTokenTypes.type,
+                text: methodNode.objectName.text
             });
         }
     } else if (node.kind === SyntaxKind.List) {

@@ -5689,6 +5689,7 @@ exports[`Parser - Procedural Block Success Cases > 2. Looping Constructs > shoul
               "kind": 16,
               "left": {
                 "end": 74,
+                "formula": undefined,
                 "kind": 10,
                 "methodName": {
                   "end": 74,
@@ -5720,6 +5721,8 @@ exports[`Parser - Procedural Block Success Cases > 2. Looping Constructs > shoul
                     },
                   ],
                 },
+                "objectName": undefined,
+                "pathSpecs": undefined,
                 "start": 59,
               },
               "operator": {
@@ -12166,6 +12169,7 @@ exports[`Parser - Procedural Block Success Cases > 2. Looping Constructs > shoul
                   "arguments": [
                     {
                       "end": 89,
+                      "formula": undefined,
                       "kind": 10,
                       "methodName": {
                         "end": 89,
@@ -12198,6 +12202,8 @@ exports[`Parser - Procedural Block Success Cases > 2. Looping Constructs > shoul
                           },
                         ],
                       },
+                      "objectName": undefined,
+                      "pathSpecs": undefined,
                       "start": 84,
                     },
                   ],
@@ -12229,6 +12235,7 @@ exports[`Parser - Procedural Block Success Cases > 2. Looping Constructs > shoul
                 "arguments": [
                   {
                     "end": 89,
+                    "formula": undefined,
                     "kind": 10,
                     "methodName": {
                       "end": 89,
@@ -12261,6 +12268,8 @@ exports[`Parser - Procedural Block Success Cases > 2. Looping Constructs > shoul
                         },
                       ],
                     },
+                    "objectName": undefined,
+                    "pathSpecs": undefined,
                     "start": 84,
                   },
                 ],
@@ -12513,6 +12522,7 @@ exports[`Parser - Procedural Block Success Cases > 2. Looping Constructs > shoul
               "args": [
                 {
                   "end": 140,
+                  "formula": undefined,
                   "kind": 10,
                   "methodName": {
                     "end": 140,
@@ -12545,6 +12555,8 @@ exports[`Parser - Procedural Block Success Cases > 2. Looping Constructs > shoul
                       },
                     ],
                   },
+                  "objectName": undefined,
+                  "pathSpecs": undefined,
                   "start": 135,
                 },
               ],
