@@ -391,3 +391,102 @@ function adjustNodeOffsets(node: any, delta: number) {
         }
     }
 }
+
+/**
+ * Parses a Tally XML envelope into PlaygroundStateDTO by reusing the SAX parser and AST generator.
+ */
+export function parseXmlEnvelopeToPlaygroundState(xmlText: string, scopeManager?: ScopeManager): import('tally-tdl-shared').PlaygroundStateDTO {
+    const result: import('tally-tdl-shared').PlaygroundStateDTO = {
+        tallyRequest: 'Export',
+        type: 'Collection',
+        id: '',
+        staticVariables: [],
+        definitions: []
+    };
+
+    if (!xmlText || typeof xmlText !== 'string') return result;
+
+    // 1. Extract Header & StaticVariables with SAX parser
+    const parser = sax.parser(false, { position: true, lowercase: false });
+    const tagStack: string[] = [];
+
+    parser.onopentag = (node) => {
+        tagStack.push(node.name.toUpperCase());
+    };
+
+    parser.ontext = (text) => {
+        const trimmed = text.trim();
+        if (!trimmed) return;
+        const currentTag = tagStack.length > 0 ? tagStack[tagStack.length - 1] : '';
+
+        if (currentTag === 'TALLYREQUEST' && tagStack.includes('HEADER')) {
+            result.tallyRequest = trimmed.toLowerCase() === 'import' ? 'Import' : 'Export';
+        } else if (currentTag === 'TYPE' && tagStack.includes('HEADER')) {
+            result.type = trimmed.toLowerCase() === 'data' ? 'Data' : 'Collection';
+        } else if (currentTag === 'ID' && tagStack.includes('HEADER')) {
+            result.id = trimmed;
+        } else if (tagStack.includes('STATICVARIABLES')) {
+            result.staticVariables.push({
+                name: currentTag,
+                value: trimmed
+            });
+        }
+    };
+
+    parser.onclosetag = () => {
+        tagStack.pop();
+    };
+
+    try {
+        parser.write(xmlText).close();
+    } catch {
+        // Continue even if envelope tags are partial
+    }
+
+    if (result.staticVariables.length === 0) {
+        result.staticVariables = [
+            { name: 'SVEXPORTFORMAT', value: '$$SysName:XML' },
+            { name: 'SVCURRENTCOMPANY', value: '' }
+        ];
+    }
+
+    // 2. Parse definitions to AST using parseXmlToAst
+    const sourceFile = parseXmlToAst(xmlText, scopeManager);
+    if (sourceFile && sourceFile.definitions) {
+        for (const def of sourceFile.definitions) {
+            const defType = def.type?.text || 'Collection';
+            const name = def.name?.text || '';
+            const isModify = def.modifier?.Text === '#' || def.modifier?.Text === '*';
+            const isOption = def.modifier?.Text === '!';
+
+            const attributes: import('tally-tdl-shared').PlaygroundAttributeDTO[] = [];
+            for (const attr of def.attributes) {
+                const attrName = attr.name?.text || '';
+                const vals: string[] = [];
+                if (attr.value && Array.isArray(attr.value)) {
+                    for (const v of attr.value) {
+                        const t = (v as any).text || (v as any).name?.text || (v as any).value || '';
+                        if (t) {
+                            vals.push(t);
+                        }
+                    }
+                }
+                attributes.push({
+                    name: attrName,
+                    values: vals.length > 0 ? vals : ['']
+                });
+            }
+
+            result.definitions.push({
+                defType,
+                name,
+                attributes,
+                isModify,
+                isOption
+            });
+        }
+    }
+
+    return result;
+}
+

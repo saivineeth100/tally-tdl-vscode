@@ -59,7 +59,12 @@ export function registerLspHandlers(connection: Connection, runtime: ServerRunti
     connection.onRequest(CustomRequests.GetScopeChildren, (params: { uri: string, scopeId: string }) => runtime.customRequests.getScopeChildren(params));
     connection.onRequest(CustomRequests.GetScopeNode, (params: { uri: string, scopeId: string }) => runtime.customRequests.getScopeNode(params));
     connection.onRequest(CustomRequests.GetScopeSymbols, (params: { uri: string, scopeId: string, kind: string, page: number, limit: number, query?: string }) => runtime.customRequests.getScopeSymbols(params));
+    connection.onRequest(CustomRequests.GetScopeDetails, (params: { uri: string, scopeId: string }) => runtime.customRequests.getScopeDetails(params));
     connection.onRequest(CustomRequests.ResolveGlobalSymbol, (params: { uri: string, name: string, expectedType: string }) => runtime.customRequests.resolveGlobalSymbol(params));
     connection.onRequest(CustomRequests.ConvertToXml, (params: { uri: string }) => runtime.customRequests.convertToXml(params));
+    connection.onRequest(CustomRequests.GetPlaygroundSuggestions, (params: import('tally-tdl-shared').PlaygroundSuggestionQueryDTO) => runtime.customRequests.getPlaygroundSuggestions(params));
+    connection.onRequest(CustomRequests.GetAttributesForDefType, (params: { defType: string }) => runtime.customRequests.getAttributesForDefType(params));
+    connection.onRequest(CustomRequests.GetSchemaProperties, (params: { schemaType: string }) => runtime.customRequests.getSchemaProperties(params));
+    connection.onRequest(CustomRequests.ParseEnvelopeXml, (params: { xml: string }) => runtime.customRequests.parseEnvelopeXml(params));
     connection.onNotification(CustomNotifications.BuildCustomLibraryCache, (params: { folderPath: string }) => runtime.customRequests.buildCustomLibraryCache(params));
 }

@@ -537,7 +537,28 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
     }
 
     public getScopeById(id: string): Scope | undefined {
+        if (!id) return undefined;
         const lowerId = id.toLowerCase();
+
+        // 1. Check fileMap directly for file scopes
+        if (lowerId.startsWith('file:')) {
+            const rawUri = id.substring(5);
+            const normalized = normalizeUri(rawUri);
+            const foundFile = this.fileMap.get(rawUri) 
+                || this.fileMap.get(normalized)
+                || this.fileMap.get(id)
+                || Array.from(this.fileMap.values()).find(f => 
+                    f.id.toLowerCase() === lowerId || 
+                    (f.uri && normalizeUri(f.uri).toLowerCase() === normalized.toLowerCase()) ||
+                    (f.uri && f.uri.toLowerCase() === rawUri.toLowerCase())
+                );
+            if (foundFile) return foundFile;
+        }
+
+        const directFile = this.fileMap.get(id) || this.fileMap.get(normalizeUri(id));
+        if (directFile) return directFile;
+
+        // 2. Normal definition lookup (e.g. "Report:MyReport")
         const normalizedId = this.normalizeScopeId(id);
         const parts = normalizedId.split(':');
         const type = parts.length > 1 ? parts[0] : 'unknown';
@@ -555,19 +576,25 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
             if (arr && arr.length > 0) return arr[0];
         }
 
-        // Search global scope just in case it's not indexed
+        // 3. Search project scope childScopes (which contains FileScopes)
+        if (this.projectScope && this.projectScope.childScopes) {
+            const foundProjectChild = this.findScopeInTree(this.projectScope, lowerId, type, name);
+            if (foundProjectChild) return foundProjectChild;
+        }
+
+        // 4. Search workspace scope childScopes
+        if (this.workspaceScope && this.workspaceScope.childScopes) {
+            const foundWsChild = this.findScopeInTree(this.workspaceScope, lowerId, type, name);
+            if (foundWsChild) return foundWsChild;
+        }
+
+        // 5. Search global scope just in case it's not indexed
         if (this.globalScope && this.globalScope.childScopes) {
-            const foundGlobal = this.globalScope.childScopes.find(c => {
-                const cNormalizedId = this.normalizeScopeId(c.id);
-                const cParts = cNormalizedId.split(':');
-                const cType = cParts.length > 1 ? cParts[0] : 'unknown';
-                const cName = cParts.length > 1 ? cParts.slice(1).join(':') : cNormalizedId;
-                return cType === type && cName === name;
-            });
+            const foundGlobal = this.findScopeInTree(this.globalScope, lowerId, type, name);
             if (foundGlobal) return foundGlobal;
         }
 
-        // Fallback for global metadata definitions (which don't have AST Scopes)
+        // 6. Fallback for global metadata definitions (which don't have AST Scopes)
         if (lowerId.includes(':') && this.globalScope) {
             const parts = lowerId.split(':');
             const defType = parts[0];
@@ -594,6 +621,22 @@ export class ScopeManager implements IScopeManager, IScopeResolverState {
 
         return undefined;
     }
+
+    private findScopeInTree(root: Scope, targetLowerId: string, targetType: string, targetName: string): Scope | undefined {
+        if (root.id.toLowerCase() === targetLowerId) return root;
+        const normalized = this.normalizeScopeId(root.id);
+        const parts = normalized.split(':');
+        const type = parts.length > 1 ? parts[0] : 'unknown';
+        const name = parts.length > 1 ? parts.slice(1).join(':') : normalized;
+        if (type === targetType && name === targetName) return root;
+
+        for (const child of root.childScopes) {
+            const found = this.findScopeInTree(child, targetLowerId, targetType, targetName);
+            if (found) return found;
+        }
+        return undefined;
+    }
+
 
     public findDefinitionScope(id: string): Scope | undefined {
         return this.getScopeById(id);

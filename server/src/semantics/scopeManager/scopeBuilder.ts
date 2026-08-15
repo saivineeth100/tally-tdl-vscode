@@ -259,6 +259,7 @@ export function buildFileScope(manager: IScopeManager, uri: string, sourceFile: 
                     }
                 }
             } else if (
+                ['variable', 'variables', 'listvariable', 'listvariables', 'listvar', 'staticvariable'].includes(attrNameLower) ||
                 (manager.globalScope.attributes.get(normalizeTypeName(def.type?.text || ''))?.get(attrNameLower)?.type?.toLowerCase() === 'variable list') ||
                 (def.type?.text?.toLowerCase() === 'system' && 
                  ['variable', 'variables'].includes(normalizeTypeName(def.name?.text || '')) && 

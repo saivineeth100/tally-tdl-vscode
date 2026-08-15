@@ -138,4 +138,81 @@ describe('ScopeViewerService', () => {
         expect(partNode!.structuralParents).toBeDefined();
         expect(partNode!.structuralParents).toContain('form:myform');
     });
+
+    it('should return comprehensive scope details for a Report definition', () => {
+        const sourceCode = `
+[Report: SalesReport]
+    Form: SalesForm
+    Variable: SVCompany : String
+    Variable: ReportTotal : Number
+    Local Formula: CalcTotal : 100 + 200
+    Use: BaseReport
+
+[Form: SalesForm]
+    Part: SalesPart
+
+[Part: SalesPart]
+    Line: SalesLine
+
+[Line: SalesLine]
+    Field: SalesField
+
+[Field: SalesField]
+    Set as: "Hello"
+        `;
+
+        const parser = new Parser(sourceCode);
+        const ast = parser.parse();
+        const fileScope = buildFileScope(manager, 'report_details_test.tdl', ast);
+        manager.indexScope(fileScope);
+
+        const details = viewer.getScopeDetails('Report:SalesReport');
+        expect(details).toBeDefined();
+        expect(details!.name).toBe('SalesReport');
+        expect(details!.definitionType).toBe('Report');
+        expect(details!.kind).toBe(ScopeKind.Definition);
+
+        // Variables
+        expect(details!.variables).toBeDefined();
+        expect(details!.variables.length).toBe(2);
+        const varNames = details!.variables.map(v => v.name.toLowerCase());
+        expect(varNames).toContain('svcompany');
+        expect(varNames).toContain('reporttotal');
+
+        // Formulas
+        expect(details!.formulas).toBeDefined();
+        expect(details!.formulas.length).toBe(1);
+        expect(details!.formulas[0].name.toLowerCase()).toBe('calctotal');
+
+        // Structural children grouped by type
+        expect(details!.childrenByType).toBeDefined();
+        expect(details!.childrenByType['Form']).toBeDefined();
+        expect(details!.childrenByType['Form'].length).toBe(1);
+        expect(details!.childrenByType['Form'][0].name).toBe('SalesForm');
+
+        // Uses
+        expect(details!.usedDefinitions).toBeDefined();
+        expect(details!.usedDefinitions).toContain('report:basereport');
+    });
+
+    it('should return scope details for a Field definition', () => {
+        const sourceCode = `
+[Field: CustomField]
+    Set as: "Sample Value"
+    Variable: FieldVar : Logical
+        `;
+
+        const parser = new Parser(sourceCode);
+        const ast = parser.parse();
+        const fileScope = buildFileScope(manager, 'field_details_test.tdl', ast);
+        manager.indexScope(fileScope);
+
+        const details = viewer.getScopeDetails('Field:CustomField');
+        expect(details).toBeDefined();
+        expect(details!.name).toBe('CustomField');
+        expect(details!.definitionType).toBe('Field');
+        expect(details!.variables.length).toBe(1);
+        expect(details!.variables[0].name.toLowerCase()).toBe('fieldvar');
+    });
 });
+

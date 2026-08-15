@@ -1,8 +1,8 @@
 import { ScopeManager } from './index';
 import { 
     Scope, ScopeKind, ScopeNodeDTO, ScopeTreeDTO, 
-    PaginatedSymbolsDTO, hasFunctionsAndActions, 
-    hasAttributes, hasSchemas, hasDefinitions, DefinitionScope 
+    PaginatedSymbolsDTO, ScopeDetailsDTO, ScopeDetailVariable, ScopeDetailFormula, ScopeDetailChild,
+    hasFunctionsAndActions, hasAttributes, hasSchemas, hasDefinitions, DefinitionScope 
 } from './types';
 import { SymbolInfo } from 'tally-tdl-shared';
 import { SymbolKind } from 'tally-tdl-shared';
@@ -47,6 +47,189 @@ export class ScopeViewerService {
         }
         return undefined;
     }
+
+    /**
+     * Get a comprehensive breakdown of a scope for definition-level inspection
+     * (variables, formulas, structural children grouped by type, fetched/computed fields, uses, etc.)
+     */
+    public getScopeDetails(scopeId: string): ScopeDetailsDTO | undefined {
+        let realScopeId = scopeId;
+        if (realScopeId.endsWith('_Attributes')) realScopeId = realScopeId.replace('_Attributes', '');
+        if (realScopeId.endsWith('_Schemas')) realScopeId = realScopeId.replace('_Schemas', '');
+        if (realScopeId.endsWith('_Definitions')) realScopeId = realScopeId.replace('_Definitions', '');
+
+        const target = this.manager.getScopeById(realScopeId) 
+            || (realScopeId === 'global' ? this.manager.globalScope : undefined) 
+            || (realScopeId === 'project' ? this.manager.projectScope : undefined)
+            || this.findScopeById(this.manager.globalScope, realScopeId)
+            || this.findScopeById(this.manager.projectScope, realScopeId);
+
+        if (!target) return undefined;
+
+        const defSymbol = (target as any).definition;
+        const parts = target.id.split(':');
+        const defaultType = parts.length > 1 ? parts[0] : target.kind;
+        const defaultName = parts.length > 1 ? parts.slice(1).join(':') : target.id;
+
+        const name = defSymbol?.name || defaultName;
+        const definitionType = defSymbol?.definitionType || defaultType;
+        const nameLower = name.toLowerCase();
+        const idLower = target.id.toLowerCase();
+
+        // 1. Variables
+        const variables: ScopeDetailVariable[] = [];
+        for (const v of target.variables.values()) {
+            variables.push({
+                name: v.name,
+                dataType: (v as any).dataType || (v as any).valueType,
+                value: (v as any).value,
+                isSystemVariable: (v as any).isSystemVariable,
+                description: v.description,
+                range: (v as any).start !== undefined && (v as any).end !== undefined ? { start: (v as any).start, end: (v as any).end } : undefined
+            });
+        }
+        variables.sort((a, b) => a.name.localeCompare(b.name));
+
+        // 2. Formulas
+        const formulas: ScopeDetailFormula[] = [];
+        for (const f of target.formulas.values()) {
+            formulas.push({
+                name: f.name,
+                value: (f as any).value,
+                parameters: (f as any).parameters,
+                range: (f as any).start !== undefined && (f as any).end !== undefined ? { start: (f as any).start, end: (f as any).end } : undefined
+            });
+        }
+        formulas.sort((a, b) => a.name.localeCompare(b.name));
+
+        // 3. Fetched and Computed Fields, Object/Collection Scopes
+        let fetchedFields: string[] = [];
+        let computedFields: string[] = [];
+        let objectScope: string | undefined;
+        let collectionScope: string | undefined;
+
+        if (target.kind === ScopeKind.Definition) {
+            const defNode = target as DefinitionScope;
+            if (defNode.fetchedFields) fetchedFields = Array.from(defNode.fetchedFields);
+            if (defNode.computedFields) computedFields = Array.from(defNode.computedFields);
+            objectScope = defNode.objectScope;
+            collectionScope = defNode.collectionScope;
+        } else if (target.kind === ScopeKind.Function) {
+            const fnNode = target as any;
+            objectScope = fnNode.objectScope;
+            collectionScope = fnNode.collectionScope;
+        }
+
+        // 4. Parents & Uses & Modifiers
+        const parentIds = this.manager.parentDefinitions.get(idLower) || this.manager.parentDefinitions.get(nameLower);
+        const structuralParents = parentIds ? Array.from(parentIds) : undefined;
+
+        const useIds = this.manager.useInheritance.get(idLower) 
+            || this.manager.useInheritance.get(nameLower) 
+            || ((target as any).uses ? (target as any).uses : undefined);
+        const usedDefinitions: string[] = useIds ? (Array.from(useIds) as string[]) : [];
+
+        const mods = this.manager.modifierContributions.get(nameLower) || this.manager.modifierContributions.get(idLower);
+        const modifiersCount = mods ? mods.length : 0;
+
+        // 5. Structural Children Grouped by Type
+        const childrenByType: Record<string, ScopeDetailChild[]> = {};
+        
+        const addChild = (childType: string, childName: string, childId: string, childUri?: string, childStart?: number, childEnd?: number, childDesc?: string) => {
+            const normalizedChildType = childType ? (childType.charAt(0).toUpperCase() + childType.slice(1)) : 'Unknown';
+            if (!childrenByType[normalizedChildType]) {
+                childrenByType[normalizedChildType] = [];
+            }
+            if (!childrenByType[normalizedChildType].some(c => c.id.toLowerCase() === childId.toLowerCase() || c.name.toLowerCase() === childName.toLowerCase())) {
+                const childChildIds = this.manager.childDefinitions.get(childId.toLowerCase()) || this.manager.childDefinitions.get(childName.toLowerCase());
+                const childCount = childChildIds ? childChildIds.size : undefined;
+
+                childrenByType[normalizedChildType].push({
+                    name: childName,
+                    id: childId,
+                    definitionType: normalizedChildType,
+                    description: childDesc,
+                    uri: childUri,
+                    start: childStart,
+                    end: childEnd,
+                    childCount
+                });
+            }
+        };
+
+        // Source A: childDefinitions map from manager
+        const managerChildIds = this.manager.childDefinitions.get(idLower) || this.manager.childDefinitions.get(nameLower);
+        if (managerChildIds) {
+            for (const childId of managerChildIds) {
+                const childScope = this.manager.getScopeById(childId);
+                const cParts = childId.split(':');
+                const cType = (childScope as any)?.definition?.definitionType || (cParts.length > 1 ? cParts[0] : 'Child');
+                const cName = (childScope as any)?.definition?.name || (cParts.length > 1 ? cParts.slice(1).join(':') : childId);
+                const cUri = childScope?.uri || (childScope as any)?.definition?.uri;
+                const cStart = childScope?.range?.start ?? (childScope as any)?.definition?.start;
+                const cEnd = childScope?.range?.end ?? (childScope as any)?.definition?.end;
+                const cDesc = (childScope as any)?.definition?.description;
+                addChild(cType, cName, childId, cUri, cStart, cEnd, cDesc);
+            }
+        }
+
+        // Source B: DefinitionScope.structuralChildren map
+        if (target.kind === ScopeKind.Definition) {
+            const defScope = target as DefinitionScope;
+            if (defScope.structuralChildren) {
+                for (const [type, names] of defScope.structuralChildren.entries()) {
+                    for (const childName of names) {
+                        const childId = `${type}:${childName}`;
+                        const childScope = this.manager.getScopeById(childId);
+                        const cUri = childScope?.uri || (childScope as any)?.definition?.uri;
+                        const cStart = childScope?.range?.start ?? (childScope as any)?.definition?.start;
+                        const cEnd = childScope?.range?.end ?? (childScope as any)?.definition?.end;
+                        const cDesc = (childScope as any)?.definition?.description;
+                        addChild(type, childName, childId, cUri, cStart, cEnd, cDesc);
+                    }
+                }
+            }
+        }
+
+        // Source C: direct childScopes
+        if (target.childScopes && target.childScopes.length > 0) {
+            for (const cs of target.childScopes) {
+                if (cs.kind === ScopeKind.Definition || cs.kind === ScopeKind.Function) {
+                    const csDef = (cs as any).definition;
+                    const csParts = cs.id.split(':');
+                    const csType = csDef?.definitionType || (csParts.length > 1 ? csParts[0] : cs.kind);
+                    const csName = csDef?.name || (csParts.length > 1 ? csParts.slice(1).join(':') : cs.id);
+                    addChild(csType, csName, cs.id, cs.uri || csDef?.uri, cs.range?.start ?? csDef?.start, cs.range?.end ?? csDef?.end, csDef?.description);
+                }
+            }
+        }
+
+        // Sort children in each category alphabetically
+        for (const type of Object.keys(childrenByType)) {
+            childrenByType[type].sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        return {
+            id: target.id,
+            name,
+            kind: target.kind,
+            definitionType,
+            objectScope,
+            collectionScope,
+            structuralParents,
+            childrenByType,
+            variables,
+            formulas,
+            fetchedFields,
+            computedFields,
+            usedDefinitions,
+            modifiersCount,
+            uri: target.uri || defSymbol?.uri,
+            start: target.range?.start ?? defSymbol?.start,
+            end: target.range?.end ?? defSymbol?.end
+        };
+    }
+
 
     private findScopeById(node: Scope, id: string): Scope | undefined {
         if (node.id.toLowerCase() === id.toLowerCase()) return node;

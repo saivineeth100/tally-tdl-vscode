@@ -2,12 +2,21 @@ import React, { useEffect, useState } from "react";
 import { vscode } from './utils/vscode';
 import ScopeTree from "./components/ScopeTree";
 import DetailsPanel from "./components/DetailsPanel";
+import { ApiPlayground } from "./components/playground/ApiPlayground";
 import { ScopeNode, WebviewMessage } from "./types";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 import { buildFolderTree } from './utils/treeUtils';
 
 const App = () => {
+  const [currentView, setCurrentView] = useState<'scopeExplorer' | 'apiPlayground'>(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = urlParams.get('view');
+    if (viewParam === 'apiPlayground') return 'apiPlayground';
+    const state = vscode.getState() as { view?: 'scopeExplorer' | 'apiPlayground' } | undefined;
+    return state?.view || 'scopeExplorer';
+  });
+
   const [treeData, setTreeData] = useState<ScopeNode[] | null>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<string[]>(["global"]);
@@ -27,6 +36,13 @@ const App = () => {
     const handleMessage = (event: MessageEvent) => {
       const message = event.data as WebviewMessage;
       switch (message.command) {
+        case "setView":
+          if (message.view === "apiPlayground" || message.view === "scopeExplorer") {
+            setCurrentView(message.view);
+            const prevState = vscode.getState() || {};
+            vscode.setState({ ...prevState, view: message.view });
+          }
+          break;
         case "render":
           setTreeData(message.data);
           vscode.setState({ treeData: message.data });
@@ -36,6 +52,9 @@ const App = () => {
           break;
         case "scopeNodeResult":
           window.dispatchEvent(new CustomEvent('scopeNodeResult', { detail: message }));
+          break;
+        case "scopeDetailsResult":
+          window.dispatchEvent(new CustomEvent('scopeDetailsResult', { detail: message }));
           break;
         case "childrenResult":
           setTreeData(prev => {
@@ -131,6 +150,14 @@ const App = () => {
     setSelectedNode(node);
     setBreadcrumbs(path);
   };
+
+  if (currentView === 'apiPlayground') {
+    return (
+      <ErrorBoundary>
+        <ApiPlayground />
+      </ErrorBoundary>
+    );
+  }
 
   return (
     <ErrorBoundary>

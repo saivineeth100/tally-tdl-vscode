@@ -125,6 +125,21 @@ export class ScopeExplorer {
                             console.error('Error fetching scope node:', err);
                         }
                         return;
+                    case 'getScopeDetails':
+                        try {
+                            const result = await client.sendRequest<any>('tdl/getScopeDetails', {
+                                uri,
+                                scopeId: message.scopeId
+                            });
+                            panel.webview.postMessage({
+                                command: 'scopeDetailsResult',
+                                reqId: message.reqId,
+                                data: result
+                            });
+                        } catch (err) {
+                            console.error('Error fetching scope details:', err);
+                        }
+                        return;
                 }
             },
             undefined,

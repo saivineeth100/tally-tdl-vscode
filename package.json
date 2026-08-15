@@ -108,6 +108,16 @@
             {
                 "command": "tally-tdl.buildCustomLibraryCache",
                 "title": "Tally TDL: Build Custom TDL Library Cache"
+            },
+            {
+                "command": "tally-tdl.openApiPlayground",
+                "title": "Tally: Open API Playground",
+                "icon": "$(beaker)"
+            },
+            {
+                "command": "tally-tdl.openInPlayground",
+                "title": "Tally: Open in API Playground",
+                "icon": "$(beaker)"
             }
         ],
         "menus": {
@@ -121,6 +131,16 @@
                     "when": "resourceLangId == xml",
                     "command": "tally-tdl.sendXmlRequest",
                     "group": "navigation"
+                },
+                {
+                    "when": "resourceLangId == xml",
+                    "command": "tally-tdl.openInPlayground",
+                    "group": "navigation@2"
+                },
+                {
+                    "when": "resourceLangId == tdl",
+                    "command": "tally-tdl.openApiPlayground",
+                    "group": "navigation@2"
                 }
             ],
             "editor/title": [
@@ -137,6 +157,11 @@
                     "group": "navigation"
                 },
                 {
+                    "when": "resourceLangId == xml",
+                    "command": "tally-tdl.openInPlayground",
+                    "group": "navigation"
+                },
+                {
                     "when": "resourceLangId == tdl",
                     "command": "tally-tdl.convertToXml",
                     "group": "navigation"
@@ -146,6 +171,11 @@
                 {
                     "when": "resourceExtname == .xml",
                     "command": "tally-tdl.viewXmlAsTable",
+                    "group": "navigation"
+                },
+                {
+                    "when": "resourceExtname == .xml || resourceExtname == .tdlxml",
+                    "command": "tally-tdl.openInPlayground",
                     "group": "navigation"
                 }
             ]

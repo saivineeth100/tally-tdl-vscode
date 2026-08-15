@@ -7,6 +7,7 @@ import { ResponsePanel } from './responsePanel';
 import { extractVariables, substituteVariables } from '../utils/templateEngine';
 import { sendXmlRequest, checkTallyRunning, launchTallyAndWait } from '../services/tallyClient';
 import { ScopeExplorer } from './scopeExplorer';
+import { ApiPlaygroundPanel, parseEnvelopeXml } from './apiPlayground';
 import { getStoredVariables, updatePanelVariables } from './xmlVariables';
 
 export function registerCommands(
@@ -311,6 +312,49 @@ export function registerCommands(
             severityConfig[code] = 'none';
             await config.update('diagnostics.severity', severityConfig, workspace.workspaceFolders ? 2 : 1); // ConfigurationTarget.Workspace = 2, Global = 1
             window.showInformationMessage(`Diagnostic ${code} has been disabled for this project.`);
+        }),
+
+        commands.registerCommand('tally-tdl.openApiPlayground', async () => {
+            const client = getDefaultClient();
+            if (!client) {
+                window.showErrorMessage('TDL Language Server is not running.');
+                return;
+            }
+            await ApiPlaygroundPanel.createOrShow(context, client);
+        }),
+
+        commands.registerCommand('tally-tdl.openInPlayground', async (resourceUri?: Uri) => {
+            const client = getDefaultClient();
+            if (!client) {
+                window.showErrorMessage('TDL Language Server is not running.');
+                return;
+            }
+
+            let xmlText = '';
+            let linkedFilePath: string | undefined;
+            let linkedFileName: string | undefined;
+
+            if (resourceUri) {
+                try {
+                    const fileBytes = await workspace.fs.readFile(resourceUri);
+                    xmlText = Buffer.from(fileBytes).toString('utf-8');
+                    linkedFilePath = resourceUri.fsPath;
+                    linkedFileName = path.basename(resourceUri.fsPath);
+                } catch (e) {
+                    window.showErrorMessage(`Failed to read file: ${e}`);
+                }
+            } else if (window.activeTextEditor) {
+                xmlText = window.activeTextEditor.document.getText();
+                linkedFilePath = window.activeTextEditor.document.uri.fsPath;
+                linkedFileName = path.basename(window.activeTextEditor.document.uri.fsPath);
+            }
+
+            const initialState = xmlText ? parseEnvelopeXml(xmlText) : undefined;
+            if (initialState) {
+                initialState.linkedFilePath = linkedFilePath;
+                initialState.linkedFileName = linkedFileName;
+            }
+            await ApiPlaygroundPanel.createOrShow(context, client, initialState);
         })
     );
 }

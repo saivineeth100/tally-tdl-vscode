@@ -35,7 +35,7 @@ export async function checkTallyRunning(port: number): Promise<boolean> {
 export async function launchTallyAndWait(exePath: string, port: number, args: string[]): Promise<boolean> {
     return vscode.window.withProgress({
         location: vscode.ProgressLocation.Notification,
-        title: "Launching Tally and waiting for ODBC port...",
+        title: "Launching Tally and waiting fo ODBC port...",
         cancellable: false
     }, async (progress) => {
         try {
@@ -136,6 +136,11 @@ export async function sendXmlRequest(xmlBody: string, port: number): Promise<Tal
 }
 
 export async function fetchActiveCompanies(port: number): Promise<string[]> {
+    const isRunning = await checkTallyRunning(port);
+    if (!isRunning) {
+        return [];
+    }
+
     const xml = `<ENVELOPE>
     <HEADER>
         <VERSION>1</VERSION>

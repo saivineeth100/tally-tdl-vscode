@@ -5,6 +5,7 @@ export class ResponsePanel {
     private readonly _panel: vscode.WebviewPanel;
     private readonly _extensionUri: vscode.Uri;
     private _sourceUri?: vscode.Uri;
+    private _isPlayground: boolean = false;
     private _disposables: vscode.Disposable[] = [];
     
     // Callbacks
@@ -13,10 +14,11 @@ export class ResponsePanel {
     public onDidRefresh?: () => void;
     public onDidLogError?: (errorMsg: string, stack: string) => void;
 
-    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, sourceUri?: vscode.Uri) {
+    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, sourceUri?: vscode.Uri, isPlayground: boolean = false) {
         this._panel = panel;
         this._extensionUri = extensionUri;
         this._sourceUri = sourceUri;
+        this._isPlayground = isPlayground;
 
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
@@ -108,11 +110,12 @@ export class ResponsePanel {
         );
     }
 
-    public static createOrShow(extensionUri: vscode.Uri): ResponsePanel {
+    public static createOrShow(extensionUri: vscode.Uri, isPlayground: boolean = false): ResponsePanel {
         const column = vscode.ViewColumn.Beside;
 
         if (ResponsePanel.currentPanel) {
             ResponsePanel.currentPanel._panel.reveal(column);
+            ResponsePanel.currentPanel.setPlaygroundMode(isPlayground);
             return ResponsePanel.currentPanel;
         }
 
@@ -130,8 +133,8 @@ export class ResponsePanel {
             }
         );
 
-        ResponsePanel.currentPanel = new ResponsePanel(panel, extensionUri);
-        ResponsePanel.currentPanel._panel.webview.html = ResponsePanel.currentPanel._getHtmlForWebview(false);
+        ResponsePanel.currentPanel = new ResponsePanel(panel, extensionUri, undefined, isPlayground);
+        ResponsePanel.currentPanel._panel.webview.html = ResponsePanel.currentPanel._getHtmlForWebview(false, isPlayground);
         return ResponsePanel.currentPanel;
     }
 
@@ -150,8 +153,8 @@ export class ResponsePanel {
             }
         );
 
-        const responsePanel = new ResponsePanel(panel, extensionUri, sourceUri);
-        panel.webview.html = responsePanel._getHtmlForWebview(true);
+        const responsePanel = new ResponsePanel(panel, extensionUri, sourceUri, false);
+        panel.webview.html = responsePanel._getHtmlForWebview(true, false);
         
         // Wait briefly for webview to load then send the data
         setTimeout(() => {
@@ -159,6 +162,14 @@ export class ResponsePanel {
         }, 300);
         
         return responsePanel;
+    }
+
+    public setPlaygroundMode(enabled: boolean) {
+        this._isPlayground = enabled;
+        this._panel.webview.postMessage({
+            command: 'setPlaygroundMode',
+            enabled
+        });
     }
 
     public updateVariables(variables: string[], savedValues: Map<string, { value: string, isWorkspace: boolean }>, variableTypes: Record<string, string>, activeCompanies: string[]) {
@@ -219,7 +230,7 @@ export class ResponsePanel {
         }
     }
 
-    private _getHtmlForWebview(isFullScreen: boolean): string {
+    private _getHtmlForWebview(isFullScreen: boolean, isPlayground: boolean = false): string {
         const htmlPath = vscode.Uri.joinPath(this._extensionUri, 'media', 'webview.html');
         let htmlContent = '';
         try {
@@ -239,9 +250,12 @@ export class ResponsePanel {
         const scriptTags = `<script src="${saxUri.toString()}"></script>\n    <script src="${scriptUri.toString()}"></script>`;
         htmlContent = htmlContent.replace('##SCRIPT_URI##', scriptTags);
 
-        // We can pass the isFullScreen flag to the body class
-        if (isFullScreen) {
-            htmlContent = htmlContent.replace('<body>', '<body class="fullscreen-mode">');
+        const bodyClasses: string[] = [];
+        if (isFullScreen) bodyClasses.push('fullscreen-mode');
+        if (isPlayground) bodyClasses.push('playground-mode');
+
+        if (bodyClasses.length > 0) {
+            htmlContent = htmlContent.replace('<body>', `<body class="${bodyClasses.join(' ')}">`);
         }
 
         return htmlContent;

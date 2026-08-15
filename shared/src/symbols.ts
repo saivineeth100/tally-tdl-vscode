@@ -100,6 +100,7 @@ export interface SchemaSymbol extends SymbolInfo {
 }
 
 export interface VariableSymbol extends SymbolInfo {
+    description?: string;
     dataType?: string;
 }
 

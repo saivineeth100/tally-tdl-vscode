@@ -98,6 +98,13 @@ body {
             flex-direction: column;
             height: 100%;
         }
+
+        /* Playground Mode: Hide duplicate Send/Refresh buttons and XML variable section */
+        body.playground-mode #sendBtn,
+        body.playground-mode #refreshBtn,
+        body.playground-mode #variablesSection {
+            display: none !important;
+        }
         #rawView, #prettyView {
             white-space: pre;
             font-family: var(--vscode-editor-font-family);

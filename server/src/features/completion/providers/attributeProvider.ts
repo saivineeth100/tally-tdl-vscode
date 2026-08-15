@@ -68,11 +68,35 @@ export function provideAttributeValueCompletions(
 
     const attrMap = scopeManager.globalScope.attributes.get(normalizedDefType);
 
-    // Collection Fetch/Compute autocomplete
-    if (normalizedDefType === 'collection' && (normalizedAttr === 'fetch' || normalizedAttr === 'compute') && currentScope) {
+    // Dynamic Schema Property autocomplete for RefersTo: "ObjectField" or Collection Fetch/Compute/NativeMethod
+    const attrSymbol = attrMap?.get(normalizedAttr);
+    const paramDef = attrSymbol?.parameters?.[context.paramIndex] || attrSymbol?.parameters?.[0];
+    const refersTo = (paramDef?.RefersTo || '').toLowerCase().trim();
+    const isObjectField = refersTo === 'objectfield' || refersTo.startsWith('objectfield') ||
+                          refersTo === 'schemaproperty' || refersTo === 'schema' ||
+                          ((normalizedDefType === 'collection' || normalizedDefType === 'object') && 
+                           (normalizedAttr === 'fetch' || normalizedAttr === 'nativemethod' || normalizedAttr === 'compute' || normalizedAttr === 'aggrcompute'));
+
+    if (isObjectField) {
         let objectScopeName: string | undefined;
-        if ('objectScope' in currentScope) {
+        if (currentScope && 'objectScope' in currentScope) {
             objectScopeName = (currentScope as any).objectScope;
+        }
+
+        if (!objectScopeName && currentDef && currentDef.attributes) {
+            for (const a of currentDef.attributes) {
+                const aName = (a.name?.text || '').toLowerCase().trim();
+                if (aName === 'type' || aName === 'object') {
+                    if (a.value && Array.isArray(a.value) && a.value.length > 0) {
+                        objectScopeName = (a.value[0] as any).text || (a.value[0] as any).name?.text || '';
+                    }
+                }
+            }
+        }
+
+        // Fallback default for collection if none specified
+        if (!objectScopeName && normalizedDefType === 'collection') {
+            objectScopeName = 'Ledger';
         }
 
         if (objectScopeName) {
@@ -90,65 +114,16 @@ export function provideAttributeValueCompletions(
                 getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n),
                 getWorkspaceDefinition: (d, n) => scopeManager.getWorkspaceDefinition(d, n)
             };
-            const schema = resolveSchema(mockState, objectScopeName, currentScope, scope);
+            const schema = resolveSchema(mockState, objectScopeName, currentScope || scopeManager.globalScope as any, scope);
 
             if (schema) {
-                for (const prop of schema.properties.values()) {
-                    // Support nested property completion if the user typed "Ledger."
-                    const typedPath = context.partial.split('.');
-                    if (typedPath.length > 1) {
-                        const rootProp = typedPath[0].toLowerCase();
-                        if (prop.Name.toLowerCase() === rootProp && prop.IsComplex && prop.ObjectName) {
-                                const mockState2: IScopeResolverState = {
-                                    useInheritance: scopeManager.useInheritance,
-                                    inUseInheritance: scopeManager.inUseInheritance,
-                                    parentDefinitions: scopeManager.parentDefinitions,
-                                    childDefinitions: scopeManager.childDefinitions,
-                                    globalScope: scopeManager.globalScope,
-                                    projectScope: scopeManager.projectScope,
-                                    findDefinitionScope: (id) => scopeManager.findDefinitionScope(id),
-                                    findGlobalSymbolsByName: (name, projectNodes) => scopeManager.findGlobalSymbolsByName(name, projectNodes),
-                                    getCanonicalTypeName: (n) => scopeManager.getCanonicalTypeName(n),
-                                    normalizeScopeId: (id) => scopeManager.normalizeScopeId(id),
-                                    getProjectDefinition: (d, n) => scopeManager.getProjectDefinition(d, n),
-                                    getWorkspaceDefinition: (d, n) => scopeManager.getWorkspaceDefinition(d, n)
-                                };
-                                const subSchema = resolveSchema(mockState2, prop.ObjectName, currentScope, scope);
-                            if (subSchema) {
-                                for (const subProp of subSchema.properties.values()) {
-                                    const fullSubPath = `${prop.Name}.${subProp.Name}`;
-                                    if (context.partial === '' || fullSubPath.toLowerCase().includes(context.partial.toLowerCase())) {
-                                        items.push({
-                                            label: fullSubPath,
-                                            kind: CompletionItemKind.Field,
-                                            detail: 'Nested Schema Property',
-                                            insertText: fullSubPath,
-                                            sortText: '0_' + fullSubPath.toLowerCase()
-                                        });
-                                    }
-                                }
-                                items.push({
-                                    label: `${prop.Name}.*`,
-                                    kind: CompletionItemKind.Keyword,
-                                    detail: 'All Nested Properties',
-                                    insertText: `${prop.Name}.*`,
-                                    sortText: '0_' + prop.Name.toLowerCase() + '.*'
-                                });
-                            }
-                        }
-                    } else if (context.partial === '' || prop.Name.toLowerCase().includes(context.partial.toLowerCase())) {
-                        items.push({
-                            label: prop.Name,
-                            kind: CompletionItemKind.Field,
-                            detail: 'Schema Property',
-                            insertText: prop.Name,
-                            sortText: '0_' + prop.Name.toLowerCase()
-                        });
-                    }
-                }
-                
-                // Add * for fetch
-                if (normalizedAttr === 'fetch') {
+                const typedPath = (context.partial || '').split('.');
+                const isDotTyped = typedPath.length > 1;
+                const rootFilter = typedPath[0].toLowerCase().trim();
+                const subFilter = isDotTyped ? typedPath.slice(1).join('.').toLowerCase().trim() : '';
+
+                // Top level '*'
+                if (!isDotTyped && (context.partial === '' || context.partial === '*')) {
                     items.push({
                         label: '*',
                         kind: CompletionItemKind.Keyword,
@@ -156,6 +131,77 @@ export function provideAttributeValueCompletions(
                         insertText: '*',
                         sortText: '0_*'
                     });
+                }
+
+                for (const prop of schema.properties.values()) {
+                    if (isDotTyped) {
+                        // User typed something like "LedgerEntries." or "Address."
+                        if (prop.Name.toLowerCase() === rootFilter && prop.IsComplex && prop.ObjectName) {
+                            const subSchema = resolveSchema(mockState, prop.ObjectName, currentScope || scopeManager.globalScope as any, scope);
+                            if (subSchema) {
+                                items.push({
+                                    label: `${prop.Name}.*`,
+                                    kind: CompletionItemKind.Keyword,
+                                    detail: `All Properties in ${prop.Name}`,
+                                    insertText: `${prop.Name}.*`,
+                                    sortText: '0_' + prop.Name.toLowerCase() + '.*'
+                                });
+                                for (const subProp of subSchema.properties.values()) {
+                                    const fullSubPath = `${prop.Name}.${subProp.Name}`;
+                                    if (subFilter === '' || subProp.Name.toLowerCase().includes(subFilter)) {
+                                        items.push({
+                                            label: fullSubPath,
+                                            kind: CompletionItemKind.Field,
+                                            detail: `Nested Schema Property (${prop.ObjectName})`,
+                                            insertText: fullSubPath,
+                                            sortText: '1_' + fullSubPath.toLowerCase()
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        const matchesPartial = context.partial === '' || prop.Name.toLowerCase().includes(context.partial.toLowerCase());
+                        if (matchesPartial) {
+                            items.push({
+                                label: prop.Name,
+                                kind: CompletionItemKind.Field,
+                                detail: prop.IsComplex ? `Complex Property (${prop.ObjectName || 'Object'})` : 'Schema Property',
+                                insertText: prop.Name,
+                                sortText: '1_' + prop.Name.toLowerCase()
+                            });
+                        }
+
+                        // For complex properties (e.g. LedgerEntries, Address), also suggest "${prop.Name}.*" and nested items
+                        if (prop.IsComplex && prop.ObjectName) {
+                            const starLabel = `${prop.Name}.*`;
+                            if (context.partial === '' || starLabel.toLowerCase().includes(context.partial.toLowerCase())) {
+                                items.push({
+                                    label: starLabel,
+                                    kind: CompletionItemKind.Keyword,
+                                    detail: `All Properties in ${prop.Name}`,
+                                    insertText: starLabel,
+                                    sortText: '1_' + starLabel.toLowerCase()
+                                });
+                            }
+
+                            const subSchema = resolveSchema(mockState, prop.ObjectName, currentScope || scopeManager.globalScope as any, scope);
+                            if (subSchema) {
+                                for (const subProp of subSchema.properties.values()) {
+                                    const fullSubPath = `${prop.Name}.${subProp.Name}`;
+                                    if (context.partial !== '' && fullSubPath.toLowerCase().includes(context.partial.toLowerCase())) {
+                                        items.push({
+                                            label: fullSubPath,
+                                            kind: CompletionItemKind.Field,
+                                            detail: `Nested Property (${prop.ObjectName})`,
+                                            insertText: fullSubPath,
+                                            sortText: '2_' + fullSubPath.toLowerCase()
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -173,7 +219,7 @@ export function provideAttributeValueCompletions(
                                     kind: CompletionItemKind.Field,
                                     detail: 'Object Extension Property',
                                     insertText: sym.name || formulaName,
-                                    sortText: '0_' + formulaName.toLowerCase()
+                                    sortText: '3_' + formulaName.toLowerCase()
                                 });
                             }
                         }
@@ -183,9 +229,9 @@ export function provideAttributeValueCompletions(
         }
     }
 
-    if ((normalizedDefType === 'collection' && normalizedAttr === 'type') || normalizedAttr === 'object') {
+    if (normalizedDefType === 'collection' && normalizedAttr === 'type') {
         const addedSchemas = new Set<string>();
-        // Suggest Schema names
+        // Suggest Schema names exclusively for Collection Type
         for (const [schemaName, schema] of scopeManager.globalScope.schemas.entries()) {
             if (context.partial === '' || schemaName.toLowerCase().includes(context.partial.toLowerCase())) {
                 addedSchemas.add(schemaName.toLowerCase());
@@ -198,21 +244,21 @@ export function provideAttributeValueCompletions(
                 });
             }
         }
-        
-        // Also suggest Object definitions
+    } else if (normalizedAttr === 'object') {
+        const addedObjects = new Set<string>();
         const addObjects = (defs: Map<string, Map<string, import('tally-tdl-shared').DefinitionSymbol>>) => {
             const objects = defs.get('object');
             if (objects) {
                 for (const [objName, objDef] of objects.entries()) {
-                    if (!addedSchemas.has(objName.toLowerCase())) {
+                    if (!addedObjects.has(objName.toLowerCase())) {
                         if (context.partial === '' || objName.toLowerCase().includes(context.partial.toLowerCase())) {
-                            addedSchemas.add(objName.toLowerCase());
+                            addedObjects.add(objName.toLowerCase());
                             items.push({
                                 label: objDef.name || objName,
                                 kind: CompletionItemKind.Class,
                                 detail: 'Object Definition',
                                 insertText: objDef.name || objName,
-                                sortText: '1_' + objName.toLowerCase()
+                                sortText: '0_' + objName.toLowerCase()
                             });
                         }
                     }
@@ -229,22 +275,22 @@ export function provideAttributeValueCompletions(
                         if (objScope.kind === 'Definition') {
                             const ds = objScope as import('../../../semantics/scopeManager').DefinitionScope;
                             if (ds.definition) {
-                                if (!addedSchemas.has(objName.toLowerCase())) {
+                                if (!addedObjects.has(objName.toLowerCase())) {
                                     if (context.partial === '' || objName.toLowerCase().includes(context.partial.toLowerCase())) {
-                                        addedSchemas.add(objName.toLowerCase());
-                                    items.push({
-                                        label: ds.definition.name || objName,
-                                        kind: CompletionItemKind.Class,
-                                        detail: 'Object Definition',
-                                        insertText: ds.definition.name || objName,
-                                        sortText: '1_' + objName.toLowerCase()
-                                    });
+                                        addedObjects.add(objName.toLowerCase());
+                                        items.push({
+                                            label: ds.definition.name || objName,
+                                            kind: CompletionItemKind.Class,
+                                            detail: 'Object Definition',
+                                            insertText: ds.definition.name || objName,
+                                            sortText: '0_' + objName.toLowerCase()
+                                        });
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
             }
         }
     }

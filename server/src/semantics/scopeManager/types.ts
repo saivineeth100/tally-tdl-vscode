@@ -16,8 +16,8 @@ export enum ScopeKind {
     Local = 'Local'          // Specific local context
 }
 
-import { ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, SymbolRequestDTO, OffsetRange } from 'tally-tdl-shared';
-export { ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, SymbolRequestDTO, OffsetRange };
+import { ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, SymbolRequestDTO, ScopeDetailsDTO, ScopeDetailVariable, ScopeDetailFormula, ScopeDetailChild, OffsetRange } from 'tally-tdl-shared';
+export { ScopeNodeDTO, ScopeTreeDTO, PaginatedSymbolsDTO, SymbolRequestDTO, ScopeDetailsDTO, ScopeDetailVariable, ScopeDetailFormula, ScopeDetailChild, OffsetRange };
 import { ReferenceIndex } from '../symbols/referenceIndex';
 /**
  * Represents a scope in the symbol hierarchy

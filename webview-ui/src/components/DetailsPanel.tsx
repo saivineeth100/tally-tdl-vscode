@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { vscode } from '../utils/vscode';
 import { SchemaTreeNode } from "./SchemaTreeNode";
-import { ScopeNode, SymbolsResult, SymbolEntry, SymbolGroup } from "../types";
+import { ScopeDetailsView } from "./ScopeDetailsView";
+import { ScopeNode, SymbolsResult, ScopeDetailsDTO, SymbolEntry, SymbolGroup } from "../types";
 
 interface DetailsPanelProps {
   node: any;
@@ -13,6 +14,7 @@ interface DetailsPanelProps {
 const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack, onNodeSelect, breadcrumbs }) => {
   const [symbolsResult, setSymbolsResult] = useState<SymbolsResult | null>(null);
   const [detailedNode, setDetailedNode] = useState<ScopeNode | null>(null);
+  const [scopeDetails, setScopeDetails] = useState<ScopeDetailsDTO | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentQuery, setCurrentQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -23,6 +25,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack, onNodeSele
   const limit = (node.kind === 'AttributesCategory' || node.kind === 'SchemasCategory') ? 5000 : 100;
 
   useEffect(() => {
+    myReqId.current = `req_${Math.random().toString(36).substring(2, 9)}`;
+    
     if (node._type === 'symbol-group') {
       setIsFetching(true);
       setCurrentPage(1);
@@ -30,6 +34,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack, onNodeSele
       setDebouncedQuery("");
       setSymbolsResult(null);
       setDetailedNode(null);
+      setScopeDetails(null);
 
       const handleSymbolsResult = (e: any) => {
         if (!e.detail.reqId || e.detail.reqId === myReqId.current) {
@@ -40,29 +45,35 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack, onNodeSele
       
       window.addEventListener('symbolsResult', handleSymbolsResult as EventListener);
       return () => window.removeEventListener('symbolsResult', handleSymbolsResult as EventListener);
-    } else if (node._type === 'definition-details') {
-      setSymbolsResult(null);
-      setDetailedNode(null);
-      setIsFetching(true);
-      
-      const handleScopeNodeResult = (e: any) => {
-        if (!e.detail.reqId || e.detail.reqId === myReqId.current) {
-          setDetailedNode(e.detail.data);
-          setIsFetching(false);
-        }
-      };
-      window.addEventListener('scopeNodeResult', handleScopeNodeResult as EventListener);
-      
-      vscode.postMessage({
-        command: "getScopeNode",
-        scopeId: node.id,
-        reqId: myReqId.current
-      });
-      
-      return () => window.removeEventListener('scopeNodeResult', handleScopeNodeResult as EventListener);
     } else {
       setSymbolsResult(null);
       setDetailedNode(null);
+      setScopeDetails(null);
+      setIsFetching(true);
+      
+      const targetScopeId = node.scopeId || node.id || (node.name ? `${node.definitionType || node.kind}:${node.name}` : undefined);
+
+      const handleScopeDetailsResult = (e: any) => {
+        if (!e.detail.reqId || e.detail.reqId === myReqId.current) {
+          if (e.detail.data) {
+            setScopeDetails(e.detail.data);
+          }
+          setIsFetching(false);
+        }
+      };
+      window.addEventListener('scopeDetailsResult', handleScopeDetailsResult as EventListener);
+      
+      if (targetScopeId) {
+        vscode.postMessage({
+          command: "getScopeDetails",
+          scopeId: targetScopeId,
+          reqId: myReqId.current
+        });
+      } else {
+        setIsFetching(false);
+      }
+      
+      return () => window.removeEventListener('scopeDetailsResult', handleScopeDetailsResult as EventListener);
     }
   }, [node]);
 
@@ -373,6 +384,28 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({ node, canGoBack, onNodeSele
   // -----------------------------------------
   // NODE DETAILS RENDERING
   // -----------------------------------------
+  if (isFetching && !scopeDetails) {
+    return (
+      <div className="main-panel-content">
+        <div style={{ textAlign: 'center', marginTop: '60px' }}>
+          <div className="spinner"></div>
+          <div className="loading">Loading scope details...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (scopeDetails) {
+    return (
+      <ScopeDetailsView 
+        details={scopeDetails} 
+        canGoBack={canGoBack} 
+        onNodeSelect={onNodeSelect} 
+        breadcrumbs={breadcrumbs} 
+      />
+    );
+  }
+
   const displayNode = detailedNode || node;
   const name = displayNode.name || node.name || displayNode.id || "Unknown";
   const kind = displayNode.definitionType || displayNode.kind || node.definitionType || node.kind || "Unknown";

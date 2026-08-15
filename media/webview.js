@@ -114,6 +114,13 @@
                     console.log('Webview: showResponse called. Has fileUrl:', !!message.fileUrl, 'Body length:', message.xml ? message.xml.length : 0);
                     renderResponse(message.xml, message.fileUrl, message.elapsedMs);
                     break;
+                case 'setPlaygroundMode':
+                    if (message.enabled) {
+                        document.body.classList.add('playground-mode');
+                    } else {
+                        document.body.classList.remove('playground-mode');
+                    }
+                    break;
             }
         });
 
