@@ -70,3 +70,4 @@ jobs:
         run: npx @vscode/vsce publish --no-git-tag-version ${{ env.PRERELEASE_FLAG }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          VSCE_TIMEOUT: "600000"

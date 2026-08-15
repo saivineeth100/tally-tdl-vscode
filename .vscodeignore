@@ -30,3 +30,6 @@ coverage/
 server/coverage/
 samples/**
 .tmp/**
+dist/data/*.zip
+server/data/*.zip
+*.vsix

@@ -1,6 +1,10 @@
 # Tally TDL
 
-A Visual Studio Code extension providing rich language support for **Tally Definition Language (TDL)**.
+[![Visual Studio Marketplace Version](https://vsmarketplacebadges.dev/version/saivineeth.tally-tdl.svg)](https://marketplace.visualstudio.com/items?itemName=saivineeth.tally-tdl)
+[![Visual Studio Marketplace Installs](https://vsmarketplacebadges.dev/installs-short/saivineeth.tally-tdl.svg)](https://marketplace.visualstudio.com/items?itemName=saivineeth.tally-tdl)
+[![Visual Studio Marketplace Rating](https://vsmarketplacebadges.dev/rating-short/saivineeth.tally-tdl.svg)](https://marketplace.visualstudio.com/items?itemName=saivineeth.tally-tdl)
+
+A Visual Studio Code extension providing rich language support for **Tally Definition Language (TDL)** and **Tally XML APIs**. Available on the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=saivineeth.tally-tdl).
 
 ## Features
 
@@ -42,11 +46,12 @@ This extension contributes the following settings (which can be configured at th
 
 ## Documentation
 
+- **VS Code Marketplace:** [Visual Studio Marketplace - Tally TDL](https://marketplace.visualstudio.com/items?itemName=saivineeth.tally-tdl)
 - **Tally XML API Playground:** [docs/playground.md](docs/playground.md)
 - **TDL Features Matrix:** [docs/tdl_feature_matrix.md](docs/tdl_feature_matrix.md)
 - **XML Features Matrix:** [docs/xml_feature_matrix.md](docs/xml_feature_matrix.md)
 
-For detailed documentation, guides, and feature requests, please visit our [GitHub Repository](https://github.com/saivineeth100/tally-tdl-vscode).
+For detailed documentation, guides, and feature requests, please visit our [GitHub Repository](https://github.com/saivineeth100/tally-tdl-vscode) or install directly from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=saivineeth.tally-tdl).
 
 ## Known Issues
 

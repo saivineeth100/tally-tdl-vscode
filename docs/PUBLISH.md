@@ -27,4 +27,4 @@ To publish an update:
 - GitHub Actions intercepts the push event.
 - It dynamically extracts the version number (e.g., stripping the `v` prefix) and safely injects it into `package.json`.
 - It uses the official `semver` parser to analyze the tag. If a pre-release segment is found, it dynamically appends the `--pre-release` flag.
-- It packages the extension and publishes it securely to the Marketplace using your `VSCE_PAT` repository secret.
+- It packages the extension and publishes it securely to the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=saivineeth.tally-tdl) using your `VSCE_PAT` repository secret.
